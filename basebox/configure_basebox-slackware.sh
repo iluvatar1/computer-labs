@@ -1,12 +1,16 @@
 echo "Update slackpkg and install security patches ... (TODO mirror)"
 # maybe think about mirrors???
+if [ x"1" != x"$(wc -l /etc/slackpkg/mirrors | awk '{print $1}')" ]; then
+    cp /etc/slackpkg/mirrors{,bck}
+    echo "http://mirrors.slackware.com/slackware/slackware64-14.2/" > /etc/slackpkg/mirrors
+fi
 slackpkg update gpg # only the first time
 slackpkg update
 slackpkg upgrade patches
 slackpkg upgrade-all
 slackpkg install-new
 
-echo "Installing virtualbox guest additions (TODO check existence of vbox-manage or similar)"
+echo "Installing virtualbox guest additions"
 if ! hash vboxmanage &> /dev/null; then 
     VBOX_ADD=VirtualBox-5.1.8-111374-Linux_amd64.run
     if [ ! -f ${VBOX_ADD} ]; then 
@@ -27,11 +31,11 @@ else
 fi
 
 echo "Copying vagrant ssh keys ..."
-if [ x"" == x"$(grep vagrant /home/vagrant/authorized_keys )"]; then
+if [ x"" == x"$(grep vagrant /home/vagrant/.ssh/authorized_keys 2> /dev/null)" ]; then
     mkdir /home/vagrant/.ssh
     cd /home/vagrant/.ssh
-    mv vagrant vagrant.old
-    mv vagrant.pub vagrant.pub.old
+    mv vagrant{,.old} &> /dev/null
+    mv vagrant.pub{,.old} &> /dev/null
     wget https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant 
     wget https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub
     cat vagrant.pub > authorized_keys
