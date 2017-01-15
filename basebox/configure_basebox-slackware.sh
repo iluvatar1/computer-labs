@@ -1,3 +1,9 @@
+echo
+echo "##################################################"
+echo "Starting configuration for slackware basebox. NOTE: This scripts tries to be idempotent."
+echo "##################################################"
+echo
+
 echo "Configuring slackpkg mirror"
 if [ x"1" != x"$(wc -l /etc/slackpkg/mirrors | awk '{print $1}')" ]; then
     cp /etc/slackpkg/mirrors{,bck}
@@ -60,6 +66,8 @@ else
     echo "    -> already configured."
 fi
 
+echo
 echo "##################################################"
 echo "Done."
 echo "##################################################"
+
