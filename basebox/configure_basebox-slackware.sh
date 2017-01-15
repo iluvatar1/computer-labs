@@ -15,7 +15,7 @@ fi
 
 echo "Installing virtualbox guest additions"
 if ! hash vboxmanage &> /dev/null; then 
-    VBOX_ADD=VirtualBox-5.1.8-111374-Linux_amd64.run
+    VBOX_ADD=VirtualBox-5.1.8-111374-Linux_x86.run
     if [ ! -f ${VBOX_ADD} ]; then 
 	wget -c http://download.virtualbox.org/virtualbox/5.1.8/${VBOX_ADD}
     fi
