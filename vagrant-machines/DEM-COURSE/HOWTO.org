@@ -1,0 +1,25 @@
+* Como usar la maquina virtual
+** Pasos para hacer una sola vez
+   1. Instalar vagrant en su sistema operativo. Puede descargarlo
+      desde https://www.vagrantup.com/downloads.html .
+   2. Instalar virtual box. Lo peude descargar desde
+      https://www.virtualbox.org/wiki/Downloads 
+   3. Crear una carpeta en donde colocar los archivos que el
+      instructor le ha enviado (el Vagrantfile y el archivo .zip).
+   4. Descomprima alli el archivo ,zip, que debe crear una carpeta
+      llamada scripts.
+   5. Entrar a esa carpeta, abrir alli una consola (en windows
+      simplemente escribe cmd en la barra de direcciones del
+      explorador).
+   6. En esa consola, escribir : 
+      vagrant up
+   7. En lo que sigue vagrant va a descargar una maquina virtual base
+      de 3 GB (se demorara mientras la desacarga) y luego instalara
+      los paqeuetes especificados. Debera esperar mientras este
+      proceso finaliza.
+
+#+begin_src bash
+chmod +x gmv
+sudo dpkg --add-architecture i386
+sudo apt-get libxdmcp6:i386  libxt6:i386 libxmu6:i386 libxp6:i386 libxpm4:i386  
+#+end_src
