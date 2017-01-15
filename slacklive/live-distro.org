@@ -1,0 +1,189 @@
+* Slackware Live
+** DONE [3/3]
+   CLOSED: [2016-08-27 Sat 13:42]
+   - [X] Fix colors in git log : profile.d
+     $ export LESS='-eRX'
+   - [X] Set xfce as default window manager : rc.local
+     $ ln -sf /etc/X11/xinit/xinitrc{.xfce,}
+   - [X] Set keyboard to spanish/latin american by default. On /etc/rc.local
+     $ loadkeys la-latin1
+   - Create module as for anaconda and install and create new iso
+** Docs
+  - http://docs.slackware.com/slackware:liveslak
+** Create anaconda module
+   TODO Do the following on the live system?
+   1. Download anaconda
+      $ wget http://repo.continuum.io/archive/Anaconda3-4.1.1-Linux-x86_64.sh
+   2. Install anaconda to /opt/anaconda3 
+      $ bash Anaconda2-4.1.1-Linux-x86_64.sh
+      Upgrade some packages
+      $ echo "Updating conda"
+      $ conda update -y conda
+      $ echo "Installing vpython"
+      $ conda install -y -c vpython vpython
+      $ echo "Installing other packages"
+      $ conda install -y matplotlib scipy numpy sympy seaborn  
+      $ echo "Updating ipython"
+      $ conda install -y ipython
+   3. Create aux directories
+      $ mkdir -p /tmp/modtemp/opt
+   4. Copy anaconda3 there
+      $ cp -avf /opt/anaconda3 /tmp/modtemp/opt/
+   5. Create a profile to modify the path for all users
+      $ mkdir -p /tmp/modtemp/etc/profile.d
+      $ echo 'export PATH="/opt/anaconda3/bin:$PATH"' > /tmp/modtemp/etc/profile.d/anaconda.sh
+      $ chmod -x /tmp/modtemp/etc/profile.d/anaconda.sh
+   6. Create live slak module
+      $ bash liveslak/makemod.sh -i  /tmp/modtemp/ 0066-anaconda3-4.1.1-x86_64.sxz
+   7. Test its contents by using
+      $ unsquashfs -l 0066-anaconda3-4.1.1-x86_64.sxz
+** TODO Create valgrind module
+   Do the following on the installed system
+   1. Download the slackbuild
+      $ wget https://slackbuilds.org/slackbuilds/14.2/development/valgrind.tar.gz
+   2. Download the source
+      $ wget http://www.valgrind.org/downloads/valgrind-3.11.0.tar.bz2
+   3. Uncompress the slackbuild and move the source there
+      $ tar xf valgrind.tar.gz
+      $ cd valgrind
+      $ mv ../valgrind-3.11.0.tar.bz2 ./
+   4. Run the slackbuild to create the package
+      $ bash valgrind.SlackBuild
+   5. Convert the package to an live sxz module (assuming the liveslak dir is on parent)
+      $ mv /tmp/valgrind-3.11.0-x86_64-1_SBo.tgz  . 
+      $ bash ../liveslak/makemod -i valgrind-3.11.0-x86_64-1_SBo.tgz valgrind-3.11.0-x86_64-1_SBo.sxz 
+      $ cp valgrind-3.11.0-x86_64-1_SBo.sxz ../0067-valgrind-3.11.0-x86_64-1_SBo.sxz
+   6. Copy the module where it should be ??? 
+** Simple procedure for creating the live iso
+   (From Alien Bob!!!!) A quicker way to recreate an ISO if you
+   already have one and want to modify it a bit (by adding a module for
+   instance) is: 
+   1. loop-mount the ISO file (mount -o loop file.iso mountpoint/)
+   2. make the directory /tmp/slackwarelive_staging 
+   3. copy the content of the ISO (using the
+   loop mounted directory) to /tmp/slackwarelive_staging/ 
+   4. un-mount the loop 
+   5. make your modifications; in you case, copy the anaconda module
+   to /tmp/slackwarelive_staging/liveslak/addons/ 
+   6. run the make_slackware_live.sh script with the additional “-G” parameter which
+   will skip all the package download/install and post-configuration
+   stuff and will skip straight to generating an ISO file from the
+   content below /tmp/slackwarelive_staging/ .
+   $ cd /tmp/slackwarelive_staging/ 
+   $ bash ~/Downloads/liveslak/make_slackware_live.sh -G
+   7. Test it
+   8. Burn it with iso2usb.sh  
+** Usb iso (not needed if simple procedure used)
+*** Create the live usb
+   1. Run an slackware/linux installation
+   2. Clone the liveslak repository to get the scripts
+      $ git clone git://bear.alienbase.nl/liveslak.git
+   3. Use the iso2usb.sh script to save the live system to the usb, by
+      using the iso2usb.sh script
+      $ bash liveslak/iso2usb.sh -i ~/Downloads/slackware64-live-current.iso -o /dev/sdX 
+      where sdX is the block associtaed with the usb 
+   4. Test the usb.
+      
+** Module on live system and then make a new iso (Not needed if previously were followed)
+  1. Start a Slackware 14.2 system
+  2. Clone the liveslak repository to get the scripts
+     $ git clone git://bear.alienbase.nl/liveslak.git
+  3. Copy the module to /addons (the module is supposed to be present
+     already, see Module and usb iso section)
+  4. Edit make_slackware_live.conf . For example, add the custom
+     configuration.
+  5. Mount the slackware iso image to be used as mirror:
+     $ mkdir repo
+     $ ln -s /run/media/root/SlackDVD/slackware repo/slackware64
+  6. Run the script.
+  $ make_slackware_iso.sh XXXXXXX
+
+* Linux Mint + Respin
+  Based on the vagrant distribution I made for the Granular course
+  1. Install respin from https://github.com/ch1x0r/MintyFresh2016/
+     $ dpkg -i respin-mint_1.1.0-1_all.deb
+     $ apt-get install -f
+  2. Set all settings (like keyboard distro, etc) which you would like
+     to set  on the live distro.
+  3. Install all packages and configure everything you want (long
+     step).
+  4. Create the distributable backup iso
+     $ rm -rf /home/respin/respin
+     $ sudo respin backup
+     $ sudo respin backup iso custom.iso
+  5. Copy and test. 
+** TODO [0/1]
+   - [ ] Set keyboard distro to latin america
+   - [ ] Install gnuplot
+
+* Using the iso images
+** Burning the iso onto a USB / CDROM
+   You need to burn the iso image onto the device. Just copying is
+   *NOT* right. Notice that you will loose all files inside the
+   usb. 
+   - USB : Use tools like rufus or unebootin and make
+   sure to select "create a bootable image" or equivalent. 
+   - DVD : Just use the normal burning tools.
+   - Command line: you can actually use the dd command to burn the
+     image to the usb by using something like
+     #+BEGIN_SOURCE bash
+     $ dd if=slackware64-live-current-dev.iso of=/dev/sdX
+     #+END_SOURCE
+     where sdX is the device associated to your usb. Be carefull with
+     this command, if you use the wrong /dev/sdX, you can delete your
+     whole computer disk.
+*** USB with persistence
+    By using slackware live you can have persistence on your use and
+    any chance or new file will be saved and recovered for future
+    sessions. In this case you have to use the iso2usb.sh script which
+    comes with the liveslak scripts,
+    [[http://bear.alienbase.nl/cgit/liveslak/]], which is also available
+    on the usb. Let's assume you have the script somewhere (and the
+    slackware iso). Then you need to run the command
+    #+BEGIN_SOURCE bash
+    $ bash iso2usb.sh -i slackware64-live-current-dev.iso -o /dev/sdX
+    #+END_SOURCE
+    where /dev/sdX is the device associated with the usb (you could
+    know it by using the command dmesg or mount just after plugging
+    the usb into the computer). Be carefull to choose the right
+    /dev/sdX . You can even add an encripted partition to keep your
+    files safe, see [[http://docs.slackware.com/slackware:liveslak]] .
+** On a virtual machine (virtual box)
+   In this case you do not need to burn anything. 
+*** Creating the virtual machine
+    Create a virtual machine with some ram (not all ram of your
+    system), and, if you wish to actually install slackware or mint
+    (or any other linux distro) then also create a dynamic virtual
+    disc with at least 10GB.
+*** Configuring the virtual machine to boot from the iso
+    Enter the setting of the previously created machine, go to
+    storage, select the virtual cd rom unit on the left, then, on the
+    right go to optical drive and click on the small disc icon and
+    select "Choose virtual optical disk drive" and browse to select
+    your iso, masrk the Live CD/DVD option, and press ok.  Now start
+    the machine and select the boot menu by pressing F12, and set it
+    to boot from the cdrom. From here you are booting from the iso and
+    you will have linux running live (on ram). If you want to install
+    on the hard disk you can do it and then you will not need the use
+    the iso anymore.
+
+** Testing the liveusb on virtual box
+   - Create a virtual disk 
+   $ sudo VBoxManage internalcommands createrawvmdk -filename /Users/oquendo/Downloads/dev-iso/usbdrive.vmdk -rawdisk /dev/disk2
+   $ sudo chmod 777 /Users/oquendo/Downloads/dev-iso/usbdrive.vmdk
+   $ sudo chmod 777 /dev/disk2
+
+* Burning iso to be used on a mac (Still does not work)
+  Check https://business.tutsplus.com/tutorials/how-to-create-a-bootable-ubuntu-usb-drive-for-mac-in-os-x--cms-21253
+  1. Format the usb into one partition and guid (in options) using disk util
+  2. Prepare Convert the iso int an img file
+     hdiutil convert -format UDRW -o ~/Downloads/dev-iso/slackware64-live-current-dev.img  ~/Downloads/dev-iso/slackware64-live-current-dev.iso
+  3. Determine the device node
+     diskutil list
+  4. Unmount (replace N by the correct number)
+     diskutil unmountDisk /dev/diskN
+  5. Use dd to create the usb
+     sudo dd if=~/Downloads/dev-iso/slackware64-live-current-dev.img.dmg of=/dev/rdisk2 bs=1M
+  6. When finished, eject the disk
+     diskutil eject /dev/disk2
+  7. Test by rebooting, pluging the usb and pressing option
