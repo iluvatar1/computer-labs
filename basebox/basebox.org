@@ -1,19 +1,32 @@
 * TODO Change name of base box from MintXFCE-17.3 to LinuxMint64-XFCE-17.3, since this will be the final name in Atlas.
 * Instructions
-  Follow instructions from : [[https://www.vagrantup.com/docs/virtualbox/boxes.html][VirtualBox instructions]] , and 
+  Following instructions from : [[https://www.vagrantup.com/docs/virtualbox/boxes.html][VirtualBox instructions]] , and 
   [[https://www.vagrantup.com/docs/boxes/base.html][General instructions]]
 ** Install the desired linux distribution
-   In this case, I am using Mint XFCE 17.3 Rosa, 64 bits. I have
-   chosen 30 GB for the virtual hard drive, to avoid future problems
-   when installing large packages.
-   Do not forget to create a user "vagrant" with password "vagrant" 
+   In this case, I am using Mint XFCE 17.3 Rosa, 64 bits or Slackware
+   64 . I have chosen between 20 to 30 GB for the virtual hard drive,
+   to avoid future problems when installing large packages, but also
+   to be able to replicate the system on old computers.
+*** Partition table
+    |-----------+-------------------|
+    | name/path | minimum size (GB) |
+    |-----------+-------------------|
+    | /boot     |               0.5 |
+    | /         |                10 |
+    | swap      |    2X ram (~ 4GB) |
+    | /opt      |                 6 |
+    | /tmp      |         remaining |
+    |-----------+-------------------|
+    If you wish you can add a home partition but do not do that for
+    client machines where home will be nfs-mounted.
 ** Make sure the first network is a NAT adapter.
    In this case, the MAC address is 080027B2275A
 ** Configure remaining global stuff
    I will write a script, in this same directory, which configures the
-   machine. It is called configure_basebox.sh . Check its contents. 
+   machine. It is called configure_basebox-{mint,slackware}.sh . Check
+   its contents.
 ** Package the machine
-   After configuring the virtual machine, package it .he following
+   After configuring the virtual machine, package it. The following
    creates a package.box file, which contains the base box.
    #+BEGIN_SRC sh
    rm -f MintXFCE-17.3.box ~/.vagrant.d/boxes/MintXFCE-17.3
