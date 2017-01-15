@@ -45,10 +45,9 @@ if [ x"" == x"$(grep vagrant /home/vagrant/.ssh/authorized_keys 2> /dev/null)" ]
     cd /home/vagrant/.ssh
     mv vagrant{,.old} &> /dev/null
     mv vagrant.pub{,.old} &> /dev/null
-    wget https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant 
-    wget https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub
+    wget -c https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant{,.pub} 
     cat vagrant.pub > authorized_keys
-    chown -R vagrant /home/vagrant/.ssh
+    chown -R vagrant.vagrant /home/vagrant/.ssh
     chmod 700 /home/vagrant/.ssh
     chmod 600 /home/vagrant/.ssh/{authorized_keys,vagrant,vagrant.pub}
     cd
