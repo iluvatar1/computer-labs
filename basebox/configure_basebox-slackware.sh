@@ -39,10 +39,9 @@ if [ x"" == x"$(grep vagrant /home/vagrant/.ssh/authorized_keys 2> /dev/null)" ]
     wget https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant 
     wget https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub
     cat vagrant.pub > authorized_keys
-    chown -R vagrant.vagrant /home/vagrant/.ssh
+    chown -R vagrant /home/vagrant/.ssh
     chmod 700 /home/vagrant/.ssh
-    chmod 644 /home/vagrant/.ssh/vagrant.pub
-    chmod 600 /home/vagrant/.ssh/vagrant
+    chmod 600 /home/vagrant/.ssh/{authorized_keys,vagrant,vagrant.pub}
     cd
 else
     echo "    -> already configured."
