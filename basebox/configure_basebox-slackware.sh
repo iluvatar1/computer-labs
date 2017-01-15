@@ -1,0 +1,59 @@
+echo "Update slackpkg and install security patches ... (TODO mirror)"
+# maybe think about mirrors???
+slackpkg update gpg # only the first time
+slackpkg update
+slackpkg upgrade patches
+slackpkg upgrade-all
+slackpkg install-new
+
+echo "Installing virtualbox guest additions (TODO check existence of vbox-manage or similar)"
+if ! hash vboxmanage &> /dev/null; then 
+    VBOX_ADD=VirtualBox-5.1.8-111374-Linux_amd64.run
+    if [ ! -f ${VBOX_ADD} ]; then 
+	wget -c http://download.virtualbox.org/virtualbox/5.1.8/${VBOX_ADD}
+    fi
+    bash ${VBOX_ADD} 
+    #rm ${VBOX_ADD}
+else
+    echo "    -> already installed"
+fi
+
+echo "Adduser vagrant with password vagrant ... "
+if [ x"" == x"$(grep vagrant /etc/passwd)" ]; then
+    useradd -m -p vagrant vagrant
+    echo "vagrant:vagrant" | chpasswd
+else
+    echo "    -> already added."
+fi
+
+echo "Copying vagrant ssh keys ..."
+if [ x"" == x"$(grep vagrant /home/vagrant/authorized_keys )"]; then
+    mkdir /home/vagrant/.ssh
+    cd /home/vagrant/.ssh
+    mv vagrant vagrant.old
+    mv vagrant.pub vagrant.pub.old
+    wget https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant 
+    wget https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub
+    cat vagrant.pub > authorized_keys
+    chown -R vagrant.vagrant /home/vagrant/.ssh
+    chmod 700 /home/vagrant/.ssh
+    chmod 644 /home/vagrant/.ssh/vagrant.pub
+    chmod 600 /home/vagrant/.ssh/vagrant
+    cd
+else
+    echo "    -> already configured."
+fi
+
+echo "Changing root password to vagrant"
+echo "root:vagrant" | chpasswd
+
+echo "Configuring passwordless sudo ..."
+if [ x"" == x"$(grep vagrant /etc/sudoers)" ]; then
+    echo "vagrant ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+else
+    echo "    -> already configured."
+fi
+
+echo "##################################################"
+echo "Done."
+echo "##################################################"

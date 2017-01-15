@@ -1,0 +1,50 @@
+* TODO Change name of base box from MintXFCE-17.3 to LinuxMint64-XFCE-17.3, since this will be the final name in Atlas.
+* Instructions
+  Follow instructions from : [[https://www.vagrantup.com/docs/virtualbox/boxes.html][VirtualBox instructions]] , and 
+  [[https://www.vagrantup.com/docs/boxes/base.html][General instructions]]
+** Install the desired linux distribution
+   In this case, I am using Mint XFCE 17.3 Rosa, 64 bits. I have
+   chosen 30 GB for the virtual hard drive, to avoid future problems
+   when installing large packages.
+   Do not forget to create a user "vagrant" with password "vagrant" 
+** Make sure the first network is a NAT adapter.
+   In this case, the MAC address is 080027B2275A
+** Configure remaining global stuff
+   I will write a script, in this same directory, which configures the
+   machine. It is called configure_basebox.sh . Check its contents. 
+** Package the machine
+   After configuring the virtual machine, package it .he following
+   creates a package.box file, which contains the base box.
+   #+BEGIN_SRC sh
+   rm -f MintXFCE-17.3.box ~/.vagrant.d/boxes/MintXFCE-17.3
+   vagrant package --base MintXFCE-17.3
+   mv package.box MintXFCE-17.3.box
+   #+END_SRC
+** Test by importing locally
+   #+BEGIN_SRC sh
+   vagrant box add MintXFCE-17.3 MintXFCE-17.3.box
+   mkdir testing && cd testing
+   vagrant init MintXFCE-17.3
+   vagrant up
+   #+END_SRC
+
+** Export the machine to Atlas
+   Login into the account and upload the base box.
+   If you want to create a new box, use the link
+   https://atlas.hashicorp.com/iluvatar/boxes/new
+   upload and re-test using the url given by atlas.
+
+* URL for building vagrant box
+  - https://blog.engineyard.com/2014/building-a-vagrant-box
+  - http://williamwalker.me/blog/creating-a-custom-vagrant-box.html
+  - https://atlas.hashicorp.com/help/vagrant/boxes/create  
+  - https://atlas.hashicorp.com/iluvatar/boxes/linuxmint-17.3
+  - https://scotch.io/tutorials/how-to-create-a-vagrant-base-box-from-an-existing-one
+  - https://atlas.hashicorp.com/help/vagrant/boxes/create
+  - https://gist.github.com/chuckg/7902165
+    
+* Resize virtualbox disk
+  - vboxmanage clonehd "virtualdisk.vmdk" "new-virtualdisk.vdi" --format vdi
+  - vboxmanage modifyhd "new-virtualdisk.vdi" --resize 30720
+  - Then change the default machine disk to point to the new larger one.
+  - Install gparted and resize partitions to enjoy the new size.
