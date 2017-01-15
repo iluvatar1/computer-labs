@@ -18,9 +18,9 @@ apt-get update --fix-missing -y &> /dev/null
 echo "Installing kernel headers, build, and virtualbox guest additions"
 apt-get install -y linux-headers-$(uname -r) build-essential dkms
 apt-get install -y wget
-VBOX_ADD=VBoxGuestAdditions_5.0.14.iso
+VBOX_ADD=VBoxGuestAdditions_5.0.18.iso
 if [ ! -f ${VBOX_ADD} ]; then 
-    wget -c http://download.virtualbox.org/virtualbox/5.0.14/${VBOX_ADD}
+    wget -c http://download.virtualbox.org/virtualbox/5.0.18/${VBOX_ADD}
 fi
 mkdir /media/VBoxGuestAdditions 2>/dev/null
 mount -o loop,ro ${VBOX_ADD} /media/VBoxGuestAdditions
