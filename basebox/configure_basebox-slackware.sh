@@ -1,14 +1,17 @@
-echo "Update slackpkg and install security patches ... (TODO mirror)"
-# maybe think about mirrors???
+echo "Configuring slackpkg mirror"
 if [ x"1" != x"$(wc -l /etc/slackpkg/mirrors | awk '{print $1}')" ]; then
     cp /etc/slackpkg/mirrors{,bck}
     echo "http://mirrors.slackware.com/slackware/slackware64-14.2/" > /etc/slackpkg/mirrors
+else
+    echo "    -> already configured."
 fi
-slackpkg update gpg # only the first time
-slackpkg update
-slackpkg upgrade patches
-slackpkg upgrade-all
-slackpkg install-new
+
+#echo "Update slackpkg and install security patches ..."
+#slackpkg update gpg # only the first time
+#slackpkg update
+#slackpkg upgrade patches
+#slackpkg upgrade-all
+#slackpkg install-new
 
 echo "Installing virtualbox guest additions"
 if ! hash vboxmanage &> /dev/null; then 
