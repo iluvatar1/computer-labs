@@ -8,6 +8,9 @@ echo "Chmod +x  network stuff ..."
 chmod +x /etc/rc.d/rc.wireless
 chmod +x /etc/rc.d/rc.networkmanager
 
+echo "Chmod +x  nfsd stuff ..."
+chmod +x /etc/rc.d/rc.nfsd
+
 ########################################
 # PACKAGES
 ########################################

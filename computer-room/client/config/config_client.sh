@@ -1,5 +1,11 @@
 #!/bin/bash
 
+###############
+## TODO
+# - Ubuntu: Check and make idempotent
+# Test
+###############
+
 function usage()
 {
     echo "USAGE: "
@@ -20,6 +26,8 @@ BDIR=$PWD
 FDIR=$1
 LINUX=$2
 
+SERVERIP=192.168.123.1
+
 # global functions
 function backup_file()
 {
@@ -39,17 +47,17 @@ function copy_config()
 
 # network interfaces
 # slackware already configured to use DHCP
-if [ $LINUX -eq "UBUNTU" ]]; then 
+if [[ $LINUX -eq "UBUNTU" ]]; then 
     echo "Configuring network interface"
     bfile=/etc/network/interfaces
     backup_file $bfile
     cat <<EOF > $bfile
 auto eth0
 iface eth0 inet dhcp
-dns-nameservers 192.168.123.1
+dns-nameservers ${SERVERIP}
 EOF
     /etc/init.d/networking restart
-    echo "DONE: Configuring network interface"
+    echo "DONE: Configuring network interface in UBUNTU"
 fi
 
 
@@ -57,12 +65,16 @@ fi
 echo "Configuring packages mirrors"
 if [ "$LINUX" == "SLACKWARE" ]; then
     bfile=/etc/slackpkg/mirrors
-    backup_file $bfile
-    cat <<EOF if [ $LINUX -eq "UBUNTU" ]]; then 
+    if [ x"" == x"$(grep tds $bfile)" ]; then 
+	backup_file $bfile
+	cat <<EOF 
 EOF > $bfile
-http://slackware.mirrors.tds.net/pub/slackware/slackware-14.1/
+http://slackware.mirrors.tds.net/pub/slackware/slackware-14.2/
 EOF
-    slackpkg update
+	slackpkg update
+    else
+	echo "    -> Mirror already configured."
+    fi
 elif [ "$LINUX" == "UBUNTU" ]; then
     bfile=/etc/apt/sources.list
     backup_file $bfile
@@ -83,7 +95,8 @@ echo "DONE: Configuring packages mirrors"
 # ssh server
 echo "Configuring ssh "
 if [ "$LINUX" == "SLACKWARE" ]; then
-    /etc/rc.d/rc.sshd restart
+    chmod +x /etc/rc.d/rc.sshd
+    /etc/rc.d/rc.sshd start
 elif [ "$LINUX" == "UBUNTU" ]; then
 # apt-get install openssh-client openssh-server
     mv /etc/ssh/ssh_host_* ./
@@ -92,11 +105,31 @@ elif [ "$LINUX" == "UBUNTU" ]; then
 fi
 echo "DONE: Configuring ssh"
 
+# ssh server
+echo "Configuring ntp "
+if [ "$LINUX" == "SLACKWARE" ]; then
+    bfile=/etc/ntp.conf
+    if [ x"" == x"$(grep $SERVERIP) /etc/ntp.conf" ]; then
+	backup_file $bfile
+	cp -f $FDIR/ntp.conf $bfile
+	chmod +x /etc/rc.d/rc.ntpd
+	/etc/rc.d/rc.ntpd restart
+    else
+	echo "    -> already configured"
+    fi
+fi
+echo "DONE: Configuring ssh"
+
+
 # nfs
 echo "Configuring nfs for home "
 bfile="/etc/exports"
-backup_file $bfile
-echo "192.168.123.1:/home     /home   nfs     rw,hard,intr  0   0" >> $bfile
+if [ x"" == x"$(grep ${SERVERIP} $bfile 2> /dev/null)" ]; then
+    backup_file $bfile
+    echo "${SERVERIP}:/home     /home   nfs     rw,hard,intr  0   0" >> $bfile
+else
+    echo "    -> already configured"
+fi
 if [ "$LINUX" -eq "UBUNTU" ]; then
     bfile="/etc/modules"
     backup_file $bfile
@@ -107,33 +140,37 @@ echo "DONE: Configuring nfs"
 
 # nis
 echo "Configuring nis "
-bfile="/etc/defaultdomain"
-backup_file $bfile
-echo ssfservernis > $bfile  
-bfile="/etc/yp.conf"
-backup_file $bfile
-echo 'ypserver 192.168.123.1 ' > $bfile
-bfile="/etc/passwd"
-backup_file $bfile
-echo +:::::: >> $bfile
-bfile="/etc/shadow"
-backup_file $bfile
-echo +:::::::: >> $bfile
-bfile="/etc/group"
-backup_file $bfile
-echo +::: >> $bfile
-if [ "$LINUX" == "SLACKWARE" ]; then
-    chmod +x /etc/rc.d/rc.yp
-    backup_file /etc/rc.d/rc.yp
-    sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=1/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=0/ ;' /etc/rc.d/rc.yp
-    /etc/rc.d/rc.yp restart    
-    /etc/rc.d/rc.nfsd restart
-    /etc/rc.d/rc.inet2 restart
-elif [ "$LINUX" == "UBUNTU" ]; then
-    service portmap restart
-    service ypserv restart
+if [ x"" == x"$(grep ssfservernis /etc/defaultdomain 2> /dev/null)" ]; then
+    bfile="/etc/defaultdomain"
+    backup_file $bfile
+    echo ssfservernis > $bfile  
+    bfile="/etc/yp.conf"
+    backup_file $bfile
+    echo 'ypserver ${SERVERIP} ' > $bfile
+    bfile="/etc/passwd"
+    backup_file $bfile
+    echo +:::::: >> $bfile
+    bfile="/etc/shadow"
+    backup_file $bfile
+    echo +:::::::: >> $bfile
+    bfile="/etc/group"
+    backup_file $bfile
+    echo +::: >> $bfile
+    if [ "$LINUX" == "SLACKWARE" ]; then
+	chmod +x /etc/rc.d/rc.yp
+	backup_file /etc/rc.d/rc.yp
+	sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=1/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=0/ ;' /etc/rc.d/rc.yp
+	/etc/rc.d/rc.yp restart    
+	/etc/rc.d/rc.nfsd restart
+	/etc/rc.d/rc.inet2 restart
+    elif [ "$LINUX" == "UBUNTU" ]; then
+	service portmap restart
+	service ypserv restart
+    fi
+    rpcinfo -p localhost
+else
+    echo "    -> already configured."
 fi
-rpcinfo -p localhost
 echo "DONE: Configuring nis "
 
 
