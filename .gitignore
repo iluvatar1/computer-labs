@@ -2,3 +2,5 @@
 *.run
 Vagrantfile
 basebox/.vagrant
+*tmp*
+*~
