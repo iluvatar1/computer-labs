@@ -1,3 +1,4 @@
 *.box
 *.run
 Vagrantfile
+basebox/.vagrant
