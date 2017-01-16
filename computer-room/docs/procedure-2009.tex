@@ -1,0 +1,1092 @@
+\documentclass[10pt, letterpaper]{article}
+
+\usepackage{ae}
+\usepackage{verbatim}
+\usepackage{aecompl}
+\renewcommand{\rmdefault}{cmss}
+\usepackage[pdftex]{hyperref}
+\usepackage[dvips,pdftex]{color,graphicx}
+
+\textwidth17.5cm
+\hoffset-3cm
+\textheight23cm
+\voffset-2cm
+
+\hyphenation{dnsmasq}
+
+\title{Procedimiento para instalar la sala de sistemas del SSF+UN}
+\author{William Fdo. Oquendo Patiño\thanks{woquendo@gmail.com}}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Generalidades}
+\begin{itemize}
+  \item LA ÚNICA MANERA DE ENTENDER LO QUE SE MUESTRA ACÁ Y DE
+    MEJORARLO ES LEYENDO LA DOCUMENTACIÓN. POR FAVOR LEA LOS MANUALES,
+    LOS HOWTO  Y APÓYESE EN GOOGLE.
+  \item La distribución a instalar es Slackware, Versión 12.2 a la
+    fecha.
+  \item Sistemas de 32 bits. Sistemas de 64 bits quedarán con OS de
+    32. Es posible mezclar 64 y 32, pero eso no se tratará en este
+    documento.
+  \item Los servicios a configurar son: red interna con DHCP, NFS,
+    NIS, NTP, FIREWALL, DNS MASQ, BACKUP.
+  \item Se supone que el servidor tiene dos tarjetas de red: una para
+    la red interna y otra para la externa. La tarjeta de red que
+    conecta con la red exterior se denotará por ETH0, la tarjeta de
+    red de la red interna se denotará por ETH1. Tambien se supone la
+    existencia de unn hub al que se conecta la red interna
+    solamente. La externa se conecta al punto de red.
+  \item Usando noip, se asignará el nombre serverssf.sytes.net a la 
+    interfaz externa del servidor y este nombre se resolverá 
+    correctamente dentro de la red de la Universidad.
+  \item El segmento de red utilizado en este ejemplo será
+    192.168.123.xxx \ , y se supone que el dominio escogido será ssf.net 
+  \item Al final del documento se muestran algunos ejemplos de los
+    archivos de configuración. 
+\end{itemize}
+
+\section{Instalación de Slackware}
+Es necesario tener configurado cada computador con las particiones
+apropiadas. Si es sólo linux, se sugieren mínimo tres particiones: Una
+para el sistema, otra para la swap, otra para el home. Si se busca
+tener linux y windows se sugieren mínimo 5: las tres antes mencionadas
+y una para Windows y otra de intercambio.
+
+Es necesario instalar cada computador de forma manual, la manera de
+hacer esto en red no se tratará en este documento. 
+
+Se supone que el ususario ha instalado exitosamente Slackware en cada
+computador, incluido el servidor. El sistema se ha configurado para
+obtener ip por DHCP.
+
+La instalación de Slackware está bien descrita en varias páginas web,
+se remite al lector a google para encontrar la información
+pertinente. 
+
+\subsection{Post-instalaci\'on}
+Despues de la instalaci\'on se espera que todo funcione bien. En caso
+de ser necesario, el sonido se configura con el comando \verb+alsaconf+, y el
+video con el comando \verb+xorgconf+ . En particular, el comando
+llamado \verb+xorgsetup+ configura practicamente todo de una manera
+f\'acil. Se recomienda ejecutarlo y reiniciar Algunas veces se
+presentan problemas con tarjetas de video como la ATI (por
+ejemplo). En ese caso, es aconsejbale usar el comando arriba
+mencionado, y luego editar el archivo de configuraci\'on
+/etc/X11/xorg.conf, cambiando el driver propietario por vesa y luego
+colocando la configuraci\'on virtual por subsecci\'on, por ejemplo, 
+\begin{verbatim}
+Subsection "Display"
+Viewport 0 0
+Depth 24
+Virtual 1289 1024
+\end{verbatim}
+
+Para que el sistema inicie siempre en modo gr\'afico, debe editarse el
+archivo \verb+/etc/inittab+ y cambiar el runlevel 3 a runlevel 4, es
+decir, cambiar la l\'inea \verb+id:3:initdefault:+ a
+\verb+id:4:initdefault:+  . Luego reiniciar. 
+
+\section{Configuración de la red interna}
+\subsection{SERVER}
+Se debe configurar a ETH1 con ip fijo igual a 192.168.123.1\ , y se
+debe configurar a ETH0 para que haga DHCP. La mejor manera de hacer lo
+anterior es usar primero la herramienta netconfig, respondiendo todas
+la preguntas con la info apropiada, y escogiendo yes para hacer
+dhcp. Luego, se debe editar el archivo /etc/rc.d/rc.inet1.conf y se
+deben verificar que ETH0 haga DHCP y que ETH1 tenga ip fijo. Cada
+sección debe lucir así:
+\begin{verbatim}
+# Config information for eth0:
+IPADDR[0]=""
+NETMASK[0]=""
+USE_DHCP[0]="yes"
+DHCP_HOSTNAME[0]=""
+\end{verbatim}
+
+\begin{verbatim}
+# Config information for eth1:
+IPADDR[1]="192.168.123.1"
+NETMASK[1]="255.255.255.0"
+USE_DHCP[1]=""
+DHCP_HOSTNAME[1]=""
+\end{verbatim}
+
+Las otras secciones deben estar vacías "" o comentadas con \#.  
+
+\subsection{CLIENT}
+Cada cliente simplemente se debe configurar para que haga
+dhcp. Cada hostname puede configurarse al antojo, el servidor DHCP
+reconfigurará los nombres para que queden numerados. Por lo tanto, el
+uso de netconfig, o la edición de /etc/rc.d/rc.inet1.conf son
+suficientes. El archivo /etc/rc.d/rc.inet1.conf debe lucir como 
+\begin{verbatim}
+# Config information for eth0:
+IPADDR[0]=""
+NETMASK[0]=""
+USE_DHCP[0]="yes"
+DHCP_HOSTNAME[0]="serverssf.sytes.net"
+\end{verbatim}
+
+El nombre \verb+serverssf.sytes.net+ se resolverá correctamente 
+usando noip. Con lo anterior, es posible tener los computadores 
+en sitios dispersos de la universidad.
+
+Las otras secciones deben estar vacías "" o comentadas con \#.  
+
+Tal vez la respuesta del servidor sea muy lenta, m\'as que los 30
+segundos por defecto, de manera que una opci\'on que puede servir es
+incrementar el timeout de dhcp, quedando la secci\'on as\'i:
+\begin{verbatim}
+# Config information for eth0:
+IPADDR[0]=""
+NETMASK[0]=""
+USE_DHCP[0]="yes"
+DHCP_HOSTNAME[0]="serverssf.sytes.net"
+DHCP_TIMEOUT[0]="180"
+\end{verbatim}
+ 
+
+%%No es necesario indicar el ip del servidor dhcp, a menos que sea
+%%posible que la red interna y externa pasen por el mismo punto.
+
+\subsection{Test}
+Aún no se puede hacer testing dado que no se ha configurado
+completamente el servidor DHCP
+
+
+
+\section{Añadir el ip a un servidor DNS dinámico externo para
+  computadores lejanos dentro de la misma red de la universidad}
+\subsection{SERVER}
+Se hará uso de no-ip (\verb+http://www.no-ip.com/+). Se debe tener una
+cuenta, se logea, se registra el nombre en Host/Redirects, Add a host,
+, se llena el formulario, Create Host, descargar el software en
+Download Client, choose Linux, uncompress, readme,
+ponerlo a correr cada vez que el sistema inicie (noip2 en rc.local), y configurar el
+dominio en no-ip. 
+%%\subsection{CLIENT}
+%%\subsection{TEST}
+
+
+\section{Configuración de DHCP, NAT, MASQUERADING, NTP, DNS, etc.}
+\subsection{SERVER}
+La configuración de todos estos servicios se realiza facilmente con el
+paquete dnsmasq. Una vez instalado, el archivo /etc/dnsmasq.conf debe
+ser configurado para el caso particular. Se remite al lector a toda la
+documentación que acompaña a el paquete. El ejemplo del archivo
+dnsmasq.conf se encuentra al final de este documento. El servicio
+dnsmasq debe ser activado desde el inicio, es decir,
+/etc/rc.d/rc.dnsmasq debe ser ejecutable por root.
+
+Las opciones importantes a configurar son: 
+\begin{itemize}
+\item Interface en la que se escuchan los request de dhcp (ETH1 y ETH0):
+\begin{verbatim}
+# If you want dnsmasq to listen for DHCP and DNS requests only on
+# specified interfaces (and the loopback) give the name of the
+# interface (eg eth0) here.
+# Repeat the line for more than one interface.
+interface=eth1
+interface=eth0
+\end{verbatim}
+
+\item Dominio:
+\begin{verbatim}
+domain=ssf.net
+\end{verbatim}
+
+\item Rango de dhcp (hay muchas formas de hacerlo, ver la documentación):
+\begin{verbatim}
+dhcp-range=192.168.123.2,192.168.123.250,255.255.255.0,12h
+\end{verbatim}
+  
+\item Ignorar request de otras máquinas: Esta medida requiere conocer
+  las macs de los clientes y SE ACONSEJA.
+\begin{verbatim}
+dhcp-host=*:*:*:*:*:*,ignore
+\end{verbatim}
+
+\item Asignar ips de acuerdo a la mac, tener en cuenta que los
+  nosmbres de DNS serán los asignados por el DHCP:
+\begin{verbatim}
+dhcp-host=00:11:11:82:EB:26,ssf32-02,192.168.123.2
+dhcp-host=00:12:3F:A7:28:C3,ssf32-03,192.168.123.3
+dhcp-host=00:07:E9:F0:C4:C9,ssf32-04,192.168.123.4
+dhcp-host=00:14:22:3B:24:F3,ssf64-01,192.168.123.5
+\end{verbatim}
+Y así sucesivamente.
+
+\item Opciones de acuerdo al RFC 2132 (google ?) en este caso la
+  mascara de red, el gateway, winsservers y dns server. 
+\begin{verbatim}
+dhcp-option=1,255.255.255.0
+dhcp-option=6,192.168.123.1
+dhcp-option=44,168.176.160.22,168.176.160.23
+dhcp-option=41,192.168.123.1
+\end{verbatim}
+
+\item Ntp server:
+\begin{verbatim}
+# Set the NTP time server addresses to 192.168.0.4 and 10.10.0.5
+#dhcp-option=option:ntp-server,192.168.0.4,10.10.0.5
+dhcp-option=option:ntp-server,192.168.123.1
+# Set the NTP time server address to be the same machine as
+# is running dnsmasq
+dhcp-option=42,0.0.0.0
+\end{verbatim}
+
+\item NIS domain (for user authentification)
+\begin{verbatim}
+dhcp-option=40,ssfservernis
+\end{verbatim}
+
+%%%% \item
+%%\begin{verbatim}
+%%
+%%\end{verbatim}
+
+Por último, es importante comentar la línea de 127.0.0.1 en el
+\verb+/etc/resolv.conf+ y reemplazarla por el ip del servidor,
+192.168.123.1 . El archivo debe quedar así:
+\begin{verbatim}
+#
+# hosts         This file describes a number of hostname-to-address
+#               mappings for the TCP/IP subsystem.  It is mostly
+#               used at boot time, when no name servers are running.
+#               On small systems, this file can be used instead of a
+#               "named" name server.  Just add the names, addresses
+#               and any aliases to this file...
+#
+# By the way, Arnt Gulbrandsen <agulbra@nvg.unit.no> says that 127.0.0.1
+# should NEVER be named with the name of the machine.  It causes problems
+# for some (stupid) programs, irc and reputedly talk. :^)
+#
+
+# For loopbacking.
+127.0.0.1               localhost
+#127.0.0.1              ssf1.ssf.net ssf1
+192.168.123.1           ssf1.ssf.net ssf1
+
+# End of hosts.
+\end{verbatim}
+
+\end{itemize}
+
+\subsection{TEST}
+Reiniciar el servidor, luego reiniciar los clientes. Desde un cliente
+hacer ping al server
+\begin{verbatim}
+ping 192.168.123.1
+\end{verbatim}
+y debe ser exitoso, mostrando algo como
+
+\begin{verbatim}
+PING 192.168.123.1 (192.168.123.1) 56(84) bytes of data.
+64 bytes from 192.168.123.1: icmp_seq=1 ttl=64 time=0.158 ms
+64 bytes from 192.168.123.1: icmp_seq=2 ttl=64 time=0.147 ms
+64 bytes from 192.168.123.1: icmp_seq=3 ttl=64 time=0.142 ms
+64 bytes from 192.168.123.1: icmp_seq=4 ttl=64 time=0.145 ms
+
+--- 192.168.123.1 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 2999ms
+rtt min/avg/max/mdev = 0.142/0.148/0.158/0.006 ms
+\end{verbatim}
+
+De lo contrario hay que encontrar el problema. Un
+error común es que dnsmasq no esté corriendo. 
+
+En este punto está instalado el servidor de red interno y las máquinas
+de la sala pueden navegar en  internet si el servidor tiene red. 
+
+
+
+\section{Añadir el servidor como servidor DNS}
+\subsection{SERVER}
+Cuando el servidor de la red interna ejecuta dhcpc e la red externa, la lista de
+servidores DNS es reescrita por el servidor DHCP que responde a la
+solicitud. Pero es necesario que el server de la red interna sea uno
+de los servidores DNS, o de lo contrario no se podran resolver los
+nombres de la red interna. En esta secci\'on se explica c\'omo
+lograrlo.
+
+Editar el archivo \verb+/etc/dhcpc/dhcpcd.exe+ . En este archivo
+existen varias secciones bien documentadas. Añadir los comandos
+apropiados en el caso en el que la interfaz se inicia, o en el caso en
+el que se le hace shutdown. Por ejemplo, cuando se inicia puede
+correrse el firewall, y añadir a 127.0.0.1 como dns server en
+\verb+/etc/resolv.conf+. Sería algo así como 
+\begin{verbatim}
+/etc/rc.d/rc.firewall restart; grep -q "nameserver 127.0.0.1" /etc/resolv.conf || sed \
+ -i -e "s/^nameserver/nameserver 127.0.0.1\nnameserver/" /etc/resolv.conf  
+\end{verbatim}
+en la sección de nueva ip.
+
+Reiniciar el servicio dnsmasq.
+
+%%\subsection{CLIENT}
+\subsection{TEST}
+Desde el cliente o el server hacer ping, por ejemplo, \verb+ping ssf1+
+o \verb+ping ssf2+ y los nombres deben resolverse correctamente.
+
+\section{Comandos de bash múltiples máquinas (paralelos)}
+Esta sección está diseñada para facilitar la edición y ejecución de
+múltiples instrucciones en múltiples computadores al mismo tiempo. Se
+utilizarán las herramientas para manejo de clusters C3
+(http://www.csm.ornl.gov/torc/C3/).
+
+\textbf{DNS or hostname resolution must be supported and working.}
+
+\subsection{SERVER}
+Seguir las instrucciones del archivo INSTALL. 
+\begin{itemize}
+\item Uncompress the package and enter the directory.
+\item \verb+# bash Install-c3+
+\item c3 tools are now installed on /opt/c3-4.
+\item Configuration: the clusters are written on /etc/c3.conf . Example :
+\begin{verbatim}
+cluster local {
+        ssf1:ssf1 # head node
+        ssf1
+        ssf[2-3]
+}
+\end{verbatim}
+\item For each c3 command make a link to \verb+/usr/local/bin+ :
+\begin{verbatim}
+for a in /opt/c3-4/*; do if [ -x $a ]; then echo $a; \
+ln -s $a /usr/local/bin/; fi ; done
+\end{verbatim}
+\item \verb+ln -s /usr/bin/python /usr/local/bin/python2+
+\end{itemize}
+
+Until we have configured succesfully the c3 tools, but each time we use the command we are prommted for a password, so we need to configure automatic ssh login. How to do that? Google!
+\begin{itemize}
+\item \verb+ssh-keygen -t dsa+
+\item \verb+chmod 700 ~/.ssh/+
+\item (Not needed when the directory .ssh is shared b NFS, i.e. a
+  typical user) \\ \verb+cpush ~/.ssh/id_dsa.pub ~/+
+\item \verb+cexec :1-2 "mkdir .ssh"+
+\item \verb+cexec :1-2 "cat id_dsa.pub >> .ssh/authorized_keys"+
+\item \verb+DONE!+
+\end{itemize}
+
+%\subsection{CLIENT}
+\subsection{TEST}
+\verb+cexec ls -l+ should work.
+
+
+
+\section{Configuración del NFS}
+El NFS permite compartir archivos y directiorios de forma trasnparente
+en la red. En este caso, suponemos que el server va a exportar el
+directorio /home a los clientes. 
+\subsection{SERVER}
+Verificar que \verb+/etc/rc.d/rc.nfs+ sea ejecutable.
+
+
+Se debe editar el archivo /etc/exports \ . En este archivo se
+especifica el directorio a compartir, a quién se le comparte (segmento
+de red) y las opciones. LEER EL MANUAL O HOWTO.  
+
+Adicionalmente, es necesario editar los archivos /etc/hosts.allow y
+/etc/hosts.deny, que est\'an relacionados con la seguridad y con la
+activaci\'on del servicio RPC, necesario para NFS. En host.deny debe
+aparecer 
+\begin{verbatim}
+portmap:ALL
+lockd:ALL
+mountd:ALL
+rquotad:ALL
+statd:ALL
+\end{verbatim}
+
+En el archivo hosts.allow se otorga la autorizacion a la red en cuesti\'on,
+\begin{verbatim}
+portmap: 192.168.123.0/255.255.255.0
+lockd: 192.168.123.0/255.255.255.0
+mountd: 192.168.123.0/255.255.255.0
+rquotad: 192.168.123.0/255.255.255.0
+statd: 192.168.123.0/255.255.255.0
+\end{verbatim}
+
+\subsection{CLIENT}
+Se debe editar el archivo de montaje de directorios, el /etc/fstab. 
+
+\subsection{TEST}
+Reiniciar los equipos. En el servidor, el comando rpcinfo -p debe
+mostrar, entre otros, que los servicios portmapper y dem\'as est\'an activos. 
+
+Manualmente se pueden reinicar los servicios sin reiniciar el sistema
+escribiendo
+\begin{verbatim}
+/etc/rc.d/rc.inet2 restart
+\end{verbatim}
+
+En este momento todos los equipos deben ver el directorio compartido y
+pueden trabajar sobre el mismo.
+
+\section{NIS}
+Este servicio controla la autentificaci\'on de los usuarios. Otra
+alternativa puede ser LDAP, pero no se tratar\'a ac\'a. 
+
+El setup de NIS es muy tricky, por favor remitirse al howto todo el tiempo. 
+\subsection{SERVER}
+\begin{itemize}
+\item Configurar el dominio nis: 
+\begin{verbatim}
+echo domain_name > /etc/defaultdomain
+\end{verbatim}
+  donde \verb+domain_name+ se refiere, en este caso, a \verb+ssfservernis+ .
+
+\item Configurar la base de datos de usuarios (quienes ya deben existir).
+\begin{verbatim}
+# cd /var/yp
+(editar Makefile: MERGE_PASSWD = true -> false)
+(editar Makefile: MERGE_GROUP = true -> false)
+(editar Makefile: MINUID=500 -> pasar al valor apropiado (generalmente
+asi esta bien))
+(editar Makefile: MINGID=500 -> pasar al valor apropiado, de manera
+que plugdev y demas se pasen por NIS) 
+(comentar plubickey an el target all:)
+# ypserv
+# make
+\end{verbatim}
+
+La configuracion del master y de master slaves puede hacerse con el
+comando \verb+/usr/lib/yp/ypinit -m +
+
+\item Configurar el script de inicio de NIS:
+\begin{verbatim}
+#chmod +x /etc/rc.d/rc.yp
+(editar rc.yp, descomentar lo referente a defaultdomain) 
+(editar rc.yp, descomentar lo referente a ypserv) 
+(editar rc.yp, descomentar lo referente a yppasswdd) 
+\end{verbatim}
+
+\end{itemize}
+
+\subsection{CLIENT}
+\begin{itemize}
+\item Domain name :
+\begin{verbatim}
+echo domain_name > /etc/defaultdomain
+\end{verbatim}
+
+\item Editar /etc/rc.d/rc.yp y descomentar lo concerniente a NIS
+  client. Descomentar el cat del default domain. Descomentar el
+  yp\_bind -broadcast.
+
+\item Editar /etc/nsswitch.conf:
+\begin{verbatim}
+Comentar passwd: compact
+Comentar group: compact
+Descomentar passwd: files nis
+Descomentar shadow: files nis
+Descomentar group: files nis
+\end{verbatim}
+
+\item A\~nadir "+:: ..." (el n\'umero de : depende del archivo)
+  al final de los archivos correspondientes: 
+\begin{verbatim}
+echo +:::::: >> /etc/passwd
+echo +:::::::: >> /etc/shadow
+echo +::: >> /etc/group
+echo +:: ... >> /etc/gshadow
+\end{verbatim}
+
+\end{itemize}
+
+\subsection{TEST}
+Reiniciar todos los servicios con inet2 y verificar que un usuario en
+el server puede loguearse exitosamente en otro computador de la red. 
+
+\section{FIREWALL}
+Se usar\'a al firewall de arno (Arno iptables,
+http://rocky.eld.leidenuniv.nl/). La versión actual es la 1.9, pero en
+este ejemplo se muestra la versión 1.8 (los archivos de configuración
+son incompaticles). La 
+configuraci\'on est\'a en /etc/firewall.conf. El firewall se instala
+en el server conectado a la red externa, se supone que la red interna
+es confiable.
+
+El arno-iptables-firewall instala varios archivos y permite la
+creación del script rc.firewall . Leer la doc. 
+
+Para una instalaci\'on sencilla, usar el comando \verb+install.sh+ que viene
+en el paquete. Luego, linkear a \verb+rc.firewall+, 
+\verb+ln -s /etc/init.d/arno-iptables-firewall /etc/rc.d/rc.firewall +.  
+
+La configuraci\'on queda en el archivo
+\verb+/etc/arno-iptables-firewall/firewall.conf+ . Revisarla, editar
+las rutas de los comandos \verb+iptables+ y \verb+ip6tables+. 
+
+\subsection{SERVER}
+Configurar el firewall.conf (ver ejemplo al final)
+
+\subsection{CLIENT}
+No se instala el firewall en los clientes, s\'olo en el servidor de
+red externo. Se supone que la red interna es confiable.
+\subsection{TEST}
+Verificar que una vez reiniciado el firewall, los computadores
+internos y el externo a\'un pueden navegar.
+
+\section{BACKUP}
+Para el backup se usa el sistema simple de backup de la p\'agina
+http://foc.neoartis.org/progs/backup/ ,\linebreak http://freshmeat.net/projects/loopbackup/ .
+
+Supongo que el cliente 192.168.123.2 es el servidor de backup.
+
+Para este caso se aconseja actualizar (mediante cron) el backup cada 2
+semanas. Se guardarn tres copias, es decir, un mes y medio. 
+
+\subsection{SERVER}
+
+\subsection{CLIENT}
+Para configurarlo, simplemente seguir las instrucciones de la página
+y/o paquete. 
+
+El cron debe ser configurado en la misma m\'aquina mismo, por ejemplo
+usando kcron. Si se prefiere \verb+crontab -e+, la l\'inea ser\'ia
+\begin{verbatim}
+0 7 1,15 * * /usr/local/backup/bakcup.sh 1>/dev/null 2>/dev/null
+\end{verbatim}
+
+%%\subsection{TEST} 
+
+\section{Recrear la base de datos a partir de una ya existente}
+\subsection{SERVER}
+
+\verbatiminput{files/server/users.sh}
+
+Reiniciar los servicios NIS mediante \verb+/etc/rc.d/rc.inet2 restart+
+\subsection{CLIENT}
+Reiniciar los servicios NIS mediante \verb+/etc/rc.d/rc.inet2 restart+
+\subsection{TEST}
+Probra logueandose con diferentes cuentas en diferentes computadores.
+
+\section{QUOTA}
+Toda la información se encuentra en el Quota-Howto. El procedimiento
+es sencillo: Asignar las cuotas, configurar el fstab para asignarle al
+sistema de archivos el soporte para cuota, asignar las cuotas a cada
+usuario, reiniciar. 
+
+Las cuotas son compatibles con NFS. En este caso, haremos que la cuota sea de 1.4G.
+
+\subsection{SERVER}
+Modificar fstab, añadiendo el soporte para quota en las opciones.
+
+Añadir línea en crontab para verificar semanalmente la cuota:
+\begin{verbatim}
+0 3 * * 0 /sbin/quotacheck -avug
+\end{verbatim}
+
+Primero editar la cuota para un usuario típico, digamos tmpuser.
+\begin{verbatim}
+export EDITOR=emacs 
+edquota -u tmpuser
+\end{verbatim}
+Setear el soft de los blocks en 1300000, y el hard en 1400000.
+El grace time típico es de 7 días.
+
+Ahora editar la cuota para los demás usuarios usando a tmpuser como prototipo. 
+\begin{verbatim}
+for a in $(cat /etc/passwd | awk '{ FS=":";if ($3 > 1000) print $1}'); \
+do edquota -p tmpuser $a ;done
+\end{verbatim}
+
+Por último, se puede editar la cuota de usuarios particulares para que tengan menos o más quota.
+
+%%\subsection{TEST}
+
+\section{Directorio NFS para paquetes}
+En este caso tendremos un directorio en el servidor principal y que
+será compartido con los pcs de la red interna por medio del NFS (que
+se supone ya configurado). Este directorio está orientado a mantener
+una lista de pauqtes comunes a instlar en todos los sistemas.
+\subsection{SERVER}
+\begin{itemize}
+\item Crear el directorio: \verb+mkdirhier /mnt/NFS/PACKAGES+
+\item Exportar el directorio por NFS: Incluir la siguiente línea en el
+  \verb+/etc/exports+ :\\
+  \verb+/mnt/NFS/PACKAGES 192.168.123.0/255.255.255.0(rw,sync,no_root_squash)+
+\item Reexportar: \verb+/etc/rc.d/rc.inet2 restart+
+\end{itemize}
+\subsection{CLIENT}
+\begin{itemize}
+\item Añadir la siguiente línea a el \verb+/etc/fstab+ :\\
+  \verb+192.168.123.1:/mnt/NFS/PACKAGES /mnt/NFS/PACKAGES     nfs \ +
+    \verb+rw,hard,intr   0   0+
+\item Crear el directorio: \verb+mkdirhier /mnt/NFS/PACKAGES+
+\item Remontar el NFS: \verb+/etc/rc.d/rc.inet2 restart+
+\end{itemize}
+%%\subsection{TEST}
+
+\section{Impresora}
+El SSF cuenta con una impresora que tiene su propia tarjeta de red. El
+ip asignado a la impresora es 192.168.123.9 . En este caso se
+configurará CUPS para que ``hable'' con esa impresora, una HP Laserjet 2420dn. 
+\subsection{SERVER}
+\begin{itemize}
+\item Add the network printer via the cups interface on localhost:631
+\item Backup the cups directory on each slave:\\
+  \verb+cexec :1-2 "cp -a /etc/cups ~/cupsOLD"+
+\item Copy (overwrite) the server cups directory to the slaves and restart:\\
+  \verb+tar czf cups.tar.gz /etc/cups+ \\
+  \verb+cpush :1-2 cups.tar.gz cupsHEAD.tar.gz+  \\
+  \verb+cexec :1-2 "tar xzf cupsHEAD.tar.gz"+  \\
+  \verb+cexec :1-2 "rsync -av etc/cups/ /etc/cups/"+  \\
+  \verb+cexec :1-2 "/etc/rc.d/rc.cups restart"+  \\
+\end{itemize}
+
+%%\subsection{CLIENT}
+\subsection{TEST}
+Print test pages on each computer
+
+
+
+\section{Software adicional}
+El siguiente software es sugerido para tener en todos los
+cmputadores. Lo ideal sería dedicar un directorio para los paquetes y
+distribuirlo por NFS para que los demás pc los vean y puedan
+instalarlos. Compilarlos una sola vez. (Verificar si se puede correr
+en paralelo el comandod e instalación o si slaptget puede hacer algo
+al respecto.)
+\begin{itemize}
+\item swaret. 
+\item checkinstall: To make packages from sources 
+\item open office.
+\item xmgrace: Plotting Utility
+\item aterm: Great terminal, lightweight
+\item djvulibre: Djvu stuff
+\item lame: Mp3 encoding
+\item xtail: For x tail messages
+\item kile
+\item kbibtex
+\item acroread 
+\item *** Multimedia *** mplayer: Obviously
+%%\item webmin: Distributed administration
+\item fileligth: Hard disk usage tool
+\item Flash plugin
+\item htop
+\item skype
+\item povray
+\item pdftk: for hacking pdf files 
+\item blender: 3d content creation suite 
+\item valgrind: Award winning tool for debugging and profiling 
+\end{itemize}
+
+\section{Configuración de PHP en el server}
+\subsection{SERVER}
+\begin{itemize}
+\item En el archivo \verb+/etc/httpd/httpd.conf+ descomentar la
+  línea \linebreak
+\verb+#Include /etc/httpd/mod_php.conf+
+\item En el mismo archivo, añadir \linebreak
+\verb+AddType application/x-httpd-php .php .php3 .phtml+\\
+\verb+AddType application/x-httpd-php-source .phps+\\
+en el módulo \verb+<IfModule mime_module>+. 
+\item Reiniciar el servicio httpd.
+\end{itemize}
+%%\subsection{CLIENT}
+\subsection{TEST}
+Create a document called, for example, \verb+info.php+, with the
+following content 
+\begin{verbatim}
+<html>
+<head>
+<title> PHP Test Script </title>
+</head>
+<body>
+<?php
+phpinfo( );
+?>
+</body>
+</html>
+\end{verbatim}
+
+Save this document on \verb+/srv/www/htdocs/+, and then open a browser
+and go to the URL \verb+localhost/info.php+ . You should see the info
+of the php package. 
+
+\section{Comandos sudo}
+\begin{itemize}
+\item Permitir que los usuarios ejecuten comandos de root: Escribir
+  los comandos en el sudoers.\\
+\verb+cexec :0-2 "echo '%users  ALL=/etc/rc.d/rc.inet1' >> /etc/sudoers"+ \\
+\verb+cexec :0-2 "echo '%users  ALL=/etc/rc.d/rc.inet2' >> /etc/sudoers"+ \\
+\verb+cexec :0-2 "echo '%users  ALL=/etc/rc.d/rc.cups' >> /etc/sudoers"+ \\
+%\verb++
+%\verb++
+%\verb++
+%\verb++
+\end{itemize}
+
+
+
+\section{Replacing NIS woth KerberosV5}
+Install Kerberos, or Heimdal if you prefer. We are going to follow the
+kerberos infraestructure howto and the Slackbuild, prefix /usr/,
+state /var.. See
+\verb+http://aput.net/~jheiss/krbldap/howto.html+,
+\verb+http://www.ornl.gov/~jar/HowToKerb.html+,
+\verb+https://help.ubuntu.com/8.10/serverguide/C/kerberos.html+ \\
+Configuration:
+\begin{verbatim}
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+--disable-static \
+--program-prefix= \
+--program-suffix= \
+\end{verbatim}
+
+\subsection{SERVER}
+\begin{itemize}
+%%\item Create an admin account:\\
+%%\verb+adduser admin+
+\item Edit \verb+/etc/krb5.conf+ by following the examples in
+  \verb+/usr/share/examples/krb5/krb5.conf+.\\
+\begin{verbatim}
+[logging]
+    kdc = FILE:/var/log/krb5kdc.log
+    admin_server = FILE:/var/log/kadmin.log
+    default = FILE:/var/log/krb5lib.log
+
+[libdefaults]
+#    ticket_lifetime = 24000
+       default_realm = SSF.NET
+#        krb5_config = /usr/kerberos/lib/krb.conf
+#        krb5_realms = /usr/kerberos/lib/krb.realms
+
+
+
+[realms]
+SSF.NET = {
+kdc = ssf1.ssf.net:88
+kdc = ssf7.ssf.net:88
+admin_server = ssf1.ssf.net:749
+default_domain = ssf.net
+}
+
+[domain_realm]
+.ssf.net = SSF.NET
+ssf.net = SSF.NET
+
+[kdc]
+   profile = /var/krb5kdc/kdc.conf
+\end{verbatim}
+
+\item Edit the /var/krb5kdc/kdc.conf file
+\begin{verbatim}
+[kdcdefaults]
+        acl_file = /var/krb5kdc/kadm5.acl
+        dict_file = /usr/share/dict/words
+        admin_keytab = /var/krb5kdc/kadm5.keytab
+        
+
+[realms]
+        SSF.NET = {
+                database_name = /var/krb5kdc/principal
+                admin_keytab = FILE:/var/krb5kdc/kadm5.keytab
+                acl_file = /var/krb5kdc/kadm5.acl
+                dict_file = /usr/share/dict/words
+                key_stash_file = /var/krb5kdc/.k5.SSF.NET
+                kdc_ports = 750,88
+                #master_key_type = des3-hmac-sha1
+                #supported_enctypes = des3-hmac-sha1:normal des-cbc-crc:normal
+                #max_life = 10h 0m 0s
+                #max_renewable_life = 7d 0h 0m 0s
+        }
+\end{verbatim}
+
+\item Initialize the kerberos database:\\
+\verb+kdb5_util create -s+ \\
+You will be prompted for a KDC master password, dont forget it!
+
+\item \verb+ln -s /var /usr/local+
+
+\item Edit \verb+/var/krb5kdc/kadm5.acl+ :
+\begin{verbatim}
+*/admin@SSF.NET   *
+\end{verbatim}
+
+\item Add admin users (principal users), \\
+  \verb+/usr/sbin/kadmin.local -q "addprinc username/admin"+
+  \linebreak, where username is a given username, for example admin or
+  root.  
+  
+\item Add kadmin to start automatically on each reboot:\\
+  \verb+echo "/usr/sbin/kadmind &" >> /etc/rc.d/rc.local+\\ 
+  \verb+echo "/usr/sbin/krb5kdc &" >> /etc/rc.d/rc.local+\\
+  
+\item Create kadmin keytabs: \\
+  /usr/sbin/kadmin.local -q \verb+\+ \\
+  "ktadd -k /var/krb5kdc/kadm5.keytab kadmin/admin kadmin/changepw"
+  
+\item Start the daemons for testing. kinit username. klist
+
+\item Add the folloowing to /etc/dnsmasq.conf in order to be able to
+  combine dnsmasq and kerberos
+\begin{verbatim}
+# kerberos stuff                                                                
+srv-host=_kerberos._udp.SSF.NET,ssf1.ssf.net,88,1,0
+srv-host=_kerberos._tcp.SSF.NET,ssf1.ssf.net,88,1,0
+srv-host=_kerberos._udp.SSF.NET,ssf7.ssf.net,88,10,0
+srv-host=_kerberos._tcp.SSF.NET,ssf7.ssf.net,88,10,0
+srv-host=_kerberos-adm._tcp.SSF.NET,ssf1.ssf.net,749,1,0
+srv-host=_kpasswd._udp.SSF.NET,ssf1.ssf.net,464,1,0
+\end{verbatim}
+
+and restart dnsmasq. In this case, ssf7 will be the replication
+server. 
+  
+\end{itemize}
+
+
+\subsection{Replication server}
+\begin{itemize}
+\item Server: Create the host keys:\\
+\verb+kadmin.local -q "addprinc -randkey host/ssf1.ssf.net"+ \\
+\verb+kadmin.local -q "addprinc -randkey host/ssf7.ssf.net"+
+
+\item Server: Extract the keytabs\\
+\verb+kadmin.local -q "ktadd host/ssf1.ssf.net"+ \\
+\verb+kadmin.local -q "ktadd host/ssf7.ssf.net"+ \\
+
+\item Server: Create /var/krb5kdc/kpropd.acl with \\
+  \verb+host/ssf1.ssf.net@SSF.NET+\\
+  \verb+host/ssf7.ssf.net@SSF.NET+
+  
+\item Slave: Create an empty database\\
+  \verb+kdb5_util create -r SSF.NET -s+ 
+
+\item From server to slave, copy /etc/krb5.conf, /etc/krb5.keytab,
+  /var/krb5kdc/kpropd.acl 
+  %%/var/krb5kdc/kdc.conf, /var/krb5kdc/kadm5.acl,
+  %%/var/krb5kdc/kdc.conf, 
+
+\item Server: Dump the database: \\
+  \verb+/usr/sbin/kdb5_util dump /usr/local/var/krb5kdc/slave_datatrans+
+
+\item Slave: Run the kpropd daemon standalone:\\
+\verb+/usr/sbin/kpropd -S+ \\
+and add that command to system initialization.
+
+\item Server: Propagate the database:
+\verb+/usr/sbin/kprop -d -f /usr/local/var/krb5kdc/slave_datatrans ssf7.ssf.net+
+\\
+you should see the message ``SUCCEEDED''. 
+  
+\item Server: Create a script for sincronization /usr/local/bin/krb5prop.sh: \\
+\begin{verbatim}
+#!/bin/sh 
+ 
+/usr/sbin/kdb5_util dump /var/krb5kdc/slave_datatrans 
+/usr/sbin/kprop -f /var/krb5kdc/slave_datatrans ssf7.ssf.net > /dev/null 
+\end{verbatim}
+
+\item Crontab for sincronization \\ 
+  \verb+15 * * * * /usr/local/bin/krb5prop.sh 1>/dev/null 2>/dev/null+ 
+  
+
+\end{itemize}
+
+
+%%\item \verb++ 
+
+%%\item \verb++ 
+
+%%\item \verb++ 
+
+
+\subsection{CLIENT}
+
+
+%\subsection{TEST}
+
+%\section{}
+%\subsection{SERVER}
+%\subsection{CLIENT}
+%\subsection{TEST}
+
+
+%\section{}
+%\subsection{SERVER}
+%\subsection{CLIENT}
+%\subsection{TEST}
+
+\section{Archivos de configuración}
+\subsection{/etc/rc.d/rc.inet1.conf}
+\hrule
+\large{\bf Server}
+\hrule
+\small{
+  \verbatiminput{files/server/rc.inet1.conf}
+}
+\vspace*{1cm}
+
+\hrule
+\large{\bf Client}
+\hrule
+\small{
+  \verbatiminput{files/client/rc.inet1.conf}
+}
+\vspace*{1cm}
+
+
+\subsection{/etc/dnsmasq.conf}
+\hrule
+\large{\bf Server}
+\hrule
+\small{
+  \verbatiminput{files/server/dnsmasq.conf}
+}
+\vspace*{1cm}
+
+
+\subsection{/etc/exports}
+\hrule
+\large{\bf Server}
+\hrule
+\small{
+  \verbatiminput{files/server/exports}
+}
+\vspace*{1cm}
+
+\subsection{/etc/hosts.deny}
+\hrule
+\large{\bf Server}
+\hrule
+\small{
+  \verbatiminput{files/server/hosts.deny}
+}
+\vspace*{1cm}
+
+\subsection{/etc/hosts.allow}
+\hrule
+\large{\bf Server}
+\hrule
+\small{
+  \verbatiminput{files/server/hosts.allow}
+}
+\vspace*{1cm}
+
+\subsection{/etc/fstab}
+\hrule
+\large{\bf Client}
+\hrule
+\small{
+  \verbatiminput{files/client/fstab}
+}
+\vspace*{1cm}
+
+\subsection{/etc/defaultdomain}
+\hrule
+\large{\bf Server}
+\hrule
+\small{
+  \verbatiminput{files/server/defaultdomain}
+}
+\vspace*{1cm}
+
+\subsection{/var/yp/Makefile}
+\hrule
+\large{\bf Server}
+\hrule
+\small{
+  \verbatiminput{files/server/Makefile}
+}
+\vspace*{1cm}
+
+\subsection{/etc/rc.d/rc.yp}
+\hrule
+\large{\bf Server}
+\hrule
+\small{
+  \verbatiminput{files/server/rc.yp}
+}
+\vspace*{1cm}
+
+\subsection{/etc/rc.d/rc.yp}
+\hrule
+\large{\bf Client}
+\hrule
+\small{
+  \verbatiminput{files/client/rc.yp}
+}
+\vspace*{1cm}
+
+\subsection{/etc/nsswitch.conf}
+\hrule
+\large{\bf Client}
+\hrule
+\small{
+  \verbatiminput{files/client/nsswitch.conf}
+}
+\vspace*{1cm}
+
+\subsection{/etc/passwd}
+\hrule
+\large{\bf Client}
+\hrule
+\small{
+  \verbatiminput{files/client/passwd}
+}
+\vspace*{1cm}
+
+\subsection{/etc/shadow}
+\hrule
+\large{\bf Client}
+\hrule
+\small{
+  \verbatiminput{files/client/shadow}
+}
+\vspace*{1cm}
+
+\subsection{/etc/group}
+\hrule
+\large{\bf Client}
+\hrule
+\small{
+  \verbatiminput{files/client/group}
+}
+\vspace*{1cm}
+
+\subsection{/etc/gshadow}
+\hrule
+\large{\bf Client}
+\hrule
+\small{
+  \verbatiminput{files/client/gshadow}
+}
+\vspace*{1cm}
+
+
+\subsection{/etc/firewall.conf}
+\hrule
+\large{\bf Server}
+\hrule
+\small{
+  \verbatiminput{files/server/firewall.conf}
+}
+\vspace*{1cm}
+
+\subsection{/usr/local/etc/backup.conf}
+\hrule
+\large{\bf Client}
+\hrule
+\small{
+  \verbatiminput{files/client/backup.conf}
+}
+\vspace*{1cm}
+
+
+\end{document}
+
+
+
+
+
+
+

@@ -1,0 +1,154 @@
+#!/bin/bash
+
+function usage()
+{
+    echo "USAGE: "
+    echo "config_server.sh DIR LINUX_FLAVOR"
+    echo "DIR          : Where to find the model config files"
+    echo "LINUX_FLAVOR : UBUNTU or SLACKWARE , in capital"
+}
+
+# check args
+if [ "$#" -ne "2"]; then usage; exit 1 ; fi
+if [ ! -d "$1" ]; then echo "Dir does not exist : $1"; usage; exit 1 ; fi
+if [ "$2" -ne "UBUNTU" -o "$2" -ne "SLACKWARE"]; then usage; exit 1 ; fi
+
+
+echo "Configuring client ..."
+# global vars
+BDIR=$PWD
+FDIR=$1
+LINUX=$2
+
+# global functions
+function backup_file()
+{
+    if [ -e "$1" ]; then
+        cp -v "$1" "$1".orig-$(date +%F--%H-%M-%S)
+    fi
+}
+
+function copy_config()
+{
+    mfile="$1"
+    bfile="$2"
+    backup_file "$bfile"
+    cp -vf "$mfile" "$bfile"
+}
+
+
+# network interfaces
+# slackware already configured to use DHCP
+if [ $LINUX -eq "UBUNTU" ]]; then 
+    echo "Configuring network interface"
+    bfile=/etc/network/interfaces
+    backup_file $bfile
+    cat <<EOF > $bfile
+auto eth0
+iface eth0 inet dhcp
+dns-nameservers 192.168.123.1
+EOF
+    /etc/init.d/networking restart
+    echo "DONE: Configuring network interface"
+fi
+
+
+# Mirror configuration
+echo "Configuring packages mirrors"
+if [ "$LINUX" == "SLACKWARE" ]; then
+    bfile=/etc/slackpkg/mirrors
+    backup_file $bfile
+    cat <<EOF if [ $LINUX -eq "UBUNTU" ]]; then 
+EOF > $bfile
+http://slackware.mirrors.tds.net/pub/slackware/slackware-14.1/
+EOF
+    slackpkg update
+elif [ "$LINUX" == "UBUNTU" ]; then
+    bfile=/etc/apt/sources.list
+    backup_file $bfile
+    cat <<EOF
+EOF > $bfile
+deb mirror://mirrors.ubuntu.com/mirrors.txt precise main restricted universe multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt precise-updates main restricted universe multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt precise-backports main restricted universe multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt precise-security main restricted universe multiverse
+#deb http://168.176.34.158/ubuntu/ precise main multiverse restricted universe
+#deb http://168.176.34.158/ubuntu/ precise-updates main multiverse restricted universe
+EOF
+    apt-get update
+    apt-get -y install emacs
+fi
+echo "DONE: Configuring packages mirrors"
+
+# ssh server
+echo "Configuring ssh "
+if [ "$LINUX" == "SLACKWARE" ]; then
+    /etc/rc.d/rc.sshd restart
+elif [ "$LINUX" == "UBUNTU" ]; then
+# apt-get install openssh-client openssh-server
+    mv /etc/ssh/ssh_host_* ./
+    dpkg-reconfigure openssh-server
+    service ssh restart
+fi
+echo "DONE: Configuring ssh"
+
+# nfs
+echo "Configuring nfs for home "
+bfile="/etc/exports"
+backup_file $bfile
+echo "192.168.123.1:/home     /home   nfs     rw,hard,intr  0   0" >> $bfile
+if [ "$LINUX" -eq "UBUNTU" ]; then
+    bfile="/etc/modules"
+    backup_file $bfile
+    echo "nfs" >> $bfile
+fi
+mount -a
+echo "DONE: Configuring nfs"
+
+# nis
+echo "Configuring nis "
+bfile="/etc/defaultdomain"
+backup_file $bfile
+echo ssfservernis > $bfile  
+bfile="/etc/yp.conf"
+backup_file $bfile
+echo 'ypserver 192.168.123.1 ' > $bfile
+bfile="/etc/passwd"
+backup_file $bfile
+echo +:::::: >> $bfile
+bfile="/etc/shadow"
+backup_file $bfile
+echo +:::::::: >> $bfile
+bfile="/etc/group"
+backup_file $bfile
+echo +::: >> $bfile
+if [ "$LINUX" == "SLACKWARE" ]; then
+    chmod +x /etc/rc.d/rc.yp
+    backup_file /etc/rc.d/rc.yp
+    sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=1/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=0/ ;' /etc/rc.d/rc.yp
+    /etc/rc.d/rc.yp restart    
+    /etc/rc.d/rc.nfsd restart
+    /etc/rc.d/rc.inet2 restart
+elif [ "$LINUX" == "UBUNTU" ]; then
+    service portmap restart
+    service ypserv restart
+fi
+rpcinfo -p localhost
+echo "DONE: Configuring nis "
+
+
+# config lightm options
+if [ $LINUX -eq "UBUNTU" ]; then 
+    echo "Allowing direct login on lightdm"
+    bfile="/etc/lightdm/lightdm.conf"
+    backup_file $bfile
+    echo "greeter-show-manual-login=true" >> $bfile
+    echo "greeter-hide-users=true" >> $bfile
+    echo "greeter-allow-guest=false" >> $bfile
+    echo "allow-guest=false" >> $bfile
+fi
+
+
+
+
+

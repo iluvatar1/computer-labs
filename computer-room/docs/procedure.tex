@@ -1,0 +1,1225 @@
+\documentclass[10pt, letterpaper]{article}
+
+\usepackage{ae}
+\usepackage{verbatim}
+\usepackage{aecompl}
+\renewcommand{\rmdefault}{cmss}
+\usepackage[pdftex]{hyperref}
+\usepackage[dvips,pdftex]{color,graphicx}
+
+\textwidth17.5cm
+\hoffset-3cm
+\textheight23cm
+\voffset-2cm
+
+\hyphenation{dnsmasq}
+
+\title{Procedimiento para instalar la sala de sistemas del SSF+UN}
+\author{William Fdo. Oquendo Patiño\thanks{woquendo@gmail.com}}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Generalidades}
+\begin{itemize}
+  \item LA ÚNICA MANERA DE ENTENDER LO QUE SE MUESTRA ACÁ Y DE
+    MEJORARLO ES LEYENDO LA DOCUMENTACIÓN. POR FAVOR LEA LOS MANUALES,
+    LOS HOWTO  Y APÓYESE EN GOOGLE.
+  %%\item La distribución a instalar es Slackware, Versión 13.1 a la
+    %%fecha.
+  \item \textbf{Since Ubuntu does not have ssh server by default,
+      which is a huge problem, I am creating a live cd with ssh, nfs,
+      and nis by default to install it. The live dvd is created with
+      thebackup option of  remastersys.}
+  \item La distribución a instalar es Ubuntu 12.04.1 LTS.
+  \item Sistemas de 32 bits. Sistemas de 64 bits quedarán con OS de
+    32. Es posible mezclar 64 y 32, pero eso no se tratará en este
+    documento. Para resolver el problema de la memoria RAM, se
+    instalara un kernel con high memory support en los equipos grandes.
+  \item Los servicios a configurar son: red interna con DNS MASQ (DHCP
+    + DNS + NTP + MASQUERADING) , NFS, NIS, FIREWALL,, BACKUP.
+  \item Se supone que el servidor tiene dos tarjetas de red: una para
+    la red interna y otra para la externa. La tarjeta de red que
+    conecta con la red exterior se denotará por ETH0, la tarjeta de
+    red de la red interna se denotará por ETH1. Tambien se supone la
+    existencia de unn hub al que se conecta la red interna. La externa
+    se conecta al punto de red.
+  %\item Usando dyndns y el cliente ddclient, se asignará el nombre
+  %  serverssf1.dyndns.org a la interfaz externa del servidor y este
+  %  nombre se resolverá correctamente dentro de la red de la
+  %  Universidad Nacional.
+  \item El segmento de red utilizado en este ejemplo será
+    192.168.123.xxx \ , y se supone que el dominio escogido será ssf.net 
+  \item Al final del documento se muestran algunos ejemplos de los
+    archivos de configuración. 
+\end{itemize}
+
+
+\section{Configuración de la red por cada computador}
+See \verb+/usr/share/doc/ifupdown/examples/+
+\subsection{SERVER}
+
+Se debe configurar a ETH1 con ip fijo igual a 192.168.123.1\ , y se
+debe configurar a ETH0 para que haga DHCP, ojal\'a con ip fijo
+solicitado anteriormente, en este caso 168.176.14.174. 
+
+\textbf{NOTE: What is the problem of using networking or interfaces
+  file? }
+DEACTIVATE THE NETWORK MANAGER BY EDITING
+\verb+/etc/NetworkManager/NetworkManager.conf+ and comment the dnsmasq
+stuff and change managed to true.
+
+For eth0 with dhcp, add the following to
+\verb+/etc/network/interfaces+ :
+\begin{verbatim}
+auto eth0
+iface eth0 inet dhcp
+dns-nameservers 192.168.123.1 8.8.8.8 8.8.4.4
+\end{verbatim}
+
+For eth1 with fixed ip address, add the following to
+\verb+/etc/network/interfaces+ :
+\begin{verbatim}
+auto eth1
+iface eth1 inet static
+address 192.168.123.1
+netmask 255.255.255.0
+gateway 192.168.123.1
+\end{verbatim}
+Restart network : \verb+sudo service networking restart+
+
+Now you can use the commands \verb+ifup eth0+ or \verb+ifdown eht0 +
+(or \verb+eth1+) to set up or down each interface. 
+
+\textbf{\it What about hooks after updating interface?}
+
+
+\subsection{CLIENT}
+(For each client)\\
+For eth0 with dhcp, add the following to
+\verb+/etc/network/interfaces+ :
+\begin{verbatim}
+auto eth0
+iface eth0 inet dhcp
+\end{verbatim}
+
+(Check if timeout should be configured, in case of slow dhcp response) 
+
+\subsection{Test}
+Aún no se puede hacer testing dado que no se ha configurado
+completamente el servidor DHCP.
+
+
+% \section{Añadir el ip a un servidor DNS dinámico externo para
+%   computadores lejanos dentro de la misma red de la universidad}
+% \subsection{SERVER}
+% %% Se hará uso de no-ip (\verb+http://www.no-ip.com/+). Se debe tener una
+% %% cuenta, se logea, se registra el nombre en Host/Redirects, Add a host,
+% %% , se llena el formulario, Create Host, descargar el software en
+% %% Download Client, choose Linux, uncompress, readme,
+% %% ponerlo a correr cada vez que el sistema inicie (noip2 en rc.local), y configurar el
+% %% dominio en no-ip.
+% For dynamics dns we are going to use the service on
+% www.dyndns.org. The name for the server will be
+% \verb+serverssf1.dyndns.org+ . We have to download the ddclient for
+% Linux and to build it. The easiest way is by using slackbuilds.org
+% . The ddclient  configuration goes on /etc/ddclient/ddclient.conf, and
+% should have the following options
+% \begin{verbatim}
+% daemon=120                              # check every 300 seconds                                    
+% syslog=yes                              # log update msgs to syslog                                  
+% mail=root                               # mail all msgs to root                                      
+% mail-failure=root                       # mail failed update msgs to root                            
+% pid=/var/run/ddclient.pid               # record PID in file.                                        
+% #ssl=yes                                        # use ssl-support. Works with     
+% use=if,                     if=eth0             # via interfaces   
+% proxy=proxy2.unal.edu.co:8080                   # default proxy 
+% login=dyndnsusername                         # default login                                              
+% password=dyndnspassword                                 # default password   
+% server=members.dyndns.org,             \
+% protocol=dyndns2                       \
+% serverssf1.dyndns.org
+% \end{verbatim}
+
+%%\subsection{CLIENT}
+% \subsection{TEST}
+% nslookup serverssf1.dyndns.org
+
+
+\section{Mirror configuration for apt-get}
+\subsection{Server}
+Since the unal proxy requires user and password info, and I do not
+want to store it on each computer, I will use the local mirror at
+unal. (If it is not reliable I will configure my own mirror in the
+future).
+
+\begin{itemize}
+\item Backup the old config file \\
+\verb+sudo cp /etc/apt/sources.list /etc/apt/sources.orig+.
+\item Create a new config file with the following content:\\
+\verb+# unal+\\
+\verb+deb http://168.176.34.158/ubuntu/ precise main multiverse restricted universe+
+\item Now run the update of the database:\\
+  \verb+sudo apt-get update+
+\end{itemize}
+
+\subsection{Clients}
+The config file will be copied-synced later and all the procedure will
+be repeated.
+
+
+\section{SSH}
+\subsection{SERVER}
+\begin{itemize}
+\item \verb+apt-get install openssh-client openssh-server+
+\item Maybe, add the line \verb+sshd : ALL+ to \verb+/etc/hosts.allow+
+\item Since we are installing from a live dvd, there could be problems
+  like \verb+no hostkey alg+. The fix is
+  (\url{http://www.cyberciti.biz/faq/howto-regenerate-openssh-host-keys/})
+  :
+  \begin{itemize}
+  \item Dleete or rename the old system wide keys:\\
+    \verb+mv /etc/ssh/ssh_host_* ./+
+  \item Reconfigure the server ssh: \\
+    \verb+dpkg-reconfigure openssh-server+
+  \item Maybe, update the known hosts\\
+    \verb+~/.ssh/known_hosts+
+  \end{itemize}
+
+\item \verb+service ssh restart+
+\end{itemize}
+\subsection{CLIENT}
+\begin{itemize}
+\item \verb+apt-get install openssh-client openssh-server+
+\item \verb+service ssh restart+
+\end{itemize}
+
+\section{Firewall (NAT)}
+Se usar\'a al firewall de arno (Arno iptables,
+http://rocky.eld.leidenuniv.nl/). 
+% La configuraci\'on est\'a en
+% /etc/arno-iptables-firewall/firewall.conf. 
+El firewall se instala
+en el server conectado a la red externa, se supone que la red interna
+es confiable.
+
+Furthermore, the software fail2ban is adviced on all pcs to control
+attacks.
+
+\subsection{SERVER}
+
+Just install it by using the command \\
+\verb+sudo apt-get install arno-iptables-firewall+ You can either
+config the firewall by using the initial config option or the command
+\verb+dpkg-reconfigure arno-iptables-firewall+, or from scratch or use
+an old config file.
+
+La configuraci\'on queda en el archivo
+\verb+/etc/arno-iptables-firewall/firewall.conf+ . Revisarla, editar
+las rutas de los comandos \verb+iptables+ y \verb+ip6tables+. 
+
+If you are using the old config file from slackware, check the
+environment  and plugins settings (remove local). 
+
+% Add a hook to run the firewall each time the external interface is
+% updated, by adding the following line
+% \begin{verbatim}
+% /etc/rc.d/rc.firewall restart 
+% \end{verbatim}
+% to the file \verb+/etc/dhcpcd.exit-hook+
+
+\subsection{CLIENT}
+No se instala el firewall en los clientes, s\'olo en el servidor de
+red externo. Se supone que la red interna es confiable.
+\subsection{TEST}
+Start the firewall with \verb+sudo service arnot-iptables-firewall start+
+
+Clients cannot browse yet because dns is not configured
+ 
+
+\section{Dnsmasq (DHCP, MASQUERADING, NTP, DNS, etc)} 
+La configuración de todos estos servicios se realiza facilmente con el
+paquete dnsmasq. Una vez instalado, el archivo /etc/dnsmasq.conf debe
+ser configurado para el caso particular. Se remite al lector a toda la
+documentación que acompaña a el paquete. El ejemplo del archivo
+dnsmasq.conf se encuentra al final de este documento. 
+El servicio dnsmasq debe ser activado desde el inicio
+
+% DO NOT FORGET TO EDIT \verb+/etc/defaults/dnsmasq+ AND UNCOMMENT  THE
+% LINE \verb+IGNORE_RESOLVCONF=yes+,  otherwise you will suffer.
+
+
+Las opciones importantes a configurar son: 
+\begin{itemize}
+\item Interface en la que se escuchan los request de dhcp (ETH1 y ETH0):
+\begin{verbatim}
+# If you want dnsmasq to listen for DHCP and DNS requests only on
+# specified interfaces (and the loopback) give the name of the
+# interface (eg eth0) here.
+# Repeat the line for more than one interface.
+interface=eth1
+interface=eth0
+\end{verbatim}
+
+\verb+listen-address=127.0.0.1+
+
+\item Dominio:
+\begin{verbatim}
+domain=ssf.net
+\end{verbatim}
+
+\item Rango de dhcp (hay muchas formas de hacerlo, ver la documentación):
+\begin{verbatim}
+dhcp-range=192.168.123.2,192.168.123.250,255.255.255.0,12h
+\end{verbatim}
+  
+\item Ignorar request de otras máquinas: Esta medida requiere conocer
+  las macs de los clientes y SE ACONSEJA.
+\begin{verbatim}
+dhcp-host=*:*:*:*:*:*,ignore
+\end{verbatim}
+
+\item Asignar ips de acuerdo a la mac, tener en cuenta que los
+  nosmbres de DNS serán los asignados por el DHCP:
+\begin{verbatim}
+dhcp-host=00:11:11:82:EB:26,ssf32-02,192.168.123.2
+dhcp-host=00:12:3F:A7:28:C3,ssf32-03,192.168.123.3
+dhcp-host=00:07:E9:F0:C4:C9,ssf32-04,192.168.123.4
+dhcp-host=00:14:22:3B:24:F3,ssf64-01,192.168.123.5
+\end{verbatim}
+Y así sucesivamente.
+
+\item Opciones de acuerdo al RFC 2132 (google ?) en este caso la
+  mascara de red, el gateway, winsservers y dns server. 
+\begin{verbatim}
+dhcp-option=1,255.255.255.0
+dhcp-option=6,192.168.123.1
+dhcp-option=44,168.176.160.22,168.176.160.23
+dhcp-option=41,192.168.123.1
+\end{verbatim}
+
+\item Ntp server:
+\begin{verbatim}
+# Set the NTP time server addresses to 192.168.0.4 and 10.10.0.5
+#dhcp-option=option:ntp-server,192.168.0.4,10.10.0.5
+dhcp-option=option:ntp-server,192.168.123.1
+# Set the NTP time server address to be the same machine as
+# is running dnsmasq
+dhcp-option=42,0.0.0.0
+\end{verbatim}
+
+\item NIS domain (for user authentification)
+\begin{verbatim}
+dhcp-option=40,ssfservernis
+\end{verbatim}
+
+%%%% \item
+%%\begin{verbatim}
+%%
+%%\end{verbatim}
+
+
+\textbf{\large NOTE: IS THIS NEEDED???}
+Por último, es importante comentar la línea de 127.0.0.1 en el
+\verb+/etc/hosts+ y reemplazarla por el ip del servidor,
+192.168.123.1 . El archivo debe quedar así:
+\begin{verbatim}
+#
+# hosts         This file describes a number of hostname-to-address
+#               mappings for the TCP/IP subsystem.  It is mostly
+#               used at boot time, when no name servers are running.
+#               On small systems, this file can be used instead of a
+#               "named" name server.  Just add the names, addresses
+#               and any aliases to this file...
+#
+# By the way, Arnt Gulbrandsen <agulbra@nvg.unit.no> says that 127.0.0.1
+# should NEVER be named with the name of the machine.  It causes problems
+# for some (stupid) programs, irc and reputedly talk. :^)
+#
+
+# For loopbacking.
+127.0.0.1               localhost
+#127.0.0.1              ssf1.ssf.net ssf1
+192.168.123.1           ssf1.ssf.net ssf1
+
+# End of hosts.
+\end{verbatim}
+
+\end{itemize}
+
+\subsection{TEST}
+Reiniciar el  (servicio en el)  servidor, luego reiniciar los
+(servicios en los) clientes. Desde un cliente
+hacer ping al server
+\begin{verbatim}
+ping 192.168.123.1
+\end{verbatim}
+y debe ser exitoso, mostrando algo como
+
+\begin{verbatim}
+PING 192.168.123.1 (192.168.123.1) 56(84) bytes of data.
+64 bytes from 192.168.123.1: icmp_seq=1 ttl=64 time=0.158 ms
+64 bytes from 192.168.123.1: icmp_seq=2 ttl=64 time=0.147 ms
+64 bytes from 192.168.123.1: icmp_seq=3 ttl=64 time=0.142 ms
+64 bytes from 192.168.123.1: icmp_seq=4 ttl=64 time=0.145 ms
+
+--- 192.168.123.1 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 2999ms
+rtt min/avg/max/mdev = 0.142/0.148/0.158/0.006 ms
+\end{verbatim}
+
+De lo contrario hay que encontrar el problema. Un
+error común es que dnsmasq no esté corriendo. 
+
+%En este punto xestá instalado el servidor de red interno y las máquinas
+%de la sala pueden navegar en  internet si el servidor tiene red. 
+
+
+
+\section{VPN : Computers outside the internal LAN but inside
+  University LAN}
+In this section we are going to configure show how to setup a VPN,
+using openVPN, to connect computers outside the internal LAN to the
+main server in order to share NFS files and to allow NIS
+authentification. The network segment will be 10.88.55.0/24 .
+
+\textit{Heavily based on the openVPN howto: }\verb+http://openvpn.net/howto.html+
+\subsection{SERVER} 
+\url{https://help.ubuntu.com/12.04/serverguide/openvpn.html}
+\begin{itemize}
+\item \verb+sudo apt-get install openvpn+
+\item \verb+mkdir /etc/openvpn/easy-rsa/+
+\item \verb+cp -r /usr/share/doc/openvpn/examples/easy-rsa/2.0/*  /etc/openvpn/easy-rsa/+
+\item OPTIONAL : Edit \verb+/etc/openvpn/easy-rsa/vars+ :
+\begin{verbatim}
+export KEY_COUNTRY="US"
+export KEY_PROVINCE="NC"
+export KEY_CITY="Winston-Salem"
+export KEY_ORG="Example Company"
+export KEY_EMAIL="steve@example.com"
+\end{verbatim}
+\item \verb+cp openssl-1.0.0.cnf openssl.cnf+
+\item Generate the master Certificate Authority (CA) certificate and
+  key: 
+\begin{verbatim}
+cd /etc/openvpn/easy-rsa/
+source vars
+./clean-all
+\end{verbatim}
+  % \item   Setting up your own Certificate Authority (CA) and generating
+  %   certificates and keys for an OpenVPN server and multiple clients:
+  %   \begin{enumerate}
+  %   \item Go to the directory /usr/share/doc/openvpn-2.0.9, where 2.0.9
+  %     is the version of openvpn. cp this directory to another one to
+  %     save the new files without destroying the originals. \\
+  %     \verb+cp -a /usr/share/doc/openvpn-2.0.9   /usr/share/doc/openvpn-2.0.9-mod+ 
+  %   \item Go to the new dir, and enter the subdir \verb+easy-rsa+.
+  %   \item Setup the vars in the file \verb+vars+, we can use the
+  %     defaults, and load the vars: \verb+. ./vars+
+  %   \item Clean any previous: \verb+./clean-all+
+\item Build the certificate: \verb+./build-ca+ , you can use default
+  answers for everything but \verb+Common Name+ , where you should
+  put something to describe your vpn network, like OpenVPN-SSF.
+\item Generate certificate and  key for server:
+  \verb+./build-key-server ssfvpnserver+ , you can use default parameters,
+  BUT \verb+Common Name+ should be set to ssfvpnserver. Answer y for Sign
+  the certificate and y to commit.  
+\item Generate Diffie Hellman parameters: \verb+./build-dh+
+\item \verb+cd keys/+
+\item \verb+cp ssfvpnserver.crt ssfvpnserver.key ca.crt dh1024.pem /etc/openvpn/+
+\item Generate certificates and  keys for the clients: \\
+  \verb+cd /etc/openvpn/easy-rsa/+\\
+  \verb+source vars+\\
+  \verb+./build-key client1+\\
+  \verb+./build-key client2+\\
+  \verb+./build-key client3+\\
+  MAKE SURE TO PUT THE NAME OF THE CLIENT IN \verb+Common Name+ : First
+  one is client1, second one is client2, etc.
+%\item Generate shared key for encrypted traffic with TLS: \verb+openvpn --genkey --secret ta.key+
+  % \end{enumerate}
+\item copy to each client:
+\begin{verbatim}
+/etc/openvpn/ca.crt
+/etc/openvpn/easy-rsa/keys/client1.crt
+/etc/openvpn/easy-rsa/keys/client1.key
+\end{verbatim}
+\item \verb+sudo cp  /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz  /etc/openvpn/+
+\item \verb+sudo gzip -d /etc/openvpn/server.conf.gz+
+\item Edit \verb+/etc/openvpn/server.conf+
+\begin{verbatim}
+ca ca.crt
+cert ssfvpnserver.crt
+key ssfvpnserver.key 
+dh dh1024.pem
+\end{verbatim}
+You can also set the following options to
+\verb+/etc/openvpn/server.conf+:
+\begin{verbatim}
+client-to-client  # allows communication between clients
+push "dhcp-option DNS 168.176.14.174"
+\end{verbatim}
+\item Change the config for the network if you want to change the
+  default. (For ssf 10.88.55.0/24)
+  
+% \item You will have to copy the files to \verb+/etc/openvpn/certs+ and
+%   \verb+/etc/openvpn/keys+ :
+%   \begin{itemize}
+%   \item \verb+ca.crt+ to server and clients, to dir \verb+/etc/openvpn/certs+
+%   \item \verb+ta.key+ to server and clients, to dir \verb+/etc/openvpn/keys+
+%  \item \verb+ca.key+ to server only, to dir \verb+/etc/openvpn/keys+.
+%   \item \verb+dh1024.pem+ to server only, to dir \verb+/etc/openvpn/+.
+%   \item \verb+server.crt+ to server only, to dir \verb+/etc/openvpn/certs+.
+%   \item \verb+server.key+ to server only, to dir \verb+/etc/openvpn/keys+.
+%   \item \verb+client1.crt+ to client1 only, to dir \verb+/etc/openvpn/certs+.
+%   \item \verb+client1.key+ to client1 only, to dir \verb+/etc/openvpn/keys+.
+%   \item \verb+client2.crt+ to client2 only, to dir \verb+/etc/openvpn/certs+.
+%   \item \verb+client2.key+ to client2 only, to dir \verb+/etc/openvpn/keys+.
+%   \item \ \vdots
+%   \end{itemize}
+ 
+% \item The server configuration file in \verb+/etc/openvpn/openvpn.conf+ should have the following options:
+% \begin{verbatim}
+% cd /etc/openvpn
+% proto udp
+% port 1194
+% verb 3
+% log-append /var/log/openvpn.log
+% daemon
+% dev tun
+% persist-tun 
+% persist-key 
+% server 10.88.55.0 255.255.255.0
+% ifconfig-pool-persist ips.txt
+% client-to-client
+% cipher BF-CBC
+% ca certs/ca.crt
+% dh dh1024.pem
+% cert certs/ssfvpnserver.crt
+% key keys/ssfvpnserver.key
+% tls-auth keys/ta.key 0
+% \end{verbatim}
+
+\end{itemize}
+
+% To create the device automatically, you should load the tun module:
+% \verb+modprobe tun+ . 
+
+You must open the port 1194 in the firewall \verb+OPEN_UDP="53,67,1194"+, and add the interface
+tun0 to the fully trsuted interfaces \verb+TRUSTED_IF="tun0"+
+
+\subsection{CLIENT(S)}
+\begin{itemize}
+\item \verb+sudo apt-get install openvpn+
+\item \verb+sudo cp  /usr/share/doc/openvpn/examples/sample-config-files/client.conf  /etc/openvpn/+
+\item Copy clients keys and server certificate to \verb+/etc/openvpn/+
+\item Make sure the \verb+client.conf+ has 
+\begin{verbatim}
+ca ca.crt
+cert client1.crt
+key client1.key
+remote vpnserver.example.com 1194
+\end{verbatim}
+
+% Each client configuration should have the following options  (\verb+/etc/openvpn/openvpn.conf+):
+% \begin{verbatim}
+% client
+% cd /etc/openvpn
+% remote serverssf1.dyndns.org 1194
+% proto udp
+% port 1194
+% verb 3
+% log-append /var/log/openvpn.log
+% dev tun
+% persist-tun
+% persist-key
+% cipher BF-CBC
+% ca certs/ca.crt
+% cert certs/ssfvpnclient1.crt
+% key keys/ssfvpnclient1.key
+% tls-auth keys/ta.key 1
+% \end{verbatim}
+
+\item \verb+service openvpn start+
+\item Check the tun interface: \verb+ifconfig tun0+
+
+\end{itemize}
+
+Change ssfvpnclient1 for the actual name of the client in the vpn.
+
+\subsection{TEST} 
+Ping server and clients from server and clients.
+% \begin{itemize}
+% \item Start the server : \verb+openvpn --config /etc/openvpn/openvpn.conf+ \\
+% Something like the following should appear in \verb+/var/log/openvpn.log+:
+% \begin{verbatim}
+% Wed Apr 14 23:14:22 2010 OpenVPN 2.0.9 i486-slackware-linux [SSL] [LZO] [EPOLL] built on Jun 11 2007
+% Wed Apr 14 23:14:22 2010 WARNING: --keepalive option is missing from server config
+% Wed Apr 14 23:14:22 2010 Diffie-Hellman initialized with 1024 bit key
+% Wed Apr 14 23:14:22 2010 Control Channel Authentication: using 'keys/ta.key' as a OpenVPN static key file
+% Wed Apr 14 23:14:22 2010 Outgoing Control Channel Authentication: Using 160 bit message hash 'SHA1' for HMAC authentication
+% Wed Apr 14 23:14:22 2010 Incoming Control Channel Authentication: Using 160 bit message hash 'SHA1' for HMAC authentication
+% Wed Apr 14 23:14:22 2010 TLS-Auth MTU parms [ L:1541 D:166 EF:66 EB:0 ET:0 EL:0 ]
+% Wed Apr 14 23:14:22 2010 TUN/TAP device tun0 opened
+% Wed Apr 14 23:14:22 2010 /sbin/ifconfig tun0 10.88.55.1 pointopoint 10.88.55.2 mtu 1500
+% Wed Apr 14 23:14:22 2010 /sbin/route add -net 10.88.55.0 netmask 255.255.255.0 gw 10.88.55.2
+% Wed Apr 14 23:14:22 2010 Data Channel MTU parms [ L:1541 D:1450 EF:41 EB:4 ET:0 EL:0 ]
+% Wed Apr 14 23:14:22 2010 UDPv4 link local (bound): [undef]:1194
+% Wed Apr 14 23:14:22 2010 UDPv4 link remote: [undef]
+% Wed Apr 14 23:14:22 2010 MULTI: multi_init called, r=256 v=256
+% Wed Apr 14 23:14:22 2010 IFCONFIG POOL: base=10.88.55.4 size=62
+% Wed Apr 14 23:14:22 2010 IFCONFIG POOL LIST
+% Wed Apr 14 23:14:22 2010 ssfvpnclient2,10.88.55.4
+% Wed Apr 14 23:14:22 2010 ssfvpnclient1,10.88.55.8
+% Wed Apr 14 23:14:22 2010 Initialization Sequence Completed
+% \end{verbatim}
+
+% \item Start each client  (forst make a \verb+modprobe tun+): \verb+openvpn --config /etc/openvpn/openvpn.conf+ \\
+% Something like the following should appear in \verb+/var/log/openvpn.log+:
+% \begin{verbatim}
+% Wed Apr 14 23:19:48 2010 OpenVPN 2.0.9 i486-slackware-linux [SSL] [LZO] [EPOLL] built on Jun 11 2007
+% Wed Apr 14 23:19:48 2010 WARNING: No server certificate verification method has been enabled.  See http://openvpn.net/howto.html#mitm for more info.
+% Wed Apr 14 23:19:48 2010 Control Channel Authentication: using 'keys/ta.key' as a OpenVPN static key file
+% Wed Apr 14 23:19:48 2010 Outgoing Control Channel Authentication: Using 160 bit message hash 'SHA1' for HMAC authentication
+% Wed Apr 14 23:19:48 2010 Incoming Control Channel Authentication: Using 160 bit message hash 'SHA1' for HMAC authentication
+% Wed Apr 14 23:19:48 2010 Control Channel MTU parms [ L:1541 D:166 EF:66 EB:0 ET:0 EL:0 ]
+% Wed Apr 14 23:19:48 2010 Data Channel MTU parms [ L:1541 D:1450 EF:41 EB:4 ET:0 EL:0 ]
+% Wed Apr 14 23:19:48 2010 Local Options hash (VER=V4): '70f5b3af'
+% Wed Apr 14 23:19:48 2010 Expected Remote Options hash (VER=V4): 'a2e2498c'
+% Wed Apr 14 23:19:48 2010 UDPv4 link local (bound): [undef]:1194
+% Wed Apr 14 23:19:48 2010 UDPv4 link remote: 168.176.34.36:1194
+% Wed Apr 14 23:19:48 2010 TLS: Initial packet from 168.176.34.36:1194, sid=4df00a24 3d78a650
+% Wed Apr 14 23:19:48 2010 VERIFY OK: depth=1, /C=KG/ST=NA/L=BISHKEK/O=OpenVPN-TEST/CN=OpenVPN-SSF/emailAddress=me@myhost.mydomain
+% Wed Apr 14 23:19:48 2010 VERIFY OK: depth=0, /C=KG/ST=NA/O=OpenVPN-TEST/CN=ssfvpnserver/emailAddress=me@myhost.mydomain
+% Wed Apr 14 23:19:48 2010 Data Channel Encrypt: Cipher 'BF-CBC' initialized with 128 bit key
+% Wed Apr 14 23:19:48 2010 Data Channel Encrypt: Using 160 bit message hash 'SHA1' for HMAC authentication
+% Wed Apr 14 23:19:48 2010 Data Channel Decrypt: Cipher 'BF-CBC' initialized with 128 bit key
+% Wed Apr 14 23:19:48 2010 Data Channel Decrypt: Using 160 bit message hash 'SHA1' for HMAC authentication
+% Wed Apr 14 23:19:48 2010 Control Channel: TLSv1, cipher TLSv1/SSLv3 DHE-RSA-AES256-SHA, 1024 bit RSA
+% Wed Apr 14 23:19:48 2010 [ssfvpnserver] Peer Connection Initiated with 168.176.34.36:1194
+% Wed Apr 14 23:19:49 2010 SENT CONTROL [ssfvpnserver]: 'PUSH_REQUEST' (status=1)
+% Wed Apr 14 23:19:49 2010 PUSH: Received control message: 'PUSH_REPLY,route 10.88.55.0 255.255.255.0,ifconfig 10.88.55.6 10.88.55.5'
+% Wed Apr 14 23:19:49 2010 OPTIONS IMPORT: --ifconfig/up options modified
+% Wed Apr 14 23:19:49 2010 OPTIONS IMPORT: route options modified
+% Wed Apr 14 23:19:49 2010 TUN/TAP device tun0 opened
+% Wed Apr 14 23:19:49 2010 /sbin/ifconfig tun0 10.88.55.6 pointopoint 10.88.55.5 mtu 1500
+% Wed Apr 14 23:19:49 2010 /sbin/route add -net 10.88.55.0 netmask 255.255.255.0 gw 10.88.55.5
+% Wed Apr 14 23:19:49 2010 Initialization Sequence Completed
+% \end{verbatim}
+% \end{itemize}
+% Now you could ping the server from the client: \verb+ping 10.88.55.1+ .
+
+NOTE: You will have to add the network 10.88.55.0/24 to the trusted
+networks for nfs and nis.
+
+\textbf{On the server, the file /etc/openvpn/ipp.txt } can be used to
+configure the ips for each client.
+
+%\textbf{DO NOT FORGET TO START THE VPN TUNNEL AT THE BEGINNING}
+
+\section{Comandos de bash múltiples máquinas (paralelos)}
+The original I was using was the c3 tools. Now, in Ubuntu, I will
+switch to kanif, which is  a wrapper over TakTuk, a tool for large
+scale cluster managment.
+
+
+
+% Esta sección está diseñada para facilitar la edición y ejecución de
+% múltiples instrucciones en múltiples computadores al mismo tiempo. Se
+% utilizarán las herramientas para manejo de clusters C3
+% (http://www.csm.ornl.gov/torc/C3/).
+
+\textbf{DNS or hostname resolution must be supported and working.}
+
+\subsection{SERVER}
+\textbf{kanif install}
+\begin{itemize}
+\item \verb+sudo apt-get install kanif+
+  \item The configuration is the same for c3, and is stored at \verb+/etc/kanif.conf+
+\end{itemize}
+
+\textbf{Passwordless ssh}
+\begin{itemize}
+\item \verb+ssh-keygen+
+\item \verb+ssh-copy-id -i ~/.ssh/id_rsa.pub remote-host+
+\end{itemize}
+
+On c3 use ip numbers or hostnames only if name resolution is working.
+
+% Seguir las instrucciones del archivo INSTALL. 
+% \begin{itemize}
+% \item Uncompress the package and enter the directory.
+% \item If you want to install the tools in a directory different from
+%   the default \verb+/opt/c3-4+ , replace \verb+basedir+ in the script
+%   \verb+Install-c3+ . 
+% \item Install the tools by executing the install script: \verb+# bash Install-c3+
+% \item Configuration: the clusters are written on /etc/c3.conf . Example :
+% \begin{verbatim}
+% cluster local {
+%         ssf1:ssf1 # head node
+%         ssf1
+%         ssf[2-3]
+%         10.88.55.6
+%         10.88.55.10
+% }
+% \end{verbatim}
+% The last ones are for the vpn, until now is not linked with some dns mechanism.
+% \item For each c3 command make a link to \verb+/usr/local/bin+ :
+% \begin{verbatim}
+% for a in /opt/c3-4/*; do if [ -x $a ]; then echo $a; \
+% ln -s $a /usr/local/bin/; fi ; done
+% \end{verbatim}
+% \item \verb+ln -s /usr/bin/python /usr/local/bin/python2+
+% \end{itemize}
+
+% Until we have configured succesfully the c3 tools, but each time we
+% use the command we are prommted for a password, so we need to
+% configure automatic ssh login. How to do that? Google! (the range
+% \verb+1-2+ should be changed to the actual number of nodes)
+% \begin{itemize}
+% \item \verb+ssh-keygen -t dsa+
+% \item \verb+chmod 700 ~/.ssh/+
+% \item (Not needed when the directory .ssh is shared b NFS, i.e. a
+%   typical user) \\ \verb+cpush ~/.ssh/id_dsa.pub ~/+
+% \item \verb+cexec :1-3 "mkdir .ssh"+
+% \item \verb+cexec :1-3 "cat id_dsa.pub >> .ssh/authorized_keys"+
+% \item \verb+DONE!+
+% \end{itemize}
+
+%\subsection{CLIENT}
+\subsection{TEST}
+\verb+kash ls -l+ should work, showing results on each computer.
+
+
+
+\section{Configuración del NFS}
+NFS allows to share directories across the net in transparent form. We
+are going to share the home directory.
+
+\subsection{SERVER}
+\begin{itemize}
+\item Install the NFS tools :
+\begin{verbatim} 
+sudo apt-get install nfs-kernel-server
+\end{verbatim}
+\item Configure the export by adding the following to \verb+/etc/exports+:
+\begin{verbatim}
+/home 192.168.123.0/255.255.255.0(fsid=0,rw,sync,no_root_squash,no_subtree_check) \
+10.88.55.0/255.255.255.0(fsid=0,rw,sync,no_root_squash,no_subtree_check)+ 
+\end{verbatim}
+\item \verb+service nfs-kernel-server restart+
+\end{itemize}
+
+Edit \verb+/etc/hosts.allow+ and \verb+/etc/hosts.deny+,
+related with the security of RPC daemon:
+\begin{itemize}
+\item \verb+/etc/host.deny+
+\begin{verbatim}
+rpcbind nfsd portmap lockd mountd rquotad statd : ALL
+\end{verbatim}
+\item \verb+/etc/host.allow+
+\begin{verbatim}
+rpcbind nfsd portmap lockd mountd rquotad statd : 127.0.0.1, 192.168.123.0/24 , 10.88.55.0/24
+\end{verbatim}
+\end{itemize}
+
+\subsection{CLIENT}
+\begin{itemize}
+\item \verb+sudo apt-get install nfs-common+
+\item \verb+mkdir /home+
+\item (Internal clients) Add the following to \verb+/etc/fstab+
+\begin{verbatim}
+192.168.123.1:/home     /home   nfs     rw,hard,intr    0       0
+\end{verbatim}
+\item (VPN clients) Add the following to \verb+/etc/fstab+
+\begin{verbatim}
+10.88.55.1:/home     /home   nfs     rw,hard,intr    0       0
+\end{verbatim}
+\end{itemize}
+
+You could add \verb+nfs+ to \verb+/etc/modules+ to load it at startup.
+
+\subsection{TEST}
+On the clients, run \verb+mount -a+ and check all the exported resources are mounted. 
+
+
+\section{NIS}
+This service allows to authenticate users on several machines from a
+central database.
+\url{https://help.ubuntu.com/community/SettingUpNISHowTo}
+
+\subsection{SERVER}
+\begin{itemize}
+\item Add to \verb+/etc/host.allow+ :
+\begin{verbatim}
+portmap ypserv ypbind : 127.0.0.1, 192.168.123.0/24 , 10.88.55.0/24
+\end{verbatim}
+\item \verb+sudo apt-get install portmap nis+ . If you are asked for
+  the nis domain, use the current in use \verb+ssfservernis+ .
+\item Nis domain (if not configured previously): 
+\begin{verbatim}
+echo domain_name > /etc/defaultdomain
+\end{verbatim}
+  where  \verb+domain_name+ is , in this case, \verb+ssfservernis+ .
+%\item Edit \verb+/etc/default/portmap+ and comment out the
+  %\verb+ARGS="-i 127.0.0.1"+ line.
+\item Edit \verb+/etc/default/nis+ and set the \verb+NISSERVER+ line
+  to \verb+NISSERVER=master+, and \verb+NISCLIENT=true+ to
+  \verb+NISCLIENT=+. 
+\item Edit \verb+/etc/yp.conf+ and add a server line of the form:\\
+  \verb+ypserver 192.168.123.1+
+\item NIS Makefile edit:  
+\begin{verbatim}
+# cd /var/yp
+(edit Makefile: MINUID=1000)
+(edit Makefile: MINGID=2)
+(edit Makefile: MERGE_PASSWD = true -> false)
+(edit Makefile: MERGE_GROUP = true -> false)
+\end{verbatim}
+\item If desired, edit \verb+/etc/ypserv.securenets+ and add lines to restrict
+  access to domain members. I use lines for specific hosts, like: 
+\begin{verbatim}
+host 192.168.1.1
+host 192.168.1.2
+\end{verbatim}
+And comment out the 0.0.0.0 stuff. 
+\item \verb+make+ 
+\item Build the database for the first time \\
+\verb+sudo /usr/lib/yp/ypinit -m+
+\item \verb+make+ 
+\item \verb+service portmap restart+
+\item Check nice output from \verb+rpcinfo -p localhost+
+
+% \item Configurar el script de inicio de NIS:
+% \begin{verbatim}
+% #chmod +x /etc/rc.d/rc.yp
+% (editar rc.yp, descomentar lo referente a defaultdomain) 
+% (editar rc.yp, descomentar lo referente a ypserv) 
+% (editar rc.yp, descomentar lo referente a yppasswdd) 
+% \end{verbatim}
+
+\end{itemize}
+
+\subsection{CLIENT}
+\begin{itemize}
+\item Add server to \verb+/etc/hosts+. This means that you can still find the server if there is a DNS failure. 
+\item \verb+sudo apt-get install portmap nis+
+\item Domain name (if not asked or wrongly setted up previously):
+\begin{verbatim}
+echo domain_name > /etc/defaultdomain
+\end{verbatim}
+\item Internal clients: add to \verb+/etc/yp.conf+ :
+  \verb+ypserver 192.168.123.1+
+\item VPN clients: add to \verb+/etc/yp.conf+ :
+  \verb+ypserver 10.88.55.1+
+%  \verb+domain ssfservernis server 10.88.55.1+
+
+% \item Editar /etc/nsswitch.conf:
+% \begin{verbatim}
+% Comentar passwd: compact
+% Comentar group: compact
+% Descomentar passwd: files nis
+% Descomentar shadow: files nis
+% Descomentar group: files nis
+% \end{verbatim}
+
+\item Setup login and password files to use NIS
+\begin{verbatim}
+echo +:::::: >> /etc/passwd
+echo +:::::::: >> /etc/shadow
+echo +::: >> /etc/group
+\end{verbatim}
+%echo +:: ... >> /etc/gshadow
+\item Reboot the system (sometimes is the only solution ot make NIS work)
+\end{itemize}
+
+\subsection{TEST}
+Restart both server and clients and check login. 
+
+\section{BACKUP}
+\textbf{\large Use the backup system of Ubuntu}
+% Para el backup se usa el sistema simple de backup de la p\'agina
+% http://foc.neoartis.org/progs/backup/ ,\linebreak http://freshmeat.net/projects/loopbackup/ .
+
+% Supongo que el cliente 192.168.123.7 es el servidor de backup.
+
+% Para este caso se aconseja actualizar (mediante cron) el backup cada 2
+% semanas. Se guardarn tres copias, es decir, un mes y medio. 
+
+\subsection{SERVER}
+
+\subsection{CLIENT}
+% Para configurarlo, simplemente seguir las instrucciones de la página
+% y/o paquete. 
+
+% El cron debe ser configurado en la misma m\'aquina mismo, por ejemplo
+% usando kcron. Si se prefiere \verb+crontab -e+, la l\'inea ser\'ia
+% \begin{verbatim}
+% 0 7 1,15 * * /usr/local/backup/bakcup.sh 1>/dev/null 2>/dev/null
+% \end{verbatim}
+
+%%\subsection{TEST} 
+
+\section{Recrear la base de datos a partir de una ya existente}
+\subsection{SERVER}
+
+\verbatiminput{scripts/users.sh}
+
+Restart nis : \\
+\verb+service portmap restart+ \\
+\verb+service ypserv restart+ \\
+\verb+/etc/init.d/nis restart+ 
+
+\subsection{CLIENT}
+\verb+service portmap restart+ \\
+\verb+/etc/init.d/nis restart+
+\subsection{TEST}
+Log with different users on different computers
+
+\section{QUOTA}
+See quota-howto. Set the quota por a propotype user, configure fstab
+to mount with quota support, and assign the quota for all users using
+the prototype. Journaled quota (to speed up quota check) will be
+configured.
+
+\subsection{SERVER}
+
+\verb+sudo apt-get install quota quotatool+
+
+Modified fstab (change \verb+/dev/sda5+ in favor of your local config): 
+\begin{verbatim}
+/dev/sda5        /home        reiserfs    defaults,usrjquota=aquota.user,jqfmt=vfsv0         1   2
+\end{verbatim}
+Now execute:
+\begin{verbatim} 
+modprobe quota_v2
+echo 'quota_v2' >> /etc/modules
+mount -o remount /home
+rm -f /home/aquota.*
+quotacheck -avugm
+quotaon -avug
+#touch /home/aquota.user
+#touch /home/aquota.user
+#chmod 600 /aquota.*
+\end{verbatim}
+
+Add to crontab:
+\begin{verbatim}
+0 3 * * 0 /sbin/quotacheck -avug
+\end{verbatim}
+
+RESTART
+
+Edit the prototype user:
+\begin{verbatim}
+export EDITOR=emacs 
+edquota -u tmpuser
+\end{verbatim}
+For 3.2GB, set soft to 3000000, and  hard to 3200000.
+Typical grace time is 7 days.
+
+Now edit the cuota for the remaining users. 
+\begin{verbatim}
+for a in $(cat /etc/passwd | awk '{ FS=":";if ($3 > 1000) print $1}'); \
+do edquota -p testuser $a ;done
+\end{verbatim}
+
+Por último, se puede editar la cuota de usuarios particulares para que tengan menos o más quota.
+
+%%\subsection{TEST}
+
+\section{Impresora (to be updated)}
+El SSF cuenta con una impresora que tiene su propia tarjeta de red. El
+ip asignado a la impresora es 192.168.123.9 . En este caso se
+configurará CUPS para que ``hable'' con esa impresora, una HP Laserjet 2420dn. 
+\subsection{SERVER}
+\begin{itemize}
+\item Add the network printer via the cups interface on localhost:631
+\item Backup the cups directory on each slave:\\
+  \verb+cexec :1-2 "cp -a /etc/cups ~/cupsOLD"+
+\item Copy (overwrite) the server cups directory to the slaves and restart:\\
+  \verb+tar czf cups.tar.gz /etc/cups+ \\
+  \verb+cpush :1-2 cups.tar.gz cupsHEAD.tar.gz+  \\
+  \verb+cexec :1-2 "tar xzf cupsHEAD.tar.gz"+  \\
+  \verb+cexec :1-2 "rsync -av etc/cups/ /etc/cups/"+  \\
+  \verb+cexec :1-2 "/etc/rc.d/rc.cups restart"+  \\
+\end{itemize}
+
+%%\subsection{CLIENT}
+\subsection{TEST}
+Print test pages on each computer
+
+
+
+\section{Scanner (to be updated)}
+The scanner at the office is a Benq 4300 old scanner. To make it work,
+a firmware is needed, look at the information related to sane and
+snapscan backend, \verb+http://snapscan.sourceforge.net/+ . The
+scanner is a Acer / Benq 4300 FlatbedScanner23, something that you can
+know by running the commands \verb+sane-find-scanner+ and, if
+successfull, \verb+scanimage -L+ . 
+
+\textbf{Fortunately, SLackware 13.1 detects successfully the Scanner!}
+
+They say it is a
+\verb+FlatbedScanner21+, but the working firmware is for the
+\verb+FlatbedScanner23+ From this information, we know we need the
+firmware \verb+u176v046.bin+. It is quite tricky to find this file,
+you can google and/or try to download it from the vendor site. One
+link is
+%\verb+ftp://12.145.38.159/scanner/drivers/usb/mirascanv403u10_bqe.zip+
+\verb+http://outlands.ca/linux/snapscan-firmware.html+ \\
+\verb+http://ubuntu-col.blogspot.com/2009/03/ubuntu-8_18.html+
+. After downloading, 
+%%uncompress the zip file, 
+copy the firmware
+\verb+u176v046.bin+ to the folder \verb+/usr/share/sane/snapscan/+,
+open the file \verb+/etc/sane.d/snapscan.conf+ and put the full path
+to the firmware. Unplug and unplug the scanner. Done. You can scan by
+using xsane or gimp or xscanimage.
+
+The users will to be in the group scanner. Restart the messagebus
+\verb+/etc/rc.d/rc.messagebus restart+
+
+
+To share the scanner on the network:
+\url{http://tldp.org/HOWTO/Scanner-HOWTO/sane.html#CONFIG-SANE}
+\subsection{SERVER (PC with the scanner)}
+\begin{verbatim} 
+if ! id saned; then
+ groupadd saned; 
+ useradd -g saned -G scanner -s /bin/false -d /dev/null saned; 
+fi
+\end{verbatim}
+
+Add the network range in \verb+/etc/sane.d/saned.conf+ 
+
+Add the saned service, \verb+sane 6566/tcp + ,  to
+\verb+/etc/services+
+
+Add\\
+\verb+sane-port stream tcp nowait saned.saned /usr/sbin/tcpd/usr/sbin/saned+ \\
+to \verb+/etc/inetd.conf+ \\
+
+Add ALL:ALL to /etc/hosts.allow\\
+
+
+Restart inetd
+
+\subsection{CLIENT}  
+
+\begin{itemize}
+\item Add ip address of scanner server to the file \verb+/etc/sane.d/net.conf+
+\end{itemize}
+
+
+% \section{Configuración de PHP en el server}
+% \subsection{SERVER}
+% \begin{itemize}
+% \item En el archivo \verb+/etc/httpd/httpd.conf+ descomentar la
+%   línea \linebreak
+% \verb+#Include /etc/httpd/mod_php.conf+
+% \item En el mismo archivo, añadir \linebreak
+% \verb+AddType application/x-httpd-php .php .php3 .phtml+\\
+% \verb+AddType application/x-httpd-php-source .phps+\\
+% en el módulo \verb+<IfModule mime_module>+. 
+% \item Reiniciar el servicio httpd.
+% \end{itemize}
+% %%\subsection{CLIENT}
+% \subsection{TEST}
+% Create a document called, for example, \verb+info.php+, with the
+% following content 
+% \begin{verbatim}
+% <html>
+% <head>
+% <title> PHP Test Script </title>
+% </head>
+% <body>
+% <?php
+% phpinfo( );
+% ?>
+% </body>
+% </html>
+% \end{verbatim}
+
+% Save this document on \verb+/srv/www/htdocs/+, and then open a browser
+% and go to the URL \verb+localhost/info.php+ . You should see the info
+% of the php package. 
+
+
+
+% \section{Archivos de configuración}
+% \subsection{/etc/rc.d/rc.inet1.conf}
+% \hrule
+% \large{\bf Server}
+% \hrule
+% \small{
+%   \verbatiminput{files/server/rc.inet1.conf}
+% }
+% \vspace*{1cm}
+
+% \hrule
+% \large{\bf Client}
+% \hrule
+% \small{
+%   \verbatiminput{files/client/rc.inet1.conf}
+% }
+% \vspace*{1cm}
+
+
+% \subsection{/etc/dnsmasq.conf}
+% \hrule
+% \large{\bf Server}
+% \hrule
+% \small{
+%   \verbatiminput{files/server/dnsmasq.conf}
+% }
+% \vspace*{1cm}
+
+
+% \subsection{/etc/exports}
+% \hrule
+% \large{\bf Server}
+% \hrule
+% \small{
+%   \verbatiminput{files/server/exports}
+% }
+% \vspace*{1cm}
+
+% \subsection{/etc/hosts.deny}
+% \hrule
+% \large{\bf Server}
+% \hrule
+% \small{
+%   \verbatiminput{files/server/hosts.deny}
+% }
+% \vspace*{1cm}
+
+% \subsection{/etc/hosts.allow}
+% \hrule
+% \large{\bf Server}
+% \hrule
+% \small{
+%   \verbatiminput{files/server/hosts.allow}
+% }
+% \vspace*{1cm}
+
+% \subsection{/etc/fstab}
+% \hrule
+% \large{\bf Client}
+% \hrule
+% \small{
+%   \verbatiminput{files/client/fstab}
+% }
+% \vspace*{1cm}
+
+% \subsection{/etc/defaultdomain}
+% \hrule
+% \large{\bf Server}
+% \hrule
+% \small{
+%   \verbatiminput{files/server/defaultdomain}
+% }
+% \vspace*{1cm}
+
+% \subsection{/var/yp/Makefile}
+% \hrule
+% \large{\bf Server}
+% \hrule
+% \small{
+%   \verbatiminput{files/server/Makefile}
+% }
+% \vspace*{1cm}
+
+% \subsection{/etc/rc.d/rc.yp}
+% \hrule
+% \large{\bf Server}
+% \hrule
+% \small{
+%   \verbatiminput{files/server/rc.yp}
+% }
+% \vspace*{1cm}
+
+% \subsection{/etc/rc.d/rc.yp}
+% \hrule
+% \large{\bf Client}
+% \hrule
+% \small{
+%   \verbatiminput{files/client/rc.yp}
+% }
+% \vspace*{1cm}
+
+% \subsection{/etc/nsswitch.conf}
+% \hrule
+% \large{\bf Client}
+% \hrule
+% \small{
+%   \verbatiminput{files/client/nsswitch.conf}
+% }
+% \vspace*{1cm}
+
+% \subsection{/etc/passwd}
+% \hrule
+% \large{\bf Client}
+% \hrule
+% \small{
+%   \verbatiminput{files/client/passwd}
+% }
+% \vspace*{1cm}
+
+% \subsection{/etc/shadow}
+% \hrule
+% \large{\bf Client}
+% \hrule
+% \small{
+%   \verbatiminput{files/client/shadow}
+% }
+% \vspace*{1cm}
+
+% \subsection{/etc/group}
+% \hrule
+% \large{\bf Client}
+% \hrule
+% \small{
+%   \verbatiminput{files/client/group}
+% }
+% \vspace*{1cm}
+
+% \subsection{/etc/gshadow}
+% \hrule
+% \large{\bf Client}
+% \hrule
+% \small{
+%   \verbatiminput{files/client/gshadow}
+% }
+% \vspace*{1cm}
+
+
+% \subsection{/etc/firewall.conf}
+% \hrule
+% \large{\bf Server}
+% \hrule
+% \small{
+%   \verbatiminput{files/server/firewall.conf}
+% }
+% \vspace*{1cm}
+
+% \subsection{/usr/local/etc/backup.conf}
+% \hrule
+% \large{\bf Client}
+% \hrule
+% \small{
+%   \verbatiminput{files/client/backup.conf}
+% }
+% \vspace*{1cm}
+
+
+\end{document}
+
+
+
+
+
+
+

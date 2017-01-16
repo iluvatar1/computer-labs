@@ -1,0 +1,35 @@
+* 2013-08-20:
+** 09:30 (Ivan) Installed gedit and kate editors/packages because I know some people use/need them....
+
+* 2013-08-15:
+** 11:38 (Ivan) Installed spanish language packages for iceweasel/firefox and libreoffice....
+
+* 2013-08-13:
+** 21:00 (W) Installed gfortran 4.7 and libreoffice (already).
+** 21:00 (W) Configured wdm as default login manager.   ...
+
+* 2013-08-12:
+** 19:55 (William) Installed libeigen3-dev, voro++(from source), netcdf-cxx4-4.2(from source). Added /usr/local/lib to ld.so.conf
+** 12:42 (Ivan) Added current users to dialout, plugdev and video groups. And changed /etc/adduser.conf so that this would be the default behaviour, also cha$
+** 09:34 (William) Installed sudo and usbmount (the later for pen drives handling). Added ersanchezp to sudoers as aduser ersanchezp sudo
+** 01:10 (Ivan) Installed bonnie++ testing suite for NFS/network benchmark....
+
+* 2013-08-05:
+** 19:20 Installed packages qtiplot texlive-latex-extra texlive-science texlive-publishers texlive-fonts-extra okular
+** 14:24 Configured ntp service following http://verahill.blogspot.com/2012/02/debian-testing-wheezy-64-keeping-time.html
+** 13:08 Disabled action when power button pressed
+** 12:05 Added some maintenance scripts to be run every minute, hour, and day, at /root/scripts, with cron.
+** 10:28 Installing : ddd kile texmaker python-simpy ipython  grace djview4 ffmpeg gocr graphviz inkscape lame lyx smplayer tmux unrar git gitk nmap wget bui$
+** 10:08 Removed some permissions to halt/reboot computers (ala chmod o-x /sbin/shutdown)
+** 10:02 Configured journaled quota, with 1GB per user
+** 09:20 Installed monit on server and configured some services...
+
+* 2013-08-03:
+** Configured NFS (home)
+** 11:43 Configured NIS
+** 12:46 Installed build-essential...
+
+* 2013-08-02 - 22:30:
+** Removed gnome and installed xfce and xfce-goodies on all clients, follwing instructions from:...
+** Synced the .bashrc to all computers
+** Installed emacs
