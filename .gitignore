@@ -1,6 +1,10 @@
 *.box
 *.run
-Vagrantfile
+basebox/Vagrantfile
 basebox/.vagrant
 *tmp*
 *~
+*tar.gz
+*tgz
+*txz
+
