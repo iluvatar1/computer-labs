@@ -15,9 +15,9 @@ function usage()
 }
 
 # check args
-if [ "$#" -ne "2"]; then usage; exit 1 ; fi
+if [ "$#" -ne "2" ]; then usage; exit 1 ; fi
 if [ ! -d "$1" ]; then echo "Dir does not exist : $1"; usage; exit 1 ; fi
-if [ "$2" -ne "UBUNTU" -o "$2" -ne "SLACKWARE"]; then usage; exit 1 ; fi
+if [  "$2" != "UBUNTU" ] && [  "$2" != "SLACKWARE" ]; then usage; exit 1 ; fi
 
 
 echo "Configuring client ..."
@@ -47,7 +47,7 @@ function copy_config()
 
 # network interfaces
 # slackware already configured to use DHCP
-if [[ $LINUX -eq "UBUNTU" ]]; then 
+if [ "$LINUX" == "UBUNTU" ]; then 
     echo "Configuring network interface"
     bfile=/etc/network/interfaces
     backup_file $bfile
@@ -67,8 +67,7 @@ if [ "$LINUX" == "SLACKWARE" ]; then
     bfile=/etc/slackpkg/mirrors
     if [ x"" == x"$(grep tds $bfile)" ]; then 
 	backup_file $bfile
-	cat <<EOF 
-EOF > $bfile
+	cat <<EOF > $bfile
 http://slackware.mirrors.tds.net/pub/slackware/slackware-14.2/
 EOF
 	slackpkg update
@@ -78,8 +77,7 @@ EOF
 elif [ "$LINUX" == "UBUNTU" ]; then
     bfile=/etc/apt/sources.list
     backup_file $bfile
-    cat <<EOF
-EOF > $bfile
+    cat <<EOF > $bfile
 deb mirror://mirrors.ubuntu.com/mirrors.txt precise main restricted universe multiverse
 deb mirror://mirrors.ubuntu.com/mirrors.txt precise-updates main restricted universe multiverse
 deb mirror://mirrors.ubuntu.com/mirrors.txt precise-backports main restricted universe multiverse
@@ -91,6 +89,7 @@ EOF
     apt-get -y install emacs
 fi
 echo "DONE: Configuring packages mirrors"
+
 
 # ssh server
 echo "Configuring ssh "
@@ -105,37 +104,39 @@ elif [ "$LINUX" == "UBUNTU" ]; then
 fi
 echo "DONE: Configuring ssh"
 
-# ssh server
+
+# ntp server
 echo "Configuring ntp "
 if [ "$LINUX" == "SLACKWARE" ]; then
-    bfile=/etc/ntp.conf
-    if [ x"" == x"$(grep $SERVERIP) /etc/ntp.conf" ]; then
+    if [ x"" == x"$(grep $SERVERIP /etc/ntp.conf)" ]; then
+	bfile=/etc/ntp.conf
 	backup_file $bfile
-	cp -f $FDIR/ntp.conf $bfile
+	cp -f $FDIR/ntp-client.conf $bfile
 	chmod +x /etc/rc.d/rc.ntpd
 	/etc/rc.d/rc.ntpd restart
     else
 	echo "    -> already configured"
     fi
 fi
-echo "DONE: Configuring ssh"
+echo "DONE: Configuring  ntp"
 
 
 # nfs
 echo "Configuring nfs for home "
-bfile="/etc/exports"
+bfile="/etc/fstab"
 if [ x"" == x"$(grep ${SERVERIP} $bfile 2> /dev/null)" ]; then
     backup_file $bfile
+    echo "# NEW NEW NEW NFS stuff " >> $bfile
     echo "${SERVERIP}:/home     /home   nfs     rw,hard,intr  0   0" >> $bfile
 else
     echo "    -> already configured"
 fi
-if [ "$LINUX" -eq "UBUNTU" ]; then
+if [ "$LINUX" == "UBUNTU" ]; then
     bfile="/etc/modules"
     backup_file $bfile
     echo "nfs" >> $bfile
 fi
-mount -a
+#mount -a
 echo "DONE: Configuring nfs"
 
 # nis
@@ -175,7 +176,7 @@ echo "DONE: Configuring nis "
 
 
 # config lightm options
-if [ $LINUX -eq "UBUNTU" ]; then 
+if [ "$LINUX" == "UBUNTU" ]; then 
     echo "Allowing direct login on lightdm"
     bfile="/etc/lightdm/lightdm.conf"
     backup_file $bfile
