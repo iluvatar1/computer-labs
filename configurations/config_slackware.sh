@@ -11,4 +11,9 @@ chmod +x /etc/rc.d/rc.networkmanager
 echo "Chmod +x  nfsd stuff ..."
 chmod +x /etc/rc.d/rc.nfsd
 
+echo "Configuring slim login manager"
+if [ x"" == x"$(grep slim /etc/rc.d/rc.4)" ]; then
+    sed -i.bck '/echo "Starting up X11 session manager..."/a \\n# start SLiM ...\nif [ -x /usr/bin/slim ]; then exec /usr/bin/slim; fi ' /etc/rc.d/rc.4
+fi
 
+echo "Done."
