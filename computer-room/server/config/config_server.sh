@@ -35,12 +35,14 @@ function copy_config()
 }
 
 # copy dot_bashrc
-cp $FDIR/dot_bashrc /root/.bashrc
-source /root/.bashrc
+#cp $FDIR/dot_bashrc /root/.bashrc
+#source /root/.bashrc
 
 # network interfaces
 echo "Configuring network interface"
 if [ "$LINUX" == "SLACKWARE" ]; then
+    bash /etc/rc.d/rc.networkmanager stop
+    chmod -x /etc/rc.d/rc.networkmanager
     copy_config "$FDIR/SERVER-SLACKWARE-etc-rc.d-rc.inet1.conf" /etc/rc.d/rc.inet1.conf
     /etc/rc.d/rc.inet1 restart
 elif [ "$LINUX" == "UBUNTU" ]; then
@@ -54,11 +56,15 @@ echo "DONE: Configuring network interface"
 echo "Configuring packages mirrors"
 if [ "$LINUX" == "SLACKWARE" ]; then
     bfile=/etc/slackpkg/mirrors
-    backup_file $bfile
-    cat <<EOF > $bfile
-http://slackware.mirrors.tds.net/pub/slackware/slackware-14.1/
+    if [ x"" == x"$(grep tds /etc/slackpkg/mirrors 2> /dev/null)" ]; then
+	backup_file $bfile
+	cat <<EOF > $bfile
+http://slackware.mirrors.tds.net/pub/slackware/slackware-14.2/
 EOF
-    slackpkg update
+	slackpkg update
+    else
+	echo "    -> already configured in $LINUX."
+    fi
 elif [ "$LINUX" == "UBUNTU" ]; then
     bfile=/etc/apt/sources.list
     backup_file $bfile
@@ -76,9 +82,10 @@ fi
 echo "DONE: Configuring packages mirrors"
 
 # ssh server
-echo "Configuring ssh "
+echo "Configuring ssh server "
 if [ "$LINUX" == "SLACKWARE" ]; then
-    /etc/rc.d/rc.sshd restart
+    chmod +x /etc/rc.d/rc.sshd
+    /etc/rc.d/rc.sshd start
 elif [ "$LINUX" == "UBUNTU" ]; then
     # apt-get -y install openssh-client openssh-server # ALREADY DONE ON LIVE DVD
     # reconfigure the server since the live cd install screws it somehow
@@ -93,6 +100,7 @@ echo "DONE: Configuring ssh "
 echo "Configuring dnsmasq "
 if [ "$LINUX" == "SLACKWARE" ]; then
     copy_config "$FDIR/SERVER-etc-dnsmasq.conf" "/etc/dnsmasq.conf"
+    chmod +x /etc/rc.d/rc.dnsmasq 
     /etc/rc.d/rc.dnsmasq restart
 elif [ "$LINUX" == "UBUNTU" ]; then
     apt-get -y install dnsmasq 
@@ -110,10 +118,14 @@ echo "DONE: Configuring dnsmasq "
 # firewall
 echo "Configuring firewall "
 if [ "$LINUX" == "SLACKWARE" ]; then
-    sbopkg -e stop -B -k -i arno-iptables-firewall
-    ln -sv /etc/rc.d/rc.arno-iptables-firewall /etc/rc.d/rc.firewall
-    copy_config "$FDIR/SERVER-firewall.conf" "/etc/arno-iptables-firewall/firewall.conf"
-    chmod +x /etc/rc.d/rc.firewall
+    if [ ! hash arno-iptables-firewall 2>/dev/null ]; then
+	sbopkg -e stop -B -k -i arno-iptables-firewall
+	ln -sv /etc/rc.d/rc.arno-iptables-firewall /etc/rc.d/rc.firewall
+	copy_config "$FDIR/SERVER-firewall.conf" "/etc/arno-iptables-firewall/firewall.conf"
+	chmod +x /etc/rc.d/rc.firewall
+    else
+	echo "    -> firewall already installed and configured."
+    fi
     /etc/rc.d/rc.firewall restart
 elif [ "$LINUX" == "UBUNTU" ]; then
     apt-get -y install arno-iptables-firewall
