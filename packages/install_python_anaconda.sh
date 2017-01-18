@@ -12,10 +12,8 @@ fi
 cd ANACONDA
 
 FNAME=Anaconda2-4.2.0-Linux-x86_64.sh
-if [ ! -f ${FNAME} ]; then
-    echo "Downloading anaconda."
-    wget -c  http://repo.continuum.io/archive/${FNAME}
-fi
+echo "Downloading anaconda."
+wget -c  http://repo.continuum.io/archive/${FNAME}
 
 echo "Installing Anaconda in batch mode ..."
 rm -rf /opt/anaconda2 2> /dev/null
