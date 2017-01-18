@@ -18,7 +18,8 @@ if [ ! -f ${FNAME} ]; then
 fi
 
 echo "Installing Anaconda ..."
-bash ${FNAME} -b
+rm -rf /opt/anaconda2 2> /dev/null
+bash ${FNAME} -b -p /opt/anaconda2
 
 if [ ! -f /etc/profile.d/anaconda.sh ]; then 
     echo 'export PATH="/opt/anaconda2/bin:$PATH"' > /etc/profile.d/anaconda.sh
