@@ -17,7 +17,7 @@ if [ ! -f ${FNAME} ]; then
     wget -c  http://repo.continuum.io/archive/${FNAME}
 fi
 
-echo "Installing Anaconda ..."
+echo "Installing Anaconda in batch mode ..."
 rm -rf /opt/anaconda2 2> /dev/null
 bash ${FNAME} -b -p /opt/anaconda2
 
