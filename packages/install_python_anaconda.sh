@@ -39,7 +39,7 @@ conda install -y ipython
 echo "Updating pyEVTK"
 pip install pyEVTK
 echo "Installing  healpy"
-conda install healpy
+pip install healpy
 
 
 #echo "Installing visual python from apt, to be used with /usr/bin/python "
