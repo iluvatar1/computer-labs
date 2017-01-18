@@ -26,6 +26,8 @@ fi
 
 source /etc/profile.d/anaconda.sh
 
+pip install --upgrade pip
+
 echo "Updating conda"
 conda update -y conda
 echo "Installing vpython"
