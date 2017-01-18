@@ -17,7 +17,7 @@ if [ x"" == x"$(grep slim /etc/rc.d/rc.4)" ]; then
     ln -sf /etc/X11/xinit/xinitrc.xfce /etc/X11/xinitrc
 fi
 if [ x"" == x"$(grep slackware-blak /etc/slim.conf)" ]; then
-    sed 's/current_theme.*default/current_theme  slackware-black/' /etc/slim.conf
+    sed -i.bck 's/current_theme.*default/current_theme  slackware-black/' /etc/slim.conf
 fi
 
 echo "Done."
