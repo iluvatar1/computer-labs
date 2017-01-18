@@ -6,7 +6,7 @@ source package_helpers.sh
 SBO_CMD="sboinstall -r -j 2 "
 
 ########################################
-# SBO PACKAGES
+# SBO STUFF
 ########################################
 echo "Installing sbopkg ..."
 if ! hash sbopkg &>/dev/null ; then 
@@ -22,6 +22,8 @@ if ! hash sbosnap &>/dev/null ; then
     wget -c https://pink-mist.github.io/sbotools/downloads/sbotools-2.2-noarch-1_SBo.tgz
     upgradepkg --install-new sbotools-2.2-noarch-1_SBo.tgz
     ln -sf /var/lib/sbopkg/SBo/14.2 /usr/sbo/repo 
+    mkdir /etc/sbotools
+    sboconfig -c FALSE
     #sbosnap fetch
 else
     echo "    already installed"
