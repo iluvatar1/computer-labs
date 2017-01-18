@@ -11,7 +11,7 @@ if [ ! -d ANACONDA ] ; then
 fi
 cd ANACONDA
 
-FNAME=Anaconda3-4.2.0-Linux-x86_64.sh
+FNAME=Anaconda2-4.2.0-Linux-x86_64.sh
 if [ ! -f ${FNAME} ]; then
     echo "Downloading anaconda."
     wget -c  http://repo.continuum.io/archive/${FNAME}
