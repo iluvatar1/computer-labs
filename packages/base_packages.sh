@@ -48,3 +48,11 @@ if [ ! hash kash 2> /dev/null  ]; then
     src2pkg http://gforge.inria.fr/frs/download.php/26773/kanif-1.2.2.tar.gz
     installpkg /tmp/kanif-1.2.2-x86_64-1.txz
 fi
+
+# Configure slim
+echo "Configuring slim ..."
+if [ x"" == x"$(grep slackware-blak /etc/slim.conf)" ]; then
+    sed -i.bck 's/current_theme.*default/current_theme  slackware-black/' /etc/slim.conf
+fi
+
+echo "Done."
