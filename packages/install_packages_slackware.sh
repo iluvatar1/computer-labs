@@ -6,6 +6,7 @@ if [ "$1" != "BASIC" ] && [ "$1" != "MISC" ] && [ "$1" != "NUMERIC" ] && [ "$1" 
 fi
 
 SBO_CMD="sboinstall -r -j 2"
+SBO_CMD_AUX="sbopkg -B -e stop -k -i "
 
 PKG=
 SRC=
@@ -24,6 +25,9 @@ fi
 
 for pkgname in $PKG; do
     $SBO_CMD $pkgname
+    if [ "$?" != "0" ]; then
+	$SBO_CMD_AUX $pkgname
+    fi
 done
 		   
 
