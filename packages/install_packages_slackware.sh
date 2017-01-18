@@ -12,7 +12,7 @@ SRC=
 if [ "$1" == "BASIC" ]; then
     PKG="monit fail2ban grace corkscrew djview4 lame  unrar smplayer valgrind valkyrie libreoffice openmpi blas lapack OpenBLAS octave dropbox pip parallel pdftk"
 elif [ "$1" == "NUMERIC" ]; then
-    PKG="eigen3 fltk netcdf arpack atlas gsl hdf5 lapack suitsparse armadillo openblas"    
+    PKG="eigen3 fltk netcdf arpack atlas gsl hdf5 lapack suitsparse armadillo OpenBLAS"    
 elif [ "$1" == "MISC" ]; then
     PKG="kile kdenlive filezilla scribus povray texmaker ninja chromium smplayer vlc inkscape ffmpeg audacity graphviz libticonv gocr msmtp lyx geany wine eagle skype twolame mplayer-codecs32 flashplayer-plugin pyserial dfc  wol sshfs-fuse acpica virtualbox-kernel virtualbox-kernel-addons virtualbox-extension-pack paraview  PyYAML  cppcheck iotop ntpclient  proxychains proxytunnel "
     SBO_CMD="sboinstall -j 2"
