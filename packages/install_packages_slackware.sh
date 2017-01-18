@@ -5,7 +5,7 @@ if [ "$1" != "BASIC" ] && [ "$1" != "MISC" ] && [ "$1" != "NUMERIC" ] && [ "$1" 
     exit 1
 fi
 
-SBO_CMD="sboinstall -j 2"
+SBO_CMD="sboinstall -r -j 2"
 
 PKG=
 SRC=
