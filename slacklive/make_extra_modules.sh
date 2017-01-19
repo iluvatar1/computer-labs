@@ -41,8 +41,8 @@ mkdir -p $BDIR/etc/profile.d/
 echo "export LESS='-eRX' " >> $BDIR/etc/profile.d/less_custom_config.sh
 chmod +x $BDIR/etc/profile.d/less_custom_config.sh
 mkdir -p $BDIR/etc/rc.local
-echo "ln -sf /etc/X11/xinit/xinitrc{.xfce,}" >> $BDIR/etc/rc.local
-echo "loadkeys la-latin1" >> $BDIR/etc/rc.local
+echo "# ln -sf /etc/X11/xinit/xinitrc{.xfce,}" >> $BDIR/etc/rc.local
+echo "# loadkeys la-latin1" >> $BDIR/etc/rc.local
 bash liveslak/makemod.sh -i  $BDIR/   0068-customconfig-0.0.1-x86_64.sxz
 echo "Done config module."
 echo "You can test the module contents with the command : "
