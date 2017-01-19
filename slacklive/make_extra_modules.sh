@@ -58,6 +58,7 @@ if [ ! -f 0068-${BNAME}.sxz ]; then
     #mkdir -p $BDIR/etc/rc.local
     echo "# ln -sf /etc/X11/xinit/xinitrc{.xfce,}" >> $BDIR/etc/profile.d/custom_config.sh
     echo "# loadkeys la-latin1" >> $BDIR/etc/profile.d/custom_config.sh
+    chmod +x $BDIR/etc/profile.d/custom_config.sh
     bash $LIVESLACKBDIR/$MAKEMOD -i  $BDIR/   0068-customconfig-0.0.1-x86_64.sxz
     echo "Done config module."
     echo "You can test the module contents with the command : "
