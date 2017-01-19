@@ -1,8 +1,8 @@
 MAKEMOD=makemod
 LIVESLACKBDIR=~/Downloads/liveslak/
 
+cd ~/Downloads
 if [ ! -f 0066-anaconda2-4.2.0-x86_64.sxz ]; then 
-    cd
     echo "#####################################"
     echo "CREATING anaconda MODULE ... "
     if [ ! -d /tmp/modtemp/opt ]; then 
@@ -24,6 +24,7 @@ if [ ! -f 0066-anaconda2-4.2.0-x86_64.sxz ]; then
 fi
 
 BNAME=valgrind-3.12.0-x86_64-1_SBo
+cd ~/Downloads
 if [ ! -f 0067-${BNAME}.sxz ]; then
     echo "#####################################"
     echo "CREATING valgrind MODULE"
@@ -36,7 +37,7 @@ if [ ! -f 0067-${BNAME}.sxz ]; then
 	    wget -c http://www.valgrind.org/downloads/valgrind-3.12.0.tar.bz2 &&
 	    bash valgrind.SlackBuild
     fi
-    cd
+    cd ~/Downloads
     bash $LIVESLACKBDIR/$MAKEMOD -i /tmp/${BNAME}.tgz 0067-${BNAME}.sxz 
     echo "Done valgrind module."
     echo "You can test the module contents with the command : "
@@ -45,16 +46,18 @@ if [ ! -f 0067-${BNAME}.sxz ]; then
     echo 
 fi
 
-if [ ! -f 0068-customconfig-0.0.1-x86_64.sxz ]; then
+BNAME=customconfig-0.0.1-x86_64
+cd ~/Downloads
+if [ ! -f 0068-${BNAME}.sxz ]; then
     echo "#####################################"
     echo "CREATING config MODULE"
-    BDIR=$(mktemp -p /tmp/)
+    BDIR=$(mktemp -d -p /tmp/)
     mkdir -p $BDIR/etc/profile.d/
-    echo "export LESS='-eRX' " >> $BDIR/etc/profile.d/less_custom_config.sh
+    echo "export LESS='-eRX' " >> $BDIR/etc/profile.d/custom_config.sh
     chmod +x $BDIR/etc/profile.d/less_custom_config.sh
-    mkdir -p $BDIR/etc/rc.local
-    echo "# ln -sf /etc/X11/xinit/xinitrc{.xfce,}" >> $BDIR/etc/rc.local
-    echo "# loadkeys la-latin1" >> $BDIR/etc/rc.local
+    #mkdir -p $BDIR/etc/rc.local
+    echo "# ln -sf /etc/X11/xinit/xinitrc{.xfce,}" >> $BDIR/etc/profile.d/custom_config.sh
+    echo "# loadkeys la-latin1" >> $BDIR/etc/profile.d/custom_config.sh
     bash $LIVESLACKBDIR/$MAKEMOD -i  $BDIR/   0068-customconfig-0.0.1-x86_64.sxz
     echo "Done config module."
     echo "You can test the module contents with the command : "
