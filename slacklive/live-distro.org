@@ -58,7 +58,7 @@
 ** Simple procedure for creating the live iso
    (From Alien Bob!!!!) A quicker way to recreate an ISO if you
    already have one and want to modify it a bit (by adding a module for
-   instance) is: 
+   instance) is (CHECK script create_mod_liveslack_iso.sh) : 
    1. loop-mount the ISO file (mount -o loop file.iso mountpoint/)
    2. make the directory /tmp/slackwarelive_staging 
    3. copy the content of the ISO (using the
