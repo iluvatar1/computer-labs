@@ -2,6 +2,7 @@ MAKEMOD=makemod
 LIVESLACKBDIR=~/Downloads/liveslak/
 
 if [ ! -f 0066-anaconda2-4.2.0-x86_64.sxz ]; then 
+    cd
     echo "#####################################"
     echo "CREATING anaconda MODULE ... "
     if [ ! -d /tmp/modtemp/opt ]; then 
@@ -22,21 +23,24 @@ if [ ! -f 0066-anaconda2-4.2.0-x86_64.sxz ]; then
     echo
 fi
 
-if [ ! -f 0067-valgrind-3.12.0-x86_64-1_SBo.sxz ]; then
+BNAME=valgrind-3.12.0-x86_64-1_SBo
+if [ ! -f 0067-${BNAME}.sxz ]; then
     echo "#####################################"
     echo "CREATING valgrind MODULE"
-    mkdir -p /tmp/valgrind &&
-	cd /tmp/valgrind &&
-	wget -c https://slackbuilds.org/slackbuilds/14.2/development/valgrind.tar.gz &&
-	tar xf valgrind.tar.gz &&
-	cd valgrind &&
-	wget -c http://www.valgrind.org/downloads/valgrind-3.12.0.tar.bz2 &&
-	bash valgrind.SlackBuild &&
-	cd &&
-	bash $LIVESLACKBDIR/$MAKEMOD -i /tmp/valgrind-3.12.0-x86_64-1_SBo.tgz 0067-valgrind-3.12.0-x86_64-1_SBo.sxz &&
-	echo "Done valgrind module."
+    if [ ! /tmp/$BNAME.tgz ]; then 
+	mkdir -p /tmp/valgrind &&
+	    cd /tmp/valgrind &&
+	    wget -c https://slackbuilds.org/slackbuilds/14.2/development/valgrind.tar.gz &&
+	    tar xf valgrind.tar.gz &&
+	    cd valgrind &&
+	    wget -c http://www.valgrind.org/downloads/valgrind-3.12.0.tar.bz2 &&
+	    bash valgrind.SlackBuild
+    fi
+    cd
+    bash $LIVESLACKBDIR/$MAKEMOD -i /tmp/${BNAME}.tgz 0067-${BNAME}.sxz 
+    echo "Done valgrind module."
     echo "You can test the module contents with the command : "
-    echo "unsquashfs -l 0067-valgrind-3.11.0-x86_64-1_SBo.sxz"
+    echo "unsquashfs -l 0067-${BNAME}.sxz"
     echo "#####################################"
     echo 
 fi
