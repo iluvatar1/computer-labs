@@ -26,7 +26,7 @@ BDIR=$PWD
 FDIR=$1
 LINUX=$2
 
-SERVERIP=192.168.123.1
+SERVERIP=192.168.10.1
 
 # global functions
 function backup_file()
@@ -127,7 +127,7 @@ bfile="/etc/fstab"
 if [ x"" == x"$(grep ${SERVERIP} $bfile 2> /dev/null)" ]; then
     backup_file $bfile
     echo "# NEW NEW NEW NFS stuff " >> $bfile
-    echo "${SERVERIP}:/home     /home   nfs     rw,hard,intr  0   0" >> $bfile
+    echo "${SERVERIP}:/home     /home   nfs     rw,hard,intr,usrquota  0   0" >> $bfile
 else
     echo "    -> already configured"
 fi
@@ -140,14 +140,15 @@ fi
 echo "DONE: Configuring nfs"
 
 # nis
+NISDOMAIN=salafisnis
 echo "Configuring nis "
-if [ x"" == x"$(grep ssfservernis /etc/defaultdomain 2> /dev/null)" ]; then
+if [ x"" == x"$(grep ${NISDOMAIN} /etc/defaultdomain 2> /dev/null)" ]; then
     bfile="/etc/defaultdomain"
     backup_file $bfile
-    echo ssfservernis > $bfile  
+    echo ${NISDOMAIN} > $bfile  
     bfile="/etc/yp.conf"
     backup_file $bfile
-    echo 'ypserver ${SERVERIP} ' > $bfile
+    echo "ypserver ${SERVERIP}" > $bfile
     bfile="/etc/passwd"
     backup_file $bfile
     echo +:::::: >> $bfile
@@ -186,7 +187,17 @@ if [ "$LINUX" == "UBUNTU" ]; then
     echo "allow-guest=false" >> $bfile
 fi
 
-
+# Configure root internet access
+bname="~/.bashrc"
+if [ x"" != "$(grep https_proxy ${bname} 2>/dev/null)" ]; then
+    echo 'export PROXY="fisicasop_fcbog:s4l4fis219@proxyapp.unal.edu.co:8080/" ' >> $bname
+    echo 'export http_proxy="http://$PROXY" ' >> $bname
+    echo 'export https_proxy="https://$PROXY" ' >> $bname
+    echo 'export ftp_proxy="ftp://$PROXY" ' >> $bname
+    echo 'export RSYNC_PROXY="$PROXY" ' >> $bname
+else
+    echo "Root proxy already configured."
+fi
 
 
 
