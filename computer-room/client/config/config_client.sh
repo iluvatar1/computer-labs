@@ -205,8 +205,9 @@ fi
 # Configuring lilo
 echo "Configuring lilo delay time to 5 seconds ..."
 bname="/etc/lilo.conf"
-if [ x"" == x"$(grep 'timeout*.50' 2>/dev/null)" ]; then
-    lilo -d 50
+if [ x"" == x"$(grep -re 'timeout.*50' 2>/dev/null)" ]; then
+    backup_file $bname
+    sed -i.bck 's/timeout = 1200/timeout = 50/' $bname
     lilo
 else
     echo "   -> already configured."
