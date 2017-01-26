@@ -1,0 +1,45 @@
+* Cloning a device into an image
+  Based on Clonezilla live (not the server)
+  - When booting, choose alternative modes to have better resolution.
+  - Choose the language
+  - Start clonezilla
+  - select device-image
+  - To save, use local_dev (or the appropriate)
+  - Select the parent dir where to save the image
+  - choose beginner
+  - Use savedisk to save local disk to image
+  - use the default name or modify it
+  - choose the disk to clone
+  - skip checking
+  - select check the saved image
+  - Do not encrypt
+  - choose reboot if you want
+  DONE
+
+* Cloning an image to several computers using clonezilla server
+  - Burn drbl-server live on a usb
+  - Boot the computer-server from the usb
+  - Select other boot modes -> kms (for better screen resolution)
+  - Configure keyboard if needed
+  - X window automatic
+  - On Deskop, double click on clonezilla server
+  - For eth1 select static ip : 192.168.10.1
+  - If the image is on the local hard disk or usb disc, use localdev to mount 
+    - Mount the system (on server salafis sda7 is /home)
+    - Select the parent directory of the directory containing the
+      images (in this case it will be /home/oquendo)
+      The more recent image is called 2017-01-26-01-img-client
+  - Select *advanced mode*
+  - select *restore-disk*
+  - Use default options
+  - *Select -k1 to create partition table proportionally*
+  - Yes to check the image before restoring 
+  - Skip option of always provide clonezilla server
+  - Choose image to clone (should be detected automatically)
+  - Choose sda (target disk to be written on each client)
+  - Choose multicast or *unicast* retore (some switches block multicast
+    so prefere *unicast*)
+  - Choose time clients+time-t-wait or whateever (100 clients, 300 secs)
+  - Here clonezilla starts to check the image
+  - Boot clients useing net PXE
+  - Enjoy
