@@ -149,6 +149,9 @@ if [ x"" == x"$(grep ${NISDOMAIN} /etc/defaultdomain 2> /dev/null)" ]; then
     bfile="/etc/yp.conf"
     backup_file $bfile
     echo "ypserver ${SERVERIP}" > $bfile
+    bfile=/etc/nsswitch.conf
+    backup_file $bfile
+    cp -f $FDIR/client-nsswitch.conf $bfile
     bfile="/etc/passwd"
     backup_file $bfile
     echo +:::::: >> $bfile
