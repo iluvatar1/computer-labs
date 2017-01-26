@@ -19,9 +19,10 @@ fi
 
 echo "Installing sbotools ..."
 if ! hash sbosnap &>/dev/null ; then 
-    wget -c https://pink-mist.github.io/sbotools/downloads/sbotools-2.2-noarch-1_SBo.tgz
-    upgradepkg --install-new sbotools-2.2-noarch-1_SBo.tgz
-    ln -sf /var/lib/sbopkg/SBo/14.2 /usr/sbo/repo 
+    #wget -c https://pink-mist.github.io/sbotools/downloads/sbotools-2.2-noarch-1_SBo.tgz
+    #upgradepkg --install-new sbotools-2.2-noarch-1_SBo.tgz
+    #ln -sf /var/lib/sbopkg/SBo/14.2 /usr/sbo/repo 
+    sbopkg -i sbotools
     mkdir /etc/sbotools
     sboconfig -c FALSE
     #sbosnap fetch
