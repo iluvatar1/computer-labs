@@ -8,15 +8,16 @@
    to avoid future problems when installing large packages, but also
    to be able to replicate the system on old computers.
 *** Partition table
+    type gpt
     |-----------+-------------------+----|
     | name/path | minimum size (GB) |    |
     |-----------+-------------------+----|
     | /boot     |               0.5 |    |
-    | /         |                12 |    |
+    | /         |                20 |    |
     | swap      |    2X ram (~ 4GB) |    |
     | /opt      |                 8 |    |
     | /var*     |         remaining | ?? |
-    | /tmp      |                 6 |    |
+    | /tmp      |                 8 |    |
     |-----------+-------------------+----|
     If you wish you can add a home partition but do not do that for
     client machines where home will be nfs-mounted.
