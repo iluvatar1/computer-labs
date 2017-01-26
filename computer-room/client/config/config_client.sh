@@ -189,7 +189,7 @@ fi
 
 # Configure root internet access
 bname="~/.bashrc"
-if [ x"" != "$(grep https_proxy ${bname} 2>/dev/null)" ]; then
+if [ x"" == "$(grep https_proxy ${bname} 2>/dev/null)" ]; then
     echo 'export PROXY="fisicasop_fcbog:s4l4fis219@proxyapp.unal.edu.co:8080/" ' >> $bname
     echo 'export http_proxy="http://$PROXY" ' >> $bname
     echo 'export https_proxy="https://$PROXY" ' >> $bname
@@ -199,5 +199,12 @@ else
     echo "Root proxy already configured."
 fi
 
-
-
+# Configuring lilo
+echo "Configuring lilo delay time to 5 seconds ..."
+bname="/etc/lilo.conf"
+if [ x"" == x"$(grep 'timeout*.50' 2>/dev/null)" ]; then
+    lilo -d 50
+    lilo
+else
+    echo "   -> already configured."
+fi
