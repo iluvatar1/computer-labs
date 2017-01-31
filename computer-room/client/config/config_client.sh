@@ -214,6 +214,7 @@ else
 fi
 
 # default xsession : xfce
+echo "Configuring xsession in case it is not configured ..."
 bname=/etc/skel/.xsession
 if [ ! -f $bname ]; then 
     cp $FDIR/xsession $bname
@@ -222,3 +223,25 @@ bname=/etc/skel/.xinitrc
 if [ ! -f $bname ]; then 
     cp $FDIR/xinitrc $bname
 fi
+
+# la latin keyboard
+echo "Configuring default X windows keyboard to be la-latin1 ..."
+bfile=/etc/X11/xorg.conf.d/90-keyboard-layout.conf
+if [ -f $bfile ]; then
+    backup_file $bfile
+fi
+cat <<EOF > $bfile
+Section "InputClass"
+        Identifier "keyboard-all"
+        MatchIsKeyboard "on"
+        MatchDevicePath "/dev/input/event*"
+        Driver "evdev"
+        Option "XkbLayout" "la-latin1"
+        #Option "XkbVariant" ""
+        Option "XkbOptions" "terminate:ctrl_alt_bksp"
+EndSection
+EOF
+
+
+echo "#####################################"
+echo "Done."
