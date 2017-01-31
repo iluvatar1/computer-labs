@@ -37,8 +37,10 @@
   - Skip option of always provide clonezilla server
   - Choose image to clone (should be detected automatically)
   - Choose sda (target disk to be written on each client)
-  - Choose multicast or *unicast* retore (some switches block multicast
-    so prefere *unicast*)
+  - Choose multicast or *unicast* retore (some switches block
+    multicast so you can try *unicast*). Multicast is great since all
+    computers will update at the same time. Advice: give at least 8
+    minutes to clonezilla to wait for all clients to start.
   - Choose time clients+time-t-wait or whateever (100 clients, 300 secs)
   - Here clonezilla starts to check the image
   - Boot clients useing net PXE
