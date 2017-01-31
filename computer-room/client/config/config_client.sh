@@ -212,3 +212,13 @@ if [ x"" == x"$(grep -re 'timeout.*50' 2>/dev/null $bname)" ]; then
 else
     echo "   -> already configured."
 fi
+
+# default xsession : xfce
+bname=/etc/skel/.xsession
+if [ ! -f $bname ]; then 
+    cp $FDIR/xsession $bname
+fi
+bname=/etc/skel/.xinitrc
+if [ ! -f $bname ]; then 
+    cp $FDIR/xinitrc $bname
+fi
