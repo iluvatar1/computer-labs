@@ -252,6 +252,13 @@ else
     echo "    -> already configured ."
 fi
 
+echo "Copying server public key  to configure passwordless access for root"
+mkdir -p /root/.ssh &>/dev/null
+if [ x"" != x"$(grep serversalafis /root/.ssh/known_hosts 2>/dev/null)" ]; then
+    cat $FDIR/server_id_rsa.pub >> /root/.ssh/known_hosts
+else
+    echo "    -> already configured"
+fi
 
 echo "#####################################"
 echo "Done."
