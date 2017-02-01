@@ -243,6 +243,15 @@ Section "InputClass"
 EndSection
 EOF
 
+echo "Configuring cronjob check status"
+if [ ! -f /etc/cron.d/check_status_cronjob ] || [ ! -f /root/scripts/check_status.sh ]; then
+    mkdir -p /root/scripts
+    cp -f $FDIR/cron/check_status.sh /root/scripts/
+    cp -f $FDIR/cron/check_status_cronjob /etc/cron.d/
+else
+    echo "    -> already configured ."
+fi
+
 
 echo "#####################################"
 echo "Done."
