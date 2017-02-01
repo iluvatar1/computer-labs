@@ -163,11 +163,12 @@ if [ x"" == x"$(grep ${NISDOMAIN} /etc/defaultdomain 2> /dev/null)" ]; then
     echo +::: >> $bfile
     if [ "$LINUX" == "SLACKWARE" ]; then
 	chmod +x /etc/rc.d/rc.yp
+	chmod +x /etc/rc.d/rc.nfsd
 	backup_file /etc/rc.d/rc.yp
 	sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=1/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=0/ ;' /etc/rc.d/rc.yp
-	/etc/rc.d/rc.yp restart    
-	/etc/rc.d/rc.nfsd restart
-	/etc/rc.d/rc.inet2 restart
+	#/etc/rc.d/rc.yp restart    
+	#/etc/rc.d/rc.nfsd restart
+	#/etc/rc.d/rc.inet2 restart
     elif [ "$LINUX" == "UBUNTU" ]; then
 	service portmap restart
 	service ypserv restart
