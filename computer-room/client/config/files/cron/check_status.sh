@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # check ip in lan
-FLAG=$(ifconfig | grep 192.168.123)
+FLAG=$(ifconfig | grep 192.168.10)
 if [[ "" == "$FLAG" ]]; then
     echo "No good ip found. Restarting network."
     /etc/rc.d/rc.inet1 restart 
