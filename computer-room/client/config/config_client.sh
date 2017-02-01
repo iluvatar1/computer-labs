@@ -60,6 +60,13 @@ EOF
     echo "DONE: Configuring network interface in UBUNTU"
 fi
 
+echo "Removing permissions for network manager ..."
+chmod -x /etc/rc.d/rc.wireless
+chmod -x /etc/rc.d/rc.networkmanager
+
+echo "Adding dhcp for eth1"
+sed -i.bck 's/USE_DHCP\[1\]=""/USE_DHCP\[1\]="yes"/' /etc/rc.d/rc.inet1.conf
+
 
 # Mirror configuration
 echo "Configuring packages mirrors"
