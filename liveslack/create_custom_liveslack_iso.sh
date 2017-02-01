@@ -1,7 +1,7 @@
 echo "Creating liveslack iso with custom modules"
 mount -o loop /dev/sr0 /mnt/dvd && 
 mkdir -p /tmp/slackwarelive_staging && 
-rsync -av -P /mnt/dvd/ /tmp/slackwarelive_staging/ && 
+rsync -av -P --delete /mnt/dvd/ /tmp/slackwarelive_staging/ && 
 umount /mnt/dvd && 
 cp -avu ~/Downloads/006*sxz /tmp/slackwarelive_staging/liveslak/addons/ &&
 cd /tmp/slackwarelive_staging/ &&
