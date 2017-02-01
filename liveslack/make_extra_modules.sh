@@ -1,5 +1,12 @@
+echo "This script is meant to be run on a Slackware 14.2 installation where the liveslack repo is updated and inside ~/Downloads"
+
+
 MAKEMOD=makemod
 LIVESLACKBDIR=~/Downloads/liveslak/
+
+cd $LIVESLACKBDIR
+git pull
+cd
 
 cd ~/Downloads
 if [ ! -f 0066-anaconda2-4.2.0-x86_64.sxz ]; then 
@@ -13,7 +20,7 @@ if [ ! -f 0066-anaconda2-4.2.0-x86_64.sxz ]; then
     echo "Creating a local profile to modify the path for all users ... "
     mkdir -p /tmp/modtemp/etc/profile.d
     echo 'export PATH="/opt/anaconda2/bin:$PATH"' > /tmp/modtemp/etc/profile.d/anaconda.sh
-    chmod -x /tmp/modtemp/etc/profile.d/anaconda.sh
+    chmod +x /tmp/modtemp/etc/profile.d/anaconda.sh
     echo "Creating liveslack module ... "
     bash $LIVESLACKBDIR/$MAKEMOD -i  /tmp/modtemp/ 0066-anaconda2-4.2.0-x86_64.sxz
     echo "Done anaconda module."
