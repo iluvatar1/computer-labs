@@ -266,8 +266,10 @@ fi
 
 echo "Copying server public key  to configure passwordless access for root"
 mkdir -p /root/.ssh &>/dev/null
-if [ x"" == x"$(grep serversalafis /root/.ssh/known_hosts 2>/dev/null)" ]; then
-    cat $FDIR/server_id_rsa.pub >> /root/.ssh/known_hosts
+if [ x"" == x"$(grep serversalafis /root/.ssh/authorized_keys 2>/dev/null)" ]; then
+    cat $FDIR/server_id_rsa.pub >> /root/.ssh/authorized_keys
+    chmod 700 /root/.ssh
+    chmod 640 /root/.ssh/authorized_keys
 else
     echo "    -> already configured"
 fi
