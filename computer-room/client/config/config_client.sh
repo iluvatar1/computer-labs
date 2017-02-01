@@ -235,10 +235,11 @@ fi
 # la latin keyboard
 echo "Configuring default X windows keyboard to be la-latin1 ..."
 bfile=/etc/X11/xorg.conf.d/90-keyboard-layout.conf
-if [ -f $bfile ]; then
-    backup_file $bfile
-fi
-cat <<EOF > $bfile
+if [ x"" == x"$(grep la-latin1 $bfile 2>/dev/null)" ]; then 
+    if [ -f $bfile ]; then
+	backup_file $bfile
+    fi
+    cat<<EOF > $bfile
 Section "InputClass"
         Identifier "keyboard-all"
         MatchIsKeyboard "on"
@@ -249,6 +250,10 @@ Section "InputClass"
         Option "XkbOptions" "terminate:ctrl_alt_bksp"
 EndSection
 EOF
+else
+    echo "    -> already configured"
+fi
+
 
 echo "Configuring cronjob check status"
 if [ ! -f /etc/cron.d/check_status_cronjob ] || [ ! -f /root/scripts/check_status.sh ]; then
@@ -261,7 +266,7 @@ fi
 
 echo "Copying server public key  to configure passwordless access for root"
 mkdir -p /root/.ssh &>/dev/null
-if [ x"" != x"$(grep serversalafis /root/.ssh/known_hosts 2>/dev/null)" ]; then
+if [ x"" == x"$(grep serversalafis /root/.ssh/known_hosts 2>/dev/null)" ]; then
     cat $FDIR/server_id_rsa.pub >> /root/.ssh/known_hosts
 else
     echo "    -> already configured"
