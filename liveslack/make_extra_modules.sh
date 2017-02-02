@@ -5,6 +5,7 @@ MAKEMOD=makemod
 LIVESLACKBDIR=/root/Downloads/liveslak/
 MODDIR=/root/Downloads/mods_liveslack
 
+echo "Updating liveslack repo ..."
 cd $LIVESLACKBDIR
 git pull
 cd
