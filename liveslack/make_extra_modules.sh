@@ -37,7 +37,7 @@ cd $MODDIR
 if [ ! -f 0067-${BNAME}.sxz ]; then
     echo "#####################################"
     echo "CREATING valgrind MODULE"
-    if [ ! /tmp/$BNAME.tgz ]; then 
+    if [ ! -f /tmp/$BNAME.tgz ]; then 
 	mkdir -p /tmp/valgrind &&
 	    cd /tmp/valgrind &&
 	    wget -c https://slackbuilds.org/slackbuilds/14.2/development/valgrind.tar.gz &&
