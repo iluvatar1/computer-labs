@@ -274,5 +274,9 @@ else
     echo "    -> already configured"
 fi
 
+echo "Removing other people permissions from /sbin/shutdown and /sbin/halt"
+chmod o-x /sbin/shutdown 
+chmod o-x /sbin/halt 
+
 echo "#####################################"
 echo "Done."
