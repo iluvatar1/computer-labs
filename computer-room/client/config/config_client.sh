@@ -232,7 +232,7 @@ if [ ! -f $bname ]; then
     cp $FDIR/xinitrc $bname
 fi
 
-# la latin keyboard
+# latam keyboard
 echo "Configuring default X windows keyboard to be latam ..."
 bfile=/etc/X11/xorg.conf.d/90-keyboard-layout.conf
 if [ x"" == x"$(grep la-latin1 $bfile 2>/dev/null)" ]; then 
@@ -274,9 +274,13 @@ else
     echo "    -> already configured"
 fi
 
-echo "Removing other people permissions from /sbin/shutdown and /sbin/halt"
+echo "Removing permissions to reboot/halt system"
 chmod o-x /sbin/shutdown 
-chmod o-x /sbin/halt 
+chmod o-x /sbin/halt
+fname=disallow-power-options.rules
+if [ ! -f /etc/polkit-1/rules.d/$fname ]; then
+    cp $FDIR/$fname /etc/polkit-1/rules.d/
+fi
 
 echo "#####################################"
 echo "Done."
