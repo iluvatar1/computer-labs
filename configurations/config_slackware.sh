@@ -11,6 +11,9 @@ sed -i.bck 's/id:3:initdefault:/id:4:initdefault:/' /etc/inittab
 echo "Chmod +x  nfsd stuff ..."
 chmod +x /etc/rc.d/rc.nfsd
 
+echo "Configuring timezone to Bogota ..."
+cp -f /usr/share/zoneinfo/America/Bogota /etc/localtime
+
 echo "Configuring slim login manager"
 if [ x"" == x"$(grep slim /etc/rc.d/rc.4)" ]; then
     sed -i.bck '/echo "Starting up X11 session manager..."/a \\n# start SLiM ...\nif [ -x /usr/bin/slim ]; then exec /usr/bin/slim; fi ' /etc/rc.d/rc.4
