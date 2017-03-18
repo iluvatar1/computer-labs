@@ -233,7 +233,7 @@ if [ ! -f $bname ]; then
 fi
 
 # la latin keyboard
-echo "Configuring default X windows keyboard to be la-latin1 ..."
+echo "Configuring default X windows keyboard to be latam ..."
 bfile=/etc/X11/xorg.conf.d/90-keyboard-layout.conf
 if [ x"" == x"$(grep la-latin1 $bfile 2>/dev/null)" ]; then 
     if [ -f $bfile ]; then
@@ -245,7 +245,7 @@ Section "InputClass"
         MatchIsKeyboard "on"
         MatchDevicePath "/dev/input/event*"
         Driver "evdev"
-        Option "XkbLayout" "la-latin1"
+        Option "XkbLayout" "latam"
         #Option "XkbVariant" ""
         Option "XkbOptions" "terminate:ctrl_alt_bksp"
 EndSection
