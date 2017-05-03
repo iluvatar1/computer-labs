@@ -60,9 +60,18 @@ EOF
     echo "DONE: Configuring network interface in UBUNTU"
 fi
 
-echo "Removing permissions for network manager ..."
-chmod -x /etc/rc.d/rc.wireless
-chmod -x /etc/rc.d/rc.networkmanager
+# Network manager
+#echo "Removing permissions for network manager ..."
+#chmod -x /etc/rc.d/rc.wireless
+#chmod -x /etc/rc.d/rc.networkmanager
+echo "Creating Network Manager hook"
+if [ ! -f "/etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh" ]; then
+    cp files/90networkmanagerhook.sh /etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh
+    chmod +x /etc/rc.d/rc.networkmanager
+    bash /etc/rc.d/rc.networkmanager restart
+    /etc/rc.d/rc.inet2 restart
+fi
+
 
 echo "Adding dhcp for eth1"
 sed -i.bck 's/USE_DHCP\[1\]=""/USE_DHCP\[1\]="yes"/' /etc/rc.d/rc.inet1.conf
