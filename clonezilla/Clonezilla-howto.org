@@ -10,7 +10,8 @@
   - Use savedisk to save local disk to image
   - use the default name or modify it
   - choose the disk to clone
-  - skip checking
+  - skip checking (but better check if you are getting errors when
+    creating the image)
   - select check the saved image
   - Do not encrypt
   - choose reboot if you want
