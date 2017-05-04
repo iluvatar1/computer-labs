@@ -15,8 +15,8 @@
    TODO Do the following on the live system?
    1. Download anaconda
       $ wget http://repo.continuum.io/archive/Anaconda2-4.3.1-Linux-x86_64.sh
-   2. Install anaconda to /opt/anaconda3 
-      $ bash Anaconda2-4.1.1-Linux-x86_64.sh
+   2. Install anaconda to /opt/anaconda2 
+      $ bash Anaconda2-4.3.1-Linux-x86_64.sh
       Upgrade some packages
       $ echo "Updating conda"
       $ conda update -y conda
@@ -28,11 +28,11 @@
       $ conda install -y ipython
    3. Create aux directories
       $ mkdir -p /tmp/modtemp/opt
-   4. Copy anaconda3 there
-      $ cp -avf /opt/anaconda3 /tmp/modtemp/opt/
+   4. Copy anaconda2 there
+      $ cp -avf /opt/anaconda2 /tmp/modtemp/opt/
    5. *DO NOT DO THIS, BECAUSE INSTALLATIONS OF OTHER PROGRAMS COULD FAIL* : Create a profile to modify the path for all users
       $ mkdir -p /tmp/modtemp/etc/profile.d
-      $ echo 'export PATH="/opt/anaconda3/bin:$PATH"' > /tmp/modtemp/etc/profile.d/anaconda.sh
+      $ echo 'export PATH="/opt/anaconda2/bin:$PATH"' > /tmp/modtemp/etc/profile.d/anaconda.sh
       $ chmod -x /tmp/modtemp/etc/profile.d/anaconda.sh
       BETTER THINK ON HOW TO RUN THE FOLLOWING COMMAND
       # Better use soft links
@@ -40,9 +40,9 @@
         ln -s /opt/anaconda2/bin/$a /usr/local/bin
       done
    6. Create live slak module
-      $ bash liveslak/makemod.sh -i  /tmp/modtemp/ 0066-anaconda3-4.1.1-x86_64.sxz
+      $ bash liveslak/makemod.sh -i  /tmp/modtemp/ 0066-anaconda2-4.3.1-x86_64.sxz
    7. Test its contents by using
-      $ unsquashfs -l 0066-anaconda3-4.1.1-x86_64.sxz
+      $ unsquashfs -l 0066-anaconda2-4.3.1-x86_64.sxz
 ** DONE Create valgrind module
    CLOSED: [2017-02-01 Wed 23:36]
    Do the following on the installed system
