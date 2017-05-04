@@ -2,7 +2,7 @@ echo "Installing anaconda ..."
 
 if  hash conda 2> /dev/null ; then
     echo "    -> already installed"
-    exit 0
+    #exit 0
 else 
     cd /tmp
     if [ ! -d ANACONDA ] ; then
