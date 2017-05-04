@@ -11,7 +11,7 @@ git pull
 cd
 
 cd $MODDIR
-if [ ! -f 0066-anaconda2-4.2.0-x86_64.sxz ]; then 
+if [ ! -f 0066-anaconda2-4.3.1-x86_64.sxz ]; then 
     echo "#####################################"
     echo "CREATING anaconda MODULE ... "
     if [ ! -d /tmp/modtemp/opt ]; then 
@@ -21,14 +21,16 @@ if [ ! -f 0066-anaconda2-4.2.0-x86_64.sxz ]; then
     cp -auvf /opt/anaconda2 /tmp/modtemp/opt/
     echo "Creating a local profile to modify the path for all users ... "
     mkdir -p /tmp/modtemp/etc/profile.d
-    echo 'export PATH="/opt/anaconda2/bin:$PATH"' > /tmp/modtemp/etc/profile.d/anaconda.sh
+    echo 'export PATH=/usr/local/bin/:$PATH"' > /tmp/modtemp/etc/profile.d/anaconda.sh
+    echo 'for a in {de,}activate anaconda conda ipython{,2} jupyter{,-notebook} pip{,2} python{,2}  ; do ln -sf /opt/anaconda2/bin/$a /usr/local/bin/ &> /dev/null; done ' > /tmp/modtemp/etc/profile.d/anaconda.sh
     chmod +x /tmp/modtemp/etc/profile.d/anaconda.sh
+
     echo "Creating liveslack module ... "
-    bash $LIVESLACKBDIR/$MAKEMOD -i  /tmp/modtemp/ 0066-anaconda2-4.2.0-x86_64.sxz
+    bash $LIVESLACKBDIR/$MAKEMOD -i  /tmp/modtemp/ 0066-anaconda2-4.3.1-x86_64.sxz
     rm -rf /tmp/modtemp
     echo "Done anaconda module."
     echo "You can test the module contents with the command : "
-    echo "unsquashfs -l 0066-anaconda2-4.2.0-x86_64.sxz"
+    echo "unsquashfs -l 0066-anaconda2-4.3.1-x86_64.sxz"
     echo "#####################################"
     echo
 fi

@@ -11,7 +11,7 @@ if [ ! -d ANACONDA ] ; then
 fi
 cd ANACONDA
 
-FNAME=Anaconda2-4.2.0-Linux-x86_64.sh
+FNAME=Anaconda2-4.3.1-Linux-x86_64.sh
 echo "Downloading anaconda."
 wget -c  http://repo.continuum.io/archive/${FNAME}
 
@@ -19,12 +19,18 @@ echo "Installing Anaconda in batch mode ..."
 rm -rf /opt/anaconda2 2> /dev/null
 bash ${FNAME} -b -p /opt/anaconda2
 
-if [ ! -f /etc/profile.d/anaconda.sh ]; then 
-    echo 'export PATH="/opt/anaconda2/bin:$PATH"' > /etc/profile.d/anaconda.sh
-    chmod +x /etc/profile.d/anaconda.sh
-fi
+# PUTTING ANCONDA ON THE PATH GENERATES PROBLEMS WITH COMPILATIONS. AVOID IT
+#if [ ! -f /etc/profile.d/anaconda.sh ]; then 
+#    echo 'export PATH="/opt/anaconda2/bin:$PATH"' > /etc/profile.d/anaconda.sh
+#    chmod +x /etc/profile.d/anaconda.sh
+#fi
+#source /etc/profile.d/anaconda.sh
+# Better use soft links
+for a in {de,}activate anaconda conda ipython{,2} jupyter{,-notebook} pip{,2} python{,2}  ; do
+    ln -s /opt/anaconda2/bin/$a /usr/local/bin/
+done
 
-source /etc/profile.d/anaconda.sh
+export PATH=/usr/local/bin/:$PATH
 
 pip install --upgrade pip
 
