@@ -11,56 +11,12 @@
    - Create module as for anaconda and install and create new iso
 ** Docs
   - http://docs.slackware.com/slackware:liveslak
-** Create anaconda module
-   TODO Do the following on the live system?
-   1. Download anaconda
-      $ wget http://repo.continuum.io/archive/Anaconda2-4.3.1-Linux-x86_64.sh
-   2. Install anaconda to /opt/anaconda2 
-      $ bash Anaconda2-4.3.1-Linux-x86_64.sh
-      Upgrade some packages
-      $ echo "Updating conda"
-      $ conda update -y conda
-      $ echo "Installing vpython"
-      $ conda install -y -c vpython vpython
-      $ echo "Installing other packages"
-      $ conda install -y matplotlib scipy numpy sympy seaborn  
-      $ echo "Updating ipython"
-      $ conda install -y ipython
-   3. Create aux directories
-      $ mkdir -p /tmp/modtemp/opt
-   4. Copy anaconda2 there
-      $ cp -avf /opt/anaconda2 /tmp/modtemp/opt/
-   5. *DO NOT DO THIS, BECAUSE INSTALLATIONS OF OTHER PROGRAMS COULD FAIL* : Create a profile to modify the path for all users
-      $ mkdir -p /tmp/modtemp/etc/profile.d
-      $ echo 'export PATH="/opt/anaconda2/bin:$PATH"' > /tmp/modtemp/etc/profile.d/anaconda.sh
-      $ chmod -x /tmp/modtemp/etc/profile.d/anaconda.sh
-      BETTER THINK ON HOW TO RUN THE FOLLOWING COMMAND
-      # Better use soft links
-      for a in {de,}activate anaconda conda ipython{,2} jupyter{,-notebook} pip{,2} python{,2}  ; do
-        ln -s /opt/anaconda2/bin/$a /usr/local/bin
-      done
-   6. Create live slak module
-      $ bash liveslak/makemod.sh -i  /tmp/modtemp/ 0066-anaconda2-4.3.1-x86_64.sxz
-   7. Test its contents by using
-      $ unsquashfs -l 0066-anaconda2-4.3.1-x86_64.sxz
-** DONE Create valgrind module
-   CLOSED: [2017-02-01 Wed 23:36]
-   Do the following on the installed system
-   1. Download the slackbuild
-      $ wget https://slackbuilds.org/slackbuilds/14.2/development/valgrind.tar.gz
-   2. Download the source
-      $ wget http://www.valgrind.org/downloads/valgrind-3.11.0.tar.bz2
-   3. Uncompress the slackbuild and move the source there
-      $ tar xf valgrind.tar.gz
-      $ cd valgrind
-      $ mv ../valgrind-3.11.0.tar.bz2 ./
-   4. Run the slackbuild to create the package
-      $ bash valgrind.SlackBuild
-   5. Convert the package to an live sxz module (assuming the liveslak dir is on parent)
-      $ mv /tmp/valgrind-3.11.0-x86_64-1_SBo.tgz  . 
-      $ bash ../liveslak/makemod -i valgrind-3.11.0-x86_64-1_SBo.tgz valgrind-3.11.0-x86_64-1_SBo.sxz 
-      $ cp valgrind-3.11.0-x86_64-1_SBo.sxz ../0067-valgrind-3.11.0-x86_64-1_SBo.sxz
-   6. Copy the module where it should be ??? 
+** Creating new modules
+   Check the make script ~make_extra_modules.sh~, which automatize
+   modules creation.
+   List of modules
+   - Miniconda2
+   - Valgrind
 ** Simple procedure for creating the live iso
    (From Alien Bob!!!!) A quicker way to recreate an ISO if you
    already have one and want to modify it a bit (by adding a module for
