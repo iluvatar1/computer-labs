@@ -4,6 +4,7 @@ echo "This script is meant to be run on a Slackware 14.2 installation where the 
 MAKEMOD=makemod
 LIVESLACKBDIR=/root/Downloads/liveslak/
 MODDIR=/root/Downloads/mods_liveslack
+mkdir -p $MODDIR
 
 echo "Updating liveslack repo ..."
 cd $LIVESLACKBDIR
@@ -71,7 +72,7 @@ if [ ! -f 0067-${BNAME}.sxz ]; then
 	    wget -c https://slackbuilds.org/slackbuilds/14.2/development/valgrind.tar.gz &&
 	    tar xf valgrind.tar.gz &&
 	    cd valgrind &&
-	    wget -c http://www.valgrind.org/downloads/valgrind-3.13.0.tar.bz2 &&
+	    wget -c ftp://sourceware.org/pub/valgrind/valgrind-3.13.0.tar.bz2 &&
 	    bash valgrind.SlackBuild
     fi
     cd $MODDIR

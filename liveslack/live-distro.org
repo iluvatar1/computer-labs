@@ -1,5 +1,6 @@
 * Slackware Live
-  Check the script create_modules
+  - http://docs.slackware.com/slackware:liveslak
+  - http://bear.alienbase.nl/cgit/liveslak
 ** DONE [3/3]
    CLOSED: [2016-08-27 Sat 13:42]
    - [X] Fix colors in git log : profile.d
@@ -9,8 +10,6 @@
    - [X] Set keyboard to spanish/latin american by default. On /etc/rc.local
      $ loadkeys la-latin1
    - Create module as for anaconda and install and create new iso
-** Docs
-  - http://docs.slackware.com/slackware:liveslak
 ** Creating new modules
    Check the make script ~make_extra_modules.sh~, which automatize
    modules creation.
