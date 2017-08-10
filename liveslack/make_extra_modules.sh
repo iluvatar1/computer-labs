@@ -24,17 +24,20 @@ if [ ! -f 0066-$BNAME.sxz ]; then
 	fi
 	echo "Installing (onto /opt/miniconda2, batch mode)..."
 	bash ~/Downloads/$BNAME.sh -b -p /opt/miniconda2
-	echo "Installing/upgrading some packages ..."
-	echo "Updating conda"
-	conda update -y conda
-	echo "Installing vpython"
-	conda install -y -c vpython vpython
-	echo "Installing other packages"
-	conda install -y matplotlib scipy numpy sympy seaborn  
-	echo "Updating ipython"
-	conda install -y ipython
 	echo "Done installing miniconda"
     fi
+    
+    echo "Installing/upgrading some packages ..."
+    echo "Updating conda"
+    /opt/miniconda2/bin/conda update -y conda
+    echo "Installing vpython"
+    /opt/miniconda2/bin/conda install -y -c vpython vpython
+    echo "Installing other packages"
+    /opt/miniconda2/bin/conda install -y matplotlib scipy numpy sympy seaborn  
+    echo "Updating ipython"
+    /opt/miniconda2/bin/conda install -y ipython
+
+    cd $MODDIR
     echo "Creating temp dir (if it does not exist) ..." 
     if [ ! -d /tmp/modtemp/opt ]; then 
 	mkdir -p /tmp/modtemp/opt
