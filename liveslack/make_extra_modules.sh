@@ -22,8 +22,8 @@ if [ ! -f 0066-$BNAME.sxz ]; then
 	    echo "Downloading ..."
 	    wget https://repo.continuum.io/miniconda/$BNAME.sh -O ~/Downloads/$BNAME.sh
 	fi
-	echo "Installing ..."
-	bash ~/Downloads/$BNAME.sh
+	echo "Installing (onto /opt/miniconda2, batch mode)..."
+	bash ~/Downloads/$BNAME.sh -b -p /opt/miniconda2
 	echo "Installing/upgrading some packages ..."
 	echo "Updating conda"
 	conda update -y conda
@@ -44,7 +44,7 @@ if [ ! -f 0066-$BNAME.sxz ]; then
     echo "Creating a local profile to modify the path for all users ... "
     mkdir -p /tmp/modtemp/etc/profile.d
     echo 'export PATH=/usr/local/bin/:$PATH"' > /tmp/modtemp/etc/profile.d/anaconda.sh
-    echo 'for a in {de,}activate anaconda conda ipython{,2} jupyter{,-notebook} pip{,2} python{,2}  ; do ln -sf /opt/anaconda2/bin/$a /usr/local/bin/ &> /dev/null; done ' > /tmp/modtemp/etc/profile.d/anaconda.sh
+    echo 'for a in {de,}activate anaconda conda ipython{,2} jupyter{,-notebook} pip{,2} python{,2}  ; do ln -sf /opt/miniconda2/bin/$a /usr/local/bin/ &> /dev/null; done ' > /tmp/modtemp/etc/profile.d/anaconda.sh
     chmod +x /tmp/modtemp/etc/profile.d/anaconda.sh
 
     echo "Creating miniconda liveslack module ... "
