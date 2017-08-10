@@ -21,7 +21,7 @@ if [ ! -f 0066-$BNAME.sxz ]; then
 	echo "Downloading ..."
 	wget https://repo.continuum.io/miniconda/$BNAME.sh -O ~/Downloads/$BNAME.sh
 	echo "Installing ..."
-	bash $BNAME.sh
+	bash ~/Downloads/$BNAME.sh
 	echo "Installing/upgrading some packages ..."
 	echo "Updating conda"
 	conda update -y conda
