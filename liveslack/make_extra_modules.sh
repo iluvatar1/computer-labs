@@ -18,8 +18,10 @@ if [ ! -f 0066-$BNAME.sxz ]; then
 
     if [ ! -d /opt/miniconda2 ]; then
 	echo "Installing miniconda and packages ...."
-	echo "Downloading ..."
-	wget https://repo.continuum.io/miniconda/$BNAME.sh -O ~/Downloads/$BNAME.sh
+	if [ ! -f ~/Downloads/$BNAME.sh ]; then 
+	    echo "Downloading ..."
+	    wget https://repo.continuum.io/miniconda/$BNAME.sh -O ~/Downloads/$BNAME.sh
+	fi
 	echo "Installing ..."
 	bash ~/Downloads/$BNAME.sh
 	echo "Installing/upgrading some packages ..."
