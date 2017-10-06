@@ -1,0 +1,10 @@
+%%%%%%%%%% FLOW %%%%%%%%%%
+1				(0 or 1) stop or run
+1	100			read flow file, step interval for lecture of flow file
+1	100			write information in the terminal, step interval for writing
+
+%%%%%%%%%% Comments %%%%%%%%%%
+
+This file allows to stop execution at any time during simulation. To stop execution one must set the first flag to 0. Additionally, this file controls how often the flow file is read and how often do we write output information in the terminal.
+
+%%%%%%%%%% end of comments %%%%%%%%%%

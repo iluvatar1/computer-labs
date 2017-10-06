@@ -1,0 +1,98 @@
+%%%%%%%%%% EXECUTION PARAMETERS %%%%%%%%%%
+%%%%% Input and output suffixes %%%%%
+i f				Suffixes tagging the initial and final files
+%%%%% History files control %%%%%
+1 2000				save history files, step interval for saving history files
+%%%%% Start from a pervious contact file %%%%%
+0				read a previous contact file? (0=not/1=yes)
+%%%%% Verlet %%%%%
+50 0.005				step interval for creating a verlet list, verlet distance
+%%%%% Time step, number of iterations, and convergence criteria %%%%%
+0.0001				time step
+10 1000				minimum number of iterations, maximum number of iterations
+0.005				convergence criteria
+%%%%% Duration of the simulation %%%%%
+10000				duration of the simulation in time steps
+%%%%% Elastic interactions %%%%%
+1	1				ielas,iovlap
+0.	0	1			rov,ieoab,nefi
+0.0025	0.005	2000000.			eoa,eob,pk
+1.0	1.0	0	0.		plef,pler,sef,pef
+
+%%%%%%%%%% Comments %%%%%%%%%%
+
+%%%%% Input and output suffixes : %%%%%
+
+These two flags are the input and output suffixes for the par, pos, and con files. For example, if these two flags are "i" and "f", the input files will be pari and posi, and the final files will be parf, posf, and conf.
+
+%%%%% History files control %%%%%
+
+These parameters specify if one wants or not to save history files (1 or 0) and how often one wants to do it.
+
+%%%%% Verlet %%%%%
+
+Here, one specifies the parameters for constructing a verlet list. One must specify a number of time steps (this indicates how often the program actualizes the verlet list) and a distance. This distance is the influence radio of each particle in the construction of the verlet list. Once the verlet list is constructed, the contacts for each particle will only be tested with the particles that belong to its verlet list.
+
+%%%%% Time step, number of iterations, and convergence criteria %%%%%
+
+%%%%% Duration of the simulation %%%%%
+
+%%%%% Elastic interactions %%%%%
+
+This kind of interactions are often an artifact for correcting large interpenetrations between particles. To be simplified and re-written ...
+
+ Elastic interaction between overlapping particles:
+
+	The elastic law is described as follows	
+
+	if overlap > eoa then
+ 
+		f elas = {(overlap - eoa) / (eob-eoa)}^plef * pk * (ri + rj)^pler 
+
+	else	f elas = 0
+
+iovlap = indicates the definition of overlap between particles along a contact
+
+	 1 =  elastic interaction of type 1: according to minimum radius
+		(contacts with smaller particles will be stiffer)
+
+		ovlap(jnab)=2*(-rij+rdi+rdj)/(rdi+rdj)
+
+	 2 =  elastic interaction of type 2: according to rov
+		(all contacts have the same rigidity)
+
+		overlap =(ri + rj - dist ij) / rov
+
+ieoab = defines the type of elsatic law concerning origin and slope
+
+	0 = the slope (pk/eoab) and the origin 'eoa' are constant
+
+	1 = the slope changes according to 'ovlapmx': the elastic modulus is calculated
+	    according to the maximum value between eob and ovlapmx. 
+	    Note that elastic force is always <= pk*(rdi+rdj)
+
+	2 = the elastic law is shifted along the overlap axis in relation to ovlapmx
+
+	3 = the elastic law is modified according to 'ovlapmax' such that the number of
+            elastic interactions is less than a limit value.
+
+nefi = defines the number of elastic force increments
+
+
+eoa   =  elastic overlap activation, which corresponds to the overlap value 
+	 above which elastic interactions are calculated. Note that overlap is
+	 normalized in relation to minimum particle radius associated to the 
+	 contact.
+
+eob =	elastic overlap for which repulsive force between particles is pk * (ri + rj)
+
+pk =	pressure definning rigidity modulus of elastic interaction.
+
+rov =	radius or distance of reference for normalisation of overlap.
+
+plef =	power law for elastic force 
+
+pler =	power law for elastic force dependance on radius.
+
+%%%%%%%%%% end of comments %%%%%%%%%%
+

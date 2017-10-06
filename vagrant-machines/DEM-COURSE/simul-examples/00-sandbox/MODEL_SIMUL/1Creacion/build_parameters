@@ -1,0 +1,6 @@
+%%%%%%%%%% BUILD PARAMETERS %%%%%%%%%%
+0.00069 0.00100		rmin1, rmax1
+20			nrows
+20			ncolumns
+0.0025			grsize
+0.001			vmax

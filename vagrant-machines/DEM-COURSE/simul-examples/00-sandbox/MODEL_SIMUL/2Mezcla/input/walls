@@ -1,0 +1,78 @@
+%%%%%%%%%% WALLS %%%%%%%%%%
+4 .FALSE.			number of walls (4), periodic conditions
+%%%%%%%%%% Masses and inertia moments of the walls %%%%%%%%%%
+0.1 0.1				scale factors for : the mass, the moment of intertia
+%%%%% Surface properties, distance criteria, and axes of the ellipses : %%%%%
+1 1 1 1 1 1 1 1			A, B, C, D, E, F, G, H
+1 1 1 1 1 1 1 1			A, B, C, D, E, F, G, H
+1 1 1 1 1 1 1 1			A, B, C, D, E, F, G, H
+1 1 1 1 1 1 1 1			A, B, C, D, E, F, G, H
+%%%%% Driven degrees of freedom of the four walls %%%%%
+%%% Wall 1 (Bottom wall - horizontal) %%%
+% x direction %
+1 1				0 or 1 (force or velocity controlled), 0 or 1 (harmonic or ramp function)
+0. 0. 0. 0. 0. 0. 0.		Parameters defining the harmonic and ramp functions : I, J, K, L, M, N
+% y direction %
+1 1				0 or 1 (force or velocity controlled), 0 or 1 (harmonic or ramp function)
+0. 0. 0. 0. 0. 0. 0.		Parameters defining the harmonic and ramp functions : I, J, K, L, M, N
+%%% Wall 2 (left wall - vertical) %%%
+% x direction %
+1 1				0 or 1 (force or velocity controlled), 0 or 1 (harmonic or ramp function)
+0. 0. 0. 0. 0. 0. 0.		Parameters defining the harmonic and ramp functions : I, J, K, L, M, N
+% y direction %
+1 1				0 or 1 (force or velocity controlled), 0 or 1 (harmonic or ramp function)
+0. 0. 0. 0. 0. 0. 0.		Parameters defining the harmonic and ramp functions : I, J, K, L, M, N
+%%% Wall 3 (Top wall - horizontal) %%%
+% x direction %
+1 1				0 or 1 (force or velocity controlled), 0 or 1 (harmonic or ramp function)
+0. 0. 0. 0. 0. 0. 0.		Parameters defining the harmonic and ramp functions : I, J, K, L, M, N
+% y direction %
+1 1				0 or 1 (force or velocity controlled), 0 or 1 (harmonic or ramp function)
+0. 0. 0. 0. 0. 0. 0.		Parameters defining the harmonic and ramp functions : I, J, K, L, M, N
+%%% Wall 4 (Right wall - vertical) %%%
+% x direction %
+1 1				0 or 1 (force or velocity controlled), 0 or 1 (harmonic or ramp function)
+0. 0. 0. 0. 0. 0. 0.		Parameters defining the harmonic and ramp functions : I, J, K, L, M, N
+% y direction %
+1 1				0 or 1 (force or velocity controlled), 0 or 1 (harmonic or ramp function)
+0. 0. 0. 0. 0. 0. 0.		Parameters defining the harmonic and ramp functions : I, J, K, L, M, N
+
+%%%%%%%%%% Comments %%%%%%%%%%
+
+%%%%% periodic conditions : %%%%%
+
+This parameter indicates if the horizontal direction is periodic. In this situation, walls number 2 and 4 (left and right walls) are dead (live(2) = live(4) = 0).
+
+%%%%%%%%%% Masses and inertia moments of the walls : %%%%%%%%%%
+
+These two parameters are scale factors for calculating the mass and the moment of inertia of the walls. For example, a value of 1. means that the mass of the walls is equal to the mass of all the disks in the box.
+
+%%%%% Surface properties, distance criteria, and axes of the ellipses : %%%%%
+
+Here one assigns the rest of the material properties to each domain. A set of properties are defined for the "initial" contacts (this is, for the contacts that exist at the beginning of the simulation) and for the "residual" contacts (this is, contacts that are created during the simulation). One must specify eight flag numbers, and their meaning is :
+
+Initial contacts
+A : Number indicating the coefficient of restitution as defined in the properties file
+B : Number indicating the surface properties as defined in the properties file
+C : Number indicating the distance criteria to establish a new contact as defined in the properties file
+D : Number indicating the axis of the ellipses as defined in the properties file
+Residual contacts
+E : Number indicating the coefficient of restitution as defined in the properties file
+F : Number indicating the surface properties as defined in the properties file
+G : Number indicating the distance criteria to establish a new contact as defined in the properties file
+H : Number indicating the axis of the ellipses as defined in the properties file
+
+%%%%% Driven degrees of freedom of the four walls : %%%%%
+
+One can impose the degrees of freedom in the x and y direction for each of the walls. This is done by specifying two flags and 6 constants. The first flag indicate if the wall is force-controlled or velocity-controlled (respectively 0 or 1). The second flag indicates which kind of function must be used to drive the corresponding degree of freedom. Two kinds of functions can be specified: a harmonic function and a ramp function (0 and 1 respectively). The four first constants define the harmonic function as follows :
+
+	function = I + J*cos(K*t + L)
+
+The two last constants define the ramp function as follows
+
+	function = (M/N)*t (if t .le. N)
+and 	function = M (if t .gt. N)
+
+For example, this kind of ramp function allows to increment linearly the force imposed to the wall from 0. to its maximum value M in a period of time N; for times greater than N, the force imposed to the wall is constant and equal to M.
+
+%%%%%%%%%% end of comments %%%%%%%%%%

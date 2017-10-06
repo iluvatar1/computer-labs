@@ -1,0 +1,45 @@
+%%%%%%%%%% PROPERTIES %%%%%%%%%%
+0.    1.5708			gravity (m/s^2), direction of gravity (rad)
+%%%%% Densities %%%%%
+1				number of densities
+2600.				density (k/m^3)
+%%%%% Restitution coefficients %%%%%
+1				number of restitution coefficients
+0. 0. 0. 			normal, tangential, and rotational restitution coefficients
+%%%%% Surface properties (sliding friction, adhesion, and rolling friction) %%%%%
+2				number of surface properties 
+0. 2 0. 0. 0. 0. 		mu_s, 1=real or 2=normalized, sigma_a^r, mu_r^r, sigma_a^n, mu_r^n
+0.3 2 0. 0. 0. 0. 		mu_s, 1=real or 2=normalized, sigma_a^r, mu_r^r, sigma_a^n, mu_r^n
+%%%%% Distance criteria to establish new contacts between particles %%%%%
+1				number of distance criteria
+2 0. 0. 			1=real or 2=normalized, distance^r, distance^n
+%%%%% Normal and tangential axes of the ellipses at cohesive bonds %%%%%
+1				number of ellipses
+0 0. 0. 0. 0. 			0=no_ellipse or 1=real or 2=normalized, normal^r, tangential^r, normal^n, tangential^n
+
+%%%%%%%%%% Comments %%%%%%%%%%
+
+%%%%% Surface properties : %%%%%
+
+mu_s : coefficient of sliding friction at the contacts
+
+1=real or 2=normalized : Flag indicating if adhesion and rolling friction at the contacts are defined as real or normalized quantities. For exemple, if one chooses 1, sigma_a will be the force needed to break a cohesive bond, and its dimension will be (N); on the other hand, if one chooses 2, the force needed to break a cohesive bond will be given by sigma_a*ell, where ell is the mean diameter of the two particles, and the dimension of sigma_a will be (N/m), since we are in 2D.
+
+sigma_a^r : adhesion as a real quantity (N)
+
+mu_r^r : rolling friction as a real quantity (m)
+
+sigma_a^n : adhesion as a normalized quantity (N/m)
+
+mu_r^n : rolling friction as a normalized quantity (adimensional)
+
+%%%%% Distance criteria to establish new contacts between particles : %%%%%
+
+This distance allows us to create a contact even if the two particles do not actually touch. If the gap between the two particles is less or equal than this distance, then a contact between the two particles is considered. As surface properties, this distance criteria can be defined as a real quantity (1) or as a normalized quantity (2). When real, the defined quantity has the dimensions of a length (m); when normalized, the defined quantity is adimensional, and the new contacts are created if the gap is less or equal than this criteria multiplied by ell, where ell is the mean diameter of the two particles.
+
+%%%%% Normal and tangential axes of the ellipses at cohesive bonds : %%%%%
+
+When considering cohesive bonds between the particles, a small ellipse is associated to each bond. This ellipse is fixed to the initial contact point of one of the two particles, and the cohesive bond is broken when the initial contact point of the other particle exits this ellipse. Three types of ellipse can be defined: 0 = there is no ellipse, 1 = the axes of the ellipse are defined as real quantities and their dimension is (m), 2 = the axes os the ellipse are defined as normalized quantities and, in order to calculate their size, they must be multiplied by ell, where ell is the mean diameter of the two particles.
+
+%%%%%%%%%% end of comments %%%%%%%%%%
+

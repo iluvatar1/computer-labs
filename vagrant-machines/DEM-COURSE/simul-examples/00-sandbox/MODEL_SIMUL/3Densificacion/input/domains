@@ -1,0 +1,38 @@
+%%%%%%%%%% DOMAINS %%%%%%%%%%
+1				number of domains
+%%%%% Densities of each domain %%%%%
+1				Density No.
+%%%%% Surface properties, distance criteria, and axes of the ellipses %%%%%  
+1 2 1 1 1 2 1 1   		A, B, C, D, E, F, G, H
+%%%%% Inter-layer properties %%%%% 
+1 .TRUE. .TRUE.			kind of inter-layer parameters, I, J ilaymp(ks),ilayc(ks),ilayf(ks)
+
+%%%%%%%%%% Comments %%%%%%%%%%
+
+%%%%% Densities of each domain : %%%%%
+
+Here one assigns the density number (as defined in the properties file) for each domain. Thus, there must be as much lines as there are domains in the sample.
+
+%%%%% Surface properties, distance criteria, and axes of the ellipses : %%%%%
+
+Here one assigns the rest of the material properties to each domain. A set of properties are defined for the "initial" contacts (this is, for the contacts that exist at the beginning of the simulation) and for the "residual" contacts (this is, contacts that are created during the simulation). One must specify eight flag numbers, and their meaning is :
+
+Initial contacts
+A : Number indicating the coefficient of restitution as defined in the properties file
+B : Number indicating the surface properties as defined in the properties file
+C : Number indicating the distance criteria to establish a new contact as defined in the properties file
+D : Number indicating the axis of the ellipses as defined in the properties file
+Residual contacts
+E : Number indicating the coefficient of restitution as defined in the properties file
+F : Number indicating the surface properties as defined in the properties file
+G : Number indicating the distance criteria to establish a new contact as defined in the properties file
+H : Number indicating the axis of the ellipses as defined in the properties file
+
+%%%%% Inter-layer properties : %%%%%
+
+When one has a sample with several domains, it is necessary to decide which properties must be assigned to the contacts between particles of different domains. Three kinds of inter-layer parameters can be defined : 1 = the property is the minimum value of the two particles, 2 = the property is the mean value of the two particles, and 3 = the property is the maximum value of the two particles. Additionally, one can specify if the inter-layer friction and adhesion are active or not using two logical variables, as follows :
+
+I : (.TRUE./.FALSE.) flag indicating if the inter-layer adhesion is active or not
+J : (.TRUE./.FALSE.) flag indicating if the inter-layer friction is active or not
+
+%%%%%%%%%% end of comments %%%%%%%%%%
