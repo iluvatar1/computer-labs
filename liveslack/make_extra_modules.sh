@@ -90,13 +90,14 @@ function create_valgrind {
     fi
 }
 
-function create_paraview {
-    NAME=paraview
-    BNAME=${NAME}-5.4.1-x86_64-1_SBo
-    SLACKBUILD_URL="https://slackbuilds.org/slackbuilds/14.2/graphics/${NAME}.tar.gz"
-    SOURCE_URL="https://www.paraview.org/files/v5.4/ParaView-v5.4.1.tar.gz"
+function create_generic {
+    NAME=$1
+    BNAME=$2
+    SLACKBUILD_URL="$3"
+    SOURCE_URL="$4"
+    PKGNUM=$5
     cd $MODDIR
-    if [ ! -f 0068-${BNAME}.sxz ]; then
+    if [ ! -f ${PKGNUM}-${BNAME}.sxz ]; then
         echo "#####################################"
         echo "CREATING ${NAME} MODULE"
         if [ ! -f /tmp/$BNAME.tgz ]; then 
@@ -109,14 +110,19 @@ function create_paraview {
 	              bash ${NAME}.SlackBuild
         fi
         cd $MODDIR
-        bash $LIVESLACKBDIR/$MAKEMOD -i /tmp/${BNAME}.tgz 0068-${BNAME}.sxz 
-        rm -rf /tmp/${NAME}
-        echo "Done ${NAME} module."
-        echo "You can test the module contents with the command : "
-        echo "unsquashfs -l 0068-${BNAME}.sxz"
-        echo "#####################################"
+        bash $LIVESLACKBDIR/$MAKEMOD -i /tmp/${BNAME}.tgz ${PKGNUM}-${BNAME}.sxz &&
+        rm -rf /tmp/${NAME} &&
+        echo "Done ${NAME} module." &&
+        echo "You can test the module contents with the command : " &&
+        echo "unsquashfs -l ${PKGNUM}-${BNAME}.sxz" &&
+        echo "#####################################" &&
         echo 
     fi
+}
+
+function create_paraview {
+    create_generic qt5 qt5-5.7.1-x86_64-1_SBo "https://slackbuilds.org/slackbuilds/14.2/libraries/qt5.tar.gz" "download.qt.io/official_releases/qt/5.7/5.7.1/single/qt-everywhere-opensource-src-5.7.1.tar.xz" 0068
+    create_generic paraview paraview-5.4.1-x86_64-1_SBo  "https://slackbuilds.org/slackbuilds/14.2/graphics/paraview.tar.gz" "https://www.paraview.org/files/v5.4/ParaView-v5.4.1.tar.gz" 0069
 }
 
 echo "Please select package to create :"
