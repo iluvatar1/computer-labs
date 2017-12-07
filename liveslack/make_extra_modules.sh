@@ -64,32 +64,6 @@ function create_miniconda {
     fi
 }
 
-function create_valgrind {
-    BNAME=valgrind-3.13.0-x86_64-1_SBo
-    cd $MODDIR
-    if [ ! -f 0067-${BNAME}.sxz ]; then
-        echo "#####################################"
-        echo "CREATING valgrind MODULE"
-        if [ ! -f /tmp/$BNAME.tgz ]; then 
-	          mkdir -p /tmp/valgrind &&
-	              cd /tmp/valgrind &&
-	              wget -c https://slackbuilds.org/slackbuilds/14.2/development/valgrind.tar.gz &&
-	              tar xf valgrind.tar.gz &&
-	              cd valgrind &&
-	              wget -c ftp://sourceware.org/pub/valgrind/valgrind-3.13.0.tar.bz2 &&
-	              bash valgrind.SlackBuild
-        fi
-        cd $MODDIR
-        bash $LIVESLACKBDIR/$MAKEMOD -i /tmp/${BNAME}.tgz 0067-${BNAME}.sxz 
-        rm -rf /tmp/valgrind
-        echo "Done valgrind module."
-        echo "You can test the module contents with the command : "
-        echo "unsquashfs -l 0067-${BNAME}.sxz"
-        echo "#####################################"
-        echo 
-    fi
-}
-
 function create_generic {
     NAME=$1
     BNAME=$2
@@ -120,9 +94,28 @@ function create_generic {
     fi
 }
 
+function create_valgrind {
+    create_generic valgrind valgrind-3.13.0-x86_64-1_SBo "https://slackbuilds.org/slackbuilds/14.2/development/valgrind.tar.gz" "ftp://sourceware.org/pub/valgrind/valgrind-3.13.0.tar.bz2" 0067
+}
+
 function create_paraview {
-    create_generic qt5 qt5-5.7.1-x86_64-1_SBo "https://slackbuilds.org/slackbuilds/14.2/libraries/qt5.tar.gz" "download.qt.io/official_releases/qt/5.7/5.7.1/single/qt-everywhere-opensource-src-5.7.1.tar.xz" 0068
-    create_generic paraview paraview-5.4.1-x86_64-1_SBo  "https://slackbuilds.org/slackbuilds/14.2/graphics/paraview.tar.gz" "https://www.paraview.org/files/v5.4/ParaView-v5.4.1.tar.gz" 0069
+    # using the binaries from Paraview
+    # Download the package for linux
+    # create slackware package with makepkg, and a launcher
+    # create the module
+    PKGNUM=0069
+    BNAME=paraview-5.4.1-x86_64-oquendo
+    cd $MODDIR
+    bash $LIVESLACKBDIR/$MAKEMOD -i /tmp/${BNAME}.txz ${PKGNUM}-${BNAME}.sxz &&
+        echo "Done ${NAME} module." &&
+        echo "You can test the module contents with the command : " &&
+        echo "unsquashfs -l ${PKGNUM}-${BNAME}.sxz" &&
+        echo "#####################################" &&
+        echo 
+    
+    # From source: 2017-12-07 - Does not work, paraview gives an error
+    #create_generic qt5 qt5-5.7.1-x86_64-1_SBo "https://slackbuilds.org/slackbuilds/14.2/libraries/qt5.tar.gz" "download.qt.io/official_releases/qt/5.7/5.7.1/single/qt-everywhere-opensource-src-5.7.1.tar.xz" 0068
+    #create_generic paraview paraview-5.4.1-x86_64-1_SBo  "https://slackbuilds.org/slackbuilds/14.2/graphics/paraview.tar.gz" "https://www.paraview.org/files/v5.4/ParaView-v5.4.1.tar.gz" 0069
 }
 
 echo "Please select package to create :"
