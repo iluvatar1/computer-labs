@@ -2,12 +2,16 @@ echo "This script is meant to be run on a Slackware 14.2 installation where the 
 
 
 MAKEMOD=makemod
-LIVESLACKBDIR=/root/Downloads/liveslak/
-MODDIR=/root/Downloads/mods_liveslack
+LIVESLACKBDIR=${HOME}/Downloads/liveslak/
+MODDIR=${HOME}/Downloads/mods_liveslack
+mkdir -p $LIVESLACKBDIR
 mkdir -p $MODDIR
 
 echo "Updating liveslack repo ..."
 cd $LIVESLACKBDIR
+if [ ! -d .git ]; then 
+    git clone http://bear.alienbase.nl/cgit/liveslak .
+fi
 git pull
 cd
 
