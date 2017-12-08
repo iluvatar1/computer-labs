@@ -68,32 +68,6 @@ function create_miniconda {
     fi
 }
 
-function create_valgrind {
-    BNAME=valgrind-3.13.0-x86_64-1_SBo
-    cd $MODDIR
-    if [ ! -f 0067-${BNAME}.sxz ]; then
-        echo "#####################################"
-        echo "CREATING valgrind MODULE"
-        if [ ! -f /tmp/$BNAME.tgz ]; then 
-	          mkdir -p /tmp/valgrind &&
-	              cd /tmp/valgrind &&
-	              wget -c https://slackbuilds.org/slackbuilds/14.2/development/valgrind.tar.gz &&
-	              tar xf valgrind.tar.gz &&
-	              cd valgrind &&
-	              wget -c ftp://sourceware.org/pub/valgrind/valgrind-3.13.0.tar.bz2 &&
-	              bash valgrind.SlackBuild
-        fi
-        cd $MODDIR
-        bash $LIVESLACKBDIR/$MAKEMOD -i /tmp/${BNAME}.tgz 0067-${BNAME}.sxz 
-        rm -rf /tmp/valgrind
-        echo "Done valgrind module."
-        echo "You can test the module contents with the command : "
-        echo "unsquashfs -l 0067-${BNAME}.sxz"
-        echo "#####################################"
-        echo 
-    fi
-}
-
 function create_generic {
     NAME=$1
     BNAME=$2
@@ -113,20 +87,63 @@ function create_generic {
 	              wget -c ${SOURCE_URL} && 
 	              bash ${NAME}.SlackBuild
         fi
-        cd $MODDIR
-        bash $LIVESLACKBDIR/$MAKEMOD -i /tmp/${BNAME}.tgz ${PKGNUM}-${BNAME}.sxz &&
-        rm -rf /tmp/${NAME} &&
-        echo "Done ${NAME} module." &&
-        echo "You can test the module contents with the command : " &&
-        echo "unsquashfs -l ${PKGNUM}-${BNAME}.sxz" &&
-        echo "#####################################" &&
-        echo 
+	if [ -f "/tmp/${BNAME}.tgz" ]; then
+            cd $MODDIR
+            bash $LIVESLACKBDIR/$MAKEMOD -i /tmp/${BNAME}.tgz ${PKGNUM}-${BNAME}.sxz &&
+		rm -rf /tmp/${NAME} &&
+		echo "Done ${NAME} module." &&
+		echo "You can test the module contents with the command : " &&
+		echo "unsquashfs -l ${PKGNUM}-${BNAME}.sxz" &&
+		echo "#####################################" &&
+		echo
+	fi
     fi
 }
 
+function create_valgrind {
+    create_generic valgrind valgrind-3.13.0-x86_64-1_SBo "https://slackbuilds.org/slackbuilds/14.2/development/valgrind.tar.gz" "ftp://sourceware.org/pub/valgrind/valgrind-3.13.0.tar.bz2" 0067
+}
+
 function create_paraview {
-    create_generic qt5 qt5-5.7.1-x86_64-1_SBo "https://slackbuilds.org/slackbuilds/14.2/libraries/qt5.tar.gz" "download.qt.io/official_releases/qt/5.7/5.7.1/single/qt-everywhere-opensource-src-5.7.1.tar.xz" 0068
-    create_generic paraview paraview-5.4.1-x86_64-1_SBo  "https://slackbuilds.org/slackbuilds/14.2/graphics/paraview.tar.gz" "https://www.paraview.org/files/v5.4/ParaView-v5.4.1.tar.gz" 0069
+    NAME=paraview
+    PKGNUM=0069
+    BNAME=paraview-5.4.1-x86_64-oquendo
+    PKG_NAME="ParaView-5.4.1-Qt5-OpenGL2-MPI-Linux-64bit.tar.gz"
+    PKG_BNAME="${PKG_NAME%.tar.gz}"
+    PKG_URL="https://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v5.4&type=binary&os=Linux&downloadFile=${PKG_NAME}"
+    # using the binaries from Paraview
+    cd $MODDIR
+    if [ ! -f ${PKGNUM}-${BNAME}.sxz ]; then
+        echo "#####################################"
+        if [ ! -f /tmp/${BNAME}.txz ]; then 
+            echo "CREATING ${NAME} PACKAGE"
+	    mkdir -p /tmp/${NAME} &&
+	        cd /tmp/${NAME} &&
+	        wget -c -nc -O "${PKG_NAME}" "${PKG_URL}"  &&
+	        tar xvf ${PKG_NAME} &&
+		mkdir -p build/opt &&
+		mv ${PKG_BNAME} build/opt/  &&
+		cd build &&
+		mkdir -p usr/local/bin &&
+		echo "/opt/${PKG_BNAME}/bin/paraview" > usr/local/bin/paraview &&
+		chmod +x usr/local/bin/paraview &&
+		echo "/opt/${PKG_BNAME}/bin/pvpython" > usr/local/bin/pvpython &&
+		chmod +x usr/local/bin/pvpython &&
+		makepkg -l y -c n /tmp/${BNAME}.txz &&
+		echo "DONE: CREATING ${NAME} PACKAGE"
+        fi
+	cd $MODDIR
+        echo "CREATING ${NAME} SQUASHFS MODULE"
+	bash $LIVESLACKBDIR/$MAKEMOD -i /tmp/${BNAME}.txz ${PKGNUM}-${BNAME}.sxz &&
+            echo "Done ${NAME} module." &&
+            echo "You can test the module contents with the command : " &&
+            echo "unsquashfs -l ${PKGNUM}-${BNAME}.sxz" &&
+            echo "#####################################" &&
+            echo 
+    fi    
+    # From source: 2017-12-07 - Does not work, paraview gives an error
+    #create_generic qt5 qt5-5.7.1-x86_64-1_SBo "https://slackbuilds.org/slackbuilds/14.2/libraries/qt5.tar.gz" "download.qt.io/official_releases/qt/5.7/5.7.1/single/qt-everywhere-opensource-src-5.7.1.tar.xz" 0068
+    #create_generic paraview paraview-5.4.1-x86_64-1_SBo  "https://slackbuilds.org/slackbuilds/14.2/graphics/paraview.tar.gz" "https://www.paraview.org/files/v5.4/ParaView-v5.4.1.tar.gz" 0069
 }
 
 echo "Please select package to create :"
