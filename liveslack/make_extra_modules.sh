@@ -15,7 +15,7 @@ git pull
 cd
 
 function check_status {
-    if [[ x"0" !=  "$?" ]]; then
+    if [[ x"0" !=  x"$?" ]]; then
 	echo "Error in previous command. Exiting."
 	exit 1
     fi
