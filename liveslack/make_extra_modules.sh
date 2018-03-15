@@ -81,7 +81,7 @@ function create_generic {
 	          mkdir -p /tmp/${NAME} &&
 	              cd /tmp/${NAME} &&
 	              wget -c ${SLACKBUILD_URL} &&
-	              tar xvf ${NAME}.tar.{gz,bz2} &&
+	              tar xvf ${NAME}.tar.gz &&
 	              cd ${NAME} &&
 	              wget -c ${SOURCE_URL} && 
 	              bash ${NAME}.SlackBuild
