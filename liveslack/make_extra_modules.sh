@@ -1,6 +1,5 @@
 echo "This script is meant to be run on a Slackware 14.2 installation where the liveslack repo is updated and inside ~/Downloads"
 
-
 MAKEMOD=makemod
 LIVESLACKBDIR=${HOME}/Downloads/liveslak/
 MODDIR=${HOME}/Downloads/mods_liveslack
@@ -104,6 +103,10 @@ function create_valgrind {
     create_generic valgrind valgrind-3.13.0-x86_64-1_SBo "https://slackbuilds.org/slackbuilds/14.2/development/valgrind.tar.gz" "ftp://sourceware.org/pub/valgrind/valgrind-3.13.0.tar.bz2" 0067
 }
 
+function create_openmpi {
+    create_generic openmpi openmpi-2.1.1-x86_64-1_SBo "https://slackbuilds.org/slackbuilds/14.2/system/openmpi.tar.gz" "https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-2.1.1.tar.bz2" 0068
+}
+
 function create_paraview {
     NAME=paraview
     PKGNUM=0069
@@ -147,18 +150,21 @@ function create_paraview {
 }
 
 echo "Please select package to create :"
-printf "0) ALL \n1) Miniconda \n2) valgrind \n3) paraview\n"
+printf "0) ALL \n1) Miniconda \n2) valgrind \n3) paraview\n4) openmpi\n"
 read option
 case $option in
     0) create_miniconda
        create_valgrind
        create_paraview
+       create_openmpi
        ;;
     1) create_miniconda
        ;;
     2) create_valgrind
        ;;
     3) create_paraview
+       ;;
+    4) create_openmpi
        ;;
     *) echo "Bad option. Exiting"
        exit 1
