@@ -30,7 +30,7 @@ function create_miniconda {
 
         if [ ! -d /opt/miniconda2 ]; then
 	          echo "Installing miniconda and packages ...."
-	          if [[ x"dd54b344661560b861f86cc5ccff044b" != x"$(md5sum ~/Downloads/$BNAME.sh)" ]]; then 
+	          if [[ x"dd54b344661560b861f86cc5ccff044b" != x"$(md5sum ~/Downloads/$BNAME.sh | awk '{print $1}')" ]]; then 
 	              echo "Downloading ..."
 	              wget https://repo.continuum.io/miniconda/$BNAME.sh -O ~/Downloads/$BNAME.sh
 		      check_status
