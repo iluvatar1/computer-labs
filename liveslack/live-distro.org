@@ -1,3 +1,26 @@
+* Minimum software for each scientific distro
+  |--------------------------+---------+-----------------+--------------+--------------+-------------|
+  | Tool                     | version | default version | mate version | xfce version | custom made |
+  |--------------------------+---------+-----------------+--------------+--------------+-------------|
+  | emacs                    |    25.3 |                 | X            |              |             |
+  | g++                      |   7.2.0 |                 | X            |              |             |
+  | gnuplot with pdfcairo    |  5.2.p2 |                 | X            |              |             |
+  | git                      |  2.14.2 |                 | X            |              |             |
+  | valgrind                 |         |                 |              |              |             |
+  | gdb                      |   8.0.1 |                 | X            |              |             |
+  | ddd                      |  3.3.12 |                 | X            |              |             |
+  | gprof                    |  2.29.1 |                 | X            |              |             |
+  | python                   | 2 and 3 |                 | X            |              |             |
+  | ipython                  |         |                 |              |              |             |
+  | Scipy, numpy, matplotlib |         |                 |              |              |             |
+  | openmpi                  |         |                 |              |              |             |
+  | eigen                    |   3.2.7 |                 | X            |              |             |
+  | paraview                 |         |                 |              |              |             |
+  |--------------------------+---------+-----------------+--------------+--------------+-------------|
+  | inkscape (opt)           |         |                 |              |              |             |
+  | libreoffice (opt)        |         |                 |              |              |             |
+  |--------------------------+---------+-----------------+--------------+--------------+-------------|
+
 * Slackware Live
   - http://docs.slackware.com/slackware:liveslak
   - http://bear.alienbase.nl/cgit/liveslak
@@ -14,12 +37,14 @@
    Check the make script ~make_extra_modules.sh~, which automatize
    modules creation.
    List of modules
-   - Miniconda2
+   - Miniconda2 (solves python, ipython, numpy, etc)
    - Valgrind
+   - paraview
+   TODO : openmpi
 ** Simple procedure for creating the live iso
    (From Alien Bob!!!!) A quicker way to recreate an ISO if you
    already have one and want to modify it a bit (by adding a module for
-   instance) is (CHECK script create_custom_liveslack_iso.sh) : 
+   instance) is (*CHECK script create_custom_liveslack_iso.sh which does all of this*) : 
    1. loop-mount the ISO file (mount -o loop file.iso mountpoint/)
    2. make the directory /tmp/slackwarelive_staging 
    3. copy the content of the ISO (using the
