@@ -14,22 +14,30 @@ fi
 git pull
 cd
 
+function check_status {
+    if [[ x"0" !=  "$?" ]]; then
+	echo "Error in previous command. Exiting."
+	exit 1
+    fi
+}
 
 function create_miniconda {
     cd $MODDIR
     BNAME=Miniconda2-latest-Linux-x86_64
-    if [ ! -f 0066-$BNAME.sxz ]; then 
+    if [ ! -s 0066-$BNAME.sxz ]; then 
         echo "#####################################"
         echo "CREATING miniconda MODULE ... "
 
         if [ ! -d /opt/miniconda2 ]; then
 	          echo "Installing miniconda and packages ...."
-	          if [ ! -f ~/Downloads/$BNAME.sh ]; then 
+	          if [[ x"dd54b344661560b861f86cc5ccff044b" != x"$(md5sum ~/Downloads/$BNAME.sh)" ]]; then 
 	              echo "Downloading ..."
 	              wget https://repo.continuum.io/miniconda/$BNAME.sh -O ~/Downloads/$BNAME.sh
+		      check_status
 	          fi
 	          echo "Installing (onto /opt/miniconda2, batch mode)..."
 	          bash ~/Downloads/$BNAME.sh -b -p /opt/miniconda2
+		  check_status
 	          echo "Done installing miniconda"
         fi
         
