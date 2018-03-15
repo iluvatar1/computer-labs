@@ -86,7 +86,7 @@ function create_generic {
 	              wget -c ${SOURCE_URL} && 
 	              bash ${NAME}.SlackBuild
         fi
-	if [ -f "/tmp/${BNAME}.tgz" ]; then
+	if [ -f "${PKGNUM}-${BNAME}.sxz" ]; then
             cd $MODDIR
             bash $LIVESLACKBDIR/$MAKEMOD -i /tmp/${BNAME}.tgz ${PKGNUM}-${BNAME}.sxz &&
 		rm -rf /tmp/${NAME} &&
