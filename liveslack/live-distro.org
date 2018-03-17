@@ -6,16 +6,16 @@
   | g++                      |   7.2.0 |                 | X            |              |             |
   | gnuplot with pdfcairo    |  5.2.p2 |                 | X            |              |             |
   | git                      |  2.14.2 |                 | X            |              |             |
-  | valgrind                 |         |                 |              |              |             |
+  | valgrind                 |         |                 |              |              | X           |
   | gdb                      |   8.0.1 |                 | X            |              |             |
   | ddd                      |  3.3.12 |                 | X            |              |             |
   | gprof                    |  2.29.1 |                 | X            |              |             |
   | python                   | 2 and 3 |                 | X            |              |             |
-  | ipython                  |         |                 |              |              |             |
-  | Scipy, numpy, matplotlib |         |                 |              |              |             |
-  | openmpi                  |         |                 |              |              |             |
+  | ipython                  |         |                 |              |              | X           |
+  | Scipy, numpy, matplotlib |         |                 |              |              | X           |
+  | openmpi                  |         |                 |              |              | X           |
   | eigen                    |   3.2.7 |                 | X            |              |             |
-  | paraview                 |         |                 |              |              |             |
+  | paraview                 |         |                 |              |              | X           |
   |--------------------------+---------+-----------------+--------------+--------------+-------------|
   | inkscape (opt)           |         |                 |              |              |             |
   | libreoffice (opt)        |         |                 |              |              |             |
