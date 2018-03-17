@@ -85,7 +85,7 @@ function create_generic {
     if [ ! -f ${PKGNUM}-${BNAME}.sxz ]; then
         echo "#####################################"
         echo "CREATING ${NAME} MODULE"
-        if [ ! -f /tmp/$BNAME.tgz ]; then 
+        if [ ! -s /tmp/$BNAME.tgz ]; then 
 	          mkdir -p /tmp/${NAME} &&
 	              cd /tmp/${NAME} &&
 	              wget -c ${SLACKBUILD_URL} &&
@@ -94,7 +94,7 @@ function create_generic {
 	              wget -c ${SOURCE_URL} && 
 	              bash ${NAME}.SlackBuild
         fi
-	if [ -f "${PKGNUM}-${BNAME}.sxz" ]; then
+	if [ -s "${PKGNUM}-${BNAME}.sxz" ]; then
             cd $MODDIR
             bash $LIVESLACKBDIR/$MAKEMOD -i /tmp/${BNAME}.tgz ${PKGNUM}-${BNAME}.sxz &&
 		rm -rf /tmp/${NAME} &&
