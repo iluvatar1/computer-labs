@@ -99,12 +99,12 @@ echo "Configuring kanif "
 #    yes 'PASSWORD' | ssh-copy-id -i ~/.ssh/id_rsa.pub $q
 #done
 if [ "$LINUX" == "SLACKWARE" ]; then
-    echo "Doing nothing for slackware... (you should install it yourself?) "
+    echo "Kanif assumed to be installed in slackware."
 elif [ "$LINUX" == "UBUNTU" ]; then
     apt-get -y install kanif
 fi
 copy_config "$FDIR/SERVER-etc-c3.conf" "/etc/kanif.conf"
-kash ls
+#kash ls
 echo "DONE: Configuring kanif "
 # read
 
@@ -158,6 +158,19 @@ rpcinfo -p localhost # check
 echo "DONE: Configuring nis "
 # read
 
+# Configure root internet access
+echo "Configuring root proxy ..."
+bname="~/.bashrc"
+if [ x"" == "$(grep https_proxy ${bname} 2>/dev/null)" ]; then
+    echo 'export PROXY="fisicasop_fcbog:s4l4fis219@proxyapp.unal.edu.co:8080/" ' >> $bname
+    echo 'export http_proxy="http://$PROXY" ' >> $bname
+    echo 'export https_proxy="https://$PROXY" ' >> $bname
+    echo 'export ftp_proxy="ftp://$PROXY" ' >> $bname
+    echo 'export RSYNC_PROXY="$PROXY" ' >> $bname
+else
+    echo "Root proxy already configured."
+fi
+echo "Done."
 
 
 
