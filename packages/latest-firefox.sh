@@ -1,7 +1,5 @@
 #!/bin/bash
-# latest-firefox Version 1.3.9
-
-# https://gist.github.com/ruario/9672798
+# latest-firefox Version 1.4.1
 
 # This script will find the latest Firefox binary package, download it
 # and repackage it into Slackware format.
@@ -9,7 +7,7 @@
 # I don't use Firefox for regular browsing but it is handy for
 # comparative tests against Vivaldi. :P
 
-# Copyright 2016 Ruari Oedegaard, Oslo, Norway
+# Copyright 2017 Ruari Oedegaard, Oslo, Norway
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -56,13 +54,19 @@ else
   exit 1
 fi
 
-# Set to Y to track ESR instead of regular Firefox
+# Set to esr or beta to track ESR and beta channels instead of regular Firefox
 FFESR=${FFESR:-N}
 
 if [ "$FFESR" = "Y" ]; then
   FFCHANNEL=esr-latest
-else
-  FFCHANNEL=latest
+fi
+
+FFCHANNEL=${FFCHANNEL:-latest}
+
+if [ "$FFCHANNEL" = "esr" ]; then
+  FFCHANNEL=esr-latest
+elif [ "$FFCHANNEL" = "beta" ]; then
+  FFCHANNEL=beta-latest
 fi
 
 # This defines the language of the downloaded package
@@ -101,7 +105,7 @@ REPACKDIR=$TMP/repackage-mozilla-firefox
 # Three sources are needed, here is where to find them if they are not
 # already in the directory this script was started from.
 FIREFOXPKG="https://download.mozilla.org/?product=firefox-${VERSION}&os=linux${LIBDIRSUFFIX}&lang=${FFLANG}"
-DESKTOPFILE=http://mirrors.slackware.com/slackware/slackware-current/source/xap/mozilla-firefox/mozilla-firefox.desktop
+DESKTOPFILE=https://mirrors.slackware.com/slackware/slackware-current/source/xap/mozilla-firefox/mozilla-firefox.desktop
 SCRIPT="${0##*/}"
 
 # This function can be used in place of Slackware's makepkg, with the
