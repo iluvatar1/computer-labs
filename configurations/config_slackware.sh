@@ -38,7 +38,8 @@ if [ x"" == x"$(grep slim /etc/rc.d/rc.4 | grep -v grep)" ]; then
 fi
 
 echo "Configuring slackpkg mirror"
-if [ x"" == x"$(grep tds $bfile)" ]; then 
+bfile=/etc/slackpkg/mirrors
+if [ x"" == x"$(grep tds $bfile | grep -v grep)" ]; then 
     cp /etc/slackpkg/mirrors{,bck}
     echo "http://slackware.mirrors.tds.net/pub/slackware/slackware-14.2/" > /etc/slackpkg/mirrors
 else
