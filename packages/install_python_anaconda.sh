@@ -1,4 +1,4 @@
-echo "Installing anaconda ..."
+echo "Installing miniconda3 ..."
 
 if  hash conda 2> /dev/null ; then
     echo "    -> already installed"
@@ -9,16 +9,16 @@ else
 	mkdir ANACONDA &>/dev/null
     fi
     cd ANACONDA
-
-    FNAME=Anaconda2-4.3.1-Linux-x86_64.sh
-    echo "Downloading anaconda."
-    wget -c  http://repo.continuum.io/archive/${FNAME}
+ 
+    FNAME=Miniconda3-latest-Linux-x86_64.sh
+    echo "Downloading miniconda3 ..."
+    wget -c  https://repo.continuum.io/miniconda/${FNAME}
     
-    echo "Installing Anaconda in batch mode ..."
-    rm -rf /opt/anaconda2 2> /dev/null
-    bash ${FNAME} -b -p /opt/anaconda2
+    echo "Installing miniconda3 in batch mode ..."
+    rm -rf /opt/anaconda3 2> /dev/null
+    bash ${FNAME} -b -p /opt/miniconda3
 
-    export PATH=/usr/local/bin/:$PATH
+    export PATH=/opt/anaconda3/bin/:/usr/local/bin/:$PATH
     
     pip install --upgrade pip
     
@@ -39,15 +39,16 @@ else
     #echo vagrant | sudo apt-get install -y python-visual
 fi
 
-# PUTTING ANCONDA ON THE PATH GENERATES PROBLEMS WITH COMPILATIONS. AVOID IT
+# PUTTING ANCONDA ON THE PATH GENERATES PROBLEMS WITH COMPILATIONS. AVOID IT.
+# JUST LINK THE NEEDED BINARIES (SEE BELOW)
 if [ ! -f /etc/profile.d/anaconda.sh ]; then 
     echo 'export PATH="/usr/local/bin:$PATH"' > /etc/profile.d/anaconda.sh
     chmod +x /etc/profile.d/anaconda.sh
 fi
 source /etc/profile.d/anaconda.sh
 # Better use soft links
-for a in {de,}activate anaconda conda ipython{,2} jupyter{,-notebook} pip{,2} python{,2}  ; do
-    ln -sf /opt/anaconda2/bin/$a /usr/local/bin/
+for a in {de,}activate anaconda conda ipython{,3} jupyter{,-notebook} pip{,3} python{,3}  ; do
+    ln -sf /opt/anaconda3/bin/$a /usr/local/bin/
 done
 
 echo "Done."
