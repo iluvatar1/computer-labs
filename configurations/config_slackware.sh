@@ -39,7 +39,7 @@ fi
 
 echo "Configuring slackpkg mirror"
 bfile=/etc/slackpkg/mirrors
-if [ x"" == x"$(grep tds $bfile | grep -v grep)" ]; then 
+if [ x"1" == x"$(wc -l $bfile)" ]; then 
     cp /etc/slackpkg/mirrors{,bck}
     echo "http://slackware.mirrors.tds.net/pub/slackware/slackware-14.2/" > /etc/slackpkg/mirrors
 else
