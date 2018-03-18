@@ -11,9 +11,9 @@ SBO_CMD="sboinstall -r -j 2 "
 echo "Configuring slackpkg ..."
 slackpkg -batch=on -default_answer=y update gpg
 slackpkg -batch=on -default_answer=y update
-slackpkg -batch=on -default_answer=y blacklist aaa_elflibs
+slackpkg -batch=on -default_answer=y blacklist kernel
 slackpkg -batch=on -default_answer=y blacklist bash
-slackpkg -batch=on -default_answer=y blacklist glibc
+#slackpkg -batch=on -default_answer=y blacklist glibc
 
 echo "Installing sbopkg ..."
 if ! hash sbopkg &>/dev/null ; then 
