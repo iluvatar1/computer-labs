@@ -44,22 +44,6 @@ function copy_config()
     cp -vf "$mfile" "$bfile"
 }
 
-
-# network interfaces
-# slackware already configured to use DHCP
-if [ "$LINUX" == "UBUNTU" ]; then 
-    echo "Configuring network interface"
-    bfile=/etc/network/interfaces
-    backup_file $bfile
-    cat <<EOF > $bfile
-auto eth0
-iface eth0 inet dhcp
-dns-nameservers ${SERVERIP}
-EOF
-    /etc/init.d/networking restart
-    echo "DONE: Configuring network interface in UBUNTU"
-fi
-
 # Network manager
 #echo "Removing permissions for network manager ..."
 #chmod -x /etc/rc.d/rc.wireless
@@ -71,54 +55,6 @@ if [ ! -f "/etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh" ]; then
     bash /etc/rc.d/rc.networkmanager restart
     /etc/rc.d/rc.inet2 restart
 fi
-
-
-echo "Adding dhcp for eth1"
-sed -i.bck 's/USE_DHCP\[1\]=""/USE_DHCP\[1\]="yes"/' /etc/rc.d/rc.inet1.conf
-
-
-# Mirror configuration
-echo "Configuring packages mirrors"
-if [ "$LINUX" == "SLACKWARE" ]; then
-    bfile=/etc/slackpkg/mirrors
-    if [ x"" == x"$(grep tds $bfile)" ]; then 
-	backup_file $bfile
-	cat <<EOF > $bfile
-http://slackware.mirrors.tds.net/pub/slackware/slackware-14.2/
-EOF
-	slackpkg update
-    else
-	echo "    -> Mirror already configured."
-    fi
-elif [ "$LINUX" == "UBUNTU" ]; then
-    bfile=/etc/apt/sources.list
-    backup_file $bfile
-    cat <<EOF > $bfile
-deb mirror://mirrors.ubuntu.com/mirrors.txt precise main restricted universe multiverse
-deb mirror://mirrors.ubuntu.com/mirrors.txt precise-updates main restricted universe multiverse
-deb mirror://mirrors.ubuntu.com/mirrors.txt precise-backports main restricted universe multiverse
-deb mirror://mirrors.ubuntu.com/mirrors.txt precise-security main restricted universe multiverse
-#deb http://168.176.34.158/ubuntu/ precise main multiverse restricted universe
-#deb http://168.176.34.158/ubuntu/ precise-updates main multiverse restricted universe
-EOF
-    apt-get update
-    apt-get -y install emacs
-fi
-echo "DONE: Configuring packages mirrors"
-
-
-# ssh server
-echo "Configuring ssh "
-if [ "$LINUX" == "SLACKWARE" ]; then
-    chmod +x /etc/rc.d/rc.sshd
-    /etc/rc.d/rc.sshd start
-elif [ "$LINUX" == "UBUNTU" ]; then
-# apt-get install openssh-client openssh-server
-    mv /etc/ssh/ssh_host_* ./
-    dpkg-reconfigure openssh-server
-    service ssh restart
-fi
-echo "DONE: Configuring ssh"
 
 
 # ntp server
@@ -133,6 +69,8 @@ if [ "$LINUX" == "SLACKWARE" ]; then
     else
 	echo "    -> already configured"
     fi
+else
+    echo "UBUNTU NOT CONFIGURED"
 fi
 echo "DONE: Configuring  ntp"
 
@@ -217,17 +155,6 @@ if [ x"" == "$(grep https_proxy ${bname} 2>/dev/null)" ]; then
     echo 'export RSYNC_PROXY="$PROXY" ' >> $bname
 else
     echo "Root proxy already configured."
-fi
-
-# Configuring lilo
-echo "Configuring lilo delay time to 5 seconds ..."
-bname="/etc/lilo.conf"
-if [ x"" == x"$(grep -re 'timeout.*50' 2>/dev/null $bname)" ]; then
-    backup_file $bname
-    sed -i.bck 's/timeout = 1200/timeout = 50/' $bname
-    lilo
-else
-    echo "   -> already configured."
 fi
 
 # default xsession : xfce
