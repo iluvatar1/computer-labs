@@ -13,6 +13,7 @@ slackpkg -batch=on -default_answer=y update gpg
 slackpkg -batch=on -default_answer=y update
 slackpkg -batch=on -default_answer=y blacklist kernel
 slackpkg -batch=on -default_answer=y blacklist bash
+slackpkg -batch=on -default_answer=y blacklist coreutils
 #slackpkg -batch=on -default_answer=y blacklist glibc
 
 echo "Installing sbopkg ..."
