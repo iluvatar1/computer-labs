@@ -8,6 +8,12 @@ SBO_CMD="sboinstall -r -j 2 "
 ########################################
 # SBO STUFF
 ########################################
+echo "Configuring slackpkg ..."
+slackpkg -batch=on -default_answer=y update gpg
+slackpkg -batch=on -default_answer=y update
+slackpkg -batch=on -default_answer=y blacklist aaa_elflibs
+slackpkg -batch=on -default_answer=y blacklist bash
+
 echo "Installing sbopkg ..."
 if ! hash sbopkg &>/dev/null ; then 
     wget -c https://github.com/sbopkg/sbopkg/releases/download/0.38.1/sbopkg-0.38.1-noarch-1_wsr.tgz
@@ -16,6 +22,12 @@ if ! hash sbopkg &>/dev/null ; then
 else
     echo "    already installed"
 fi
+
+echo "Using same repo for both sbotools and sbopkg"
+if [ ! -d /usr/sbo ]; then
+    mkdir -p /usr/sbo/
+fi
+ln -sf /var/lib/sbopkg/SBo/14.2 /usr/sbo/repo
 
 echo "Installing sbotools ..."
 if ! hash sbosnap &>/dev/null ; then 
