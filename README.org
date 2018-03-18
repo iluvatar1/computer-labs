@@ -1,5 +1,74 @@
-*  Description
-  This repository contains ...
-* TODO Check installation of heaptrack
+This repository contains several scripts to build different kind of
+tools that I have needed along time. The following describes the
+structure and usage.
+* =clonezilla=
+   This shows how to clone a device into an image or how to clone and
+   image to many computers. Maybe this could be scripted, I do not
+   know how. It would be useful if the computers could be configured
+   to boot from pxe by default and somehow clonezilla determines if
+   the system needs to be reimaged.
+* =computer-room=[0/1]
+   This shows several scripts that can be used to configure either a
+   client or a server for a computer room. 
+   It is assumed that the system running this scripts is already in
+   basic configured state (internet, etc).
+   The services configured are
+   |---------------------------------------+--------+--------|
+   | service                               | client | server |
+   |---------------------------------------+--------+--------|
+   | fixed network ip interfaces           |        | X      |
+   | dnsmasq                               |        | X      |
+   | firewall                              |        | X      |
+   | kanif                                 |        | X      |
+   | nfs                                   | X      | X      |
+   | nis                                   | X      | X      |
+   | Network manager hook                  | X      |        |
+   | ntp                                   | X      |        |
+   | root internet access                  | X      | X      |
+   | default session: xfce                 | X      |        |
+   | latam keyboard                        | X      |        |
+   | cronjob to check connection status    | X      |        |
+   | Server public key for ssh access      | X      |        |
+   | Remove permissions to halt / shutdown | X      |        |
+   |---------------------------------------+--------+--------|
+
+*** TODO Configure cronjobs for server [0/4]
+    - [ ] kill_high_cpu
+    - [ ] network.sh
+    - [ ] sshserver.sh
+    - [ ] wol.sh : needs mac list
+* =configurations=
+   This configures a clean install to give it a minimal working
+   state. In principle, to configure slackware, you should run the
+   following scripts:
+   #+BEGIN_SRC sh
+   bash config_slackware.sh
+   bash base_packages_slackware.sh
+   bash update_slackware.sh
+   #+END_SRC
+   I am still fixing the last one since somehow it is killing
+   coreutils and I endup with a bricked system with no coreutils ... 
+* =liveslak=
+   This allows to create a custom =liveslak= image. This scripts are
+   assumed to run on a slackware 14.2 box (to use updated tools, but
+   the live usb is based on an already downloaded liveslack).
+
+   Description:
+   - =make_extra_modules.sh= :: creates extramodules like
+        =miniconda3=, =valgrind=, =paraview=, =openmpi= .  
+   - =create_custom_liveslack_iso.sh= :: This creates the actual
+        liveslack iso using the custom modules. 
+
+   Please read the file =live-distro.org= .  
+* =packages= [0/1] 
+   Allows to install several packages defined inside each
+   script. Specific cases, like anaconda or firefox, are handled with
+   their own scripts. Please put here any package you want to
+   install. 
+*** TODO Check installation of heaptrack
   [[https://github.com/KDE/heaptrack]]
   
+* =vagrant-machines=
+   Here are several examples to create either a basebox and some
+   vagrantfiles .  
+
