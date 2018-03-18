@@ -39,7 +39,7 @@ else
     echo "    already installed"
 fi
 
-BPACKAGES=(dropbox keepassx sshfs-fuse autossh xfce4-xkb-plugin flashplayer-plugin slim)
+BPACKAGES=(dropbox keepassx sshfs-fuse autossh xfce4-xkb-plugin flashplayer-plugin slim r8168)
 for bpkg in ${BPACKAGES[@]}; do
     $SBO_CMD $bpkg
 done
