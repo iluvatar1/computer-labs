@@ -39,7 +39,7 @@ function copy_config()
 #source /root/.bashrc
 
 # network interfaces
-echo "Configuring network interface"
+echo "Configuring network interfaces for fixed ips "
 if [ "$LINUX" == "SLACKWARE" ]; then
     bash /etc/rc.d/rc.networkmanager stop
     chmod -x /etc/rc.d/rc.networkmanager
@@ -51,50 +51,6 @@ elif [ "$LINUX" == "UBUNTU" ]; then
     /etc/init.d/networking restart
 fi
 echo "DONE: Configuring network interface"
-
-# Mirror configuration
-echo "Configuring packages mirrors"
-if [ "$LINUX" == "SLACKWARE" ]; then
-    bfile=/etc/slackpkg/mirrors
-    if [ x"" == x"$(grep tds /etc/slackpkg/mirrors 2> /dev/null)" ]; then
-	backup_file $bfile
-	cat <<EOF > $bfile
-http://slackware.mirrors.tds.net/pub/slackware/slackware-14.2/
-EOF
-	slackpkg update
-    else
-	echo "    -> already configured in $LINUX."
-    fi
-elif [ "$LINUX" == "UBUNTU" ]; then
-    bfile=/etc/apt/sources.list
-    backup_file $bfile
-    cat <<EOF > $bfile
-deb mirror://mirrors.ubuntu.com/mirrors.txt precise main restricted universe multiverse
-deb mirror://mirrors.ubuntu.com/mirrors.txt precise-updates main restricted universe multiverse
-deb mirror://mirrors.ubuntu.com/mirrors.txt precise-backports main restricted universe multiverse
-deb mirror://mirrors.ubuntu.com/mirrors.txt precise-security main restricted universe multiverse
-#deb http://168.176.34.158/ubuntu/ precise main multiverse restricted universe
-#deb http://168.176.34.158/ubuntu/ precise-updates main multiverse restricted universe
-EOF
-    apt-get update
-    apt-get -y install emacs
-fi
-echo "DONE: Configuring packages mirrors"
-
-# ssh server
-echo "Configuring ssh server "
-if [ "$LINUX" == "SLACKWARE" ]; then
-    chmod +x /etc/rc.d/rc.sshd
-    /etc/rc.d/rc.sshd start
-elif [ "$LINUX" == "UBUNTU" ]; then
-    # apt-get -y install openssh-client openssh-server # ALREADY DONE ON LIVE DVD
-    # reconfigure the server since the live cd install screws it somehow
-    mv /etc/ssh/ssh_host_* ./
-    dpkg-reconfigure openssh-server
-    service ssh restart
-fi
-echo "DONE: Configuring ssh "
-# read
 
 # dnsmasq
 echo "Configuring dnsmasq "
@@ -143,6 +99,7 @@ echo "Configuring kanif "
 #    yes 'PASSWORD' | ssh-copy-id -i ~/.ssh/id_rsa.pub $q
 #done
 if [ "$LINUX" == "SLACKWARE" ]; then
+    echo "Doing nothing for slackware... (you should install it yourself?) "
 elif [ "$LINUX" == "UBUNTU" ]; then
     apt-get -y install kanif
 fi
