@@ -1,0 +1,2 @@
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
+0 23 * * * /bin/bash /root/scripts/update_slackware.sh > /tmp/update_slackware_log 2>&1

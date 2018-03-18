@@ -59,4 +59,14 @@ else
     echo "   -> already configured."
 fi
 
+echo "Configuring cronjob for updating slackware"
+bname="update_slackware"
+if [ ! -f /etc/cron.d/${bname}_cronjob ] || [ ! -f /root/scripts/${bname}.sh ]; then
+    mkdir -p /root/scripts 2>/dev/null
+    cp -f ${bname}.sh /root/scripts/
+    cp -f ${bname}_cronjob /etc/cron.d/
+else
+    echo "    -> already configured ."
+fi
+
 echo "Done."
