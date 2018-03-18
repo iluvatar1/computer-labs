@@ -12,7 +12,7 @@
   - choose the disk to clone
   - skip checking (but better check if you are getting errors when
     creating the image)
-  - select check the saved image
+    - select check the saved image
   - Do not encrypt
   - choose reboot if you want
   DONE
@@ -42,7 +42,7 @@
     multicast so you can try *unicast*). Multicast is great since all
     computers will update at the same time. Advice: give at least 8
     minutes to clonezilla to wait for all clients to start.
-  - Choose time clients+time-t-wait or whateever (100 clients, 300 secs)
+  - Choose time clients+time-t-wait or whatever (100 clients, 300 secs)
   - Here clonezilla starts to check the image
-  - Boot clients useing net PXE
-  - Enjoy
+  - Boot clients using net PXE
+  DONE
