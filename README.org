@@ -60,14 +60,16 @@ structure and usage.
         liveslack iso using the custom modules. 
 
    Please read the file =live-distro.org= .  
-* =packages= [0/1] 
+* =packages= [0/2] 
    Allows to install several packages defined inside each
    script. Specific cases, like anaconda or firefox, are handled with
    their own scripts. Please put here any package you want to
    install. 
-*** TODO Check installation of heaptrack
+** TODO Check installation of heaptrack
   [[https://github.com/KDE/heaptrack]]
   
+** TODO Check slackroll
+   https://rg3.github.io/slackroll/
 * =vagrant-machines=
    Here are several examples to create either a basebox and some
    vagrantfiles .  
