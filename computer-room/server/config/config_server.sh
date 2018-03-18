@@ -9,9 +9,9 @@ function usage()
 }
 
 # check args
-if [ "$#" -ne "2"]; then usage; exit 1 ; fi
+if [ "$#" -ne "2" ]; then usage; exit 1 ; fi
 if [ ! -d "$1" ]; then echo "Dir does not exist : $1"; usage; exit 1 ; fi
-if [ "$2" -ne "UBUNTU" -o "$2" -ne "SLACKWARE"]; then usage; exit 1 ; fi
+if [ "$2" -ne "UBUNTU" -o "$2" -ne "SLACKWARE" ]; then usage; exit 1 ; fi
 
 # global vars
 BDIR=$PWD
@@ -129,6 +129,7 @@ echo "NOTE: If you have problems, consider editing the /etc/hosts.allow and /etc
 echo "Configuring nis "
 copy_config "$FDIR/SERVER-etc-defaultdomain" "/etc/defaultdomain"
 if [ "$LINUX" == "SLACKWARE" ]; then
+    echo "$LINUX : Nothing to be done. "
 elif [ "$LINUX" == "UBUNTU" ]; then
     #bfile="/etc/default/nis"
     #backup_file $bfile
