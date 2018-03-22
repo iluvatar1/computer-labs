@@ -15,7 +15,7 @@ SBO_CMD_AUX="sbopkg -B -e stop -k -i "
 PKG=
 SRC=
 if [ "$1" == "BASIC" ]; then
-    PKG="monit fail2ban grace corkscrew djview4 lame  unrar smplayer valgrind valkyrie libreoffice openmpi blas lapack dropbox pip parallel pdftk"
+    PKG="monit fail2ban grace corkscrew djview4 lame  unrar smplayer valgrind valkyrie libreoffice openmpi blas lapack dropbox pip parallel pdftk ganglia ganglia-web modules"
 elif [ "$1" == "NUMERIC" ]; then
     PKG="eigen3 fltk netcdf arpack atlas gsl hdf5 lapack suitsparse armadillo "    
 elif [ "$1" == "MISC" ]; then
