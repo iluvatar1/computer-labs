@@ -1,0 +1,21 @@
+* Data science (check this one)
+  https://github.com/jupyter/docker-stacks/tree/master/datascience-notebook
+  https://towardsdatascience.com/how-docker-can-help-you-become-a-more-effective-data-scientist-7fc048ef91d5
+  
+
+* Official from docker
+  https://hub.docker.com/_/gcc/
+  https://github.com/docker-library/gcc/blob/0f2605b8a300a1cbd70d244330400e8baf1dde33/7/Dockerfile
+
+* Using clang and docker
+  https://solarianprogrammer.com/2017/12/14/clang-in-docker-container-cpp-17-development/
+  #+BEGIN_SRC sh
+  git clone https://github.com/sol-prog/Clang-in-Docker.git
+  cd Clang-in-Docker
+  docker build -t ubuntu_clang_image .
+  #+END_SRC
+
+* Docker eclipse cdt
+  https://github.com/ivankostov/eclipse-cdt
+
+
