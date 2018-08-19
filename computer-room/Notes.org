@@ -1,4 +1,9 @@
 * Problems
+** Dhcpcd                                                         :SLACKWARE:
+   The latest slackware version advertises the nic using a new
+   identity called iuad or something but the dhcp server at unal does
+   not read it so I needed to edit the /etc/dhcpcd.conf file and
+   activate sending the hardware address
 ** Advertising Ethernet speeds for eth1
   The connection from/to server through eth1 was at a maximum of
   10MB/s. while the interface supported gigabit. After many tests I
