@@ -25,7 +25,7 @@ NOPUSH=true
 # Specify any additional arguments to be supplied when invoking yppush.
 # For example, the --port option may be used to allow operation with port
 # based firewalls.
-YPPUSHARGS=
+YPPUSH_ARGS=
 
 # We do not put password entries with lower UIDs (the root and system
 # entries) in the NIS password database, for security. MINUID is the
@@ -34,8 +34,10 @@ YPPUSHARGS=
 # the passwd file. If no entry is found, this shadow entry is
 # ignored.
 # MINGID is the lowest gid that will be included in the group maps.
-MINUID=1000
-MINGID=2
+MINUID=$(shell TMP=`egrep '^UID_MIN\s+[0-9]+' /etc/login.defs|sed -e 's/^UID_MIN//'` ; [ -n "$$TMP" ] && echo "$$TMP" || echo 1000)
+MINGID=$(shell TMP=`egrep '^GID_MIN\s+[0-9]+' /etc/login.defs|sed -e 's/^GID_MIN//'` ; [ -n "$$TMP" ] && echo "$$TMP" || echo 1000)
+#MINUID=1000
+#MINGID=2
 
 # Similarly, we also define a MAXUID and MAXGID specifying the maximum
 # user ID and group ID which will be exported.
@@ -70,7 +72,7 @@ UMASK = umask 066
 #
 YPSRCDIR = /etc
 YPPWDDIR = /etc
-YPBINDIR = /usr/lib/yp
+YPBINDIR = /usr/lib64/yp
 YPSBINDIR = /usr/sbin
 YPDIR = /var/yp
 YPMAPDIR = $(YPDIR)/$(DOMAIN)
@@ -85,7 +87,7 @@ SHADOW	    = $(YPPWDDIR)/shadow
 GSHADOW     = $(YPPWDDIR)/gshadow
 ADJUNCT     = $(YPPWDDIR)/passwd.adjunct
 #ALIASES     = $(YPSRCDIR)/aliases  # aliases could be in /etc or /etc/mail
-ALIASES     = /etc/mail/aliases
+#ALIASES     = /etc/mail/aliases
 ETHERS      = $(YPSRCDIR)/ethers     # ethernet addresses (for rarpd)
 BOOTPARAMS  = $(YPSRCDIR)/bootparams # for booting Sun boxes (bootparamd)
 HOSTS       = $(YPSRCDIR)/hosts
@@ -116,7 +118,7 @@ target: Makefile
 # If you don't want some of these maps built, feel free to comment
 # them out from this list.
 
-ALL =	passwd group hosts rpc services netid protocols netgrp
+ALL =	passwd group hosts rpc services netid protocols netgrp 
 #ALL +=	publickey mail ethers bootparams printcap
 #ALL +=	amd.home auto.master auto.home auto.local
 #ALL +=	timezone locale networks netmasks

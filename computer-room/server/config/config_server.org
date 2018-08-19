@@ -1,0 +1,269 @@
+#+TITLE:Computer room in slackware : Server config howto 
+#+AUTHOR: William Oquendo
+#+email: woquendo@gmail.com
+#+INFOJS_OPT: 
+#+BABEL: :session *R* :cache yes :results output graphics :exports both :tangle yes 
+-----
+
+This document presents a basic procedure to configure a computer room
+in slackware. This generates a script, called
+=config_slackware_server.sh= and a bunch of config files. At the end
+you just run the mentioned script and hopefully everything will work
+as expected. 
+
+* Description
+  - The system to be installed is slackware 14.2 64bits, although some script
+    might help to keep it updated
+  - Services to be configured:
+    - DHCP + DNS + MASQUERADING : Using dnsmasq
+    - NAT : Through arno iptables firewall
+    - NIS : For now ...
+    - NFS
+    - Optional : Backup
+  - Server is assumed to have two nics, one external (=eth0=), one
+    internal (=eth1=)
+  - The internal network of class C will use the segment 192.168.10.0/24
+
+* Slackware installation
+  Just download it from the official slackware web page. Get the dvd
+  version. Install everything. It is advisable to have at least four
+  partitions: one for root, one for swap, one for home, and one for tmp.
+
+* Common utility functions
+  #+NAME: util_functions
+  #+BEGIN_SRC bash :exports code 
+function usage() 
+{
+    echo "USAGE: "
+    echo "config_server.sh DIR LINUX_FLAVOR"
+    echo "DIR          : Where to find the model config files"
+    echo "LINUX_FLAVOR : UBUNTU or SLACKWARE , in capital"
+}
+
+# global functions
+function backup_file() 
+{
+    if [ -e "$1" ]; then
+	cp -v "$1" "$1".orig-$(date +%F--%H-%M-%S)
+    fi
+}
+
+function copy_config()
+{
+    mfile="$1"
+    bfile="$2"
+    backup_file "$bfile"
+    cp -vf "$mfile" "$bfile"
+}
+
+  #+END_SRC
+
+* Configuring root internet behind proxy unal
+  #+NAME: proxy_config
+  #+BEGIN_SRC bash :exports code 
+# Configure root internet access
+echo "Configuring root proxy ..."
+bname="/root/.bashrc"
+if [ x"" == "$(grep https_proxy ${bname} 2>/dev/null)" ]; then
+    echo 'export PROXY="fisicasop_fcbog:s4l4fis219@proxyapp.unal.edu.co:8080/" ' >> $bname
+    echo 'export http_proxy="http://$PROXY" ' >> $bname
+    echo 'export https_proxy="https://$PROXY" ' >> $bname
+    echo 'export ftp_proxy="ftp://$PROXY" ' >> $bname
+    echo 'export RSYNC_PROXY="$PROXY" ' >> $bname
+else
+    echo "Root proxy already configured."
+fi
+source /root/.bashrc
+echo "Done."
+
+  #+END_SRC
+* Installing sbopkg
+  #+NAME: sbopkg_config
+  #+BEGIN_SRC bash :exports code 
+MSG="Installing sbopkg"
+if [ "$LINUX" == "SLACKWARE" ]; then
+    echo $MSG
+    installpkg "$FDIR/sbopkg-0.38.1-noarch-1_wsr.tgz"
+    echo "DONE: $MSG"
+fi
+  #+END_SRC
+
+* Fix dhcpcd client (advertise mac address)
+  #+NAME: dhcpcd_config
+  #+BEGIN_SRC bash :exports code
+MSG="Configuring dhcpcd to send the mac to the dhcp server"
+echo $MSG
+copy_config "$FDIR/SERVER-SLACKWARE-etc-dhcpcd.conf" "/etc/dhcpcd.conf"
+echo "DONE: $MSG"
+  #+END_SRC
+* Configure Network interfaces
+  #+name: nic_config
+  #+BEGIN_SRC bash :exports code 
+# network interfaces
+MSG="Configuring network interfaces with fixed ip"
+echo $MSG
+if [ "$LINUX" == "SLACKWARE" ]; then
+    bash /etc/rc.d/rc.networkmanager stop
+    chmod -x /etc/rc.d/rc.networkmanager
+    copy_config "$FDIR/SERVER-SLACKWARE-etc-rc.d-rc.inet1.conf" /etc/rc.d/rc.inet1.conf
+    /etc/rc.d/rc.inet1 restart
+    echo "Setting up resolv.conf.head "
+    TFILE="/etc/resolv.conf.head"
+    copy_config "$FDIR/SERVER-etc-resolv.conf.head" "$TFILE"
+elif [ "$LINUX" == "UBUNTU" ]; then
+    copy_config "$FDIR/SERVER-UBUNTU-etc-network-interfaces" /etc/network/interfaces
+    copy_config "$FDIR/SERVER-UBUNTU-etc-NetworkManager-NetworkManager.conf" /etc/NetworkManager/NetworkManager.conf
+    /etc/init.d/networking restart
+fi
+echo "DONE: $MSG"
+  #+END_SRC
+
+* dnsmasq : dhcp, dns, masquerading
+  #+name: dnsmasq_config
+  #+BEGIN_SRC bash :exports code 
+# dnsmasq
+MSG="Configuring dnsmasq "
+echo $MGS
+if [ "$LINUX" == "SLACKWARE" ]; then
+    TFILE="/etc/dnsmasq.conf"
+    copy_config "$FDIR/SERVER-etc-dnsmasq.conf" "$TFILE"
+    TFILE="/etc/dnsmasq-hosts.conf"
+    copy_config "$FDIR/SERVER-etc-dnsmasq-hosts.conf" "$TFILE"
+    chmod +x /etc/rc.d/rc.dnsmasq 
+    TFILE="/etc/hosts"
+    copy_config "$FDIR/SERVER-etc-hosts" "$TFILE"
+    /etc/rc.d/rc.dnsmasq restart
+elif [ "$LINUX" == "UBUNTU" ]; then
+    apt-get -y install dnsmasq 
+    copy_config "$FDIR/SERVER-etc-dnsmasq.conf" "/etc/dnsmasq.conf"
+    #bfile="/etc/defaults/dnsmasq"
+    #backup_file $bfile
+    #echo "IGNORE_RESOLVCONF=yes" >> $bfile 
+    /etc/init.d/networking stop
+    service dnsmasq restart
+    /etc/init.d/networking start
+fi
+echo "DONE: $MSG"
+
+  #+END_SRC
+
+* firewall (NAT) : Arno iptables firewall.
+  I will use arno iptables firewall because it has worked pretty well
+  before . It must be installed before this step. If not installed , I
+  will try to use sbopkg to install it.
+  #+NAME: firewall_config
+  #+BEGIN_SRC bash :exports code
+# firewall
+MSG="Configuring firewall "
+echo $MSG
+if [ "$LINUX" == "SLACKWARE" ]; then
+    if [ ! hash arno-iptables-firewall 2>/dev/null ]; then
+	sbopkg -e stop -B -k -i arno-iptables-firewall
+	ln -svf /etc/rc.d/rc.arno-iptables-firewall /etc/rc.d/rc.firewall
+	copy_config "$FDIR/SERVER-firewall.conf" "/etc/arno-iptables-firewall/firewall.conf"
+	chmod o-rwx /etc/arno-iptables-firewall/firewall.conf
+	chmod +x /etc/rc.d/rc.firewall
+    else
+	echo "    -> firewall already installed and configured."
+    fi
+    /etc/rc.d/rc.firewall restart
+elif [ "$LINUX" == "UBUNTU" ]; then
+    apt-get -y install arno-iptables-firewall
+    copy_config "$FDIR/SERVER-firewall.conf" "/etc/arno-iptables-firewall/firewall.conf"
+    service arno-iptables-firewall restart
+fi
+echo "DONE: Configuring firewall "
+# read
+  #+END_SRC
+* kanif cluster tools                                              :noexport:
+  #+NAME: kanif_config
+  #+BEGIN_SRC bash :exports code 
+# kanif cluster tools
+echo "Configuring kanif "
+#ssh-keygen -t rsa
+#for a in ssf6 ssf7 ssf8 ssf9; do
+#    yes 'PASSWORD' | ssh-copy-id -i ~/.ssh/id_rsa.pub $q
+#done
+if [ "$LINUX" == "SLACKWARE" ]; then
+    echo "Kanif assumed to be installed in slackware."
+elif [ "$LINUX" == "UBUNTU" ]; then
+    apt-get -y install kanif
+fi
+copy_config "$FDIR/SERVER-etc-c3.conf" "/etc/kanif.conf"
+#kash ls
+echo "DONE: Configuring kanif "
+# read
+
+  #+END_SRC
+* NFS
+  #+NAME: nfs_config
+  #+BEGIN_SRC bash :exports code 
+# nfs
+echo "Configuring nfs "
+if [ "$LINUX" == "SLACKWARE" ]; then
+    chmod +x /etc/rc.d/rc.nfsd 
+    /etc/rc.d/rc.nfsd restart
+    /etc/rc.d/rc.inet2 restart
+elif [ "$LINUX" == "UBUNTU" ]; then
+    apt-get -y install nfs-kernel-server
+    service nfs-kernel-server restart
+fi
+copy_config "$FDIR/SERVER-etc-exports" "/etc/exports"
+kash 'mount -a'
+kash 'mount'
+echo "DONE: Configuring nfs "
+echo "NOTE: If you have problems, consider editing the /etc/hosts.allow and /etc/hosts.deny files"
+# read
+  #+END_SRC
+* NIS
+  #+NAME: nis_config
+  #+BEGIN_SRC bash :exports code
+# nis
+echo "Configuring nis "
+copy_config "$FDIR/SERVER-etc-defaultdomain" "/etc/defaultdomain"
+if [ "$LINUX" == "SLACKWARE" ]; then
+    echo "$LINUX : Nothing to be done. "
+elif [ "$LINUX" == "UBUNTU" ]; then
+    #bfile="/etc/default/nis"
+    #backup_file $bfile
+    #sed -i.bck 's/NISSERVER=.*/NISSERVER=master/; s/NISCLIENT=.*/NISCLIENT=/' $bfile
+    copy_config "$FDIR/SERVER-UBUNTU-etc-default-nis" "/etc/default/nis"
+fi
+#bfile="/etc/yp.conf"
+#backup_file $bfile
+#echo 'ypserver 192.168.123.1 ' > $bfile
+copy_config "$FDIR/SERVER-etc-yp.conf" "/etc/yp.conf"
+copy_config "$FDIR/SERVER-var-yp-Makefile" "/var/yp/Makefile"
+ypserv
+make -BC /var/yp
+#/usr/lib64/yp/ypinit -m
+if [ "$LINUX" == "SLACKWARE" ]; then
+    chmod +x /etc/rc.d/rc.yp
+    backup_file /etc/rc.d/rc.yp
+    sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=0/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=1/ ;' /etc/rc.d/rc.yp
+    /etc/rc.d/rc.yp restart
+    /etc/rc.d/rc.inet2 restart
+elif [ "$LINUX" == "UBUNTU" ]; then
+    service portmap restart
+    service ypserv restart
+    service ypbind restart
+    #kash service ypserv restart
+fi
+rpcinfo -p localhost # check
+echo "DONE: Configuring nis "
+# read
+
+  #+END_SRC
+* Write final script
+  #+BEGIN_SRC bash :exports code :noweb yes :tangle config_slackware_server.sh 
+<<util_functions>>
+<<proxy_config>>
+<<sbopkg_config>>
+<<dhcpcd_config>>
+<<nic_config>>
+<<dnsmasq_config>>
+<<firewall_config>>
+<<nfs_config>>
+<<nis_config>>
+  #+END_SRC
+
