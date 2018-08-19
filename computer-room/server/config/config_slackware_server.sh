@@ -22,6 +22,18 @@ function copy_config()
     cp -vf "$mfile" "$bfile"
 }
 
+
+# check args
+if [ "$#" -ne "2" ]; then usage; exit 1 ; fi
+if [ ! -d "$1" ]; then echo "Dir does not exist : $1"; usage; exit 1 ; fi
+if [ "$2" -ne "UBUNTU" -o "$2" -ne "SLACKWARE" ]; then usage; exit 1 ; fi
+
+# global vars
+BDIR=$PWD
+FDIR=$1
+LINUX=$2
+
+
 # Configure root internet access
 echo "Configuring root proxy ..."
 bname="/root/.bashrc"

@@ -257,6 +257,18 @@ echo "DONE: Configuring nis "
 * Write final script
   #+BEGIN_SRC bash :exports code :noweb yes :tangle config_slackware_server.sh 
 <<util_functions>>
+
+# check args
+if [ "$#" -ne "2" ]; then usage; exit 1 ; fi
+if [ ! -d "$1" ]; then echo "Dir does not exist : $1"; usage; exit 1 ; fi
+if [ "$2" -ne "UBUNTU" -o "$2" -ne "SLACKWARE" ]; then usage; exit 1 ; fi
+
+# global vars
+BDIR=$PWD
+FDIR=$1
+LINUX=$2
+
+
 <<proxy_config>>
 <<sbopkg_config>>
 <<dhcpcd_config>>
