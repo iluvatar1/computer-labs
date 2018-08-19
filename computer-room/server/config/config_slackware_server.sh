@@ -77,6 +77,9 @@ elif [ "$LINUX" == "UBUNTU" ]; then
     /etc/init.d/networking restart
 fi
 echo "DONE: $MSG"
+  echo "Fixing xinitrc on /etc/skel"
+  cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xinitrc
+  echo "Done"
 # dnsmasq
 MSG="Configuring dnsmasq "
 echo $MGS

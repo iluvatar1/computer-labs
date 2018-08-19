@@ -97,6 +97,13 @@ echo $MSG
 copy_config "$FDIR/SERVER-SLACKWARE-etc-dhcpcd.conf" "/etc/dhcpcd.conf"
 echo "DONE: $MSG"
   #+END_SRC
+* Fix xinitrc
+  #+NAME: xinitrc_config
+  #+BEGIN_SRC bash :exports code
+  echo "Fixing xinitrc on /etc/skel"
+  cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xinitrc
+  echo "Done"
+  #+END_SRC
 * Configure Network interfaces
   #+name: nic_config
   #+BEGIN_SRC bash :exports code 
@@ -274,6 +281,7 @@ LINUX=$2
 <<sbopkg_config>>
 <<dhcpcd_config>>
 <<nic_config>>
+<<xinitrc_config>>
 <<dnsmasq_config>>
 <<firewall_config>>
 <<nfs_config>>
