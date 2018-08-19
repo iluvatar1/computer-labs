@@ -26,7 +26,7 @@ function copy_config()
 # check args
 if [ "$#" -ne "2" ]; then usage; exit 1 ; fi
 if [ ! -d "$1" ]; then echo "Dir does not exist : $1"; usage; exit 1 ; fi
-if [ "$2" -ne "UBUNTU" -o "$2" -ne "SLACKWARE" ]; then usage; exit 1 ; fi
+if [[ "$2" -ne "UBUNTU" -o "$2" -ne "SLACKWARE" ]]; then usage; exit 1 ; fi
 
 # global vars
 BDIR=$PWD
@@ -37,6 +37,7 @@ LINUX=$2
 # Configure root internet access
 echo "Configuring root proxy ..."
 bname="/root/.bashrc"
+touch $bname
 if [ x"" == "$(grep https_proxy ${bname} 2>/dev/null)" ]; then
     echo 'export PROXY="fisicasop_fcbog:s4l4fis219@proxyapp.unal.edu.co:8080/" ' >> $bname
     echo 'export http_proxy="http://$PROXY" ' >> $bname
