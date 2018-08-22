@@ -1,4 +1,19 @@
 * Problems
+** Solving problems with xinit and xfce for all and new users
+   - Make sure all users are on the video group. Maybe run
+     #+BEGIN_SRC bash
+     usermod -a -G audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner USERNAME
+     #+END_SRC
+     on each user.
+   - Make sure all users have a .xinitrc (executable, readable and
+     owned by the user)
+     #+BEGIN_SRC 
+     cp /etc/X11/xinit/xinitrc.xfce /etc/skel/.xinitrc
+     chmod a+x /etc/skel/.xinitrc
+     #+END_SRC
+   - Make sure that the minimum gid in yp nis is 2 (see file
+     =/var/yp/Makefile=)
+
 ** Dhcpcd                                                         :SLACKWARE:
    The latest slackware version advertises the nic using a new
    identity called iuad or something but the dhcp server at unal does
