@@ -309,6 +309,7 @@ cd /tmp/ganglia
 
 # Install rrdtool
 if ! hash rrdtool &>/dev/null; then 
+    cd /tmp/ganglia
     echo "Downloading, compiling and installing rrdtool ..."
     wget -nc -c  http://oss.oetiker.ch/rrdtool/pub/rrdtool-1.7.0.tar.gz &&
 	wget -nc -c https://slackbuilds.org/slackbuilds/14.2/libraries/rrdtool.tar.gz &&
@@ -322,6 +323,7 @@ fi
 
 # Install confuse
 if ! hash confuse &>/dev/null; then 
+    cd /tmp/ganglia
     echo "Downloading, compiling and installing confuse ..."
     wget -nc -c  https://github.com/martinh/libconfuse/releases/download/v3.2/confuse-3.2.tar.gz &&
 	wget -nc -c https://slackbuilds.org/slackbuilds/14.2/libraries/confuse.tar.gz &&
@@ -335,6 +337,7 @@ fi
 
 # install ganglia activating gmetad
 if ! hash ganglia &>/dev/null; then 
+    cd /tmp/ganglia
     echo "Downloading, compiling and installing ganglia/gmetad ..."
     wget -nc -c  http://downloads.sourceforge.net/ganglia/ganglia-3.7.2.tar.gz &&
 	wget -nc -c https://slackbuilds.org/slackbuilds/14.2/network/ganglia.tar.gz
