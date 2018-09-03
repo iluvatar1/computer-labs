@@ -296,13 +296,12 @@ LINUX=$2
    [[http://ganglia.info/][Ganglia]] is a system used to monitor clusters. I will start using it
    to check the status of the computer room. The isnstallation is
    different for server and client. I will put both here. 
-*** Server installation
+*** Server installation and configuration
     I need to install =rrdtool=, =ganglia= with gmetad activated, and
     =ganglia-web=. I will use slackbuilds although I cannot use sbopkg
     or similar since it does not work with the proxy.
-    #+BEGIN_SRC bash :exports code :tangle server-install-ganglia-full.sh
+    #+BEGIN_SRC bash :exports code :tangle all-install-ganglia-full.sh
 # This scripts install ganglia and its requirements (rrdtool) on a server.
-
 source ~/.bashrc
 mkdir /tmp/ganglia
 cd /tmp/ganglia
@@ -350,7 +349,7 @@ if ! hash ganglia-config &>/dev/null; then
 fi
 
 # install ganglia-web
-if ! hash ganglia-web &>/dev/null; then 
+if [ ! -d /var/www/htdocs/ganglia/ ]; then 
     cd /tmp/ganglia
     echo "Downloading, compiling and installing ganglia-web ..."
     wget -nc -c  http://downloads.sourceforge.net/ganglia/ganglia-web-3.7.2.tar.gz &&
@@ -363,4 +362,39 @@ if ! hash ganglia-web &>/dev/null; then
 	echo "Done ganglia-web. "
 fi
     #+END_SRC
-   
+
+    And this is the configuration file
+    #+BEGIN_SRC bash :exports code :tangle server-config-ganglia-gmetad.sh
+    # configure
+if [ ! -f /etc/gmetad.conf ]; then
+    echo "Configuring ganglia monitor gmetad..."
+    cat <<EOF > /etc/gmetad.conf
+# /etc/gmetad.conf on serversalafis
+data_source "clustersalafis" serversalafis
+EOF 
+    echo "Done."
+fi
+
+    #+END_SRC
+*** Client 
+    The client can use the same server install script, but the
+    configuration changes as follows
+    #+BEGIN_SRC bash :exports code :tangle client-config-ganglia-gmond.sh
+if [ ! -f /etc/gmond.conf ]; then 
+    cat <<EOF > /etc/gmond.conf
+#/etc/gmond.conf - on clustersalafis
+cluster {
+  name = "clustersalafis"
+  owner = "unspecified"
+  latlong = "unspecified"
+  url = "unspecified"
+}
+ 
+udp_send_channel {
+  mcast_join = 192.168.10.1
+  port = 8649
+  ttl = 1
+}
+    EOF
+    #+END_SRC
+
