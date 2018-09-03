@@ -308,14 +308,16 @@ mkdir /tmp/ganglia
 cd /tmp/ganglia
 
 # Install rrdtool
-echo "Downloading ganglia ..."
-wget http://oss.oetiker.ch/rrdtool/pub/rrdtool-1.7.0.tar.gz
-wget https://slackbuilds.org/slackbuilds/14.2/libraries/rrdtool.tar.gz
-echo "Uncompressing and entering slackbuild dir ..."
-tar xf rddtool.tar.gz
-cd rddtool
-mv ../rrdtool-1.7.0.tar.gz ./
-bash rrdtool.SlackBuild
-installpkg /tmp/rddtoo*
+if ! hash ganglia &>/dev/null; then 
+    echo "Downloading, compiling and installing rrdtool ..."
+    wget http://oss.oetiker.ch/rrdtool/pub/rrdtool-1.7.0.tar.gz &&
+	wget https://slackbuilds.org/slackbuilds/14.2/libraries/rrdtool.tar.gz &&
+	tar xf rrdtool.tar.gz &&
+	cd rrdtool &&
+	mv ../rrdtool-1.7.0.tar.gz ./ &&
+	bash rrdtool.SlackBuild &&
+	installpkg /tmp/rrdtoo* &&
+	echo "Done ganglia. "
+fi
     #+END_SRC
    
