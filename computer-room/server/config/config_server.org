@@ -288,3 +288,34 @@ LINUX=$2
 <<nis_config>>
   #+END_SRC
 
+* PACKAGES
+  This section is used to configure packages to be installed after
+  successful configuration. Each package will be its own script,
+  hopefully idempotent.
+** Ganglia
+   [[http://ganglia.info/][Ganglia]] is a system used to monitor clusters. I will start using it
+   to check the status of the computer room. The isnstallation is
+   different for server and client. I will put both here. 
+*** Server installation
+    I need to install =rrdtool=, =gangli= with gmetad activated, and
+    =ganglia-web=. I will use slackbuilds although I cannot use sbopkg
+    or similar since it does not work with the proxy.
+    #+BEGIN_SRC bash :exports code :tangle server-install-ganglia-full.sh
+# This scripts install ganglia and its requirements (rrdtool) on a server.
+
+source ~/.bashrc
+mkdir /tmp/ganglia
+cd /tmp/ganglia
+
+# Install rrdtool
+echo "Downloading ganglia ..."
+wget http://oss.oetiker.ch/rrdtool/pub/rrdtool-1.7.0.tar.gz
+wget https://slackbuilds.org/slackbuilds/14.2/libraries/rrdtool.tar.gz
+echo "Uncompressing and entering slackbuild dir ..."
+tar xf rddtool.tar.gz
+cd rddtool
+mv ../rrdtool-1.7.0.tar.gz ./
+bash rrdtool.SlackBuild
+installpkg /tmp/rddtoo*
+    #+END_SRC
+   
