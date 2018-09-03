@@ -365,22 +365,22 @@ fi
 
     And this is the configuration file
     #+BEGIN_SRC bash :exports code :tangle server-config-ganglia-gmetad.sh
-    # configure
+# configure
 if [ ! -f /etc/gmetad.conf ]; then
     echo "Configuring ganglia monitor gmetad..."
     cat <<EOF > /etc/gmetad.conf
 # /etc/gmetad.conf on serversalafis
 data_source "clustersalafis" serversalafis
-EOF 
+EOF
     echo "Done."
 fi
-
     #+END_SRC
 *** Client 
     The client can use the same server install script, but the
     configuration changes as follows
     #+BEGIN_SRC bash :exports code :tangle client-config-ganglia-gmond.sh
 if [ ! -f /etc/gmond.conf ]; then 
+    echo "Configuring gmond.conf ..."
     cat <<EOF > /etc/gmond.conf
 #/etc/gmond.conf - on clustersalafis
 cluster {
@@ -395,6 +395,8 @@ udp_send_channel {
   port = 8649
   ttl = 1
 }
-    EOF
+EOF
+fi
+echo "Done"
     #+END_SRC
 
