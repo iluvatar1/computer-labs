@@ -297,7 +297,7 @@ LINUX=$2
    to check the status of the computer room. The isnstallation is
    different for server and client. I will put both here. 
 *** Server installation
-    I need to install =rrdtool=, =gangli= with gmetad activated, and
+    I need to install =rrdtool=, =ganglia= with gmetad activated, and
     =ganglia-web=. I will use slackbuilds although I cannot use sbopkg
     or similar since it does not work with the proxy.
     #+BEGIN_SRC bash :exports code :tangle server-install-ganglia-full.sh
@@ -308,16 +308,30 @@ mkdir /tmp/ganglia
 cd /tmp/ganglia
 
 # Install rrdtool
-if ! hash ganglia &>/dev/null; then 
+if ! hash rrdtool &>/dev/null; then 
     echo "Downloading, compiling and installing rrdtool ..."
-    wget http://oss.oetiker.ch/rrdtool/pub/rrdtool-1.7.0.tar.gz &&
-	wget https://slackbuilds.org/slackbuilds/14.2/libraries/rrdtool.tar.gz &&
+    wget -nc -c  http://oss.oetiker.ch/rrdtool/pub/rrdtool-1.7.0.tar.gz &&
+	wget -nc -c https://slackbuilds.org/slackbuilds/14.2/libraries/rrdtool.tar.gz &&
 	tar xf rrdtool.tar.gz &&
 	cd rrdtool &&
 	mv ../rrdtool-1.7.0.tar.gz ./ &&
 	bash rrdtool.SlackBuild &&
-	installpkg /tmp/rrdtoo* &&
-	echo "Done ganglia. "
+	installpkg /tmp/rrdtool-1.7.0-x86_64-1_SBo.tgz &&
+	echo "Done rrdtool. "
 fi
+
+# install ganglia activating gmetad
+if ! hash ganglia &>/dev/null; then 
+    echo "Downloading, compiling and installing ganglia/gmetad ..."
+    wget -nc -c  http://downloads.sourceforge.net/ganglia/ganglia-3.7.2.tar.gz &&
+	wget -nc -c https://slackbuilds.org/slackbuilds/14.2/network/ganglia.tar.gz
+	tar xf ganglia.tar.gz &&
+	cd ganglia &&
+	mv ../ganglia-3.7.2.tar.gz ./ &&
+	OPT=gmetad ./ganglia.SlackBuild &&
+	installpkg /tmp/ganglia-3.7.2-x86_64-1_SBo.tgz &&
+	echo "Done ganglia/gmetad. "
+fi
+
     #+END_SRC
    
