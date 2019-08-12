@@ -1,4 +1,4 @@
-PACKAGES=(emacs htop curl fortune git)
+PACKAGES=(emacs htop curl fortune git tmux openssh-server)
 
 #sudo apt update
 for pkg in ${PACKAGES[*]}; do 
