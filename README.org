@@ -48,6 +48,26 @@ structure and usage.
    #+END_SRC
    I am still fixing the last one since somehow it is killing
    coreutils and I endup with a bricked system with no coreutils ... 
+** Lubuntu [9/11]
+   - [X] Configure/install google remote desktop:
+     https://support.google.com/chrome/answer/1649523?co=GENIE.Platform%3DDesktop&hl=en 
+   - [X] Configure zerotier one : 
+     - Install curl : sudo apt install curl
+     - https://www.zerotier.com/download.shtml
+     - Authorize the new computer
+   - [X] Install syncthing:
+     - https://apt.syncthing.net/
+   - [ ] Install dropbox
+     - https://www.dropbox.com/install-linux
+   - [X] Inkscape : sudo apt install inkscape
+   - [X] Libreoffice : sudo apt install libreoffice
+   - [X] Texlive : sudo apt install texlive-full
+   - [X] keepassxc : sudo apt install keepassxc
+   - [X] obsproject : sudo apt install obsproject
+   - [X] Openssh : sudo apt install openssh-server, configure port 443
+   - [ ] emacs: sudo apt install emacs
+
+
 * =liveslak=
    This allows to create a custom =liveslak= image. This scripts are
    assumed to run on a slackware 14.2 box (to use updated tools, but
