@@ -73,4 +73,17 @@ if [ 1 == $pkg_status ]; then
     sudo add-apt-repository ppa:xubuntu-dev/experimental
     sudo apt-get update
     sudo apt-get install xfce4-screensaver
-fi 
+fi
+
+# google drive ocamlfuse
+# Check https://linoxide.com/tools/how-use-google-drive-ubuntu-linux/
+echo " -> google-drive-ocamlfuse ..."
+check_package_installed google-drive-ocamlfuse
+if [ 1 == $pkg_status ]; then  
+    sudo add-apt-repository ppa:alessandro-strada/ppa
+    sudo apt-get update
+    sudo apt-get install google-drive-ocamlfuse
+    google-drive-ocamlfuse
+    mkdir ~/Google\ Drive
+    google-drive-ocamlfuse ~/Google Drive
+fi
