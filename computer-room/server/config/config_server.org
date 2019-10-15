@@ -35,9 +35,10 @@ as expected.
 function usage() 
 {
     echo "USAGE: "
-    echo "config_server.sh DIR LINUX_FLAVOR"
+    echo "config_server.sh DIR LINUX_FLAVOR[=SLACKWARE]"
     echo "DIR          : Where to find the model config files"
     echo "LINUX_FLAVOR : UBUNTU or SLACKWARE , in capital"
+    echo "NOTE: Ubuntu not working currently"
 }
 
 # global functions
@@ -56,13 +57,26 @@ function copy_config()
     cp -vf "$mfile" "$bfile"
 }
 
+function start_msg()
+{
+  echo "####################################### "
+  echo "# START: $1"
+}
+
+function end_msg()
+{
+  echo "# DONE: $1"
+  echo "#######################################\n "
+}
+
   #+END_SRC
 
 * Configuring root internet behind proxy unal
   #+NAME: proxy_config
   #+BEGIN_SRC bash :exports code 
 # Configure root internet access
-echo "Configuring root proxy ..."
+MSG="Configuring proxy for root"
+start_msg $MSG
 bname="/root/.bashrc"
 touch $bname
 if [ x"" == "$(grep https_proxy ${bname} 2>/dev/null)" ]; then
@@ -75,10 +89,10 @@ else
     echo "Root proxy already configured."
 fi
 source /root/.bashrc
-echo "Done."
+end_msg $MSG
 
   #+END_SRC
-* Installing sbopkg
+* [Deprecated] Installing sbopkg                                   :noexport:
   #+NAME: sbopkg_config
   #+BEGIN_SRC bash :exports code 
 MSG="Installing sbopkg"
@@ -89,41 +103,74 @@ if [ "$LINUX" == "SLACKWARE" ]; then
 fi
   #+END_SRC
 
-* Fix dhcpcd client (advertise mac address)
+* TODO Install slpkg : blacklist?
+  #+NAME: slpkg_config
+  #+BEGIN_SRC bash :exports code 
+MSG="Installing slpkg"
+start_msg $MSG
+if [ x"" != "$(hash slpkg)" ]; then
+    cd Downloads
+    wget https://gitlab.com/dslackw/slpkg/-/archive/3.4.3/slpkg-3.4.3.tar.gz
+    tar xf slpkg-3.4.3.tar.gz
+    cd slpkg-3.4.3
+    ./install.sh
+    source .bashrc
+    slpkg upgrade
+else
+    echo "Already installed"
+end_msg $MSG
+  #+END_SRC
+
+* Fix dhcpcd client (advertise mac address instead of ipv6 stuff)
+  
   #+NAME: dhcpcd_config
   #+BEGIN_SRC bash :exports code
 MSG="Configuring dhcpcd to send the mac to the dhcp server"
-echo $MSG
+start_msg $MSG
 copy_config "$FDIR/SERVER-SLACKWARE-etc-dhcpcd.conf" "/etc/dhcpcd.conf"
 echo "DONE: $MSG"
   #+END_SRC
+
 * Fix xinitrc
   #+NAME: xinitrc_config
   #+BEGIN_SRC bash :exports code
-  echo "Fixing xinitrc on /etc/skel"
-  cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xinitrc
-  echo "Done"
+MSG "Fixing xinitrc on /etc/skel"
+start_msg $MSG
+if [ ! -f /etc/skel/.xinitrc ]; then 
+    cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xinitrce
+else
+    echo "Already fixed"
+fi
+end_msg $MSG
+
   #+END_SRC
 * Configure Network interfaces
   #+name: nic_config
   #+BEGIN_SRC bash :exports code 
 # network interfaces
 MSG="Configuring network interfaces with fixed ip"
-echo $MSG
+start_msg $MSG
 if [ "$LINUX" == "SLACKWARE" ]; then
-    bash /etc/rc.d/rc.networkmanager stop
-    chmod -x /etc/rc.d/rc.networkmanager
-    copy_config "$FDIR/SERVER-SLACKWARE-etc-rc.d-rc.inet1.conf" /etc/rc.d/rc.inet1.conf
-    /etc/rc.d/rc.inet1 restart
-    echo "Setting up resolv.conf.head "
-    TFILE="/etc/resolv.conf.head"
-    copy_config "$FDIR/SERVER-etc-resolv.conf.head" "$TFILE"
+    if [ x"" == x"$(grep 127.0.0.1 /etc/resolv.conf.head )" ]; then
+      echo "Setting up resolv.conf.head "
+      TFILE="/etc/resolv.conf.head"
+      copy_config "$FDIR/SERVER-etc-resolv.conf.head" "$TFILE"
+    fi	
+    if [ x"" == x"$(grep 192.168.10.1 /etc/rc.d/rc.inet1.conf 2> /dev/null)" ]; then 
+      bash /etc/rc.d/rc.networkmanager stop
+      chmod -x /etc/rc.d/rc.networkmanager
+      copy_config "$FDIR/SERVER-SLACKWARE-etc-rc.d-rc.inet1.conf" /etc/rc.d/rc.inet1.conf
+  else
+      echo "Already configured, just restarting services ..."
+  fi
+      /etc/rc.d/rc.inet1 restart
+  
 elif [ "$LINUX" == "UBUNTU" ]; then
     copy_config "$FDIR/SERVER-UBUNTU-etc-network-interfaces" /etc/network/interfaces
     copy_config "$FDIR/SERVER-UBUNTU-etc-NetworkManager-NetworkManager.conf" /etc/NetworkManager/NetworkManager.conf
     /etc/init.d/networking restart
 fi
-echo "DONE: $MSG"
+end_msg "DONE: $MSG"
   #+END_SRC
 
 * dnsmasq : dhcp, dns, masquerading
@@ -131,15 +178,19 @@ echo "DONE: $MSG"
   #+BEGIN_SRC bash :exports code 
 # dnsmasq
 MSG="Configuring dnsmasq "
-echo $MGS
+start_msg $MGS
 if [ "$LINUX" == "SLACKWARE" ]; then
     TFILE="/etc/dnsmasq.conf"
-    copy_config "$FDIR/SERVER-etc-dnsmasq.conf" "$TFILE"
-    TFILE="/etc/dnsmasq-hosts.conf"
-    copy_config "$FDIR/SERVER-etc-dnsmasq-hosts.conf" "$TFILE"
-    chmod +x /etc/rc.d/rc.dnsmasq 
-    TFILE="/etc/hosts"
-    copy_config "$FDIR/SERVER-etc-hosts" "$TFILE"
+    if [! -f $TFILE ]; then  
+	copy_config "$FDIR/SERVER-etc-dnsmasq.conf" "$TFILE"
+	TFILE="/etc/dnsmasq-hosts.conf"
+	copy_config "$FDIR/SERVER-etc-dnsmasq-hosts.conf" "$TFILE"
+	chmod +x /etc/rc.d/rc.dnsmasq 
+	TFILE="/etc/hosts"
+	copy_config "$FDIR/SERVER-etc-hosts" "$TFILE"
+    else
+	echo "Already configured. Restarting services ..."
+    fi
     /etc/rc.d/rc.dnsmasq restart
 elif [ "$LINUX" == "UBUNTU" ]; then
     apt-get -y install dnsmasq 
@@ -151,7 +202,7 @@ elif [ "$LINUX" == "UBUNTU" ]; then
     service dnsmasq restart
     /etc/init.d/networking start
 fi
-echo "DONE: $MSG"
+end_msg "DONE: $MSG"
 
   #+END_SRC
 
@@ -159,14 +210,18 @@ echo "DONE: $MSG"
   I will use arno iptables firewall because it has worked pretty well
   before . It must be installed before this step. If not installed , I
   will try to use sbopkg to install it.
+
   #+NAME: firewall_config
   #+BEGIN_SRC bash :exports code
 # firewall
 MSG="Configuring firewall "
-echo $MSG
+start_msg $MSG
 if [ "$LINUX" == "SLACKWARE" ]; then
     if [ ! hash arno-iptables-firewall 2>/dev/null ]; then
-	sbopkg -e stop -B -k -i arno-iptables-firewall
+	#sbopkg -e stop -B -k -i arno-iptables-firewall
+	source /root/.bashrc
+	slpkg uograde
+	slpkg -s sbo arno-iptables-firewall-2.0.1e-noarch-3_SBo
 	ln -svf /etc/rc.d/rc.arno-iptables-firewall /etc/rc.d/rc.firewall
 	copy_config "$FDIR/SERVER-firewall.conf" "/etc/arno-iptables-firewall/firewall.conf"
 	chmod o-rwx /etc/arno-iptables-firewall/firewall.conf
@@ -180,7 +235,7 @@ elif [ "$LINUX" == "UBUNTU" ]; then
     copy_config "$FDIR/SERVER-firewall.conf" "/etc/arno-iptables-firewall/firewall.conf"
     service arno-iptables-firewall restart
 fi
-echo "DONE: Configuring firewall "
+end_msg $MSG
 # read
   #+END_SRC
 * kanif cluster tools                                              :noexport:
@@ -207,8 +262,19 @@ echo "DONE: Configuring kanif "
   #+NAME: nfs_config
   #+BEGIN_SRC bash :exports code 
 # nfs
-echo "Configuring nfs "
+MSG="Configuring nfs "
+start_msg $MSG
 if [ "$LINUX" == "SLACKWARE" ]; then
+    if [x"" == x"$(grep 192.168 /etc/hosts.allow 2>/dev/null)" ]; then
+	copy_config "$FDIR/SERVER-etc-hosts.allow" "/etc/hosts.allow"
+    else
+        echo "hosts allow already configured"
+    fi
+    if [x"" == x"$(grep 192.168.10.1 /etc/exports 2>/dev/null)" ]; then
+	copy_config "$FDIR/SERVER-etc-exports" "/etc/exports"
+    else
+	echo "Exports already configured. Restarting services ..."
+    fi
     chmod +x /etc/rc.d/rc.nfsd 
     /etc/rc.d/rc.nfsd restart
     /etc/rc.d/rc.inet2 restart
@@ -216,49 +282,67 @@ elif [ "$LINUX" == "UBUNTU" ]; then
     apt-get -y install nfs-kernel-server
     service nfs-kernel-server restart
 fi
-copy_config "$FDIR/SERVER-etc-exports" "/etc/exports"
-kash 'mount -a'
-kash 'mount'
-echo "DONE: Configuring nfs "
-echo "NOTE: If you have problems, consider editing the /etc/hosts.allow and /etc/hosts.deny files"
+echo "NOTE: If you have NFS problems, consider editing the /etc/hosts.allow and /etc/hosts.deny files"
+end_msg $MSG
+#kash 'mount -a'
+#kash 'mount'
 # read
   #+END_SRC
 * NIS
+
   #+NAME: nis_config
   #+BEGIN_SRC bash :exports code
 # nis
-echo "Configuring nis "
-copy_config "$FDIR/SERVER-etc-defaultdomain" "/etc/defaultdomain"
-if [ "$LINUX" == "SLACKWARE" ]; then
-    echo "$LINUX : Nothing to be done. "
-elif [ "$LINUX" == "UBUNTU" ]; then
-    #bfile="/etc/default/nis"
-    #backup_file $bfile
-    #sed -i.bck 's/NISSERVER=.*/NISSERVER=master/; s/NISCLIENT=.*/NISCLIENT=/' $bfile
-    copy_config "$FDIR/SERVER-UBUNTU-etc-default-nis" "/etc/default/nis"
+MSG="Configuring nis "
+start_msg $MSG
+if [ x"" == x"$(grep salafisnis /etc/defaultdomain) 2>/dev/null " ] ; then 
+    copy_config "$FDIR/SERVER-etc-defaultdomain" "/etc/defaultdomain"
+else
+    echo "Already configured default nis domain"
 fi
+# if [ "$LINUX" == "SLACKWARE" ]; then
+#     echo "$LINUX : Nothing to be done. "
+# elif [ "$LINUX" == "UBUNTU" ]; then
+#     #bfile="/etc/default/nis"
+#     #backup_file $bfile
+#     #sed -i.bck 's/NISSERVER=.*/NISSERVER=master/; s/NISCLIENT=.*/NISCLIENT=/' $bfile
+#     copy_config "$FDIR/SERVER-UBUNTU-etc-default-nis" "/etc/default/nis"
+# fi
+
 #bfile="/etc/yp.conf"
 #backup_file $bfile
 #echo 'ypserver 192.168.123.1 ' > $bfile
-copy_config "$FDIR/SERVER-etc-yp.conf" "/etc/yp.conf"
-copy_config "$FDIR/SERVER-var-yp-Makefile" "/var/yp/Makefile"
+if [ x"" == x"$(grep salafisnis /etc/yp.conf) 2>/dev/null " ] ; then 
+    copy_config "$FDIR/SERVER-etc-yp.conf" "/etc/yp.conf"
+    copy_config "$FDIR/SERVER-var-yp-Makefile" "/var/yp/Makefile"
+else
+    echo "Already configured yp"
+fi
+
+#if [ "$LINUX" == "SLACKWARE" ]; then
+chmod +x /etc/rc.d/rc.yp
+backup_file /etc/rc.d/rc.yp
+if [ x"" == x"$(grep 'YP_SERVER_ENABLE=1' /etc/rc.d/rc.yp 2>/dev/null)"]; then 
+    sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=0/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=1/ ;' /etc/rc.d/rc.yp
+else
+    echo "Already configured as yp server"
+fi
+
+echo "Running nis services ..."
 ypserv
 make -BC /var/yp
 #/usr/lib64/yp/ypinit -m
-if [ "$LINUX" == "SLACKWARE" ]; then
-    chmod +x /etc/rc.d/rc.yp
-    backup_file /etc/rc.d/rc.yp
-    sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=0/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=1/ ;' /etc/rc.d/rc.yp
-    /etc/rc.d/rc.yp restart
-    /etc/rc.d/rc.inet2 restart
-elif [ "$LINUX" == "UBUNTU" ]; then
-    service portmap restart
-    service ypserv restart
-    service ypbind restart
-    #kash service ypserv restart
-fi
+/etc/rc.d/rc.yp restart
+/etc/rc.d/rc.inet2 restart
+
+# elif [ "$LINUX" == "UBUNTU" ]; then
+#     service portmap restart
+#     service ypserv restart
+#     service ypbind restart
+#     #kash service ypserv restart
+#fi
 rpcinfo -p localhost # check
-echo "DONE: Configuring nis "
+end_msg $MSG
 # read
 
   #+END_SRC
@@ -269,16 +353,16 @@ echo "DONE: Configuring nis "
 # check args
 if [ "$#" -ne "2" ]; then usage; exit 1 ; fi
 if [ ! -d "$1" ]; then echo "Dir does not exist : $1"; usage; exit 1 ; fi
-if [[ "$2" -ne "UBUNTU" -o "$2" -ne "SLACKWARE" ]]; then usage; exit 1 ; fi
+#if [[ "$2" -ne "UBUNTU" -o "$2" -ne "SLACKWARE" ]]; then usage; exit 1 ; fi
 
 # global vars
 BDIR=$PWD
 FDIR=$1
-LINUX=$2
+LINUX="SLACKWARE"
 
 
 <<proxy_config>>
-<<sbopkg_config>>
+<<slpkg_config>>
 <<dhcpcd_config>>
 <<nic_config>>
 <<xinitrc_config>>
@@ -288,6 +372,7 @@ LINUX=$2
 <<nis_config>>
   #+END_SRC
 
+* TODO pssh?
 * PACKAGES
   This section is used to configure packages to be installed after
   successful configuration. Each package will be its own script,
