@@ -86,7 +86,7 @@ else
    #+BEGIN_SRC bash :exports code
 MSG="Configuring dhcpcd to send the mac to the dhcp server"
 start_msg $MSG
-copy_config "$FDIR/SERVER-SLACKWARE-etc-dhcpcd.conf" "/etc/dhcpcd.conf"
+copy_config "$FDIR/SERVER-etc-dhcpcd.conf" "/etc/dhcpcd.conf"
 echo "DONE: $MSG"
    #+END_SRC
 
@@ -154,7 +154,7 @@ if [ "$TARGET"=="SERVER" ]; then
     if [ x"" == x"$(grep 192.168.10.1 /etc/rc.d/rc.inet1.conf 2> /dev/null)" ]; then 
 	bash /etc/rc.d/rc.networkmanager stop
 	chmod -x /etc/rc.d/rc.networkmanager
-	copy_config "$FDIR/SERVER-SLACKWARE-etc-rc.d-rc.inet1.conf" /etc/rc.d/rc.inet1.conf
+	copy_config "$FDIR/SERVER-etc-rc.d-rc.inet1.conf" /etc/rc.d/rc.inet1.conf
     else
 	echo "Already configured, just restarting services ..."
     fi
@@ -370,7 +370,7 @@ rpcinfo -p localhost
 end_msg $MSG
 
    #+END_SRC
-** Clinet: Copy public id
+** Client: Copy public id
    #+name:publicid_config
    #+begin_src sh 
 if [ "$TARGET" == "CLIENT" ]; then 
@@ -395,7 +395,7 @@ fname=disallow-power-options.rules
 if [ ! -f /etc/polkit-1/rules.d/$fname ]; then
     chmod o-x /sbin/shutdown 
     chmod o-x /sbin/halt
-    cp $FDIR/CLIENT-$fname /etc/polkit-1/rules.d/
+    cp $FDIR/$fname /etc/polkit-1/rules.d/
 else
     echo "Already configured"
 fi
