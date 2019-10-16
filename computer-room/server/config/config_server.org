@@ -373,6 +373,98 @@ LINUX="SLACKWARE"
   #+END_SRC
 
 * TODO pssh?
+  - https://unix.stackexchange.com/questions/128974/parallel-ssh-with-passphrase-protected-ssh-key
+  - https://www.funtoo.org/Keychain
+  - https://stackoverflow.com/questions/43597283/pass-the-password-as-an-argument-in-pssh
+  - https://www.golinuxcloud.com/pssh-public-key-authentication-passwordless/
+
+* Auxiliary scripts
+** Create users from csv list with usernames and ids
+   This script reads a list of usernames and passwords and creates the
+   corresponding users
+   #+begin_src sh :exports code :tangle create_users_from_list.sh
+#!/bin/bash
+
+FNAME=${1}
+if [[ ! -f $FNAME ]]; then
+    echo "Error: filename $FNAME does not exists"
+    exit 1
+fi
+
+while read line
+do
+    username=$(echo $line | awk '{print $1}')
+    password=$(echo $line | awk '{print $2}')
+    echo username=$username
+    echo password=$password
+    # echo "Deleting account $username"
+    # userdel $username
+    echo Creating account $username
+    useradd -d /home/$username -G audio,cdrom,floppy,plugdev,video -m -s /bin/bash $username 
+    echo "Changing password for $username to ${password}"
+    echo ${username}:${password} | chpasswd
+    #echo "Recursive chown ... &"
+    #chown -R $username.$username /home/$username &
+done < $FNAME
+
+read
+
+echo "Updating nis database"
+make -C /var/yp/
+service portmap restart
+service ypserv  restart
+echo "DONE."
+
+   #+end_src
+** Recreate users from folders inside home 
+   This is useful when the server was reinstalled
+   #+begin_src sh :exports code :tangle recreate_users_from_directories.sh
+#!/bin/bash
+
+for usernamedir in /home/*; do 
+    if [ -d $usernamedir ]; then
+	username=$(basename $usernamedir)
+	if [ "ftp" != "$username" ] && [ "localuser" != "$username" ] ; then 
+	    #echo "Deleting account $username"
+	    #userdel $username
+	    echo Creating account $username
+	    useradd -d /home/$username -G audio,cdrom,floppy,plugdev,video -m -s /bin/bash $username
+	    echo "Changing password for $username to ${username}123"
+	    echo ${username}:${username}123 | chpasswd 
+	    echo "Recursive chown ... &"
+	    chown -R $username.$username /home/$username & 
+	fi
+    fi
+done
+echo "Updating nis database"
+make -C /var/yp/
+service portmap restart
+service ypserv  restart
+
+echo "DONE."
+
+   #+end_src
+** Data dir for users
+   In case there are some hard disk space to share between users,
+   create directories for each one
+   #+begin_src sh  :exports code :tangle create_data_dirs_for_users.sh
+#!/bin/bash
+
+for a in /home/*; do
+    bname=$(basename $a)
+    id -u $bname &> /dev/null
+    status=$?
+    #echo $bname
+    #echo $status
+    if [[ "0" -eq "$status" ]]; then
+	for b in data01 data02; do
+	    mkdir -p /mnt/local/$b/$bname	    
+	    chown -R $bname.$bname /mnt/local/$b/$bname
+	done
+    fi
+done
+   #+end_src
+
 * PACKAGES
   This section is used to configure packages to be installed after
   successful configuration. Each package will be its own script,

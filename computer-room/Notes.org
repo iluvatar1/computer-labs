@@ -1,6 +1,8 @@
 * TODO CHeck https://github.com/marcan/takeover.sh
 * TODO Modify /etc/acpi/acpi_handler.sh to remove power off when button presed
 * TODO Check cron script to be ran every minute to chech connection
+* TODO Monitor using ~sar~
+  https://www.redhat.com/sysadmin/troubleshooting-slow-servers
 * Problems
 ** Solving problems with xinit and xfce for all and new users
    - Make sure all users are on the video group. Maybe run
