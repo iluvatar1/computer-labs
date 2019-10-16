@@ -6,43 +6,17 @@
 # Test
 ###############
 
-function usage()
-{
-    echo "USAGE: "
-    echo "config_server.sh DIR LINUX_FLAVOR"
-    echo "DIR          : Where to find the model config files"
-    echo "LINUX_FLAVOR : UBUNTU or SLACKWARE , in capital"
-}
+source ../../util_functions.sh
+source ../../config.sh
 
-# check args
-if [ "$#" -ne "2" ]; then usage; exit 1 ; fi
-if [ ! -d "$1" ]; then echo "Dir does not exist : $1"; usage; exit 1 ; fi
-if [  "$2" != "UBUNTU" ] && [  "$2" != "SLACKWARE" ]; then usage; exit 1 ; fi
+TARGET="client"
 
+echo "Configuring $TARGET ..."
 
-echo "Configuring client ..."
 # global vars
 BDIR=$PWD
 FDIR=$1
-LINUX=$2
-
-SERVERIP=192.168.10.1
-
-# global functions
-function backup_file()
-{
-    if [ -e "$1" ]; then
-        cp -v "$1" "$1".orig-$(date +%F--%H-%M-%S)
-    fi
-}
-
-function copy_config()
-{
-    mfile="$1"
-    bfile="$2"
-    backup_file "$bfile"
-    cp -vf "$mfile" "$bfile"
-}
+LINUX="SLACKWARE"
 
 # Network manager
 #echo "Removing permissions for network manager ..."
@@ -50,11 +24,14 @@ function copy_config()
 #chmod -x /etc/rc.d/rc.networkmanager
 echo "Creating Network Manager hook"
 if [ ! -f "/etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh" ]; then
-    cp files/90networkmanagerhook.sh /etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh
+    cp $FDIR/CLIENT-90networkmanagerhook.sh /etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh
     chmod +x /etc/rc.d/rc.networkmanager
     bash /etc/rc.d/rc.networkmanager restart
     /etc/rc.d/rc.inet2 restart
+else
+    echo "Already configured."
 fi
+echo "DONE: Configuring  network manager"
 
 
 # ntp server
@@ -63,7 +40,7 @@ if [ "$LINUX" == "SLACKWARE" ]; then
     if [ x"" == x"$(grep $SERVERIP /etc/ntp.conf)" ]; then
 	bfile=/etc/ntp.conf
 	backup_file $bfile
-	cp -f $FDIR/ntp-client.conf $bfile
+	cp -f $FDIR/CLIENT-ntp-client.conf $bfile
 	chmod +x /etc/rc.d/rc.ntpd
 	/etc/rc.d/rc.ntpd restart
     else
@@ -94,7 +71,6 @@ fi
 echo "DONE: Configuring nfs"
 
 # nis
-NISDOMAIN=salafisnis
 echo "Configuring nis "
 if [ x"" == x"$(grep ${NISDOMAIN} /etc/defaultdomain 2> /dev/null)" ]; then
     bfile="/etc/defaultdomain"
@@ -105,7 +81,7 @@ if [ x"" == x"$(grep ${NISDOMAIN} /etc/defaultdomain 2> /dev/null)" ]; then
     echo "ypserver ${SERVERIP}" > $bfile
     bfile=/etc/nsswitch.conf
     backup_file $bfile
-    cp -f $FDIR/client-nsswitch.conf $bfile
+    cp -f $FDIR/CLIENT-nsswitch.conf $bfile
     bfile="/etc/passwd"
     backup_file $bfile
     echo +:::::: >> $bfile
@@ -116,13 +92,15 @@ if [ x"" == x"$(grep ${NISDOMAIN} /etc/defaultdomain 2> /dev/null)" ]; then
     backup_file $bfile
     echo +::: >> $bfile
     if [ "$LINUX" == "SLACKWARE" ]; then
-	chmod +x /etc/rc.d/rc.yp
-	chmod +x /etc/rc.d/rc.nfsd
-	backup_file /etc/rc.d/rc.yp
-	sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=1/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=0/ ;' /etc/rc.d/rc.yp
-	#/etc/rc.d/rc.yp restart    
-	#/etc/rc.d/rc.nfsd restart
-	#/etc/rc.d/rc.inet2 restart
+	if [ x"" == x"$(grep 'YP_CLIENT_ENABLE=1' /etc/rc.d/rc.yp) 2>/dev/null" ]; then 
+	    chmod +x /etc/rc.d/rc.yp
+	    chmod +x /etc/rc.d/rc.nfsd
+	    backup_file /etc/rc.d/rc.yp
+	    sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=1/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=0/ ;' /etc/rc.d/rc.yp
+	fi
+	/etc/rc.d/rc.yp restart    
+	/etc/rc.d/rc.nfsd restart
+	/etc/rc.d/rc.inet2 restart
     elif [ "$LINUX" == "UBUNTU" ]; then
 	service portmap restart
 	service ypserv restart
@@ -134,16 +112,16 @@ fi
 echo "DONE: Configuring nis "
 
 
-# config lightm options
-if [ "$LINUX" == "UBUNTU" ]; then 
-    echo "Allowing direct login on lightdm"
-    bfile="/etc/lightdm/lightdm.conf"
-    backup_file $bfile
-    echo "greeter-show-manual-login=true" >> $bfile
-    echo "greeter-hide-users=true" >> $bfile
-    echo "greeter-allow-guest=false" >> $bfile
-    echo "allow-guest=false" >> $bfile
-fi
+# # config lightm options
+# if [ "$LINUX" == "UBUNTU" ]; then 
+#     echo "Allowing direct login on lightdm"
+#     bfile="/etc/lightdm/lightdm.conf"
+#     backup_file $bfile
+#     echo "greeter-show-manual-login=true" >> $bfile
+#     echo "greeter-hide-users=true" >> $bfile
+#     echo "greeter-allow-guest=false" >> $bfile
+#     echo "allow-guest=false" >> $bfile
+# fi
 
 # Configure root internet access
 bname="~/.bashrc"
@@ -161,11 +139,11 @@ fi
 echo "Configuring xsession in case it is not configured ..."
 bname=/etc/skel/.xsession
 if [ ! -f $bname ]; then 
-    cp $FDIR/xsession $bname
+    cp $FDIR/CLIENT-xsession $bname
 fi
 bname=/etc/skel/.xinitrc
 if [ ! -f $bname ]; then 
-    cp $FDIR/xinitrc $bname
+    cp $FDIR/CLIENT-xinitrc $bname
 fi
 
 # latam keyboard
@@ -194,8 +172,8 @@ fi
 echo "Configuring cronjob check status"
 if [ ! -f /etc/cron.d/check_status_cronjob ] || [ ! -f /root/scripts/check_status.sh ]; then
     mkdir -p /root/scripts
-    cp -f $FDIR/cron/check_status.sh /root/scripts/
-    cp -f $FDIR/cron/check_status_cronjob /etc/cron.d/
+    cp -f $FDIR/CLIENT-cron/check_status.sh /root/scripts/
+    cp -f $FDIR/CLIENT-cron/check_status_cronjob /etc/cron.d/
 else
     echo "    -> already configured ."
 fi
@@ -203,7 +181,7 @@ fi
 echo "Copying server public key  to configure passwordless access for root"
 mkdir -p /root/.ssh &>/dev/null
 if [ x"" == x"$(grep serversalafis /root/.ssh/authorized_keys 2>/dev/null)" ]; then
-    cat $FDIR/server_id_rsa.pub >> /root/.ssh/authorized_keys
+    cat $FDIR/CLIENT-server_id_rsa.pub >> /root/.ssh/authorized_keys
     chmod 700 /root/.ssh
     chmod 640 /root/.ssh/authorized_keys
 else
@@ -215,7 +193,7 @@ chmod o-x /sbin/shutdown
 chmod o-x /sbin/halt
 fname=disallow-power-options.rules
 if [ ! -f /etc/polkit-1/rules.d/$fname ]; then
-    cp $FDIR/$fname /etc/polkit-1/rules.d/
+    cp $FDIR/CLIENT-$fname /etc/polkit-1/rules.d/
 fi
 
 echo "#####################################"
