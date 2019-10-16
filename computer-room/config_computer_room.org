@@ -1,4 +1,4 @@
-#+TITLE:Computer room in slackware : Server config howto 
+#+TITLE:Computer room in slackware : Server and client config
 #+AUTHOR: William Oquendo
 #+email: woquendo@gmail.com
 #+INFOJS_OPT: 
@@ -7,7 +7,8 @@
 
 This document presents a basic procedure to configure a computer room
 in slackware. This generates a script, called
-=config_slackware_server.sh= and a bunch of config files. At the end
+=bootsrap_slackware.sh= that uses a bunch of config files to setup
+either a client or a server. At the end
 you just run the mentioned script and hopefully everything will work
 as expected. 
 
@@ -62,22 +63,37 @@ if [ "$LINUX" == "SLACKWARE" ]; then
 fi
    #+END_SRC
 
-** TODO Install slpkg : blacklist?
+** Install slpkg
    #+NAME: slpkg_config
    #+BEGIN_SRC bash :exports code 
 MSG="Installing slpkg"
 start_msg $MSG
 if [ x"" != "$(hash slpkg)" ]; then
     cd Downloads
+    source .bashrc
     wget https://gitlab.com/dslackw/slpkg/-/archive/3.4.3/slpkg-3.4.3.tar.gz
     tar xf slpkg-3.4.3.tar.gz
     cd slpkg-3.4.3
     ./install.sh
-    source .bashrc
+    backup_file /etc/slpkg/blacklist 
+    cat <<EOF > /etc/slpkg/blacklist
+ kernel-firmware
+ kernel-generic
+ kernel-generic-smp
+ kernel-headers
+ kernel-huge
+ kernel-huge-smp
+ kernel-modules
+ kernel-modules-smp
+ kernel-source
+
+ mozilla-firefox
+EOF
     slpkg upgrade
 else
     echo "Already installed"
-    end_msg $MSG
+fi
+end_msg $MSG
    #+END_SRC
   
 ** Fix dhcpcd client (advertise mac address instead of ipv6 stuff)
