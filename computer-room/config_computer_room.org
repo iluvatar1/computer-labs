@@ -67,7 +67,7 @@ echo "DONE: $MSG"
 MSG="Installing slpkg"
 start_msg $MSG
 if [ ! hash slpkg 2>/dev/null ]; then
-    cd Downloads
+    cd ~/Downloads
     source .bashrc
     wget https://gitlab.com/dslackw/slpkg/-/archive/3.4.3/slpkg-3.4.3.tar.gz
     tar xf slpkg-3.4.3.tar.gz
