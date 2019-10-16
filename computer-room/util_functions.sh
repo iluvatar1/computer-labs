@@ -1,10 +1,9 @@
 function usage() 
 {
     echo "USAGE: "
-    echo "config_server.sh DIR LINUX_FLAVOR[=SLACKWARE]"
-    echo "DIR          : Where to find the model config files"
-    echo "LINUX_FLAVOR : UBUNTU or SLACKWARE , in capital"
-    echo "NOTE: Ubuntu not working currently"
+    echo "config_server.sh DIR TARGET[SERVER|CLIENT]"
+    echo "DIR    : Where to find the model config files"
+    echo "TARGET : SERVER or CLIENT "
 }
 
 # global functions
@@ -33,4 +32,16 @@ function end_msg()
 {
   echo "# DONE: $1"
   echo "#######################################\n "
+}
+
+function pattern_not_present
+{
+    if [ $FORCE ]; then
+	return 1
+    fi
+    if [ x""==x"$(grep ${1} ${2} 2>/dev/null)" ]; then
+	return 1
+    else
+	return 0
+    fi
 }
