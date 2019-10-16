@@ -430,14 +430,15 @@ end_msg $MSG
    #+begin_src sh :exports code 
 MSG="Configuring crontab "
 start_msg "$MSG"
+contrab -l > /tmp/crontab
 if [ "$TARGET" == "SERVER" ]; then
-    if [ pattern_not_present "network.sh" "$(crontab -l)" ] ; then 
+    if [ pattern_not_present "network.sh" "/tmp/crontab" ] ; then 
 	crontab files/SERVER-crontab -u root
     else
 	echo "Already configured"
     fi
 else
-    if [ pattern_not_present "check_status.sh" "$(crontab -l)" ] ; then 
+    if [ pattern_not_present "check_status.sh" "/tmp/crontab" ] ; then 
 	crontab files/CLIENT-crontab -u root
     else
 	echo "Already configured"

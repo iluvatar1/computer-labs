@@ -36,10 +36,10 @@ function end_msg()
 
 function pattern_not_present
 {
-    if [ $FORCE ]; then
+    if [ $FORCE -eq 1 ]; then
 	return 1
     fi
-    if [ x""==x"$(grep ${1} ${2} 2>/dev/null)" ]; then
+    if [ x""==x"$(grep ${1} ${2} )" ]; then
 	return 1
     else
 	return 0
