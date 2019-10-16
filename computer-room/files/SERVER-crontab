@@ -22,4 +22,4 @@
 20 4 1 * * /usr/bin/run-parts /etc/cron.monthly 1> /dev/null
 
 # every 1 min
-*/1 * * * * /bin/bash /root/repos/computer-labs/computer-room/server/cron/5min/network.sh &>/var/log/network.log
+*/1 * * * * /bin/bash /root/repos/computer-labs/computer-room/files/SERVER-cron/network.sh &>/var/log/network.log
