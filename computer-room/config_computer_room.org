@@ -215,9 +215,9 @@ fi
 # dnsmasq
 MSG="Configuring dnsmasq "
 start_msg $MGS
-if [ "$LINUX" == "SLACKWARE" ]; then
+if [ "$TARGET" == "SERVER" ]; then
     TFILE="/etc/dnsmasq.conf"
-    if [! -f $TFILE ]; then  
+    if [ ! -f $TFILE ]; then  
 	copy_config "$FDIR/SERVER-etc-dnsmasq.conf" "$TFILE"
 	TFILE="/etc/dnsmasq-hosts.conf"
 	copy_config "$FDIR/SERVER-etc-dnsmasq-hosts.conf" "$TFILE"
@@ -243,7 +243,7 @@ end_msg "DONE: $MSG"
 # firewall
 MSG="Configuring firewall "
 start_msg "$MSG"
-if [ "$LINUX" == "SLACKWARE" ]; then
+if [ "$TARGET" == "SERVER" ]; then
     if [ ! hash arno-iptables-firewall 2>/dev/null ]; then
 	#sbopkg -e stop -B -k -i arno-iptables-firewall
 	source /root/.bashrc
@@ -270,7 +270,7 @@ echo "Configuring kanif "
 #for a in ssf6 ssf7 ssf8 ssf9; do
 #    yes 'PASSWORD' | ssh-copy-id -i ~/.ssh/id_rsa.pub $q
 #done
-if [ "$LINUX" == "SLACKWARE" ]; then
+if [ "$TARGET" == "SERVER" ]; then
     echo "Kanif assumed to be installed in slackware."
 fi
 copy_config "$FDIR/SERVER-etc-c3.conf" "/etc/kanif.conf"
