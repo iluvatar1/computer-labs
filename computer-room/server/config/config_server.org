@@ -118,9 +118,9 @@ if [ x"" != "$(hash slpkg)" ]; then
     slpkg upgrade
 else
     echo "Already installed"
-end_msg $MSG
+    end_msg $MSG
   #+END_SRC
-
+  
 * Fix dhcpcd client (advertise mac address instead of ipv6 stuff)
   
   #+NAME: dhcpcd_config
@@ -346,6 +346,20 @@ end_msg $MSG
 # read
 
   #+END_SRC
+* Crontab
+  This crontab reads a given script and runs it every some time
+  #+name:crontab_config
+  #+begin_src sh :exports code 
+MSG="Configuring crontab "
+start_msg "$MSG"
+if [ x"" = x"$(crontab -l | grep network.sh 2>/dev/null)" ] ; then 
+    crontab files/SERVER-crontab -u root
+else
+    echo "Already configured"
+fi
+end_msg "$MSG"
+
+  #+end_src
 * Write final script
   #+BEGIN_SRC bash :exports code :noweb yes :tangle config_slackware_server.sh 
 <<util_functions>>
@@ -370,6 +384,7 @@ LINUX="SLACKWARE"
 <<firewall_config>>
 <<nfs_config>>
 <<nis_config>>
+<<crontab_config>>
   #+END_SRC
 
 * TODO pssh?
