@@ -1,4 +1,4 @@
-#+TITLE:Computer room in slackware : Server and client config
+OBOB#+TITLE:Computer room in slackware : Server and client config
 #+AUTHOR: William Oquendo
 #+email: woquendo@gmail.com
 #+INFOJS_OPT: 
@@ -415,6 +415,14 @@ if [ ! -f /etc/polkit-1/rules.d/$fname ]; then
 else
     echo "Already configured"
 fi
+
+tfname=/etc/acpi/acpi_handler.sh
+if [ x"" == x"$(grep emoves $tfname)" ]; then
+    copy_config $FDIR/etc-acpi-acpi_handler.sh $tfname
+else
+    echo "Acpi handler already configured"
+fi
+
 end_msg $MSG
 
    #+end_src
@@ -556,10 +564,106 @@ for a in /home/*; do
 done
    #+end_src
 
+* Problems and solutions [6/6]
+** DONE Solving problems with xinit and xfce for all and new users
+   CLOSED: [2019-10-16 Wed 10:25]
+   - Make sure all users are on the video group. Maybe run
+     #+BEGIN_SRC bash
+     usermod -a -G audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner USERNAME
+     #+END_SRC
+     on each user.
+   - Make sure all users have a .xinitrc (executable, readable and
+     owned by the user)
+     #+BEGIN_SRC 
+     cp /etc/X11/xinit/xinitrc.xfce /etc/skel/.xinitrc
+     chmod a+x /etc/skel/.xinitrc
+     #+END_SRC
+   - Make sure that the minimum gid in yp nis is 2 (see file
+     =/var/yp/Makefile=)
+
+** DONE Dhcpcd                                                    :SLACKWARE:
+   CLOSED: [2019-10-16 Wed 10:25]
+   The latest slackware version advertises the nic using a new
+   identity called iuad or something but the dhcp server at unal does
+   not read it so I needed to edit the /etc/dhcpcd.conf file and
+   activate sending the hardware address
+** DONE Advertising Ethernet speeds for eth1
+   CLOSED: [2019-10-16 Wed 10:25]
+   (SLackware does not have this problem)
+  The connection from/to server through eth1 was at a maximum of
+  10MB/s. while the interface supported gigabit. After many tests I
+  found that by using the command
+  #+begin_src shell
+  ethtool -s eth1 advertise 0x010
+  #+end_src
+  I was able to advertise up to gigabit and then run at 100MB/s, which
+  is the least acceptable given the router.
+
+  To make this command permanent in debian, I had to add the following
+  line under the config for ~eth1~ in the file
+  ~/etc/network/interfaces~
+  #+begin_src shell 
+  post-up /sbin/ethtool -s eth1 advertise 0x010
+  #+end_src
+** DONE Installation  and setup of gdb numpy
+   CLOSED: [2019-10-16 Wed 10:30]
+  Anaconda creates a lot of problems. It is necessary to clean the path. The command I used was:
+  #+begin_src shell
+  kash ". ~/.bashrc; . /home/oquendo/PATH.sh; installpkg /home/oquendo/Downloads/pip-9.0.1-x86_64-1_SBo.tgz; pip install matplotlib numpy; cd /home/oquendo/Escritorio/HerrComp/05-Debugging/gdb_numpy-1.0/; python setup.py install"
+  #+end_src
+  
+** DONE Armadillo problems with anaconda
+   CLOSED: [2019-10-16 Wed 10:31]
+  When installing armadillo, it finds the anaconda MKL and then a lot
+  of problems arise when trying to run progrms with armadillo. This
+  happens because putting anaconda bin on the path, in the first
+  place, "overwrites" pkgconfig and many other system
+  commands. Solution? eliminate anaconda from the path and then use
+  alias or simething similar, like linking anaconda python, ipython,
+  etc to /usr/local/bin, and no more.
+
+** DONE Anaconda problems with qt
+   CLOSED: [2019-10-16 Wed 10:31]
+  If some error like "Cannot run ... QT ... xcb plugin ... " appears,
+  maybe it needs to fix permissions. Run the following command:
+  #+begin_src shell
+  sudo chmod 755 /opt/anaconda2/bin/qt.conf
+  #+end_src
+** Formating usb (recovering the usb)
+   Use gdisk
+   #+begin_src sh
+   gdisk
+   enter recovery
+   c
+   e
+   v
+   w
+   q
+   #+end_src
+   #+begin_src sh
+   parted /dev/sdb
+   mklabel GPT # accept destroying everything
+   #+end_src
+   Also you can use =cgdisk=.
+
+   To completely delete the fs signatures
+   #+begin_src 
+   wipefs --all --force /dev/sdb
+   #+end_src
 * PACKAGES
-  This section is used to configure packages to be installed after
-  successful configuration. Each package will be its own script,
-  hopefully idempotent.
+  This section is used to configure packages that have been already
+  installed using the scripts inside the
+  [[file:~/repos/computer-labs/packages/]] folder.  Hopefully every
+  package will be installed using slpkg.
+
+  - SlackBuild builder: https://alien.slackbook.org/AST/index.php
+  - https://blog.spiralofhope.com/15906/slackware-package-managers.html
+  - https://blog.spiralofhope.com/22995/checkinstall.html
+  - slacktrack:
+    https://www.reddit.com/r/slackware/comments/36flus/practices_for_package_maintenance_for_slackware/
+  - src2pkg: https://distro.ibiblio.org/amigolinux/download/src2pkg/
+  - https://idlemoor.github.io/slackrepo/links.html
+
 ** Ganglia
    [[http://ganglia.info/][Ganglia]] is a system used to monitor clusters. I will start using it
    to check the status of the computer room. The isnstallation is
@@ -668,107 +772,10 @@ fi
 echo "Done"
     #+END_SRC
 
-
-* TODO CHeck https://github.com/marcan/takeover.sh
-* TODO Modify /etc/acpi/acpi_handler.sh to remove power off when button presed
-* TODO Check cron script to be ran every minute to chech connection
-* TODO Monitor using ~sar~
-  https://www.redhat.com/sysadmin/troubleshooting-slow-servers
-* Problems
-** Solving problems with xinit and xfce for all and new users
-   - Make sure all users are on the video group. Maybe run
-     #+BEGIN_SRC bash
-     usermod -a -G audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner USERNAME
-     #+END_SRC
-     on each user.
-   - Make sure all users have a .xinitrc (executable, readable and
-     owned by the user)
-     #+BEGIN_SRC 
-     cp /etc/X11/xinit/xinitrc.xfce /etc/skel/.xinitrc
-     chmod a+x /etc/skel/.xinitrc
-     #+END_SRC
-   - Make sure that the minimum gid in yp nis is 2 (see file
-     =/var/yp/Makefile=)
-
-** Dhcpcd                                                         :SLACKWARE:
-   The latest slackware version advertises the nic using a new
-   identity called iuad or something but the dhcp server at unal does
-   not read it so I needed to edit the /etc/dhcpcd.conf file and
-   activate sending the hardware address
-** Advertising Ethernet speeds for eth1
-  The connection from/to server through eth1 was at a maximum of
-  10MB/s. while the interface supported gigabit. After many tests I
-  found that by using the command
-  #+begin_src shell
-  ethtool -s eth1 advertise 0x010
-  #+end_src
-  I was able to advertise up to gigabit and then run at 100MB/s, which
-  is the least acceptable given the router.
-
-  To make this command permanent in debian, I had to add the following
-  line under the config for ~eth1~ in the file
-  ~/etc/network/interfaces~
-  #+begin_src shell 
-  post-up /sbin/ethtool -s eth1 advertise 0x010
-  #+end_src
-** Installation  and setup of gdb numpy
-  Anaconda creates a lot of problems. It is necessary to clean the path. The command I used was:
-  #+begin_src shell
-  kash ". ~/.bashrc; . /home/oquendo/PATH.sh; installpkg /home/oquendo/Downloads/pip-9.0.1-x86_64-1_SBo.tgz; pip install matplotlib numpy; cd /home/oquendo/Escritorio/HerrComp/05-Debugging/gdb_numpy-1.0/; python setup.py install"
-  #+end_src
-  
-** Armadillo problems with anaconda
-  When installing armadillo, it finds the anaconda MKL and then a lot
-  of problems arise when trying to run progrms with armadillo. This
-  happens because putting anaconda bin on the path, in the first
-  place, "overwrites" pkgconfig and many other system
-  commands. Solution? eliminate anaconda from the path and then use
-  alias or simething similar, like linking anaconda python, ipython,
-  etc to /usr/local/bin, and no more.
-
-** Anaconda problems with qt
-  If some error like "Cannot run ... QT ... xcb plugin ... " appears,
-  maybe it needs to fix permissions. Run the following command:
-  #+begin_src shell
-  sudo chmod 755 /opt/anaconda2/bin/qt.conf
-  #+end_src
-** Formating usb (recovering the usb)
-   Use gdisk
-   #+begin_src sh
-   gdisk
-   enter recovery
-   c
-   e
-   v
-   w
-   q
-   #+end_src
-   #+begin_src sh
-   parted /dev/sdb
-   mklabel GPT # accept destroying everything
-   #+end_src
-   Also you can use =cgdisk=.
-
-   To completely delete the fs signatures
-   #+begin_src 
-   wipefs --all --force /dev/sdb
-   #+end_src
-* PACKAGES
-  - SlackBuild builder: https://alien.slackbook.org/AST/index.php
-  - https://blog.spiralofhope.com/15906/slackware-package-managers.html
-  - https://blog.spiralofhope.com/22995/checkinstall.html
-  - slacktrack:
-    https://www.reddit.com/r/slackware/comments/36flus/practices_for_package_maintenance_for_slackware/
-  - src2pkg: https://distro.ibiblio.org/amigolinux/download/src2pkg/
-  - https://idlemoor.github.io/slackrepo/links.html
 ** CDO [2019-09-18 Wed]
    Use alien AST
 ** GRADS [2019-09-18 Wed]
    Use alien ATS
-** Octave [2019-09-18 Wed]
-   slpkg -s sbo octave
-** rstudio [2019-09-18 Wed]
-   slpkg -s sbo R rstudio-desktop
 ** PyQt5 (for tortoisehg) 2018
    https://slackbuilds.org/repository/14.2/libraries/PyQt5/
    #+begin_src sh

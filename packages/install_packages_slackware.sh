@@ -8,29 +8,30 @@ fi
 # fix PATH to remove anaconda stuff
 PATH=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:/usr/games:/usr/lib64/kde4/libexec:/usr/lib64/qt/bin:/usr/share/texmf/bin
 
-# SBO commands: Try first sbotools and, if it fails,  sbopkg
-SBO_CMD="sboinstall -d -r -j 2"
-SBO_CMD_AUX="sbopkg -B -e stop -k -i "
+# use slpkg
+source /root/.bashrc
+slpkg upgrade
+SLPKG_CMD="slpkg -s sbo"
 
+# Setup packages
 PKG=
 SRC=
 if [ "$1" == "BASIC" ]; then
-    PKG="monit fail2ban grace corkscrew djview4 lame  unrar smplayer valgrind valkyrie libreoffice openmpi blas lapack dropbox pip parallel pdftk ganglia ganglia-web modules"
+    PKG="monit fail2ban corkscrew pip parallel ganglia ganglia-web wol ssh-fuse valgrind openmpi modules cppcheck iotop"
 elif [ "$1" == "NUMERIC" ]; then
-    PKG="eigen3 fltk netcdf arpack atlas gsl hdf5 lapack suitsparse armadillo "    
+    PKG="fltk netcdf arpack blas atlas hdf5 lapack suitsparse armadillo octave R rstudio-desktop"    
 elif [ "$1" == "MISC" ]; then
-    PKG="kile kdenlive filezilla scribus povray texmaker ninja chromium smplayer vlc inkscape ffmpeg audacity graphviz libticonv gocr msmtp lyx  wine eagle skype twolame mplayer-codecs32 flashplayer-plugin pyserial dfc  wol sshfs-fuse acpica virtualbox-kernel virtualbox-kernel-addons virtualbox-extension-pack paraview  PyYAML  cppcheck iotop ntpclient  proxychains proxytunnel "
-    SBO_CMD="sboinstall -j 2"
+    PKG="valkyrie paraview grace djview4 lame kile kdenlive dropbox pdftk  filezilla scribus povray ninja chromium smplayer vlc inkscape ffmpeg audacity graphviz libticonv gocr msmtp lyx  wine eagle skype twolame mplayer-codecs32 flashplayer-plugin pyserial dfc acpica virtualbox-kernel virtualbox-kernel-addons virtualbox-extension-pack  PyYAML ntpclient  proxychains proxytunnel libreoffice"
 elif [ "$1" == "EXTRA" ]; then
     PKG="GoogleEarth blender QtiPlot scidavis"
 elif [ "$1" == "SALAFIS" ]; then
-    PKG="octave arduino geany"
+    PKG="arduino geany kdiff3"
 fi
 
 for pkgname in $PKG; do
-    $SBO_CMD $pkgname
+    $SLPKG_CMD $pkgname
     if [ "$?" != "0" ]; then
-	$SBO_CMD_AUX $pkgname
+	echo "# Error installing package -> $pkgname"
     fi
 done
 		   
