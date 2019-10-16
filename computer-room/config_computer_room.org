@@ -36,7 +36,7 @@ as expected.
    #+BEGIN_SRC bash :exports code 
 # Configure root internet access
 MSG="Configuring proxy for root"
-start_msg $MSG
+start_msg "$MSG"
 bname="/root/.bashrc"
 touch $bname
 if [ $(pattern_not_present "https_proxy" "${bname}") ]; then
@@ -49,14 +49,14 @@ else
     echo "Root proxy already configured."
 fi
 source /root/.bashrc
-end_msg $MSG
+end_msg "$MSG"
 
    #+END_SRC
 ** [Deprecated] Installing sbopkg                                  :noexport:
    #+NAME: sbopkg_config
    #+BEGIN_SRC bash :exports code 
 MSG="Installing sbopkg"
-echo $MSG
+echo "$MSG"
 installpkg "$FDIR/sbopkg-0.38.1-noarch-1_wsr.tgz"
 echo "DONE: $MSG"
    #+END_SRC
@@ -65,7 +65,7 @@ echo "DONE: $MSG"
    #+NAME: slpkg_config
    #+BEGIN_SRC bash :exports code 
 MSG="Installing slpkg"
-start_msg $MSG
+start_msg "$MSG"
 if [ ! hash slpkg 2>/dev/null ]; then
     cd ~/Downloads
     source .bashrc
@@ -91,7 +91,7 @@ EOF
 else
     echo "Already installed"
 fi
-end_msg $MSG
+end_msg "$MSG"
    #+END_SRC
   
 ** Fix dhcpcd client (advertise mac address instead of ipv6 stuff)
@@ -99,7 +99,7 @@ end_msg $MSG
    #+NAME: dhcpcd_config
    #+BEGIN_SRC bash :exports code
 MSG="Configuring dhcpcd to send the mac to the dhcp server"
-start_msg $MSG
+start_msg "$MSG"
 copy_config "$FDIR/SERVER-etc-dhcpcd.conf" "/etc/dhcpcd.conf"
 echo "DONE: $MSG"
    #+END_SRC
@@ -107,22 +107,22 @@ echo "DONE: $MSG"
 ** Fix xinitrc
    #+NAME: xinitrc_config
    #+BEGIN_SRC bash :exports code
-MSG "Fixing xinitrc on /etc/skel"
-start_msg $MSG
+MSG="Fixing xinitrc on /etc/skel"
+start_msg "$MSG"
 if [ ! -f /etc/skel/.xinitrc ]; then 
     cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xinitrce
 else
     echo "Already fixed"
 fi
-end_msg $MSG
-MSG "Fixing xsession on /etc/skel"
-start_msg $MSG
+end_msg "$MSG"
+MSG="Fixing xsession on /etc/skel"
+start_msg "$MSG"
 if [ ! -f /etc/skel/.xsession ]; then 
     cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xinitrce
 else
     echo "Already fixed"
 fi
-end_msg $MSG
+end_msg "$MSG"
 
    #+END_SRC
 ** Latam keyboard
@@ -194,7 +194,7 @@ end_msg "DONE: $MSG"
 # ntp server
 if [ "$TARGET"=="CLIENT" ]; then
     MSG="Configuring ntp "
-    start_msg $MSG
+    start_msg "$MSG"
     if [ $(pattern_not_present "$SERVERIP" "/etc/ntp.conf") ]; then
 	bfile=/etc/ntp.conf
 	backup_file $bfile
@@ -204,7 +204,7 @@ if [ "$TARGET"=="CLIENT" ]; then
 	else
 	    echo "    -> already configured"
     fi
-    end_msg $MSG
+    end_msg "$MSG"
 fi
 
    #+end_src
@@ -242,7 +242,7 @@ end_msg "DONE: $MSG"
    #+BEGIN_SRC bash :exports code
 # firewall
 MSG="Configuring firewall "
-start_msg $MSG
+start_msg "$MSG"
 if [ "$LINUX" == "SLACKWARE" ]; then
     if [ ! hash arno-iptables-firewall 2>/dev/null ]; then
 	#sbopkg -e stop -B -k -i arno-iptables-firewall
@@ -258,7 +258,7 @@ if [ "$LINUX" == "SLACKWARE" ]; then
     fi
     /etc/rc.d/rc.firewall restart
 fi
-end_msg $MSG
+end_msg "$MSG"
 # read
    #+END_SRC
 ** kanif cluster tools                                             :noexport:
@@ -284,7 +284,7 @@ echo "DONE: Configuring kanif "
    #+BEGIN_SRC bash :exports code 
 # nfs
 MSG="Configuring nfs "
-start_msg $MSG
+start_msg "$MSG"
 if [ "$TARGET" == "SERVER" ]; then
     if [ $(pattern_not_present "$BASE_SERVERIP" "/etc/hosts.allow") ]; then
 	copy_config "$FDIR/SERVER-etc-hosts.allow" "/etc/hosts.allow"
@@ -311,7 +311,7 @@ else
     fi
     mount -a 
 fi
-end_msg $MSG
+end_msg "$MSG"
 
    #+END_SRC
 ** NIS
@@ -320,7 +320,7 @@ end_msg $MSG
    #+BEGIN_SRC bash :exports code
 # nis
 MSG="Configuring nis "
-start_msg $MSG
+start_msg "$MSG"
 if [ "$TARGET" == "SERVER" ]; then
     if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ] ; then 
 	copy_config "$FDIR/SERVER-etc-defaultdomain" "/etc/defaultdomain"
@@ -381,7 +381,7 @@ fi
 /etc/rc.d/rc.inet2 restart
 rpcinfo -p localhost
 
-end_msg $MSG
+end_msg "$MSG"
 
    #+END_SRC
 ** Client: Copy public id
@@ -404,7 +404,7 @@ fi
    #+name:shutdown_config
    #+begin_src sh
 MSG="Removing permissions to reboot/halt system"
-start_msg $MSG
+start_msg "$MSG"
 fname=disallow-power-options.rules
 if [ ! -f /etc/polkit-1/rules.d/$fname ]; then
     chmod o-x /sbin/shutdown 
@@ -421,7 +421,7 @@ else
     echo "Acpi handler already configured"
 fi
 
-end_msg $MSG
+end_msg "$MSG"
 
    #+end_src
 ** Crontab
