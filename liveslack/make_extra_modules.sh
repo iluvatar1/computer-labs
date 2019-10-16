@@ -23,55 +23,58 @@ function check_status {
 
 function create_miniconda {
     cd $MODDIR
-    BNAME=Miniconda2-latest-Linux-x86_64
-    if [ ! -s 0066-$BNAME.sxz ]; then 
+    #BNAME=Miniconda3-4.7.10-Linux-x86_64 
+    BNAME=Miniconda3-4.6.14-Linux-x86_64 
+    TDIR=/tmp/miniconda3/
+    if [ ! -s 0065-$BNAME.sxz ]; then 
         echo "#####################################"
         echo "CREATING miniconda MODULE ... "
-
-        if [ ! -d /opt/miniconda2 ]; then
-	          echo "Installing miniconda and packages ...."
-	          if [[ x"dd54b344661560b861f86cc5ccff044b" != x"$(md5sum ~/Downloads/$BNAME.sh | awk '{print $1}')" ]]; then 
+	
+        if [ ! -d $TDIR/opt ]; then
+	          echo "Installing miniconda and packages onto $TDIR ...."
+		  #mkdir -p $TDIR/opt
+		  MD5SUM="1c945f2b3335c7b2b15130b1b2dc5cf4"
+	          if [[ x"$MD%SUM" != x"$(md5sum ~/Downloads/$BNAME.sh | awk '{print $1}')" ]]; then 
 	              echo "Downloading ..."
 	              wget https://repo.continuum.io/miniconda/$BNAME.sh -O ~/Downloads/$BNAME.sh
 		      check_status
 	          fi
-	          echo "Installing (onto /opt/miniconda2, batch mode)..."
-	          bash ~/Downloads/$BNAME.sh -b -p /opt/miniconda2
+	          echo "Installing (onto $TDIR, batch mode)..."
+	          echo bash ~/Downloads/$BNAME.sh -b -p $TDIR/opt
+	          bash ~/Downloads/$BNAME.sh -b -p $TDIR/opt
 		  check_status
 	          echo "Done installing miniconda"
+	else
+	    echo "Directory already exists: $TDIR "
         fi
         
         echo "Installing/upgrading some packages ..."
         echo "Updating conda"
-        /opt/miniconda2/bin/conda update -y conda
+        $TDIR/opt/bin/conda update -y conda
         echo "Installing vpython"
-        /opt/miniconda2/bin/conda install -y -c vpython vpython
+        $TDIR/opt/bin/conda install -y -c vpython vpython
         echo "Installing other packages"
-        /opt/miniconda2/bin/conda install -y matplotlib scipy numpy sympy seaborn  
+        $TDIR/opt/bin/conda install -y matplotlib scipy numpy sympy seaborn  
         echo "Updating ipython"
-        /opt/miniconda2/bin/conda install -y ipython
+        $TDIR/opt/bin/conda install -y ipython
 
         cd $MODDIR
-        echo "Creating temp dir (if it does not exist) ..." 
-        if [ ! -d /tmp/modtemp/opt ]; then 
-	          mkdir -p /tmp/modtemp/opt
-        fi
-        echo "Copying miniconda2 to /tmp/modtemp/opt/ ..."
-        cp -auvf /opt/miniconda2 /tmp/modtemp/opt/
         echo "Creating a local profile to modify the path for all users ... "
-        mkdir -p /tmp/modtemp/etc/profile.d
-        echo 'export PATH=/usr/local/bin/:$PATH"' > /tmp/modtemp/etc/profile.d/anaconda.sh
-        echo 'for a in {de,}activate anaconda conda ipython{,2} jupyter{,-notebook} pip{,2} python{,2}  ; do ln -sf /opt/miniconda2/bin/$a /usr/local/bin/ &> /dev/null; done ' > /tmp/modtemp/etc/profile.d/anaconda.sh
-        chmod +x /tmp/modtemp/etc/profile.d/anaconda.sh
+        mkdir -p $TDIR/etc/profile.d
+        echo 'export PATH=/usr/local/bin/:$PATH"' > $TDIR/etc/profile.d/anaconda.sh
+        echo 'for a in {de,}activate anaconda conda ipython{,3} jupyter{,-notebook,-lab} pip{,3} python{,3}  ; do ln -sf /opt/miniconda3/bin/$a /usr/local/bin/ &> /dev/null; done ' > $TDIR/etc/profile.d/anaconda.sh
+        chmod +x $TDIR/etc/profile.d/anaconda.sh
 
         echo "Creating miniconda liveslack module ... "
-        bash $LIVESLACKBDIR/$MAKEMOD -i  /tmp/modtemp/ 0066-$BNAME.sxz
-        rm -rf /tmp/modtemp
+        bash $LIVESLACKBDIR/$MAKEMOD -i  $TDIR 0065-$BNAME.sxz
+        #rm -rf $TDIR
         echo "Done miniconda module."
         echo "You can test the module contents with the command : "
-        echo "unsquashfs -l 0066-$BNAME.sxz"
+        echo "unsquashfs -l 0065-$BNAME.sxz"
         echo "#####################################"
         echo
+    else
+	echo "Package already exists: $MODDIR/0065-$BNAME.sxz"
     fi
 }
 
@@ -92,7 +95,7 @@ function create_generic {
 	              tar xvf ${NAME}.tar.gz &&
 	              cd ${NAME} &&
 	              wget -c ${SOURCE_URL} && 
-	              bash ${NAME}.SlackBuild
+	              sudo bash ${NAME}.SlackBuild
         fi
 	if [ -s "${PKGNUM}-${BNAME}.sxz" ]; then
             cd $MODDIR
@@ -108,20 +111,32 @@ function create_generic {
 }
 
 function create_valgrind {
-    create_generic valgrind valgrind-3.13.0-x86_64-1_SBo "https://slackbuilds.org/slackbuilds/14.2/development/valgrind.tar.gz" "ftp://sourceware.org/pub/valgrind/valgrind-3.13.0.tar.bz2" 0067
+    create_generic valgrind valgrind-3.15.0-x86_64-1_SBo "https://slackbuilds.org/slackbuilds/14.2/development/valgrind.tar.gz" "ftp://sourceware.org/pub/valgrind/valgrind-3.15.0.tar.bz2" 0067
 }
 
 function create_openmpi {
-    create_generic openmpi openmpi-2.1.1-x86_64-1_SBo "https://slackbuilds.org/slackbuilds/14.2/system/openmpi.tar.gz" "https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-2.1.1.tar.bz2" 0068
+    create_generic openmpi openmpi-4.0.1-x86_64-1_SBo "https://slackbuilds.org/slackbuilds/14.2/system/openmpi.tar.gz" "https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-4.0.1.tar.bz2" 0068
+}
+
+function create_obs {
+    create_generic ffmepg ffmpeg-3.2.4-x86_64_SBo "https://slackbuilds.org/slackbuilds/14.2/multimedia/ffmpeg.tar.gz" "http://www.ffmpeg.org/releases/ffmpeg-3.2.4.tar.xz" 0069
+    create_generic x264 x264-20170225-x86_64-1_SBo "https://slackbuilds.org/slackbuilds/14.2/multimedia/x264.tar.gz" "http://ftp.videolan.org/x264/snapshots/x264-snapshot-20170225-2245-stable.tar.bz2" 0070
+    create_generic obs-studio obs-studio-23.2.1-x86_64_SBo "https://slackbuilds.org/slackbuilds/14.2/multimedia/obs-studio.tar.gz" "https://github.com/obsproject/obs-studio/archive/23.2.1/obs-studio-23.2.1.tar.gz" 0071
+}
+
+function create_openscad {
+    create_generic openscad openscad-2015.03.3-x86_64_SBo "https://slackbuilds.org/slackbuilds/14.2/graphics/openscad.tar.gz" "http://files.openscad.org/openscad-2015.03-3.src.tar.gz" 0072
 }
 
 function create_paraview {
     NAME=paraview
-    PKGNUM=0069
+    PKGNUM=0066
     BNAME=paraview-5.4.1-x86_64-oquendo
-    PKG_NAME="ParaView-5.4.1-Qt5-OpenGL2-MPI-Linux-64bit.tar.gz"
+    #PKG_NAME="ParaView-5.4.1-Qt5-OpenGL2-MPI-Linux-64bit.tar.gz"
+    PKG_NAME="ParaView-5.6.1-osmesa-MPI-Linux-64bit.tar.gz"
     PKG_BNAME="${PKG_NAME%.tar.gz}"
-    PKG_URL="https://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v5.4&type=binary&os=Linux&downloadFile=${PKG_NAME}"
+    #PKG_URL="https://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v5.4&type=binary&os=Linux&downloadFile=${PKG_NAME}"
+    PKG_URL="https://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v5.6&type=binary&os=Linux&downloadFile=${PKG_NAME}"
     # using the binaries from Paraview
     cd $MODDIR
     if [ ! -f ${PKGNUM}-${BNAME}.sxz ]; then
@@ -158,13 +173,15 @@ function create_paraview {
 }
 
 echo "Please select package to create :"
-printf "0) ALL \n1) Miniconda \n2) valgrind \n3) paraview\n4) openmpi\n"
+printf "0) ALL \n 1) Miniconda \n 2) valgrind \n 3) paraview \n 4) openmpi \n 5) obs-studio \n 6) openscad \n"
 read option
 case $option in
-    0) create_miniconda
-       create_valgrind
-       create_paraview
-       create_openmpi
+    0) create_miniconda &
+       #create_valgrind
+       #create_paraview
+       #create_openmpi
+       create_obs &
+       create_openscad ^
        ;;
     1) create_miniconda
        ;;
@@ -173,6 +190,10 @@ case $option in
     3) create_paraview
        ;;
     4) create_openmpi
+       ;;
+    5) create_obs
+       ;;
+    6) create_openscad
        ;;
     *) echo "Bad option. Exiting"
        exit 1
