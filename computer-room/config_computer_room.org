@@ -39,7 +39,7 @@ MSG="Configuring proxy for root"
 start_msg $MSG
 bname="/root/.bashrc"
 touch $bname
-if [ pattern_not_present "https_proxy" "${bname}" ]; then
+if [ $(pattern_not_present "https_proxy" "${bname}") ]; then
     echo 'export PROXY="${PROXYUSER}:${PROXYPASSWD}@proxyapp.unal.edu.co:8080/" ' >> $bname
     echo 'export http_proxy="http://$PROXY" ' >> $bname
     echo 'export https_proxy="https://$PROXY" ' >> $bname
@@ -132,7 +132,7 @@ end_msg $MSG
 MSG="Configuring default X windows keyboard to be latam ..."
 start_msg "$MSG"
 bfile=/etc/X11/xorg.conf.d/90-keyboard-layout.conf
-if [ pattern_not_present "la-latin1" "$bfile" ]; then 
+if [ $(pattern_not_present "la-latin1" "$bfile") ]; then 
     if [ -f $bfile ]; then
 	backup_file $bfile
     fi
@@ -160,12 +160,12 @@ end_msg "$MSG"
 MSG="Configuring network interfaces "
 start_msg "$MSG"
 if [ "$TARGET"=="SERVER" ]; then
-    if [ pattern_not_present "127.0.0.1" "/etc/resolv.conf.head" ]; then
+    if [ $(pattern_not_present "127.0.0.1" "/etc/resolv.conf.head") ]; then
 	echo "Setting up resolv.conf.head "
 	TFILE="/etc/resolv.conf.head"
 	copy_config "$FDIR/SERVER-etc-resolv.conf.head" "$TFILE"
     fi	
-    if [ pattern_not_present "$SERVERIP" "/etc/rc.d/rc.inet1.conf"]; then 
+    if [ $(pattern_not_present "$SERVERIP" "/etc/rc.d/rc.inet1.conf") ]; then 
 	bash /etc/rc.d/rc.networkmanager stop
 	chmod -x /etc/rc.d/rc.networkmanager
 	copy_config "$FDIR/SERVER-etc-rc.d-rc.inet1.conf" /etc/rc.d/rc.inet1.conf
@@ -195,7 +195,7 @@ end_msg "DONE: $MSG"
 if [ "$TARGET"=="CLIENT" ]; then
     MSG="Configuring ntp "
     start_msg $MSG
-    if [ pattern_not_present "$SERVERIP" "/etc/ntp.conf" ]; then
+    if [ $(pattern_not_present "$SERVERIP" "/etc/ntp.conf") ]; then
 	bfile=/etc/ntp.conf
 	backup_file $bfile
 	cp -f $FDIR/CLIENT-ntp-client.conf $bfile
@@ -286,12 +286,12 @@ echo "DONE: Configuring kanif "
 MSG="Configuring nfs "
 start_msg $MSG
 if [ "$TARGET" == "SERVER" ]; then
-    if [ pattern_not_present "$BASE_SERVERIP" "/etc/hosts.allow" ]; then
+    if [ $(pattern_not_present "$BASE_SERVERIP" "/etc/hosts.allow") ]; then
 	copy_config "$FDIR/SERVER-etc-hosts.allow" "/etc/hosts.allow"
     else
         echo "hosts allow already configured"
     fi
-    if [ pattern_not_present "$SERVERIP" "/etc/exports" ]; then
+    if [ $(pattern_not_present "$SERVERIP" "/etc/exports") ]; then
 	copy_config "$FDIR/SERVER-etc-exports" "/etc/exports"
     else
 	echo "Exports already configured. Restarting services ..."
@@ -302,7 +302,7 @@ if [ "$TARGET" == "SERVER" ]; then
     echo "NOTE: If you have NFS problems, consider editing the /etc/hosts.allow and /etc/hosts.deny files"
 else
     bfile="/etc/fstab"
-    if [ pattern_not_present "${SERVERIP}" "$bfile" ]; then
+    if [ $(pattern_not_present "${SERVERIP}" "$bfile") ]; then
 	backup_file $bfile
 	echo "# NEW NEW NEW NFS stuff " >> $bfile
 	echo "${SERVERIP}:/home     /home   nfs     rw,hard,intr,usrquota  0   0" >> $bfile
@@ -322,12 +322,12 @@ end_msg $MSG
 MSG="Configuring nis "
 start_msg $MSG
 if [ "$TARGET" == "SERVER" ]; then
-    if [ pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain" ] ; then 
+    if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ] ; then 
 	copy_config "$FDIR/SERVER-etc-defaultdomain" "/etc/defaultdomain"
     else
 	echo "Already configured default nis domain"
     fi
-    if [ pattern_not_present "${NISDOMAIN}" "/etc/yp.conf)" ] ; then 
+    if [ $(pattern_not_present "${NISDOMAIN}" "/etc/yp.conf") ] ; then 
 	copy_config "$FDIR/SERVER-etc-yp.conf" "/etc/yp.conf"
 	copy_config "$FDIR/SERVER-var-yp-Makefile" "/var/yp/Makefile"
     else
@@ -347,7 +347,7 @@ if [ "$TARGET" == "SERVER" ]; then
     make -BC /var/yp
     #/usr/lib64/yp/ypinit -m
 else
-    if [ pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain" ]; then
+    if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ]; then
 	bfile="/etc/defaultdomain"
 	backup_file $bfile
 	echo ${NISDOMAIN} > $bfile  
@@ -390,7 +390,7 @@ end_msg $MSG
 if [ "$TARGET" == "CLIENT" ]; then 
     echo "Copying server public key  to configure passwordless access for root"
     mkdir -p /root/.ssh &>/dev/null
-    if [ pattern_not_present "${SERVER_DOMAINNAME}" "/root/.ssh/authorized_keys" ]; then
+    if [ $(pattern_not_present "${SERVER_DOMAINNAME}" "/root/.ssh/authorized_keys") ]; then
 	cat $FDIR/CLIENT-server_id_rsa.pub >> /root/.ssh/authorized_keys
 	chmod 700 /root/.ssh
 	chmod 640 /root/.ssh/authorized_keys
@@ -415,7 +415,7 @@ else
 fi
 
 tfname=/etc/acpi/acpi_handler.sh
-if [ pattern_not_present "emoves" "$tfname" ]; then
+if [ $(pattern_not_present "emoves" "$tfname") ]; then
     copy_config $FDIR/etc-acpi-acpi_handler.sh $tfname
 else
     echo "Acpi handler already configured"
@@ -432,13 +432,13 @@ MSG="Configuring crontab "
 start_msg "$MSG"
 contrab -l > /tmp/crontab
 if [ "$TARGET" == "SERVER" ]; then
-    if [ pattern_not_present "network.sh" "/tmp/crontab" ] ; then 
+    if [ $(pattern_not_present "network.sh" "/tmp/crontab") ] ; then 
 	crontab files/SERVER-crontab -u root
     else
 	echo "Already configured"
     fi
 else
-    if [ pattern_not_present "check_status.sh" "/tmp/crontab" ] ; then 
+    if [ $(pattern_not_present "check_status.sh" "/tmp/crontab") ] ; then 
 	crontab files/CLIENT-crontab -u root
     else
 	echo "Already configured"
