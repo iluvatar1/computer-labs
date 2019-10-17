@@ -46,7 +46,7 @@ if [ $(pattern_not_present "https_proxy" "${bname}") ]; then
     echo 'export ftp_proxy="ftp://$PROXY" ' >> $bname
     echo 'export RSYNC_PROXY="$PROXY" ' >> $bname
 else
-    echo "Root proxy already configured."
+    echo "#    -> already configured."
 fi
 source /root/.bashrc
 end_msg "$MSG"
@@ -89,7 +89,7 @@ if [ ! hash slpkg 2>/dev/null ]; then
 EOF
     slpkg upgrade
 else
-    echo "Already installed"
+    echo "#    -> already installed"
 fi
 end_msg "$MSG"
    #+END_SRC
@@ -100,7 +100,11 @@ end_msg "$MSG"
    #+BEGIN_SRC bash :exports code
 MSG="Configuring dhcpcd to send the mac to the dhcp server"
 start_msg "$MSG"
-copy_config "$FDIR/SERVER-etc-dhcpcd.conf" "/etc/dhcpcd.conf"
+if [ x"" != x"$(diff -q $FDIR/etc-dhcpcd.conf /etc/dhcpcd.conf)" ]; then 
+    copy_config "$FDIR/etc-dhcpcd.conf" "/etc/dhcpcd.conf"
+else 
+   echo "#    -> already configured"
+fi
 echo "DONE: $MSG"
    #+END_SRC
 
@@ -110,17 +114,17 @@ echo "DONE: $MSG"
 MSG="Fixing xinitrc on /etc/skel"
 start_msg "$MSG"
 if [ ! -f /etc/skel/.xinitrc ]; then 
-    cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xinitrce
+    cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xinitrc
 else
-    echo "Already fixed"
+    echo "#    -> Already fixed"
 fi
 end_msg "$MSG"
 MSG="Fixing xsession on /etc/skel"
 start_msg "$MSG"
 if [ ! -f /etc/skel/.xsession ]; then 
-    cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xinitrce
+    cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xsession
 else
-    echo "Already fixed"
+    echo "#   -> Already fixed"
 fi
 end_msg "$MSG"
 
@@ -148,7 +152,7 @@ Section "InputClass"
 EndSection
 EOF
 else
-    echo "    -> already configured"
+    echo "#    -> already configured"
 fi
 end_msg "$MSG"
 
@@ -181,9 +185,8 @@ else
 	bash /etc/rc.d/rc.networkmanager restart
 	/etc/rc.d/rc.inet2 restart
     else
-	echo "Already configured."
+	echo "#    -> already configured."
     fi
-    echo "DONE: Configuring  network manager"
 fi
 end_msg "DONE: $MSG"
    #+END_SRC
@@ -201,8 +204,8 @@ if [ "$TARGET" == "CLIENT" ]; then
 	cp -f $FDIR/CLIENT-ntp-client.conf $bfile
 	chmod +x /etc/rc.d/rc.ntpd
 	/etc/rc.d/rc.ntpd restart
-	else
-	    echo "    -> already configured"
+    else
+	    echo "#    -> already configured"
     fi
     end_msg "$MSG"
 fi
@@ -214,8 +217,8 @@ fi
    #+BEGIN_SRC bash :exports code 
 # dnsmasq
 MSG="Configuring dnsmasq "
-start_msg $MGS
 if [ "$TARGET" == "SERVER" ]; then
+    start_msg "$MGS"
     TFILE="/etc/dnsmasq.conf"
     if [ ! -f $TFILE ]; then  
 	copy_config "$FDIR/SERVER-etc-dnsmasq.conf" "$TFILE"
@@ -228,8 +231,8 @@ if [ "$TARGET" == "SERVER" ]; then
 	echo "Already configured. Restarting services ..."
     fi
     /etc/rc.d/rc.dnsmasq restart
+    end_msg "DONE: $MSG"
 fi
-end_msg "DONE: $MSG"
 
    #+END_SRC
 
@@ -242,8 +245,8 @@ end_msg "DONE: $MSG"
    #+BEGIN_SRC bash :exports code
 # firewall
 MSG="Configuring firewall "
-start_msg "$MSG"
 if [ "$TARGET" == "SERVER" ]; then
+    start_msg "$MSG"
     if [ ! hash arno-iptables-firewall 2>/dev/null ]; then
 	#sbopkg -e stop -B -k -i arno-iptables-firewall
 	source /root/.bashrc
@@ -257,26 +260,26 @@ if [ "$TARGET" == "SERVER" ]; then
 	echo "    -> firewall already installed and configured."
     fi
     /etc/rc.d/rc.firewall restart
+    end_msg "$MSG"
 fi
-end_msg "$MSG"
 # read
    #+END_SRC
 ** kanif cluster tools                                             :noexport:
    #+NAME: kanif_config
    #+BEGIN_SRC bash :exports code 
 # kanif cluster tools
-echo "Configuring kanif "
+#echo "Configuring kanif "
 #ssh-keygen -t rsa
 #for a in ssf6 ssf7 ssf8 ssf9; do
 #    yes 'PASSWORD' | ssh-copy-id -i ~/.ssh/id_rsa.pub $q
 #done
-if [ "$TARGET" == "SERVER" ]; then
-    echo "Kanif assumed to be installed in slackware."
-fi
-copy_config "$FDIR/SERVER-etc-c3.conf" "/etc/kanif.conf"
-#kash ls
-echo "DONE: Configuring kanif "
-# read
+# if [ "$TARGET" == "SERVER" ]; then
+#     echo "Kanif assumed to be installed in slackware."
+# fi
+# copy_config "$FDIR/SERVER-etc-c3.conf" "/etc/kanif.conf"
+# #kash ls
+# echo "DONE: Configuring kanif "
+# # read
 
    #+END_SRC
 ** NFS
@@ -307,7 +310,7 @@ else
 	echo "# NEW NEW NEW NFS stuff " >> $bfile
 	echo "${SERVERIP}:/home     /home   nfs     rw,hard,intr,usrquota  0   0" >> $bfile
     else
-	echo "    -> already configured"
+	echo "#    -> already configured"
     fi
     mount -a 
 fi
@@ -315,7 +318,6 @@ end_msg "$MSG"
 
    #+END_SRC
 ** NIS
-
    #+NAME: nis_config
    #+BEGIN_SRC bash :exports code
 # nis
@@ -373,7 +375,7 @@ else
 	    sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=1/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=0/ ;' /etc/rc.d/rc.yp
 	fi
     else
-	echo "    -> already configured."
+	echo "#    -> already configured."
     fi
 fi
 /etc/rc.d/rc.yp restart    
@@ -395,7 +397,7 @@ if [ "$TARGET" == "CLIENT" ]; then
 	chmod 700 /root/.ssh
 	chmod 640 /root/.ssh/authorized_keys
     else
-	echo "    -> already configured"
+	echo "#    -> already configured"
     fi
 fi
 
@@ -411,14 +413,14 @@ if [ ! -f /etc/polkit-1/rules.d/$fname ]; then
     chmod o-x /sbin/halt
     cp $FDIR/$fname /etc/polkit-1/rules.d/
 else
-    echo "Already configured"
+    echo "#    -> polkit rules lready configured"
 fi
 
 tfname=/etc/acpi/acpi_handler.sh
 if [ $(pattern_not_present "emoves" "$tfname") ]; then
     copy_config $FDIR/etc-acpi-acpi_handler.sh $tfname
 else
-    echo "Acpi handler already configured"
+    echo "#   -> Acpi handler already configured"
 fi
 
 end_msg "$MSG"
@@ -465,7 +467,9 @@ BDIR=$PWD
 FDIR=$1
 LINUX="SLACKWARE"
 
+echo "###############################################"
 echo "# Configuring $TARGET ..."
+echo "###############################################"
 
 <<proxy_config>>
 <<slpkg_config>>

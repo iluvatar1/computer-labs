@@ -31,10 +31,11 @@ function start_msg()
 function end_msg()
 {
   echo "# DONE: $1"
-  echo "#######################################\n "
+  echo "#######################################"
+  echo ""
 }
 
-function pattern_not_present
+function pattern_not_present()
 {
     if [ $FORCE -eq 1 ]; then
 	return 1
