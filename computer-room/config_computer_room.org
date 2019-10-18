@@ -43,10 +43,10 @@ if [ $(pattern_not_present "https_proxy" "${bname}") ]; then
     backup_file $bname
     cat <<EOF > $bname
     export PROXY="${PROXYUSER}:${PROXYPASSWD}@proxyapp.unal.edu.co:8080/"
-    export http_proxy="http://$PROXY"
-    export https_proxy="https://$PROXY" 
-    export ftp_proxy="ftp://$PROXY"
-    export RSYNC_PROXY="$PROXY" 
+    export http_proxy="http://\$PROXY"
+    export https_proxy="https://\$PROXY" 
+    export ftp_proxy="ftp://\$PROXY"
+    export RSYNC_PROXY="\$PROXY" 
 EOF
 else
     echo "#    -> already configured."
@@ -69,10 +69,10 @@ echo "DONE: $MSG"
    #+BEGIN_SRC bash :exports code 
 MSG="Installing slpkg"
 start_msg "$MSG"
-if [ ! hash slpkg 2>/dev/null ]; then
+if [ ! hash slpkg 2>/dev/null ] || [ $FORCE -eq 1 ]; then
     cd ~/Downloads
-    source .bashrc
-    wget https://gitlab.com/dslackw/slpkg/-/archive/3.4.3/slpkg-3.4.3.tar.gz
+    source /root/.bashrc
+    wget -c https://gitlab.com/dslackw/slpkg/-/archive/3.4.3/slpkg-3.4.3.tar.gz
     tar xf slpkg-3.4.3.tar.gz
     cd slpkg-3.4.3
     ./install.sh
@@ -103,7 +103,7 @@ end_msg "$MSG"
    #+BEGIN_SRC bash :exports code
 MSG="Configuring dhcpcd to send the mac to the dhcp server"
 start_msg "$MSG"
-if [ x"" != x"$(diff -q $FDIR/etc-dhcpcd.conf /etc/dhcpcd.conf)" ]; then 
+if [ x"" != x"$(diff -q $FDIR/etc-dhcpcd.conf /etc/dhcpcd.conf)" ] || [ $FORCE -eq 1 ]; then 
     copy_config "$FDIR/etc-dhcpcd.conf" "/etc/dhcpcd.conf"
 else 
    echo "#    -> already configured"
@@ -116,7 +116,7 @@ end_msg "$MSG"
    #+BEGIN_SRC bash :exports code
 MSG="Fixing xinitrc on /etc/skel"
 start_msg "$MSG"
-if [ ! -f /etc/skel/.xinitrc ]; then 
+if [ ! -f /etc/skel/.xinitrc ] || [ $FORCE -eq 1 ]; then 
     cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xinitrc
 else
     echo "#    -> Already fixed"
@@ -124,7 +124,7 @@ fi
 end_msg "$MSG"
 MSG="Fixing xsession on /etc/skel"
 start_msg "$MSG"
-if [ ! -f /etc/skel/.xsession ]; then 
+if [ ! -f /etc/skel/.xsession ] || [ $FORCE -eq 1 ]; then 
     cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xsession
 else
     echo "#   -> Already fixed"
@@ -182,7 +182,7 @@ if [ "$TARGET" == "SERVER" ]; then
     /etc/rc.d/rc.inet1 restart
 else
     echo "Creating Network Manager hook"
-    if [ ! -f "/etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh" ]; then
+    if [ ! -f "/etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh" ] || [ $FORCE -eq 1 ]; then
 	cp $FDIR/CLIENT-90networkmanagerhook.sh /etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh
 	chmod +x /etc/rc.d/rc.networkmanager
 	bash /etc/rc.d/rc.networkmanager restart
@@ -223,7 +223,7 @@ MSG="Configuring dnsmasq "
 if [ "$TARGET" == "SERVER" ]; then
     start_msg "$MGS"
     TFILE="/etc/dnsmasq.conf"
-    if [ ! -f $TFILE ]; then  
+    if [ ! -f $TFILE ] || [ $FORCE -eq 1 ]; then  
 	copy_config "$FDIR/SERVER-etc-dnsmasq.conf" "$TFILE"
 	TFILE="/etc/dnsmasq-hosts.conf"
 	copy_config "$FDIR/SERVER-etc-dnsmasq-hosts.conf" "$TFILE"
@@ -250,7 +250,7 @@ fi
 MSG="Configuring firewall "
 if [ "$TARGET" == "SERVER" ]; then
     start_msg "$MSG"
-    if [ ! hash arno-iptables-firewall 2>/dev/null ]; then
+    if [ ! hash arno-iptables-firewall 2>/dev/null ]  || [ $FORCE -eq 1 ]; then
 	#sbopkg -e stop -B -k -i arno-iptables-firewall
 	source /root/.bashrc
 	slpkg upgrade
@@ -413,7 +413,7 @@ fi
 MSG="Removing permissions to reboot/halt system"
 start_msg "$MSG"
 fname=disallow-power-options.rules
-if [ ! -f /etc/polkit-1/rules.d/$fname ]; then
+if [ ! -f /etc/polkit-1/rules.d/$fname ] || [ $FORCE -eq 1 ]; then
     chmod o-x /sbin/shutdown 
     chmod o-x /sbin/halt
     cp $FDIR/$fname /etc/polkit-1/rules.d/
@@ -478,18 +478,31 @@ if [ $FORCE -eq 1 ]; then echo "# Forcing configuration ..."; fi
 echo "###############################################"
 
 <<proxy_config>>
+
 <<slpkg_config>>
+
 <<dhcpcd_config>>
+
 <<nic_config>>
+
 <<xinitrc_config>>
+
 <<latam_keyboard>>
+
 <<ntp_config>>
+
 <<dnsmasq_config>>
+
 <<firewall_config>>
+
 <<nfs_config>>
+
 <<nis_config>>
+
 <<publicid_config>>
+
 <<shutdown_config>>
+
 <<crontab_config>>
    #+END_SRC
 
