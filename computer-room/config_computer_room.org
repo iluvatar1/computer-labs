@@ -38,13 +38,16 @@ as expected.
 MSG="Configuring proxy for root"
 start_msg "$MSG"
 bname="/root/.bashrc"
-touch $bname
 if [ $(pattern_not_present "https_proxy" "${bname}") ]; then
-    echo 'export PROXY="${PROXYUSER}:${PROXYPASSWD}@proxyapp.unal.edu.co:8080/" ' >> $bname
-    echo 'export http_proxy="http://$PROXY" ' >> $bname
-    echo 'export https_proxy="https://$PROXY" ' >> $bname
-    echo 'export ftp_proxy="ftp://$PROXY" ' >> $bname
-    echo 'export RSYNC_PROXY="$PROXY" ' >> $bname
+    touch $bname
+    backup_file $bname
+    cat <<EOF > $bname
+    export PROXY="${PROXYUSER}:${PROXYPASSWD}@proxyapp.unal.edu.co:8080/"
+    export http_proxy="http://$PROXY"
+    export https_proxy="https://$PROXY" 
+    export ftp_proxy="ftp://$PROXY"
+    export RSYNC_PROXY="$PROXY" 
+EOF
 else
     echo "#    -> already configured."
 fi
@@ -471,6 +474,7 @@ LINUX="SLACKWARE"
 
 echo "###############################################"
 echo "# Configuring $TARGET ..."
+if [ $FORCE -eq 1 ]; then echo "# Forcing configuration ..."; fi
 echo "###############################################"
 
 <<proxy_config>>

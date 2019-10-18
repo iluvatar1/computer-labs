@@ -37,12 +37,11 @@ function end_msg()
 
 function pattern_not_present()
 {
-    if [ $FORCE -eq 1 ]; then
-	return 1
+    local result=1 # assume forced or not present
+    if [ $FORCE -eq 0 ]; then
+	if [ x""!=x"$(grep ${1} ${2} )" ]; then
+	    result=0
+	fi
     fi
-    if [ x""==x"$(grep ${1} ${2} )" ]; then
-	return 1
-    else
-	return 0
-    fi
+    echo $result
 }
