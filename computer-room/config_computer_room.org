@@ -323,70 +323,69 @@ end_msg "$MSG"
 ** NIS
    #+NAME: nis_config
    #+BEGIN_SRC bash :exports code
-# nis
-MSG="Configuring nis "
-start_msg "$MSG"
-if [ "$TARGET" == "SERVER" ]; then
-    if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ] ; then 
-	copy_config "$FDIR/SERVER-etc-defaultdomain" "/etc/defaultdomain"
-    else
-	echo "Already configured default nis domain"
-    fi
-    if [ $(pattern_not_present "${NISDOMAIN}" "/etc/yp.conf") ] ; then 
-	copy_config "$FDIR/SERVER-etc-yp.conf" "/etc/yp.conf"
-	copy_config "$FDIR/SERVER-var-yp-Makefile" "/var/yp/Makefile"
-    else
-	echo "Already configured yp"
-    fi
+     # nis
+     MSG="Configuring nis "
+     start_msg "$MSG"
+     chmod +x /etc/rc.d/rc.yp
+     if [ "$TARGET" == "SERVER" ]; then
+         if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ] ; then 
+             copy_config "$FDIR/SERVER-etc-defaultdomain" "/etc/defaultdomain"
+         else
+             echo "Already configured default nis domain"
+         fi
+         if [ $(pattern_not_present "${NISDOMAIN}" "/etc/yp.conf") ] ; then 
+             copy_config "$FDIR/SERVER-etc-yp.conf" "/etc/yp.conf"
+             copy_config "$FDIR/SERVER-var-yp-Makefile" "/var/yp/Makefile"
+         else
+             echo "Already configured yp"
+         fi
 
-    chmod +x /etc/rc.d/rc.yp
-    backup_file /etc/rc.d/rc.yp
-    if [ x"" == x"$(grep 'YP_SERVER_ENABLE=1' /etc/rc.d/rc.yp 2>/dev/null)"]; then 
-	sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=0/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=1/ ;' /etc/rc.d/rc.yp
-    else
-	echo "Already configured as yp server"
-    fi
+         backup_file /etc/rc.d/rc.yp
+         if [ x"" == x"$(grep 'YP_SERVER_ENABLE=1' /etc/rc.d/rc.yp 2>/dev/null)"]; then 
+             sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=0/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=1/ ;' /etc/rc.d/rc.yp
+         else
+             echo "Already configured as yp server"
+         fi
     
-    echo "Running nis services ..."
-    ypserv
-    make -BC /var/yp
-    #/usr/lib64/yp/ypinit -m
-else
-    if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ]; then
-	bfile="/etc/defaultdomain"
-	backup_file $bfile
-	echo ${NISDOMAIN} > $bfile  
-	bfile="/etc/yp.conf"
-	backup_file $bfile
-	echo "ypserver ${SERVERIP}" > $bfile
-	bfile=/etc/nsswitch.conf
-	backup_file $bfile
-	cp -f $FDIR/CLIENT-nsswitch.conf $bfile
-	bfile="/etc/passwd"
-	backup_file $bfile
-	echo +:::::: >> $bfile
-	bfile="/etc/shadow"
-	backup_file $bfile
-	echo +:::::::: >> $bfile
-	bfile="/etc/group"
-	backup_file $bfile
-	echo +::: >> $bfile
-	if [ x"" == x"$(grep 'YP_CLIENT_ENABLE=1' /etc/rc.d/rc.yp) 2>/dev/null" ]; then 
-	    chmod +x /etc/rc.d/rc.yp
-	    chmod +x /etc/rc.d/rc.nfsd
-	    backup_file /etc/rc.d/rc.yp
-	    sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=1/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=0/ ;' /etc/rc.d/rc.yp
-	fi
-    else
-	echo "#    -> already configured."
-    fi
-fi
-/etc/rc.d/rc.yp restart    
-/etc/rc.d/rc.nfsd restart
-/etc/rc.d/rc.inet2 restart
-rpcinfo -p localhost
+         echo "Running nis services ..."
+         ypserv
+         make -BC /var/yp
+         #/usr/lib64/yp/ypinit -m
+     else
+         chmod +x /etc/rc.d/rc.nfsd
+         if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ]; then
+             bfile="/etc/defaultdomain"
+             backup_file $bfile
+             echo ${NISDOMAIN} > $bfile  
+             bfile="/etc/yp.conf"
+             backup_file $bfile
+             echo "ypserver ${SERVERIP}" > $bfile
+             bfile=/etc/nsswitch.conf
+             backup_file $bfile
+             cp -f $FDIR/CLIENT-nsswitch.conf $bfile
+             bfile="/etc/passwd"
+             backup_file $bfile
+             echo +:::::: >> $bfile
+             bfile="/etc/shadow"
+             backup_file $bfile
+             echo +:::::::: >> $bfile
+             bfile="/etc/group"
+             backup_file $bfile
+             echo +::: >> $bfile
+             if [ x"" == x"$(grep 'YP_CLIENT_ENABLE=1' /etc/rc.d/rc.yp) 2>/dev/null" ]; then 
+                 backup_file /etc/rc.d/rc.yp
+                 sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=1/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=0/ ;' /etc/rc.d/rc.yp
+             fi
+         else
+             echo "#    -> already configured."
+         fi
+     fi
+     /etc/rc.d/rc.yp restart    
+     /etc/rc.d/rc.nfsd restart
+     /etc/rc.d/rc.inet2 restart
+     rpcinfo -p localhost
 
-end_msg "$MSG"
+     end_msg "$MSG"
 
    #+END_SRC
 ** Client: Copy public id
@@ -455,55 +454,57 @@ end_msg "$MSG"
 
    #+end_src
 ** Write final script
-   #+BEGIN_SRC bash :exports code :noweb yes :tangle bootstrap_slackware.sh 
-#!/bin/bash
+   #+BEGIN_SRC bash :exports code :noweb yes :tangle scripts/00-bootstrap_slackware.sh :tangle-mode (identity #o444) 
+     #!/bin/bash
 
-source config.sh
-source util_functions.sh
+     SCRIPTS_DIR=$HOME/repos/computer-labs/computer-room/scripts
 
-# check args
-if [ "$#" -ne "2" ]; then usage; exit 1 ; fi
-if [ ! -d "$1" ]; then echo "Dir does not exist : $1"; usage; exit 1 ; fi
-if [  "$2" != "SERVER" ] && [ "$2" != "CLIENT" ]; then usage; exit 1 ; fi
+     source config.sh
+     source $SCRIPTS_DIR/util_functions.sh
+
+     # check args
+     if [ "$#" -ne "2" ]; then usage; exit 1 ; fi
+     if [ ! -d "$1" ]; then echo "Dir does not exist : $1"; usage; exit 1 ; fi
+     if [  "$2" != "SERVER" ] && [ "$2" != "CLIENT" ]; then usage; exit 1 ; fi
  
-TARGET="$2"
-# global vars
-BDIR=$PWD
-FDIR=$1
-LINUX="SLACKWARE"
+     TARGET="$2"
+     # global vars
+     BDIR=$PWD
+     FDIR=$1
+     LINUX="SLACKWARE"
 
-echo "###############################################"
-echo "# Configuring $TARGET ..."
-if [ $FORCE -eq 1 ]; then echo "# Forcing configuration ..."; fi
-echo "###############################################"
+     echo "###############################################"
+     echo "# Configuring $TARGET ..."
+     if [ $FORCE -eq 1 ]; then echo "# Forcing configuration ..."; fi
+     echo "###############################################"
 
-<<proxy_config>>
+     <<proxy_config>>
 
-<<slpkg_config>>
+     <<slpkg_config>>
 
-<<dhcpcd_config>>
+     <<dhcpcd_config>>
 
-<<nic_config>>
+     <<nic_config>>
 
-<<xinitrc_config>>
+     <<xinitrc_config>>
 
-<<latam_keyboard>>
+     <<latam_keyboard>>
 
-<<ntp_config>>
+     <<ntp_config>>
 
-<<dnsmasq_config>>
+     <<dnsmasq_config>>
 
-<<firewall_config>>
+     <<firewall_config>>
 
-<<nfs_config>>
+     <<nfs_config>>
 
-<<nis_config>>
+     <<nis_config>>
 
-<<publicid_config>>
+     <<publicid_config>>
 
-<<shutdown_config>>
+     <<shutdown_config>>
 
-<<crontab_config>>
+     <<crontab_config>>
    #+END_SRC
 
 ** TODO pssh?
@@ -516,7 +517,7 @@ echo "###############################################"
 ** Create users from csv list with usernames and ids
    This script reads a list of usernames and passwords and creates the
    corresponding users
-   #+begin_src sh :exports code :tangle create_users_from_list.sh
+   #+begin_src sh :exports code :tangle scripts/create_users_from_list.sh :tangle-mode (identity #o444)
 #!/bin/bash
 
 FNAME=${1}
@@ -552,7 +553,7 @@ echo "DONE."
    #+end_src
 ** Recreate users from folders inside home 
    This is useful when the server was reinstalled
-   #+begin_src sh :exports code :tangle recreate_users_from_directories.sh
+   #+begin_src sh :exports code :tangle scripts/recreate_users_from_directories.sh :tangle-mode (identity #o444)
 #!/bin/bash
 
 for usernamedir in /home/*; do 
@@ -581,7 +582,7 @@ echo "DONE."
 ** Data dir for users
    In case there are some hard disk space to share between users,
    create directories for each one
-   #+begin_src sh  :exports code :tangle create_data_dirs_for_users.sh
+   #+begin_src sh  :exports code :tangle scripts/create_data_dirs_for_users.sh :tangle-mode (identity #o444)
 #!/bin/bash
 
 for a in /home/*; do
@@ -707,7 +708,7 @@ done
     I need to install =rrdtool=, =ganglia= with gmetad activated, and
     =ganglia-web=. I will use slackbuilds although I cannot use sbopkg
     or similar since it does not work with the proxy.
-    #+BEGIN_SRC bash :exports code :tangle all-install-ganglia-full.sh
+    #+BEGIN_SRC bash :exports code :tangle scripts/ganglia-all-install-full.sh :tangle-mode (identity #o444)
 # This scripts install ganglia and its requirements (rrdtool) on a server.
 source ~/.bashrc
 mkdir /tmp/ganglia
@@ -771,7 +772,7 @@ fi
     #+END_SRC
 
     And this is the configuration file
-    #+BEGIN_SRC bash :exports code :tangle server-config-ganglia-gmetad.sh
+    #+BEGIN_SRC bash :exports code :tangle scripts/ganglia-server-config-gmetad.sh :tangle-mode (identity #o444)
 # configure
 if [ ! -f /etc/gmetad.conf ]; then
     echo "Configuring ganglia monitor gmetad..."
@@ -785,7 +786,7 @@ fi
 *** Client 
     The client can use the same server install script, but the
     configuration changes as follows
-    #+BEGIN_SRC bash :exports code :tangle client-config-ganglia-gmond.sh
+    #+BEGIN_SRC bash :exports code :tangle scripts/ganglia-client-config-gmond.sh :tangle-mode (identity #o444)
 if [ ! -f /etc/gmond.conf ]; then 
     echo "Configuring gmond.conf ..."
     cat <<EOF > /etc/gmond.conf
