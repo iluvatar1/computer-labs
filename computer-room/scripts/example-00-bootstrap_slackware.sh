@@ -1,13 +1,17 @@
 #!/bin/bash
 
+# NOTE: The original base file is in the config_computer_room.org file
+
+SCRIPTS_DIR=$HOME/repos/computer-labs/computer-room/scripts
+
 source config.sh
-source util_functions.sh
+source $SCRIPTS_DIR/util_functions.sh
 
 # check args
 if [ "$#" -ne "2" ]; then usage; exit 1 ; fi
 if [ ! -d "$1" ]; then echo "Dir does not exist : $1"; usage; exit 1 ; fi
 if [  "$2" != "SERVER" ] && [ "$2" != "CLIENT" ]; then usage; exit 1 ; fi
- 
+
 TARGET="$2"
 # global vars
 BDIR=$PWD
@@ -16,7 +20,9 @@ LINUX="SLACKWARE"
 
 echo "###############################################"
 echo "# Configuring $TARGET ..."
-if [ $FORCE -eq 1 ]; then echo "# Forcing configuration ..."; fi
+if [ "$FORCE" -eq "1" ]; then 
+    echo "# Forcing configuration ..."; 
+fi
 echo "###############################################"
 
 # Configure root internet access
