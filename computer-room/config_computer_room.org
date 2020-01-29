@@ -457,6 +457,8 @@ end_msg "$MSG"
    #+BEGIN_SRC bash :exports code :noweb yes :tangle scripts/00-bootstrap_slackware.sh :tangle-mode (identity #o444) 
      #!/bin/bash
 
+     # NOTE: The original base file is in the config_computer_room.org file
+
      SCRIPTS_DIR=$HOME/repos/computer-labs/computer-room/scripts
 
      source config.sh
@@ -466,7 +468,7 @@ end_msg "$MSG"
      if [ "$#" -ne "2" ]; then usage; exit 1 ; fi
      if [ ! -d "$1" ]; then echo "Dir does not exist : $1"; usage; exit 1 ; fi
      if [  "$2" != "SERVER" ] && [ "$2" != "CLIENT" ]; then usage; exit 1 ; fi
- 
+
      TARGET="$2"
      # global vars
      BDIR=$PWD
@@ -475,7 +477,9 @@ end_msg "$MSG"
 
      echo "###############################################"
      echo "# Configuring $TARGET ..."
-     if [ $FORCE -eq 1 ]; then echo "# Forcing configuration ..."; fi
+     if [ "$FORCE" -eq "1" ]; then 
+	 echo "# Forcing configuration ..."; 
+     fi
      echo "###############################################"
 
      <<proxy_config>>
