@@ -41,6 +41,8 @@ else
     conda install -y matplotlib scipy numpy sympy seaborn  
     echo "Installing ipython and jupyter"
     conda install -y ipython jupyter
+    echo "Installing ipython jupyter extensions"
+    pip install jupyter_contrib_nbextensions
     echo "Updating pyEVTK"
     pip install pyEVTK
     echo "Installing  healpy"
