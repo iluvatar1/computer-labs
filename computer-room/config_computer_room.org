@@ -387,7 +387,7 @@ end_msg "$MSG"
 
      end_msg "$MSG"
 
-   #+END_SRC
+   #+END_SRCOB
 ** Client: Copy public id
    #+name:publicid_config
    #+begin_src sh 
@@ -454,61 +454,65 @@ end_msg "$MSG"
 
    #+end_src
 ** Write final script
-   #+BEGIN_SRC bash :exports code :noweb yes :tangle scripts/00-bootstrap_slackware.sh :tangle-mode (identity #o444) 
-     #!/bin/bash
+   #+BEGIN_SRC bash :exports code :noweb yes :tangle scripts/EXAMPLE-00-bootstrap_slackware.sh :tangle-mode (identity #o444) 
+       #!/bin/bash
 
-     # NOTE: The original base file is in the config_computer_room.org file
+       # NOTE: The original base file is in the config_computer_room.org file
 
-     SCRIPTS_DIR=$HOME/repos/computer-labs/computer-room/scripts
+       SCRIPTS_DIR=$HOME/repos/computer-labs/computer-room/scripts
 
-     source config.sh
-     source $SCRIPTS_DIR/util_functions.sh
+       if ! -f params.conf; then 
+           echo "ERROR: Config file not found -> params.conf"
+           exit 1
+       fi
+       source source params.conf
+       source $SCRIPTS_DIR/util_functions.sh
 
-     # check args
-     if [ "$#" -ne "2" ]; then usage; exit 1 ; fi
-     if [ ! -d "$1" ]; then echo "Dir does not exist : $1"; usage; exit 1 ; fi
-     if [  "$2" != "SERVER" ] && [ "$2" != "CLIENT" ]; then usage; exit 1 ; fi
+       # check args
+       if [ "$#" -ne "2" ]; then usage; exit 1 ; fi
+       if [ ! -d "$1" ]; then echo "Dir does not exist : $1"; usage; exit 1 ; fi
+       if [  "$2" != "SERVER" ] && [ "$2" != "CLIENT" ]; then usage; exit 1 ; fi
 
-     TARGET="$2"
-     # global vars
-     BDIR=$PWD
-     FDIR=$1
-     LINUX="SLACKWARE"
+       TARGET="$2"
+       # global vars
+       BDIR=$PWD
+       FDIR=$1
+       LINUX="SLACKWARE"
 
-     echo "###############################################"
-     echo "# Configuring $TARGET ..."
-     if [ "$FORCE" -eq "1" ]; then 
-	 echo "# Forcing configuration ..."; 
-     fi
-     echo "###############################################"
+       echo "###############################################"
+       echo "# Configuring $TARGET ..."
+       if [ "$FORCE" -eq "1" ]; then 
+     echo "# Forcing configuration ..."; 
+       fi
+       echo "###############################################"
 
-     <<proxy_config>>
+       <<proxy_config>>
 
-     <<slpkg_config>>
+       <<slpkg_config>>
 
-     <<dhcpcd_config>>
+       <<dhcpcd_config>>
 
-     <<nic_config>>
+       <<nic_config>>
 
-     <<xinitrc_config>>
+       <<xinitrc_config>>
 
-     <<latam_keyboard>>
+       <<latam_keyboard>>
 
-     <<ntp_config>>
+       <<ntp_config>>
 
-     <<dnsmasq_config>>
+       <<dnsmasq_config>>
 
-     <<firewall_config>>
+       <<firewall_config>>
 
-     <<nfs_config>>
+       <<nfs_config>>
 
-     <<nis_config>>
+       <<nis_config>>
 
-     <<publicid_config>>
+       <<publicid_config>>
 
-     <<shutdown_config>>
+       <<shutdown_config>>
 
-     <<crontab_config>>
+       <<crontab_config>>
    #+END_SRC
 
 ** TODO pssh?
