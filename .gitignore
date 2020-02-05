@@ -8,3 +8,4 @@ basebox/.vagrant
 *tgz
 *txz
 *DS_Store*
+/computer-room/scripts/*.sh
