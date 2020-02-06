@@ -31,6 +31,20 @@ as expected.
   partitions: one for root, one for swap, one for home, and one for tmp.
 
 * Configuration
+** Parameters to configure bootstrap script
+   #+begin_src sh :exports code :tangle scripts/EXAMPLE_params.conf
+BASE_SERVERIP=192.168 
+SERVERIP=${BASE_SERVERIP}.10.1
+NISDOMAIN=salafisnis
+SERVER_DOMAINNAME=serversalafis
+FORCE=0 # Force rewrite of all config even if it is already configured
+
+## Proxy stuff : removed auth info since I will be using a cntlm config on the server
+# UNAL
+#PROXY=fisicasop_fcbog:PASSWD@proxyapp.unal.edu.co:8080
+# local cntlm config running on server
+PROXY=${SERVERIP}:3128
+   #+end_src
 ** Configuring root internet behind proxy unal
    #+NAME: proxy_config
    #+BEGIN_SRC bash :exports code 
@@ -42,9 +56,9 @@ if [ $(pattern_not_present "https_proxy" "${bname}") ]; then
     touch $bname
     backup_file $bname
     cat <<EOF > $bname
-    export PROXY="${PROXYUSER}:${PROXYPASSWD}@proxyapp.unal.edu.co:8080/"
+    export PROXY="$PROXY"
     export http_proxy="http://\$PROXY"
-    export https_proxy="https://\$PROXY" 
+    export https_proxy="http://\$PROXY" 
     export ftp_proxy="ftp://\$PROXY"
     export RSYNC_PROXY="\$PROXY" 
 EOF

@@ -37,9 +37,10 @@ if [ $(pattern_not_present "https_proxy" "${bname}") ]; then
     touch $bname
     backup_file $bname
     cat <<EOF > $bname
-    export PROXY="${PROXYUSER}:${PROXYPASSWD}@proxyapp.unal.edu.co:8080/"
+    # NOTE: This assumes cntlm is running and configured on server
+    export PROXY="$PROXY"
     export http_proxy="http://\$PROXY"
-    export https_proxy="https://\$PROXY" 
+    export https_proxy="http://\$PROXY" 
     export ftp_proxy="ftp://\$PROXY"
     export RSYNC_PROXY="\$PROXY" 
 EOF
