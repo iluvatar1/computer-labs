@@ -39,7 +39,7 @@ function pattern_not_present()
 {
     local result=1 # assume forced or not present
     if [[ $FORCE -eq 0 ]]; then
-	if [ x""!=x"$(grep ${1} ${2} )" ]; then
+	if [ x""!=x"$(grep ${1} ${2} | grep -v grep)" ]; then
 	    result=0
 	fi
     fi
