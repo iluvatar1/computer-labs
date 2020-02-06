@@ -69,7 +69,9 @@ echo "DONE: $MSG"
    #+BEGIN_SRC bash :exports code 
 MSG="Installing slpkg"
 start_msg "$MSG"
-if [ ! hash slpkg 2>/dev/null ] || [ $FORCE -eq 1 ]; then
+if [ hash slpkg 2>/dev/null ] || [ $FORCE -ne 1 ]; then
+    echo "#    -> already installed"
+else
     cd ~/Downloads
     source /root/.bashrc
     wget -c https://gitlab.com/dslackw/slpkg/-/archive/3.4.3/slpkg-3.4.3.tar.gz
@@ -91,8 +93,6 @@ if [ ! hash slpkg 2>/dev/null ] || [ $FORCE -eq 1 ]; then
  mozilla-firefox
 EOF
     slpkg upgrade
-else
-    echo "#    -> already installed"
 fi
 end_msg "$MSG"
    #+END_SRC
@@ -246,11 +246,13 @@ fi
 
    #+NAME: firewall_config
    #+BEGIN_SRC bash :exports code
-# firewall
+# firewall : TODO get latest config
 MSG="Configuring firewall "
 if [ "$TARGET" == "SERVER" ]; then
     start_msg "$MSG"
-    if [ ! hash arno-iptables-firewall 2>/dev/null ]  || [ $FORCE -eq 1 ]; then
+    if [ hash arno-iptables-firewall 2>/dev/null ]  || [ $FORCE -ne 0 ]; then
+	echo "    -> firewall already installed and configured."
+    else
 	#sbopkg -e stop -B -k -i arno-iptables-firewall
 	source /root/.bashrc
 	slpkg upgrade
@@ -259,8 +261,6 @@ if [ "$TARGET" == "SERVER" ]; then
 	copy_config "$FDIR/SERVER-firewall.conf" "/etc/arno-iptables-firewall/firewall.conf"
 	chmod o-rwx /etc/arno-iptables-firewall/firewall.conf
 	chmod +x /etc/rc.d/rc.firewall
-    else
-	echo "    -> firewall already installed and configured."
     fi
     /etc/rc.d/rc.firewall restart
     end_msg "$MSG"
@@ -461,64 +461,64 @@ end_msg "$MSG"
    #+end_src
 ** Write final script
    #+BEGIN_SRC bash :exports code :noweb yes :tangle scripts/EXAMPLE-00-bootstrap_slackware.sh :tangle-mode (identity #o444) 
-       #!/bin/bash
+#!/bin/bash
 
-       # NOTE: The original base file is in the config_computer_room.org file
+# NOTE: The original base file is in the config_computer_room.org file
 
-       SCRIPTS_DIR=$HOME/repos/computer-labs/computer-room/scripts
+SCRIPTS_DIR=$HOME/repos/computer-labs/computer-room/scripts
 
-       if ! -f params.conf; then 
-           echo "ERROR: Config file not found -> params.conf"
-           exit 1
-       fi
-       source source params.conf
-       source $SCRIPTS_DIR/util_functions.sh
+if ! -f params.conf; then 
+    echo "ERROR: Config file not found -> params.conf"
+    exit 1
+fi
+source source params.conf
+source $SCRIPTS_DIR/util_functions.sh
 
-       # check args
-       if [ "$#" -ne "2" ]; then usage; exit 1 ; fi
-       if [ ! -d "$1" ]; then echo "Dir does not exist : $1"; usage; exit 1 ; fi
-       if [  "$2" != "SERVER" ] && [ "$2" != "CLIENT" ]; then usage; exit 1 ; fi
+# check args
+if [ "$#" -ne "2" ]; then usage; exit 1 ; fi
+if [ ! -d "$1" ]; then echo "Dir does not exist : $1"; usage; exit 1 ; fi
+if [  "$2" != "SERVER" ] && [ "$2" != "CLIENT" ]; then usage; exit 1 ; fi
 
-       TARGET="$2"
-       # global vars
-       BDIR=$PWD
-       FDIR=$1
-       LINUX="SLACKWARE"
+TARGET="$2"
+# global vars
+BDIR=$PWD
+FDIR=$1
+LINUX="SLACKWARE"
 
-       echo "###############################################"
-       echo "# Configuring $TARGET ..."
-       if [ "$FORCE" -eq "1" ]; then 
-     echo "# Forcing configuration ..."; 
-       fi
-       echo "###############################################"
+echo "###############################################"
+echo "# Configuring $TARGET ..."
+if [ "$FORCE" -eq "1" ]; then 
+    echo "# Forcing configuration ..."; 
+fi
+echo "###############################################"
 
-       <<proxy_config>>
+<<proxy_config>>
 
-       <<slpkg_config>>
+<<slpkg_config>>
 
-       <<dhcpcd_config>>
+<<dhcpcd_config>>
 
-       <<nic_config>>
+<<nic_config>>
 
-       <<xinitrc_config>>
+<<xinitrc_config>>
 
-       <<latam_keyboard>>
+<<latam_keyboard>>
 
-       <<ntp_config>>
+<<ntp_config>>
 
-       <<dnsmasq_config>>
+<<dnsmasq_config>>
 
-       <<firewall_config>>
+<<firewall_config>>
 
-       <<nfs_config>>
+<<nfs_config>>
 
-       <<nis_config>>
+<<nis_config>>
 
-       <<publicid_config>>
+<<publicid_config>>
 
-       <<shutdown_config>>
+<<shutdown_config>>
 
-       <<crontab_config>>
+<<crontab_config>>
    #+END_SRC
 
 ** TODO pssh?
@@ -729,7 +729,9 @@ mkdir /tmp/ganglia
 cd /tmp/ganglia
 
 # Install rrdtool
-if ! hash rrdtool &>/dev/null; then 
+if [ hash rrdtool &>/dev/null ]; then
+    echo "   Already installed"
+else
     cd /tmp/ganglia
     echo "Downloading, compiling and installing rrdtool ..."
     wget -nc -c  http://oss.oetiker.ch/rrdtool/pub/rrdtool-1.7.0.tar.gz &&
@@ -757,7 +759,9 @@ if [ ! -f /usr/lib64/libconfuse.la ]; then
 fi
 
 # install ganglia activating gmetad
-if ! hash ganglia-config &>/dev/null; then 
+if [ hash ganglia-config &>/dev/null ]; then
+    echo "    Already installed"
+else
     cd /tmp/ganglia
     echo "Downloading, compiling and installing ganglia/gmetad ..."
     wget -nc -c  http://downloads.sourceforge.net/ganglia/ganglia-3.7.2.tar.gz &&

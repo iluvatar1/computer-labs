@@ -4,7 +4,11 @@
 
 SCRIPTS_DIR=$HOME/repos/computer-labs/computer-room/scripts
 
-source config.sh
+if ! -f params.conf; then 
+    echo "ERROR: Config file not found -> params.conf"
+    exit 1
+fi
+source source params.conf
 source $SCRIPTS_DIR/util_functions.sh
 
 # check args
@@ -48,7 +52,9 @@ end_msg "$MSG"
 
 MSG="Installing slpkg"
 start_msg "$MSG"
-if [ ! hash slpkg 2>/dev/null ] || [ $FORCE -eq 1 ]; then
+if [ hash slpkg 2>/dev/null ] || [ $FORCE -ne 1 ]; then
+    echo "#    -> already installed"
+else
     cd ~/Downloads
     source /root/.bashrc
     wget -c https://gitlab.com/dslackw/slpkg/-/archive/3.4.3/slpkg-3.4.3.tar.gz
@@ -70,8 +76,6 @@ if [ ! hash slpkg 2>/dev/null ] || [ $FORCE -eq 1 ]; then
  mozilla-firefox
 EOF
     slpkg upgrade
-else
-    echo "#    -> already installed"
 fi
 end_msg "$MSG"
 
@@ -194,11 +198,13 @@ if [ "$TARGET" == "SERVER" ]; then
 fi
 
 
-# firewall
+# firewall : TODO get latest config
 MSG="Configuring firewall "
 if [ "$TARGET" == "SERVER" ]; then
     start_msg "$MSG"
-    if [ ! hash arno-iptables-firewall 2>/dev/null ]  || [ $FORCE -eq 1 ]; then
+    if [ hash arno-iptables-firewall 2>/dev/null ]  || [ $FORCE -ne 0 ]; then
+	echo "    -> firewall already installed and configured."
+    else
 	#sbopkg -e stop -B -k -i arno-iptables-firewall
 	source /root/.bashrc
 	slpkg upgrade
@@ -207,8 +213,6 @@ if [ "$TARGET" == "SERVER" ]; then
 	copy_config "$FDIR/SERVER-firewall.conf" "/etc/arno-iptables-firewall/firewall.conf"
 	chmod o-rwx /etc/arno-iptables-firewall/firewall.conf
 	chmod +x /etc/rc.d/rc.firewall
-    else
-	echo "    -> firewall already installed and configured."
     fi
     /etc/rc.d/rc.firewall restart
     end_msg "$MSG"
@@ -247,69 +251,6 @@ fi
 end_msg "$MSG"
 
 
-# nis
-MSG="Configuring nis "
-start_msg "$MSG"
-chmod +x /etc/rc.d/rc.yp
-if [ "$TARGET" == "SERVER" ]; then
-    if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ] ; then 
-        copy_config "$FDIR/SERVER-etc-defaultdomain" "/etc/defaultdomain"
-    else
-        echo "Already configured default nis domain"
-    fi
-    if [ $(pattern_not_present "${NISDOMAIN}" "/etc/yp.conf") ] ; then 
-        copy_config "$FDIR/SERVER-etc-yp.conf" "/etc/yp.conf"
-        copy_config "$FDIR/SERVER-var-yp-Makefile" "/var/yp/Makefile"
-    else
-        echo "Already configured yp"
-    fi
-
-    backup_file /etc/rc.d/rc.yp
-    if [ x"" == x"$(grep 'YP_SERVER_ENABLE=1' /etc/rc.d/rc.yp 2>/dev/null)"]; then 
-        sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=0/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=1/ ;' /etc/rc.d/rc.yp
-    else
-        echo "Already configured as yp server"
-    fi
-
-    echo "Running nis services ..."
-    ypserv
-    make -BC /var/yp
-    #/usr/lib64/yp/ypinit -m
-else
-    chmod +x /etc/rc.d/rc.nfsd
-    if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ]; then
-        bfile="/etc/defaultdomain"
-        backup_file $bfile
-        echo ${NISDOMAIN} > $bfile  
-        bfile="/etc/yp.conf"
-        backup_file $bfile
-        echo "ypserver ${SERVERIP}" > $bfile
-        bfile=/etc/nsswitch.conf
-        backup_file $bfile
-        cp -f $FDIR/CLIENT-nsswitch.conf $bfile
-        bfile="/etc/passwd"
-        backup_file $bfile
-        echo +:::::: >> $bfile
-        bfile="/etc/shadow"
-        backup_file $bfile
-        echo +:::::::: >> $bfile
-        bfile="/etc/group"
-        backup_file $bfile
-        echo +::: >> $bfile
-        if [ x"" == x"$(grep 'YP_CLIENT_ENABLE=1' /etc/rc.d/rc.yp) 2>/dev/null" ]; then 
-            backup_file /etc/rc.d/rc.yp
-            sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=1/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=0/ ;' /etc/rc.d/rc.yp
-        fi
-    else
-        echo "#    -> already configured."
-    fi
-fi
-/etc/rc.d/rc.yp restart    
-/etc/rc.d/rc.nfsd restart
-/etc/rc.d/rc.inet2 restart
-rpcinfo -p localhost
-
-end_msg "$MSG"
 
 
 if [ "$TARGET" == "CLIENT" ]; then 
@@ -353,15 +294,21 @@ start_msg "$MSG"
 crontab -l > /tmp/crontab
 if [ "$TARGET" == "SERVER" ]; then
     if [ $(pattern_not_present "network.sh" "/tmp/crontab") ] ; then 
-	crontab files/SERVER-crontab -u root
+	crontab $FDIR/SERVER-crontab -u root
     else
 	echo "#    -> Already configured"
     fi
 else
     if [ $(pattern_not_present "check_status.sh" "/tmp/crontab") ] ; then 
-	crontab files/CLIENT-crontab -u root
+	crontab $FDIR/CLIENT-crontab -u root
     else
 	echo "#    -> Already configured"
     fi
 fi
+echo "Adding install packages scripts to cron.hourly"
+bname=install_upgrade_slackware_packages.sh
+if [ ! -f /etc/cron.hourly/$bname ]; then
+    cp $FDIR/etc-cron.hourly-$bname /etc/cron.hourly/$bname
+fi
+
 end_msg "$MSG"
