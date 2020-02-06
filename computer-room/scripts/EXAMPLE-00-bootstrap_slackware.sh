@@ -106,7 +106,7 @@ if [ "$TARGET" == "SERVER" ]; then
     fi
     /etc/rc.d/rc.inet1 restart
 else
-    echo "Creating Network Manager hook"
+    echo "# Creating Network Manager hook"
     if [ ! -f "/etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh" ] || [ $FORCE -eq 1 ]; then
 	cp $FDIR/CLIENT-90networkmanagerhook.sh /etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh
 	chmod +x /etc/rc.d/rc.networkmanager
@@ -140,7 +140,7 @@ end_msg "$MSG"
 MSG="Configuring default X windows keyboard to be latam ..."
 start_msg "$MSG"
 bfile=/etc/X11/xorg.conf.d/90-keyboard-layout.conf
-if [ $(pattern_not_present "la-latin1" "$bfile") ]; then 
+if [ $(pattern_not_present "latam" "$bfile") ]; then 
     if [ -f $bfile ]; then
 	backup_file $bfile
     fi
@@ -166,6 +166,7 @@ if [ "$TARGET" == "CLIENT" ]; then
     MSG="Configuring ntp "
     start_msg "$MSG"
     if [ $(pattern_not_present "$SERVERIP" "/etc/ntp.conf") ]; then
+        echo "STATUS -> $(pattern_not_present "$SERVERIP" "/etc/ntp.conf")"
 	bfile=/etc/ntp.conf
 	backup_file $bfile
 	cp -f $FDIR/CLIENT-ntp-client.conf $bfile
