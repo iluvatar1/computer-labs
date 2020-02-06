@@ -154,7 +154,7 @@ MSG="Configuring default X windows keyboard to be latam ..."
 start_msg "$MSG"
 bfile=/etc/X11/xorg.conf.d/90-keyboard-layout.conf
 #if [ $(pattern_not_present "latam" "$bfile") ]; then 
-if [ x"" == x"$(grep lata, ${bfile})" ] || [ $FORCE -eq 1 ] ; then
+if [ x"" == x"$(grep latam ${bfile})" ] || [ $FORCE -eq 1 ] ; then
     if [ -f $bfile ]; then
 	backup_file $bfile
     fi
