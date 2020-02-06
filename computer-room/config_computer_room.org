@@ -92,6 +92,8 @@ else
     tar xf slpkg-3.4.3.tar.gz
     cd slpkg-3.4.3
     ./install.sh
+    backup_file /etc/slpkg/slpkg.conf
+    sed -i.bck 's/DEFAULT_ANSWER=n/DEFAULT_ANSWER=y/' /etc/slpkg/slpkg.conf
     backup_file /etc/slpkg/blacklist 
     cat <<EOF > /etc/slpkg/blacklist
  kernel-firmware
