@@ -35,23 +35,14 @@ function end_msg()
   echo ""
 }
 
-function pattern_is_present()
-{
-    local result=0 # assume forced or not present
-    if [ $FORCE -eq 1 ]; then echo $result; return ; fi
-    if [ x"" != x"$(grep ${1} ${2} | grep -v grep)" ]; then
-    	echo "1"
-	return
-    fi
-}
-
 function pattern_not_present () {
-    local result=1 # assume forced or not present
-    if [ $FORCE -eq 1 ]; then echo $result; return ; fi
-    if [ x"" != x"$(grep ${1} ${2} | grep -v grep)" ]; then
-    	echo "0"
-	return
-    fi    
+    grep ${1} ${2} | grep -v grep
+    # local result=1 # assume forced or not present
+    # if [[ $FORCE -eq 1 ]]; then echo $result; return ; fi
+    # if [ x"" != x"$(grep ${1} ${2} | grep -v grep)" ]; then
+    # 	echo "0"
+    # 	return
+    # fi    
 }
 
 

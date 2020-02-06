@@ -33,7 +33,7 @@ echo "###############################################"
 MSG="Configuring proxy for root"
 start_msg "$MSG"
 bname="/root/.bashrc"
-if [ $(pattern_not_present "https_proxy" "${bname}") ]; then
+if [ x"" != x"$(grep https_proxy ${bname})" ] || [ $FORCE -eq 1 ] ; then
     touch $bname
     backup_file $bname
     cat <<EOF > $bname
@@ -92,12 +92,14 @@ end_msg "$MSG"
 MSG="Configuring network interfaces "
 start_msg "$MSG"
 if [ "$TARGET" == "SERVER" ]; then
-    if [ $(pattern_not_present "127.0.0.1" "/etc/resolv.conf.head") ]; then
+    #if [ $(pattern_not_present "127.0.0.1" "/etc/resolv.conf.head") ]; then
+    if [ x"" != x"$(grep 127.0.0.1 /etc/resolv.conf.head)" ] || [ $FORCE -eq 1 ] ; then
 	echo "Setting up resolv.conf.head "
 	TFILE="/etc/resolv.conf.head"
 	copy_config "$FDIR/SERVER-etc-resolv.conf.head" "$TFILE"
     fi	
-    if [ $(pattern_not_present "$SERVERIP" "/etc/rc.d/rc.inet1.conf") ]; then 
+    #if [ $(pattern_not_present "$SERVERIP" "/etc/rc.d/rc.inet1.conf") ]; then 
+    if [ x"" != x"$(grep $SERVERIP /etc/rc.d/rc/inet1.conf)" ] || [ $FORCE -eq 1 ] ; then
 	bash /etc/rc.d/rc.networkmanager stop
 	chmod -x /etc/rc.d/rc.networkmanager
 	copy_config "$FDIR/SERVER-etc-rc.d-rc.inet1.conf" /etc/rc.d/rc.inet1.conf
@@ -140,7 +142,8 @@ end_msg "$MSG"
 MSG="Configuring default X windows keyboard to be latam ..."
 start_msg "$MSG"
 bfile=/etc/X11/xorg.conf.d/90-keyboard-layout.conf
-if [ $(pattern_not_present "latam" "$bfile") ]; then 
+#if [ $(pattern_not_present "latam" "$bfile") ]; then 
+if [ x"" != x"$(grep lata, ${bfile})" ] || [ $FORCE -eq 1 ] ; then
     if [ -f $bfile ]; then
 	backup_file $bfile
     fi
@@ -165,7 +168,8 @@ end_msg "$MSG"
 if [ "$TARGET" == "CLIENT" ]; then
     MSG="Configuring ntp "
     start_msg "$MSG"
-    if [ $(pattern_not_present "$SERVERIP" "/etc/ntp.conf") ]; then
+    #if [ $(pattern_not_present "$SERVERIP" "/etc/ntp.conf") ]; then
+    if [ x"" != x"$(grep $SERVERIP /etc/ntp.conf)" ] || [ $FORCE -eq 1 ] ; then
         echo "STATUS -> $(pattern_not_present "$SERVERIP" "/etc/ntp.conf")"
 	bfile=/etc/ntp.conf
 	backup_file $bfile
@@ -224,12 +228,14 @@ fi
 MSG="Configuring nfs "
 start_msg "$MSG"
 if [ "$TARGET" == "SERVER" ]; then
-    if [ $(pattern_not_present "$BASE_SERVERIP" "/etc/hosts.allow") ]; then
+    #if [ $(pattern_not_present "$BASE_SERVERIP" "/etc/hosts.allow") ]; then
+    if [ x"" != x"$(grep $BASE_SERVERIP /etc/hosts.allow)" ] || [ $FORCE -eq 1 ] ; then
 	copy_config "$FDIR/SERVER-etc-hosts.allow" "/etc/hosts.allow"
     else
         echo "hosts allow already configured"
     fi
-    if [ $(pattern_not_present "$SERVERIP" "/etc/exports") ]; then
+    #if [ $(pattern_not_present "$SERVERIP" "/etc/exports") ]; then
+    if [ x"" != x"$(grep $SERVERIP /etc/exports)" ] || [ $FORCE -eq 1 ] ; then
 	copy_config "$FDIR/SERVER-etc-exports" "/etc/exports"
     else
 	echo "Exports already configured. Restarting services ..."
@@ -240,7 +246,8 @@ if [ "$TARGET" == "SERVER" ]; then
     echo "NOTE: If you have NFS problems, consider editing the /etc/hosts.allow and /etc/hosts.deny files"
 else
     bfile="/etc/fstab"
-    if [ $(pattern_not_present "${SERVERIP}" "$bfile") ]; then
+    #if [ $(pattern_not_present "${SERVERIP}" "$bfile") ]; then
+    if [ x"" != x"$(grep ${SERVERIP} ${bfile})" ] || [ $FORCE -eq 1 ] ; then
 	backup_file $bfile
 	echo "# NEW NEW NEW NFS stuff " >> $bfile
 	echo "${SERVERIP}:/home     /home   nfs     rw,hard,intr,usrquota  0   0" >> $bfile
@@ -258,7 +265,8 @@ if [ "$TARGET" == "CLIENT" ]; then
     MSG="Copying server public key  to configure passwordless access for root"
     start_msg "$MSG"
     mkdir -p /root/.ssh &>/dev/null
-    if [ $(pattern_not_present "${SERVER_DOMAINNAME}" "/root/.ssh/authorized_keys") ]; then
+    #if [ $(pattern_not_present "${SERVER_DOMAINNAME}" "/root/.ssh/authorized_keys") ]; then
+    if [ x"" != x"$(grep $SERVER_DOMAINNAME /root/.ssh/authorized_keys)" ] || [ $FORCE -eq 1 ] ; then
 	cat $FDIR/CLIENT-server_id_rsa.pub >> /root/.ssh/authorized_keys
 	chmod 700 /root/.ssh
 	chmod 640 /root/.ssh/authorized_keys
@@ -281,7 +289,8 @@ else
 fi
 
 tfname=/etc/acpi/acpi_handler.sh
-if [ $(pattern_not_present "emoves" "$tfname") ]; then
+#if [ $(pattern_not_present "emoves" "$tfname") ]; then
+if [ x"" != x"$(grep emoves ${tfname})" ] || [ $FORCE -eq 1 ] ; then
     copy_config $FDIR/etc-acpi-acpi_handler.sh $tfname
 else
     echo "#   -> Acpi handler already configured"
@@ -294,13 +303,15 @@ MSG="Configuring crontab "
 start_msg "$MSG"
 crontab -l > /tmp/crontab
 if [ "$TARGET" == "SERVER" ]; then
-    if [ $(pattern_not_present "network.sh" "/tmp/crontab") ] ; then 
+    #if [ $(pattern_not_present "network.sh" "/tmp/crontab") ] ; then 
+    if [ x"" != x"$(grep network.sh /etc/crontab)" ] || [ $FORCE -eq 1 ] ; then
 	crontab $FDIR/SERVER-crontab -u root
     else
 	echo "#    -> Already configured"
     fi
 else
-    if [ $(pattern_not_present "check_status.sh" "/tmp/crontab") ] ; then 
+    #if [ $(pattern_not_present "check_status.sh" "/tmp/crontab") ] ; then 
+    if [ x"" != x"$(grep check_status.sh /tmp/crontab)" ] || [ $FORCE -eq 1 ] ; then
 	crontab $FDIR/CLIENT-crontab -u root
     else
 	echo "#    -> Already configured"
