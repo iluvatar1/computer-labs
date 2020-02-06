@@ -4,7 +4,7 @@
 
 SCRIPTS_DIR=$HOME/repos/computer-labs/computer-room/scripts
 
-if ! -f params.conf; then 
+if [ ! -f params.conf ]; then 
     echo "ERROR: Config file not found -> params.conf"
     exit 1
 fi
