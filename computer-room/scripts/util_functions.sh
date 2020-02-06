@@ -38,10 +38,17 @@ function end_msg()
 function pattern_not_present()
 {
     local result=1 # assume forced or not present
-    if [ $FORCE -eq 0 ]; then
+    if [[ $FORCE -eq 0 ]]; then
 	if [ x""!=x"$(grep ${1} ${2} )" ]; then
 	    result=0
 	fi
     fi
     echo $result
 }
+
+function command_exists()
+{
+    #command -v "$1" &> /dev/null
+    hash "$1" &> /dev/null
+}
+

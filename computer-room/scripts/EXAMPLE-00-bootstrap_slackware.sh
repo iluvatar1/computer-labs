@@ -8,7 +8,7 @@ if [ ! -f params.conf ]; then
     echo "ERROR: Config file not found -> params.conf"
     exit 1
 fi
-source source params.conf
+source params.conf
 source $SCRIPTS_DIR/util_functions.sh
 
 # check args
@@ -24,7 +24,7 @@ LINUX="SLACKWARE"
 
 echo "###############################################"
 echo "# Configuring $TARGET ..."
-if [ "$FORCE" -eq "1" ]; then 
+if [[ $FORCE -eq 1 ]]; then 
     echo "# Forcing configuration ..."; 
 fi
 echo "###############################################"
@@ -37,7 +37,6 @@ if [ $(pattern_not_present "https_proxy" "${bname}") ]; then
     touch $bname
     backup_file $bname
     cat <<EOF > $bname
-    # NOTE: This assumes cntlm is running and configured on server
     export PROXY="$PROXY"
     export http_proxy="http://\$PROXY"
     export https_proxy="http://\$PROXY" 
@@ -53,7 +52,7 @@ end_msg "$MSG"
 
 MSG="Installing slpkg"
 start_msg "$MSG"
-if [ hash slpkg 2>/dev/null ] || [ $FORCE -ne 1 ]; then
+if $(command_exists slpkg) && [[ $FORCE -eq 0 ]]; then
     echo "#    -> already installed"
 else
     cd ~/Downloads
@@ -82,7 +81,7 @@ end_msg "$MSG"
 
 MSG="Configuring dhcpcd to send the mac to the dhcp server"
 start_msg "$MSG"
-if [ x"" != x"$(diff -q $FDIR/etc-dhcpcd.conf /etc/dhcpcd.conf)" ] || [ $FORCE -eq 1 ]; then 
+if [ x"" != x"$(diff -q $FDIR/etc-dhcpcd.conf /etc/dhcpcd.conf)" ] || [[ $FORCE -eq 1 ]]; then 
     copy_config "$FDIR/etc-dhcpcd.conf" "/etc/dhcpcd.conf"
 else 
    echo "#    -> already configured"
@@ -121,7 +120,7 @@ end_msg "DONE: $MSG"
 
 MSG="Fixing xinitrc on /etc/skel"
 start_msg "$MSG"
-if [ ! -f /etc/skel/.xinitrc ] || [ $FORCE -eq 1 ]; then 
+if [ ! -f /etc/skel/.xinitrc ] || [[ $FORCE -eq 1 ]]; then 
     cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xinitrc
 else
     echo "#    -> Already fixed"
@@ -129,7 +128,7 @@ fi
 end_msg "$MSG"
 MSG="Fixing xsession on /etc/skel"
 start_msg "$MSG"
-if [ ! -f /etc/skel/.xsession ] || [ $FORCE -eq 1 ]; then 
+if [ ! -f /etc/skel/.xsession ] || [[ $FORCE -eq 1 ]]; then 
     cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xsession
 else
     echo "#   -> Already fixed"
@@ -203,7 +202,7 @@ fi
 MSG="Configuring firewall "
 if [ "$TARGET" == "SERVER" ]; then
     start_msg "$MSG"
-    if [ hash arno-iptables-firewall 2>/dev/null ]  || [ $FORCE -ne 0 ]; then
+    if $(command_exists arno-iptables-firewall) && [[ $FORCE -eq 0 ]]; then
 	echo "    -> firewall already installed and configured."
     else
 	#sbopkg -e stop -B -k -i arno-iptables-firewall
