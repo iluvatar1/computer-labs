@@ -495,7 +495,7 @@ end_msg "$MSG"
    allows for computers to use  a simple proxy with no auth. For
    instance, with this I can now use emacs and install packages
    without much hassle. 
-   #+name:cntlm
+   #+name:cntlm_config
    #+begin_src sh :exports code
 MSG="Configuring cntlm on server "
 start_msg "$MSG"
@@ -580,6 +580,8 @@ echo "###############################################"
 <<shutdown_config>>
 
 <<crontab_config>>
+
+<<cntlm_config>>
    #+END_SRC
 
 ** TODO pssh?

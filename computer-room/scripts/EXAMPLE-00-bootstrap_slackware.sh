@@ -326,3 +326,26 @@ if [ ! -f /etc/cron.hourly/$bname ]; then
 fi
 
 end_msg "$MSG"
+
+
+MSG="Configuring cntlm on server "
+start_msg "$MSG"
+if [ "$TARGET" == "$SERVER" ]; then 
+    if $(command_exists cntlm) && [[ $FORCE -eq 0 ]]; then
+	echo "#    -> already installed"
+    else
+	source /root/.bashrc
+	slpkg -s sbo cntlm
+	chmod +x /etc/rc.d/rc.cntlm 
+	backup_file /etc/cntlm.conf
+	copy_config "$FDIR/SERVER-etc-cntlm.conf" "/etc/cntlm.conf"
+	echo "Please write the password for the account to be used with cntlm"
+	cntlm -H > /tmp/cntlm-hashed
+	cat /tmp/cntlm-hashed >> /etc/cntlm.conf
+	rm -f /tmp/cntlm-hashed
+	/etc/rc.d/rc.cntlm restart
+    fi
+else
+    echo "Not configuring on client."
+fi
+end_msg "$MSG"
