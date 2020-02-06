@@ -205,7 +205,7 @@ if [ "$TARGET" == "SERVER" ]; then
 fi
 
 
-# firewall : TODO get latest config
+# firewall 
 MSG="Configuring firewall "
 if [ "$TARGET" == "SERVER" ]; then
     start_msg "$MSG"
