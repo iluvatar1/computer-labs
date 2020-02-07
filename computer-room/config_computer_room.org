@@ -94,6 +94,7 @@ else
     ./install.sh
     backup_file /etc/slpkg/slpkg.conf
     sed -i.bck 's/DEFAULT_ANSWER=n/DEFAULT_ANSWER=y/' /etc/slpkg/slpkg.conf
+    sed -i.bck 's/DOWNDER_OPTIONS=.*/DOWNDER_OPTIONS=-c -N --no-check-certificate/' /etc/slpkg/slpkg.conf
     backup_file /etc/slpkg/blacklist 
     cat <<EOF > /etc/slpkg/blacklist
  kernel-firmware
