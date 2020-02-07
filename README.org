@@ -68,6 +68,17 @@ structure and usage.
    - [ ] emacs: sudo apt install emacs
 
 
+* Onedrive, Google drive, etc in Linux 
+** Slackware
+*** One drive
+    - Check : https://www.linuxuprising.com/2018/07/how-to-mount-onedrive-in-linux-using.html
+    - Mount command : rclone  --vfs-cache-mode writes mount remote-onedrive: ~/OneDrive/ --daemon 
+*** Google Drive
+    - Check :
+      http://thiagopirola.blogspot.com/2016/07/google-drive-in-slackware-14x.html
+    - Mount command : rclone  --vfs-cache-mode writes mount
+      remote-googledrive: ~/Google\ Drive/ --daemon 
+      
 * =liveslak=
    This allows to create a custom =liveslak= image. This scripts are
    assumed to run on a slackware 14.2 box (to use updated tools, but
