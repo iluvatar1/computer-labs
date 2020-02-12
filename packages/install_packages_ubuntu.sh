@@ -1,4 +1,4 @@
-PACKAGES=(emacs htop curl fortune git tmux openssh-server)
+PACKAGES=(emacs htop curl fortune git tmux openssh-server xclip inkscape qpdfview openscad)
 
 #sudo apt update
 for pkg in ${PACKAGES[*]}; do 
