@@ -415,7 +415,7 @@ end_msg "$MSG"
 
      end_msg "$MSG"
 
-   #+END_SRCOB
+     #+END_SRC
 ** Client: Copy public id
    #+name:publicid_config
    #+begin_src sh 
