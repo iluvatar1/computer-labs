@@ -30,7 +30,7 @@ as expected.
   version. Install everything. It is advisable to have at least four
   partitions: one for root, one for swap, one for home, and one for tmp.
 
-* Configuration
+* Configuration of client and server for a computer room
 ** Parameters to configure bootstrap script
    #+begin_src sh :exports code :tangle scripts/EXAMPLE_params.conf
 BASE_SERVERIP=192.168 
@@ -289,7 +289,7 @@ if [ "$TARGET" == "SERVER" ]; then
 fi
 # read
    #+END_SRC
-** kanif cluster tools                                             :noexport:
+** [Deprecated] kanif cluster tools                                :noexport:
    #+NAME: kanif_config
    #+BEGIN_SRC bash :exports code 
 # kanif cluster tools
@@ -460,6 +460,20 @@ fi
 end_msg "$MSG"
 
    #+end_src
+** Packages on client/server
+   Crontab will check, every hour, for two options
+    1. *Recommended*: It will use ~slpkg~ to install all packages specified inside the
+       file ~/home/PACKAGES.list~ . This will compile everything on
+       each client, taking more time on the slowest, but will make sure
+       that all clients will conform with their own installed libs. 
+    2. *Alternative, not recommended* It will install the contents
+       inside the folder ~/home/PACKAGES/~ . It is assumed that home
+       is exported on NFS, so all clients will see that file. Packages
+       inside that folder might require dependencies also to be inside
+       that folder. This is useful if one setups a package building
+       server and then copy all the packages inside the named folder,
+       but this assumes that all clients have the same libs installed,
+       so it depends on the homogeneity of the clients.
 ** Crontab
    This crontab reads a given script and runs it every some time
    #+name:crontab_config
