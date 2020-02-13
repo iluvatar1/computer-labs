@@ -63,6 +63,7 @@ else
     ./install.sh
     backup_file /etc/slpkg/slpkg.conf
     sed -i.bck 's/DEFAULT_ANSWER=n/DEFAULT_ANSWER=y/' /etc/slpkg/slpkg.conf
+    sed -i.bck 's/DOWNDER_OPTIONS=.*/DOWNDER_OPTIONS=-c -N --no-check-certificate/' /etc/slpkg/slpkg.conf
     backup_file /etc/slpkg/blacklist 
     cat <<EOF > /etc/slpkg/blacklist
  kernel-firmware
@@ -261,6 +262,72 @@ fi
 end_msg "$MSG"
 
 
+     # nis
+     MSG="Configuring nis "
+     start_msg "$MSG"
+     chmod +x /etc/rc.d/rc.yp
+     if [ "$TARGET" == "SERVER" ]; then
+         #if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ] ; then 
+	 if [ x"" == x"$(grep $NISDOMAIN /etc/defaultdomain)" ] || [ $FORCE -eq 1 ] ; then
+             copy_config "$FDIR/SERVER-etc-defaultdomain" "/etc/defaultdomain"
+         else
+             echo "Already configured default nis domain"
+         fi
+         #if [ $(pattern_not_present "${NISDOMAIN}" "/etc/yp.conf") ] ; then 
+	 if [ x"" == x"$(grep $NISDOMAIN /etc/yp.conf)" ] || [ $FORCE -eq 1 ] ; then
+             copy_config "$FDIR/SERVER-etc-yp.conf" "/etc/yp.conf"
+             copy_config "$FDIR/SERVER-var-yp-Makefile" "/var/yp/Makefile"
+         else
+             echo "Already configured yp"
+         fi
+
+         backup_file /etc/rc.d/rc.yp
+         if [ x"" == x"$(grep 'YP_SERVER_ENABLE=1' /etc/rc.d/rc.yp 2>/dev/null)"]; then 
+             sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=0/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=1/ ;' /etc/rc.d/rc.yp
+         else
+             echo "Already configured as yp server"
+         fi
+    
+         echo "Running nis services ..."
+         ypserv
+         make -BC /var/yp
+         #/usr/lib64/yp/ypinit -m
+     else
+         chmod +x /etc/rc.d/rc.nfsd
+         #if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ]; then
+	 if [ x"" == x"$(grep $NISDOMAIN /etc/defaultdomain)" ] || [ $FORCE -eq 1 ] ; then
+             bfile="/etc/defaultdomain"
+             backup_file $bfile
+             echo ${NISDOMAIN} > $bfile  
+             bfile="/etc/yp.conf"
+             backup_file $bfile
+             echo "ypserver ${SERVERIP}" > $bfile
+             bfile=/etc/nsswitch.conf
+             backup_file $bfile
+             cp -f $FDIR/CLIENT-nsswitch.conf $bfile
+             bfile="/etc/passwd"
+             backup_file $bfile
+             echo +:::::: >> $bfile
+             bfile="/etc/shadow"
+             backup_file $bfile
+             echo +:::::::: >> $bfile
+             bfile="/etc/group"
+             backup_file $bfile
+             echo +::: >> $bfile
+             if [ x"" == x"$(grep 'YP_CLIENT_ENABLE=1' /etc/rc.d/rc.yp) 2>/dev/null" ]; then 
+                 backup_file /etc/rc.d/rc.yp
+                 sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=1/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=0/ ;' /etc/rc.d/rc.yp
+             fi
+         else
+             echo "#    -> already configured."
+         fi
+     fi
+     /etc/rc.d/rc.yp restart    
+     /etc/rc.d/rc.nfsd restart
+     /etc/rc.d/rc.inet2 restart
+     rpcinfo -p localhost
+
+     end_msg "$MSG"
 
 
 if [ "$TARGET" == "CLIENT" ]; then 
