@@ -1,3 +1,13 @@
+* Other tools
+  - Gparted: https://gparted.org/
+  - kdeploy3: 
+    - http://kadeploy3.gforge.inria.fr/
+    - https://hal.inria.fr/hal-00909111/document
+* Scripting clonezilla
+  - https://clonezilla.org/advanced/customized-clonezilla-live.php
+  - https://clonezilla.org/lecture-materials/017_Canonical_FE_SE_Sprint_Event_in_June_2014/talk/Systemp_deployment_using_Clonezilla.html
+  - https://community.spiceworks.com/topic/861958-clonezilla-scripting
+  - https://clonezilla.org/show-live-doc-content.php?topic=clonezilla-live/doc/07_Customized_script_with_PXE
 * Cloning a device into an image
   Based on Clonezilla live (not the server)
   - When booting, choose alternative modes to have better resolution.
