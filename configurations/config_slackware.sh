@@ -8,6 +8,10 @@ function backup_file()
         cp -v "$1" "$1".orig-$(date +%F--%H-%M-%S)
     fi
 }
+function configured()
+{
+    echo "    -> Already configured $1"
+}
 
 echo
 echo "##################################################"
@@ -17,28 +21,30 @@ echo
 
 function inittab {
     echo "Changing default init to 4 ..."
-    if [ x"" == x"$(grep 'id?4?initdefault' /etc/inittab | grep -v grep)" ]; then
+    if [ x"" = x"$(grep 'id:4:initdefault' /etc/inittab | grep -v grep)" ]; then
 	sed -i.bck 's/id:3:initdefault:/id:4:initdefault:/' /etc/inittab
+    else
+	configured
     fi
-    echo "Done"
 }
 
 function services_nfs_ssh {
     echo "Activating services for future starts: nfs ssh "
     for fname in /etc/rc.d/rc.{nfsd,sshd}; do
-	if ! -x $fname; then
+	if [ ! -x $fname ]; then
 	    chmod +x $fname && $fname start
+	else
+	    configured $fname
 	fi
     done
-    echo "Done"
 }
 
 function timezone {
     echo "Configuring timezone to Bogota ..."
-    if [ x"" != "$(diff /usr/share/zoneinfo/America/Bogota /etc/localtime)" ]; then 
+    if [ x"" != x"$(diff /usr/share/zoneinfo/America/Bogota /etc/localtime)" ]; then 
 	cp -f /usr/share/zoneinfo/America/Bogota /etc/localtime
     else
-	echo "    -> Already configured"
+	configured
     fi
 }
 
@@ -48,23 +54,30 @@ function slim {
 	backup_file /etc/rc.d/rc.4
 	sed -i.bck '/echo "Starting up X11 session manager..."/a \\n# start SLiM ...\nif [ -x /usr/bin/slim ]; then exec /usr/bin/slim; fi ' /etc/rc.d/rc.4
 	ln -sf /etc/X11/xinit/xinitrc.xfce /etc/X11/xinitrc
+    else
+	configured
     fi
 }
 
 function slackpkgmirror {
     echo "Configuring slackpkg mirror"
     bfile=/etc/slackpkg/mirrors
-    if [ x"1" != x"$(wc -l $bfile)" ]; then 
+    if [ x"1" != x"$(wc -l $bfile | awk '{print $1}')" ]; then 
 	backup_file /etc/slackpkg/mirrors
 	echo "http://mirrors.slackware.com/slackware/slackware64-14.2/" > /etc/slackpkg/mirrors
     else
-	echo "    -> mirror already configured."
+	configured "mirror"
     fi
 }
 
 function dhcp_eth1 {
     echo "Adding dhcp for eth1"
-    sed -i.bck 's/USE_DHCP\[1\]=""/USE_DHCP\[1\]="yes"/' /etc/rc.d/rc.inet1.conf
+    fname=/etc/rc.d/rc.inet1.conf
+    if [ x"" = x"$(grep USE_DHCP\\[1\\]=\"yes\" $fname  | grep -v grep )" ]; then  
+	sed -i.bck 's/USE_DHCP\[1\]=""/USE_DHCP\[1\]="yes"/' $fname
+    else
+	configured
+    fi
 }
 
 function lilo {
@@ -76,7 +89,7 @@ function lilo {
 	sed -i.bck 's/timeout = 1200/timeout = 50/' $bname
 	lilo
     else
-	echo "   -> already configured."
+	configured
     fi
 }
 
@@ -88,7 +101,7 @@ function cron_update_slackware {
 	cp -f ${bname}.sh /root/scripts/
 	cp -f ${bname}_cronjob /etc/cron.d/
     else
-	echo "    -> already configured ."
+	configured
     fi
 }
 
@@ -138,10 +151,9 @@ function slpkg_install {
       mozilla-firefox
 EOF
     else
-	echo "       Already configured "
+	configured
     fi
-    
-    slpkg upgrade
+    echo "Recommended to run : slpkg upgrade"
     echo "DONE: $MSG"
 }
 
@@ -155,19 +167,19 @@ function dhcpcd_clientid {
 	sed -i "s/^#clientid/clientid/" $fname
 	sed -i "s/^duid/#duid/" $fname
     else
-	echo "Already configured"
+	configured
     fi
 }
 
-#inittab
-#services_nfs_ssh
-#timezone
-#slim
-#slackpkgmirror
-#dhcp_eth1
-#lilo
-#cron_update_slackware
+inittab
+services_nfs_ssh
+timezone
+slim
+slackpkgmirror
+dhcp_eth1
+lilo
+cron_update_slackware
 slpkg_install
-#dhcpcd_clientid
+dhcpcd_clientid
 
 echo "Done."
