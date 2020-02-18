@@ -29,6 +29,9 @@ as expected.
   Just download it from the official slackware web page. Get the dvd
   version. Install everything. It is advisable to have at least four
   partitions: one for root, one for swap, one for home, and one for tmp.
+  
+  Then use the configuration script on ~../configurations~ to config
+  the slackware machine. 
 
 * Configuration of client and server for a computer room
 ** Parameters to configure bootstrap script
@@ -48,25 +51,25 @@ PROXY=${SERVERIP}:3128
 ** Configuring root internet behind proxy unal
    #+NAME: proxy_config
    #+BEGIN_SRC bash :exports code 
-# Configure root internet access
-MSG="Configuring proxy for root"
-start_msg "$MSG"
-bname="/root/.bashrc"
-if [ x"" == x"$(grep https_proxy ${bname})" ] || [ $FORCE -eq 1 ] ; then
-    touch $bname
-    backup_file $bname
-    cat <<EOF > $bname
-    export PROXY="$PROXY"
-    export http_proxy="http://\$PROXY"
-    export https_proxy="http://\$PROXY" 
-    export ftp_proxy="ftp://\$PROXY"
-    export RSYNC_PROXY="\$PROXY" 
-EOF
-else
-    echo "#    -> already configured."
-fi
-source /root/.bashrc
-end_msg "$MSG"
+     # Configure root internet access
+     MSG="Configuring proxy for root"
+     start_msg "$MSG"
+     bname="/root/.bashrc"
+     if [ x"" == x"$(grep https_proxy ${bname})" ] || [ $FORCE -eq 1 ] ; then
+	 touch $bname
+	 backup_file $bname
+	 cat <<EOF > $bname
+	 export PROXY="$PROXY"
+	 export http_proxy="http://\$PROXY"
+	 export https_proxy="http://\$PROXY" 
+	 export ftp_proxy="ftp://\$PROXY"
+	 export RSYNC_PROXY="\$PROXY" 
+     EOF
+     else
+	 echo "#    -> already configured."
+     fi
+     source /root/.bashrc
+     end_msg "$MSG"
 
    #+END_SRC
 ** [Deprecated] Installing sbopkg                                  :noexport:
@@ -78,56 +81,8 @@ installpkg "$FDIR/sbopkg-0.38.1-noarch-1_wsr.tgz"
 echo "DONE: $MSG"
    #+END_SRC
 
-** Install slpkg
-   #+NAME: slpkg_config
-   #+BEGIN_SRC bash :exports code 
-MSG="Installing slpkg"
-start_msg "$MSG"
-if $(command_exists slpkg) && [[ $FORCE -eq 0 ]]; then
-    echo "#    -> already installed"
-else
-    cd ~/Downloads
-    source /root/.bashrc
-    wget -c https://gitlab.com/dslackw/slpkg/-/archive/3.4.3/slpkg-3.4.3.tar.gz
-    tar xf slpkg-3.4.3.tar.gz
-    cd slpkg-3.4.3
-    ./install.sh
-    backup_file /etc/slpkg/slpkg.conf
-    sed -i.bck 's/DEFAULT_ANSWER=n/DEFAULT_ANSWER=y/' /etc/slpkg/slpkg.conf
-    sed -i.bck 's/DOWNDER_OPTIONS=.*/DOWNDER_OPTIONS=-c -N --no-check-certificate/' /etc/slpkg/slpkg.conf
-    backup_file /etc/slpkg/blacklist 
-    cat <<EOF > /etc/slpkg/blacklist
- kernel-firmware
- kernel-generic
- kernel-generic-smp
- kernel-headers
- kernel-huge
- kernel-huge-smp
- kernel-modules
- kernel-modules-smp
- kernel-source
-
- mozilla-firefox
-EOF
-    slpkg upgrade
-fi
-end_msg "$MSG"
-   #+END_SRC
-  
-** Fix dhcpcd client (advertise mac address instead of ipv6 stuff)
-  
-   #+NAME: dhcpcd_config
-   #+BEGIN_SRC bash :exports code
-MSG="Configuring dhcpcd to send the mac to the dhcp server"
-start_msg "$MSG"
-if [ x"" != x"$(diff -q $FDIR/etc-dhcpcd.conf /etc/dhcpcd.conf)" ] || [[ $FORCE -eq 1 ]]; then 
-    copy_config "$FDIR/etc-dhcpcd.conf" "/etc/dhcpcd.conf"
-else 
-   echo "#    -> already configured"
-fi
-end_msg "$MSG"
-   #+END_SRC
-
+** [Deprecated] Install slpkg : Moved to slackware config.         :noexport:
+** [Deprecated] Moved to slackware config: Fix dhcpcd client (advertise mac address instead of ipv6 stuff)  
 ** Fix xinitrc
    #+NAME: xinitrc_config
    #+BEGIN_SRC bash :exports code
@@ -261,10 +216,10 @@ fi
 
    #+END_SRC
 
-** firewall (NAT) : Arno iptables firewall.
+** Firewall ( also for NAT) : Arno iptables firewall.
    I will use arno iptables firewall because it has worked pretty well
    before . It must be installed before this step. If not installed , I
-   will try to use sbopkg to install it.
+   will try to use slpkg to install it.
 
    #+NAME: firewall_config
    #+BEGIN_SRC bash :exports code
@@ -278,11 +233,12 @@ if [ "$TARGET" == "SERVER" ]; then
 	#sbopkg -e stop -B -k -i arno-iptables-firewall
 	source /root/.bashrc
 	slpkg upgrade
-	slpkg -s sbo arno-iptables-firewall-2.0.1e-noarch-3_SBo
+	#slpkg -s sbo arno-iptables-firewall-2.0.1e-noarch-3_SBo
+	slpkg -s sbo arno-iptables-firewall
 	ln -svf /etc/rc.d/rc.arno-iptables-firewall /etc/rc.d/rc.firewall
 	copy_config "$FDIR/SERVER-firewall.conf" "/etc/arno-iptables-firewall/firewall.conf"
 	chmod o-rwx /etc/arno-iptables-firewall/firewall.conf
-	chmod +x /etc/rc.d/rc.firewall
+	chmod +x /etc/rc.d/rc.arno-iptables-firewall
     fi
     /etc/rc.d/rc.firewall restart
     end_msg "$MSG"
@@ -416,7 +372,7 @@ end_msg "$MSG"
      end_msg "$MSG"
 
      #+END_SRC
-** Client: Copy public id
+** Client: Copy public id for passwordless acces
    #+name:publicid_config
    #+begin_src sh 
 if [ "$TARGET" == "CLIENT" ]; then 
@@ -462,10 +418,11 @@ end_msg "$MSG"
    #+end_src
 ** Packages on client/server
    Crontab will check, every hour, for two options
-    1. *Recommended*: It will use ~slpkg~ to install all packages specified inside the
-       file ~/home/PACKAGES.list~ . This will compile everything on
-       each client, taking more time on the slowest, but will make sure
-       that all clients will conform with their own installed libs. 
+    1. *Recommended*: It will use ~slpkg~ to install all packages
+       specified inside the file ~/home/PACKAGES.list~ . This will
+       compile everything on each client, taking more time on the
+       slowest, but will make sure that all clients will conform with
+       their own installed libs.
     2. *Alternative, not recommended* It will install the contents
        inside the folder ~/home/PACKAGES/~ . It is assumed that home
        is exported on NFS, so all clients will see that file. Packages
@@ -496,9 +453,9 @@ else
 	echo "#    -> Already configured"
     fi
 fi
-echo "Adding install packages scripts to cron.hourly"
 bname=install_upgrade_slackware_packages.sh
 if [ ! -f /etc/cron.hourly/$bname ]; then
+    echo "Adding install packages scripts to cron.hourly"
     cp $FDIR/etc-cron.hourly-$bname /etc/cron.hourly/$bname
 fi
 
@@ -569,8 +526,6 @@ fi
 echo "###############################################"
 
 <<proxy_config>>
-
-<<slpkg_config>>
 
 <<dhcpcd_config>>
 
