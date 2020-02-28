@@ -139,17 +139,16 @@ function slpkg_install {
 	sed -i.bck 's/DOWNDER_OPTIONS=.*/DOWNDER_OPTIONS=-c -N --no-check-certificate/' /etc/slpkg/slpkg.conf
 	backup_file /etc/slpkg/blacklist 
 	cat <<EOF > /etc/slpkg/blacklist
-      kernel-firmware	
-      kernel-generic	
-      kernel-generic-smp	
-      kernel-headers		
-      kernel-huge		
-      kernel-huge-smp		
-      kernel-modules		
-      kernel-modules-smp	
-      kernel-source		
-      
-      mozilla-firefox
+kernel-firmware	
+kernel-generic	
+kernel-generic-smp	
+kernel-headers		
+kernel-huge		
+kernel-huge-smp		
+kernel-modules		
+kernel-modules-smp	
+kernel-source		     
+# mozilla-firefox
 EOF
     else
 	configured
