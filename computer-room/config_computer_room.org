@@ -296,7 +296,6 @@ else
     else
 	echo "#    -> already configured"
     fi
-    mount -a 
 fi
 end_msg "$MSG"
 
@@ -368,11 +367,6 @@ end_msg "$MSG"
          fi
      fi
      nisdomainname -F /etc/defaultdomain
-     /etc/rc.d/rc.yp restart    
-     /etc/rc.d/rc.nfsd restart
-     /etc/rc.d/rc.inet2 restart
-     rpcinfo -p localhost
-
      end_msg "$MSG"
 
      #+END_SRC
@@ -598,6 +592,15 @@ echo "###############################################"
 <<crontab_config>>
 
 <<cntlm_config>>
+
+# run services (better done on script that keeps the system up, when the client is on the network)
+#/etc/rc.d/rc.nfsd restart
+#mount -a 
+#/etc/rc.d/rc.yp restart    
+#/etc/rc.d/rc.inet2 restart
+#rpcinfo -p localhost
+
+
    #+END_SRC
 
 ** TODO pssh?
