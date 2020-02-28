@@ -134,7 +134,7 @@ function slpkg_install {
     fname=/etc/slpkg/slpkg.conf
     if [ x"" = x"$(grep 'DEFAULT_ANSWER=y' $fname | grep -v grep)" ]; then 
 	backup_file /etc/slpkg/slpkg.conf
-	sed -i.bck 's/REALEASE=stable/REALEASE=current/' /etc/slpkg/slpkg.conf
+	sed -i.bck 's/RELEASE=stable/RELEASE=current/' /etc/slpkg/slpkg.conf
 	sed -i.bck 's/DEFAULT_ANSWER=n/DEFAULT_ANSWER=y/' /etc/slpkg/slpkg.conf
 	sed -i.bck 's/DOWNDER_OPTIONS=.*/DOWNDER_OPTIONS=-c -N --no-check-certificate/' /etc/slpkg/slpkg.conf
 	backup_file /etc/slpkg/blacklist 
