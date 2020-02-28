@@ -376,7 +376,7 @@ end_msg "$MSG"
      end_msg "$MSG"
 
      #+END_SRC
-** Client: Copy public id for passwordless acces
+** Client: Copy public id for password-less access and allow root login
    #+name:publicid_config
    #+begin_src sh 
 if [ "$TARGET" == "CLIENT" ]; then 
@@ -390,6 +390,18 @@ if [ "$TARGET" == "CLIENT" ]; then
 	chmod 640 /root/.ssh/authorized_keys
     else
 	echo "#    -> already configured"
+    fi
+    end_msg "$MSG"
+    
+    MSG="Allowing root login for client"
+    start_msg "$MSG"
+    bfile="/etc/ssh/sshd_config"
+    if [ x"" == x"$(grep '^PermitRootLogin.*yes' $bfile)" ] || [ $FORCE -eq 1 ] ; then
+	backup_file $bfile
+	echo "PermitRootLogin yes" >> $bfile
+	/etc/rc.d/rc.sshd restart
+    else
+	echo "#    -> already_configured"
     fi
     end_msg "$MSG"
 fi
