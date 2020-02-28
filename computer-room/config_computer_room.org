@@ -341,6 +341,9 @@ end_msg "$MSG"
              bfile="/etc/defaultdomain"
              backup_file $bfile
              echo ${NISDOMAIN} > $bfile  
+	     bfile="/etc/rc.d/rc.local"
+	     backup_file $bfile
+	     echo 'nisdomainname -F /etc/defaultdomain' > $bfile
              bfile="/etc/yp.conf"
              backup_file $bfile
              echo "ypserver ${SERVERIP}" > $bfile
@@ -364,6 +367,7 @@ end_msg "$MSG"
              echo "#    -> already configured."
          fi
      fi
+     nisdomainname -F /etc/defaultdomain
      /etc/rc.d/rc.yp restart    
      /etc/rc.d/rc.nfsd restart
      /etc/rc.d/rc.inet2 restart
