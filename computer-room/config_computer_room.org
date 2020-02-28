@@ -478,6 +478,34 @@ fi
 end_msg "$MSG"
 
    #+end_src
+** ONGOING Install and configure monit 
+   Monit is a tool that allows to monitor and restart if needed
+   different services, files, etc. This will be another level of
+   redundancy (besides the scripts in crontab) to keep services
+   running. TODO: configure essential services on server and clients. 
+   #+name:monit_config
+   #+begin_src sh :exports code
+MSG="Configuring monit on server "
+start_msg "$MSG"
+if [ "$TARGET" == "$SERVER" ]; then 
+    if $(command_exists monit) && [[ $FORCE -eq 0 ]]; then
+	echo "#    -> already installed"
+    else
+	source /root/.bashrc
+	slpkg -s sbo monit
+	chmod +x /etc/rc.d/rc.monit 
+	backup_file /root/.monitrc
+	copy_config "$FDIR/SERVER-root-dotmonitrc" "/root/.monitrc"
+	backup_file /etc/rc.d/rc.local
+	echo "/usr/bin/monit -c /root/.monitrc &> /var/log/log-monit-root&" >> /etc/rc.d/rc.local
+	/etc/rc.d/rc.monit restart
+    fi
+else
+    echo "Not configuring on client (for now)."
+fi
+end_msg "$MSG"
+
+   #+end_src
 ** cntlm 
    This allows to create a bypassing pry that handles all auth and
    allows for computers to use  a simple proxy with no auth. For
@@ -560,6 +588,8 @@ echo "###############################################"
 <<nfs_config>>
 
 <<nis_config>>
+
+<<monit_config>>
 
 <<publicid_config>>
 
