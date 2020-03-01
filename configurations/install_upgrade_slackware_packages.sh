@@ -1,5 +1,12 @@
 #!/bin/env bash
 echo "This script install patches and packages using slpkg."
+#slackpkg -batch=on -default_answer=y update gpg
+#slackpkg -batch=on -default_answer=y update
+#slackpkg -batch=on -default_answer=y upgrade patches
+#slackpkg -batch=on -default_answer=y install-new # must be before upgrade-all
+#slackpkg -batch=on -default_answer=y upgrade-all
+#echo "Updating slpkg ..."
+#slpkg upgrade
 
 echo "Source bashrc for proxy information ..."
 source /root/.bashrc

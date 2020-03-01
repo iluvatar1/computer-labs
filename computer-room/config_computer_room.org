@@ -90,6 +90,7 @@ MSG="Fixing xinitrc on /etc/skel"
 start_msg "$MSG"
 if [ ! -f /etc/skel/.xinitrc ] || [[ $FORCE -eq 1 ]]; then 
     cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xinitrc
+    chmod +x /etc/skel/.xinitrc
 else
     echo "#    -> Already fixed"
 fi
@@ -112,7 +113,7 @@ MSG="Configuring default X windows keyboard to be latam ..."
 start_msg "$MSG"
 bfile=/etc/X11/xorg.conf.d/90-keyboard-layout.conf
 #if [ $(pattern_not_present "latam" "$bfile") ]; then 
-if [ x"" == x"$(grep latam ${bfile})" ] || [ $FORCE -eq 1 ] ; then
+if [ x"" == x"$(grep latam ${bfile} 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
     if [ -f $bfile ]; then
 	backup_file $bfile
     fi
@@ -401,7 +402,7 @@ if [ "$TARGET" == "CLIENT" ]; then
 fi
 
    #+end_src
-** Remove permissions to halt/shutdown from gui
+** TODO Remove permissions to halt/shutdown from button and gui (todo)
    #+name:shutdown_config
    #+begin_src sh
 MSG="Removing permissions to reboot/halt system"
@@ -500,7 +501,7 @@ end_msg "$MSG"
    #+begin_src sh :exports code
 MSG="Configuring monit on server "
 start_msg "$MSG"
-if [ "$TARGET" == "$SERVER" ]; then 
+if [ "$TARGET" == "SERVER" ]; then 
     if $(command_exists monit) && [[ $FORCE -eq 0 ]]; then
 	echo "#    -> already installed"
     else
@@ -549,6 +550,29 @@ fi
 end_msg "$MSG"
 
    #+end_src
+** TODO Install and configure slim
+   #+name:slim_config
+   #+begin_src sh :exports code
+MSG="Installing and configuring slim "
+start_msg "$MSG"
+if $(command_exists slim) && [[ $FORCE -eq 0 ]]; then
+    echo "#    -> already installed"
+else
+    source /root/.bashrc
+    slpkg -s sbo slim
+    chmod +x /etc/rc.d/rc.cntlm 
+    backup_file /etc/cntlm.conf
+    copy_config "$FDIR/SERVER-etc-cntlm.conf" "/etc/cntlm.conf"
+    echo "Please write the password for the account to be used with cntlm"
+    cntlm -H > /tmp/cntlm-hashed
+    cat /tmp/cntlm-hashed >> /etc/cntlm.conf
+    rm -f /tmp/cntlm-hashed
+    /etc/rc.d/rc.cntlm restart
+fi
+end_msg "$MSG"
+
+   #+end_src
+   
 ** Write final script
    #+BEGIN_SRC bash :exports code :noweb yes :tangle scripts/EXAMPLE-00-bootstrap_slackware.sh :tangle-mode (identity #o444) 
 #!/bin/bash
@@ -629,6 +653,62 @@ echo "###############################################"
    - https://www.golinuxcloud.com/pssh-public-key-authentication-passwordless/
 
 * Auxiliary scripts
+** Create an user
+  #+BEGIN_SRC sh :exports code :mkdirp yes :tangle scripts/create_user.sh 
+     #!/bin/bash                                                                                                               
+     if [ x"" != x"$1" ]; then
+	 adduser $1
+	 usermod -a -G audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner $1
+	 make -BC /var/yp
+	 #su - $1                                                                                                              
+	 #xwmconfig                                                                                                            
+     else
+	 echo "Error. Debes llamar este script como:"
+	 echo "bash $0 nombredeusuarionuevo"
+     fi
+
+  #+END_SRC
+   
+** Check and delete inactive users
+   - Find inactive users
+     #+BEGIN_SRC sh :exports code :tangle scripts/get_inactive.sh
+DAYS=180
+OFILE=/root/inactive_users.txt
+echo > $OFILE
+for dname in /home/*; do 
+    if [ -d $dname ]; then 
+	result=$(find "${dname}" -mtime -${DAYS} -type f -print -quit)
+	if [[ $result == "" ]]; then
+	    echo "User home has been inactive for more than ${DAYS} days : $dname"
+	    echo "${dname#/home/}" >> $OFILE
+	fi
+    fi
+done
+echo "###########################################"
+echo "Inactive users wrote to $OFILE"
+      
+     #+END_SRC
+   - Delete inactive users
+     #+BEGIN_SRC  sh :exports code :tangle scripts/del_inactive.sh
+for a in $(cat /root/inactive_users.txt); do
+    if [ "$a" == "ramezquitao" ] || [ "$a" == "ersanchezp" ] || [ "$a" == "jdmunozc" ] || [ "$a" == "jbaena" ] || [ "$a" == "oquendo" ]; then
+        echo "skipping account : $a"
+        continue
+    fi
+    echo "deleting $a"
+    userdel -rf $a;
+done
+     #+END_SRC
+** User disk usage
+   #+BEGIN_SRC sh :exports code :mkdirp yes :tangle scripts/user_disk_usage.sh
+      echo "Computing user disk usage ... "
+      for a in /home/*; do 
+	  du -sh $a ; 
+      done | sort -rh > user_disk_usage.txt
+      echo "################################"
+      echo "DONE: results sorted and wrote to user_disk_usage.txt"
+
+   #+END_SRC
 ** Create users from csv list with usernames and ids
    This script reads a list of usernames and passwords and creates the
    corresponding users
@@ -715,20 +795,77 @@ for a in /home/*; do
 done
    #+end_src
 
+** Burn slackware live
+  - live
+    #+BEGIN_SRC sh :tangle scripts/burn_slackware_live.sh
+USBKEYS=($(
+    grep -Hv ^0$ /sys/block/*/removable |
+    sed s/removable:.*$/device\\/uevent/ |
+    xargs grep -H ^DRIVER=sd |
+    sed s/device.uevent.*$/size/ |
+    xargs grep -Hv ^0$ |
+    cut -d / -f 4
+))
+
+echo "Burning slackware image iso to /dev/sd{b,c,d,e,f,g,h} -> ${USBKEYS[*]}"
+parallel --gnu "dd if=/root/dev-iso/slackware64-live-current.iso of=/dev/{} " ::: ${USBKEYS[*]}
+if [ "$?" == "0" ]; then
+    sync
+    echo "Done. Please test the usb on another computer"
+else
+    echo "Some error ocurred. Exiting."
+fi
+    #+END_SRC
+  - With persistence
+    #+BEGIN_SRC sh :tangle scripts/burn_slackware_live_persistence.sh
+USBKEYS=($(
+    grep -Hv ^0$ /sys/block/*/removable |
+    sed s/removable:.*$/device\\/uevent/ |
+    xargs grep -H ^DRIVER=sd |
+    sed s/device.uevent.*$/size/ |
+    xargs grep -Hv ^0$ |
+    cut -d / -f 4
+))
+echo "Burning slackware image iso with persistence to /dev/sd{b,c,d,e,f,g,h} -> ${USBKEYS[*]}"
+#parallel --gnu bash /root/dev-iso/liveslak/iso2usb.sh -i /root/dev-iso/slackware64-live-current.iso -o /dev/{} -u -v -w 30  ::: ${USBKEYS[*]}
+bash /root/dev-iso/liveslak/iso2usb.sh -i /root/dev-iso/slackware64-live-current.iso -o /dev/${USBKEYS[0]} -u -v -w 30
+if [ "$?" == "0" ]; then
+    echo "Done. SYncing writing ... "
+    sync
+    echo "Done. Please test the usb on another computer"
+else
+    echo "Some error ocurred. Exiting."
+fi
+    #+END_SRC
+** Peformance monitor
+  #+BEGIN_SRC sh :exports code :tangle scripts/monitor_perf.sh
+    TOTALITER=10800
+    iotop -botq --iter=$TOTALITER &>> /tmp/log-iotop
+    top -b -n $TOTALITER &>> /tmp/log-top
+    /usr/local/sbin/iftop -P -b -i eth0 -t &>> /tmp/log-iftop-eth0
+    /usr/local/sbin/iftop -P -b -i eth0 -t &>> /tmp/log-iftop-eth1
+
+    vmstat -a -t 1 $TOTALITER &>> /tmp/log-vmstat
+    vmstat -s -t 1 $TOTALITER &>> /tmp/log-vmstat-s
+    vmstat -D -t 1 $TOTALITER &>> /tmp/log-vmstat-D
+
+    function runiostat {
+	while  [ 1 ]; do
+	    sleep 1
+	    iostat >> /tmp/log-iostat
+    }
+
+    runiostat
+  #+END_SRC
+
 * Problems and solutions [6/6]
 ** DONE Solving problems with xinit and xfce for all and new users
-   CLOSED: [2019-10-16 Wed 10:25]
+   CLOSED: [2020-02-29 Sat 19:27]
    - Make sure all users are on the video group. Maybe run
      #+BEGIN_SRC bash
      usermod -a -G audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner USERNAME
      #+END_SRC
      on each user.
-   - Make sure all users have a .xinitrc (executable, readable and
-     owned by the user)
-     #+BEGIN_SRC 
-     cp /etc/X11/xinit/xinitrc.xfce /etc/skel/.xinitrc
-     chmod a+x /etc/skel/.xinitrc
-     #+END_SRC
    - Make sure that the minimum gid in yp nis is 2 (see file
      =/var/yp/Makefile=)
 
@@ -750,20 +887,104 @@ done
   I was able to advertise up to gigabit and then run at 100MB/s, which
   is the least acceptable given the router.
 
+  For slackware I added this to the minute_maintenance.sh . 
+
   To make this command permanent in debian, I had to add the following
   line under the config for ~eth1~ in the file
   ~/etc/network/interfaces~
   #+begin_src shell 
   post-up /sbin/ethtool -s eth1 advertise 0x010
   #+end_src
-** DONE Installation  and setup of gdb numpy
+** Setup dropbox
+  #+begin_src sh
+   ~/miniconda3/bin/python ~/dropbox.py proxy manual http proxyapp.unal.edu.co 8080 USERNAME PASSWORD
+  #+end_src
+** Instalando paquetes en R desde una cuenta de usuario
+  Para instalar paquetes desde una cuenta de usuario se usa el comando
+  normal ~install.packages~ . Pero si se hace desde un computador de
+  la universidad, es necesario configurar el proxy antes de entrar a
+  ~R~. 
+  
+  *Nota*: Una vez instalados los paquetes no es necesario volver a
+   instalarlos, pero cada usuario debe instalar sus paquetes en su
+   cuenta. 
+
+*** Configuración del proxy
+   Existen dos formas de hacerlo. La primera, es la mas sencilla pero
+   debe hacerse cada vez que se abra una consola nueva. Esta primera
+   forma consiste en exportar las variables del proxy de la siguiente
+   manera
+   #+BEGIN_SRC sh :exports code
+export http_proxy="http://USERNAME:PASSWORD@proxyapp.unal.edu.co:8080/"
+export https_proxy="https://USERNAME:PASSWORD@proxyapp.unal.edu.co:8080/"
+export ftp_proxy="http://USERNAME:PASSWORD@proxyapp.unal.edu.co:8080/"
+   #+END_SRC
+   en donde se debe reemplazar =USERNAME= por el nombre del usuario
+   (de la universidad, sin incluir @unal.edu.co) y =PASSWORD= es el password de
+   la universidad. En adelante podrá navegar por la consola. Se se
+   desea que estos comandos siempre se ejecuten al abrir una consola,
+   se pueden copiar al final del archivo =~/.ḃashrc= .
+
+   La segunda forma consiste en añadir el proxy a la información del
+   profile de =R=. Para esto, debe abrir el archivo oculto
+   =~.Renviron= (se puede abrir desde el mismo =R= usando el comando
+   =file.edit('~˙Renviron')=, y escribir allí
+   #+BEGIN_SRC sh
+http_proxy=http://USERNAME:PASSWORD@proxyapp.unal.edu.co:8080/
+http_proxy_user=USERNAME:PASSWORD
+
+https_proxy=https://USERNAME:PASSWORD@proxyapp.unal.edu.co:8080/
+https_proxy_user=USERNAME:PASSWORD
+   #+END_SRC
+   con la convención ya explicada. Este archivo es leido por =R= y por
+   =R studio=. En adelante, cada vez que se ejecute =R= se cargarán
+   estas variables.
+
+*** Instalación de paquetes
+   En este caso simplemente se debe entrar a =R= y ejecutar el comando
+   #+BEGIN_SRC sh
+   install.packages(c("ggplot", "dplyr", "p", "rgeos", "digest", "foreign"), repos="https://www.icesi.edu.co/CRAN/")
+   #+END_SRC
+   Ese repositorio/mirror está ubicado en Colombia y es rápido, pero se puede
+   usar cualquier otro.
+
+   Los paquetes quedaran instalados en las cuentas locales de los
+   usuarios. 
+** Anaconda problems with qt
+ If some error like "Cannot run ... QT ... xcb plugin ... " appears,
+ maybe it needs to fix permissions. Run the following command:
+ #+begin_src shell
+  sudo chmod 755 /opt/anaconda2/bin/qt.conf
+ #+end_src
+** Formating usb (recovering the usb)
+  Use gdisk
+  #+begin_src sh
+   gdisk
+   enter recovery
+   c
+   e
+   v
+   w
+   q
+  #+end_src
+  #+begin_src sh
+   parted /dev/sdb
+   mklabel GPT # accept destroying everything
+  #+end_src
+  Also you can use =cgdisk=.
+
+  To completely delete the fs signatures
+  #+begin_src 
+   wipefs --all --force /dev/sdb
+  #+end_src
+** DONE [OLD] Installation  and setup of gdb numpy
    CLOSED: [2019-10-16 Wed 10:30]
   Anaconda creates a lot of problems. It is necessary to clean the path. The command I used was:
   #+begin_src shell
   kash ". ~/.bashrc; . /home/oquendo/PATH.sh; installpkg /home/oquendo/Downloads/pip-9.0.1-x86_64-1_SBo.tgz; pip install matplotlib numpy; cd /home/oquendo/Escritorio/HerrComp/05-Debugging/gdb_numpy-1.0/; python setup.py install"
   #+end_src
   
-** DONE Armadillo problems with anaconda
+** DONE [OLD] Armadillo problems with anaconda
    CLOSED: [2019-10-16 Wed 10:31]
   When installing armadillo, it finds the anaconda MKL and then a lot
   of problems arise when trying to run progrms with armadillo. This
@@ -772,35 +993,42 @@ done
   commands. Solution? eliminate anaconda from the path and then use
   alias or simething similar, like linking anaconda python, ipython,
   etc to /usr/local/bin, and no more.
-
-** DONE Anaconda problems with qt
+** DONE [OLD] Anaconda problems with qt
    CLOSED: [2019-10-16 Wed 10:31]
   If some error like "Cannot run ... QT ... xcb plugin ... " appears,
   maybe it needs to fix permissions. Run the following command:
   #+begin_src shell
   sudo chmod 755 /opt/anaconda2/bin/qt.conf
   #+end_src
-** Formating usb (recovering the usb)
-   Use gdisk
-   #+begin_src sh
-   gdisk
-   enter recovery
-   c
-   e
-   v
-   w
-   q
-   #+end_src
-   #+begin_src sh
-   parted /dev/sdb
-   mklabel GPT # accept destroying everything
-   #+end_src
-   Also you can use =cgdisk=.
+** [OLD] Ubuntu and related
+*** Update git
+   #+BEGIN_SRC sh
+STATUS="$(grep -re wheezy-backports /etc/apt/sources.list | grep -v grep)"
+if [ x"${STATUS}" == x ]; then
+    echo "deb http://ftp.debian.org/debian wheezy-backports main" >> /etc/apt/sources.list
+fi
 
-   To completely delete the fs signatures
-   #+begin_src 
-   wipefs --all --force /dev/sdb
-   #+end_src
+apt-get update 
+
+apt-get -t  wheezy-backports install "git" -y   
+   #+END_SRC
+  
+** [OLD] Armadillo problems with anaconda
+ When installing armadillo, it finds the anaconda MKL and then a lot
+ of problems arise when trying to run progrms with armadillo. This
+ happens because putting anaconda bin on the path, in the first
+ place, "overwrites" pkgconfig and many other system
+ commands. Solution? eliminate anaconda from the path and then use
+ alias or simething similar, like linking anaconda python, ipython,
+ etc to /usr/local/bin, and no more.
+
+** [OLD] sbopkg behing firewall blocking rsync
+   From : https://www.linuxquestions.org/questions/slackware-14/sbopkg-problem-774301/
+   1. Download & install TOR from www.torproject.org
+   2. Install polipo & torsocks
+   3. Run "sudo torsocks sbopkg -r"
+   4. Done, repository synced!
+
 * PACKAGES
   This section is used to configure packages that have been already
   installed using the scripts inside the
@@ -815,6 +1043,15 @@ done
   - src2pkg: https://distro.ibiblio.org/amigolinux/download/src2pkg/
   - https://idlemoor.github.io/slackrepo/links.html
 
+** Spack
+   - clone it
+   - source env
+   - Setup http proxy in .curlrc as proxy = http://user,,,,
+   - bootstrap
+   - resource env and add this to bashrc
+   - Install whatever
+   - load whatever with modeule load
+   - make an example
 ** Ganglia
    [[http://ganglia.info/][Ganglia]] is a system used to monitor clusters. I will start using it
    to check the status of the computer room. The isnstallation is
@@ -930,31 +1167,45 @@ echo "Done"
 ** CDO [2019-09-18 Wed]
    Use alien AST
 ** GRADS [2019-09-18 Wed]
-   Use alien ATS
-** PyQt5 (for tortoisehg) 2018
-   https://slackbuilds.org/repository/14.2/libraries/PyQt5/
-   #+begin_src sh
-   wget http://downloads.sourceforge.net/pyqt/PyQt5_gpl-5.7.tar.gz
-   wget https://slackbuilds.org/slackbuilds/14.2/libraries/PyQt5.tar.gz
-   tar xvf PyQt5.tar.gz
-   cd PyQt5
-   ln -s ../PyQt5_gpl-5.7.tar.gz ./
-   bash PyQt5.SlackBuild.sh
-   #+end_src
-** mercurial 2018
-   #+begin_src sh
-   kash "source /root/.bashrc; conda install -y -c conda-forge mercurial"
-   #+end_src
+   Use alien AST
 ** Tortoisehg 2018
-   Download the source code and use src2pkg and install the package
-** kdiff3 2018
-   Use slackbuilds.org
+   Download the source code (and maybe use src2pkg) and install the
+   package. See https://tortoisehg.bitbucket.io/download/source.html
+** [OLD] Squid
+  #+begin_src sh
+   # only access from localhost is allowed
+acl localhost src 127.0.0.1/32
+acl all src all
+http_access allow localhost
+http_access deny all
+icp_access deny all
 
-* TIPS
-** For slackware packages, use slpkg 
-** sbopkg behing firewall blocking rsync
-   From : https://www.linuxquestions.org/questions/slackware-14/sbopkg-problem-774301/
-   1. Download & install TOR from www.torproject.org
-   2. Install polipo & torsocks
-   3. Run "sudo torsocks sbopkg -r"
-   4. Done, repository synced!
+never_direct allow all
+
+# turn off cache
+cache_dir null /tmp
+cache deny all
+
+# logs
+access_log /var/log/squid/access.log squid
+
+# turn off proxy-headers (no idea what is it :))
+via off
+forwarded_for off
+
+# describe external proxy server
+cache_peer 168.176.239.30 parent 8080 0 no-query default proxy-only login=fisicasop_fcbog:s4l4fis219
+http_port 10000
+acl port10000 myport 10000
+cache_peer_access 168.176.239.30 allow port10000
+  #+end_src
+* NOTES
+  #+begin_src shell
+alias psshn="pssh -i -A  -h /home/oquendo/MYHOSTS  -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null  -O  GlobalKnownHostsFile=/dev/null"
+
+psshn 'echo "check_certificate = off" > /root/.wgetrc'
+psshn 'source /root/.bashrc ; slackpkg -batch=on -default_answer=y update '
+#psshn 'killall -9 slackpkg; rm -f /var/lock/slackpkg.* '
+psshn 'source /root/.bashrc ; slackpkg -batch=on -default_answer=y upgrade patches '
+
+  #+end_src

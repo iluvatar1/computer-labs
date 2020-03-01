@@ -1,0 +1,30 @@
+set daemon 30
+set httpd port 2812 and 
+    USE ADDRESS localhost
+    ALLOW 127.0.0.1
+    ALLOW admin:monitabcde54321
+
+CHECK process cntlm with pidfile /var/run/cntlm.pid
+      matching "cntlm"
+      #start program = "/usr/bin/syncthing"
+      #stop program = "/usr/bin/killall syncthing"
+      start program = "/etc/rc.d/rc.cntlm start"
+      stop program = "/etc/rc.d/rc.cntlm stop"
+
+CHECK process dnsmasq with pidfile /var/run/dnsmasq.pid
+      start program = "/etc/rc.d/rc.dnsmasq start"
+      stop program = "/etc/rc.d/rc.dnsmasq stop"
+
+CHECK process x2goserver with pidfile /var/run/s2goserver.pid
+      start program = "/etc/rc.d/rc.x2goserver start"
+      stop program = "/etc/rc.d/rc.x2goserver stop"
+
+CHECK NETWORK eth0 with INTERFACE eth0
+      start program = "/etc/rc.d/rc.inet1 eth0_restart"
+      stop program = "/etc/rc.d/rc.inet1 eth0_stop"
+      if failed link then restart
+
+CHECK NETWORK eth1 with INTERFACE eth1
+      start program = "/etc/rc.d/rc.inet1 eth1_restart"
+      stop program = "/etc/rc.d/rc.inet1 eth1_stop"
+      if failed link then restart

@@ -29,67 +29,28 @@ if [[ $FORCE -eq 1 ]]; then
 fi
 echo "###############################################"
 
-# Configure root internet access
-MSG="Configuring proxy for root"
-start_msg "$MSG"
-bname="/root/.bashrc"
-if [ x"" == x"$(grep https_proxy ${bname})" ] || [ $FORCE -eq 1 ] ; then
-    touch $bname
-    backup_file $bname
-    cat <<EOF > $bname
-    export PROXY="$PROXY"
-    export http_proxy="http://\$PROXY"
-    export https_proxy="http://\$PROXY" 
-    export ftp_proxy="ftp://\$PROXY"
-    export RSYNC_PROXY="\$PROXY" 
-EOF
-else
-    echo "#    -> already configured."
-fi
-source /root/.bashrc
-end_msg "$MSG"
+     # Configure root internet access
+     MSG="Configuring proxy for root"
+     start_msg "$MSG"
+     bname="/root/.bashrc"
+     if [ x"" == x"$(grep https_proxy ${bname})" ] || [ $FORCE -eq 1 ] ; then
+	 touch $bname
+	 backup_file $bname
+	 cat <<EOF > $bname
+	 export PROXY="$PROXY"
+	 export http_proxy="http://\$PROXY"
+	 export https_proxy="http://\$PROXY" 
+	 export ftp_proxy="ftp://\$PROXY"
+	 export RSYNC_PROXY="\$PROXY" 
+     EOF
+     else
+	 echo "#    -> already configured."
+     fi
+     source /root/.bashrc
+     end_msg "$MSG"
 
 
-MSG="Installing slpkg"
-start_msg "$MSG"
-if $(command_exists slpkg) && [[ $FORCE -eq 0 ]]; then
-    echo "#    -> already installed"
-else
-    cd ~/Downloads
-    source /root/.bashrc
-    wget -c https://gitlab.com/dslackw/slpkg/-/archive/3.4.3/slpkg-3.4.3.tar.gz
-    tar xf slpkg-3.4.3.tar.gz
-    cd slpkg-3.4.3
-    ./install.sh
-    backup_file /etc/slpkg/slpkg.conf
-    sed -i.bck 's/DEFAULT_ANSWER=n/DEFAULT_ANSWER=y/' /etc/slpkg/slpkg.conf
-    sed -i.bck 's/DOWNDER_OPTIONS=.*/DOWNDER_OPTIONS=-c -N --no-check-certificate/' /etc/slpkg/slpkg.conf
-    backup_file /etc/slpkg/blacklist 
-    cat <<EOF > /etc/slpkg/blacklist
- kernel-firmware
- kernel-generic
- kernel-generic-smp
- kernel-headers
- kernel-huge
- kernel-huge-smp
- kernel-modules
- kernel-modules-smp
- kernel-source
 
- mozilla-firefox
-EOF
-    slpkg upgrade
-fi
-end_msg "$MSG"
-
-MSG="Configuring dhcpcd to send the mac to the dhcp server"
-start_msg "$MSG"
-if [ x"" != x"$(diff -q $FDIR/etc-dhcpcd.conf /etc/dhcpcd.conf)" ] || [[ $FORCE -eq 1 ]]; then 
-    copy_config "$FDIR/etc-dhcpcd.conf" "/etc/dhcpcd.conf"
-else 
-   echo "#    -> already configured"
-fi
-end_msg "$MSG"
 
 # network interfaces
 MSG="Configuring network interfaces "
@@ -127,6 +88,7 @@ MSG="Fixing xinitrc on /etc/skel"
 start_msg "$MSG"
 if [ ! -f /etc/skel/.xinitrc ] || [[ $FORCE -eq 1 ]]; then 
     cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xinitrc
+    chmod +x /etc/skel/.xinitrc
 else
     echo "#    -> Already fixed"
 fi
@@ -146,7 +108,7 @@ MSG="Configuring default X windows keyboard to be latam ..."
 start_msg "$MSG"
 bfile=/etc/X11/xorg.conf.d/90-keyboard-layout.conf
 #if [ $(pattern_not_present "latam" "$bfile") ]; then 
-if [ x"" == x"$(grep latam ${bfile})" ] || [ $FORCE -eq 1 ] ; then
+if [ x"" == x"$(grep latam ${bfile} 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
     if [ -f $bfile ]; then
 	backup_file $bfile
     fi
@@ -216,11 +178,12 @@ if [ "$TARGET" == "SERVER" ]; then
 	#sbopkg -e stop -B -k -i arno-iptables-firewall
 	source /root/.bashrc
 	slpkg upgrade
-	slpkg -s sbo arno-iptables-firewall-2.0.1e-noarch-3_SBo
+	#slpkg -s sbo arno-iptables-firewall-2.0.1e-noarch-3_SBo
+	slpkg -s sbo arno-iptables-firewall
 	ln -svf /etc/rc.d/rc.arno-iptables-firewall /etc/rc.d/rc.firewall
 	copy_config "$FDIR/SERVER-firewall.conf" "/etc/arno-iptables-firewall/firewall.conf"
 	chmod o-rwx /etc/arno-iptables-firewall/firewall.conf
-	chmod +x /etc/rc.d/rc.firewall
+	chmod +x /etc/rc.d/rc.arno-iptables-firewall
     fi
     /etc/rc.d/rc.firewall restart
     end_msg "$MSG"
@@ -257,7 +220,6 @@ else
     else
 	echo "#    -> already configured"
     fi
-    mount -a 
 fi
 end_msg "$MSG"
 
@@ -299,6 +261,9 @@ end_msg "$MSG"
              bfile="/etc/defaultdomain"
              backup_file $bfile
              echo ${NISDOMAIN} > $bfile  
+	     bfile="/etc/rc.d/rc.local"
+	     backup_file $bfile
+	     echo 'nisdomainname -F /etc/defaultdomain' > $bfile
              bfile="/etc/yp.conf"
              backup_file $bfile
              echo "ypserver ${SERVERIP}" > $bfile
@@ -322,12 +287,29 @@ end_msg "$MSG"
              echo "#    -> already configured."
          fi
      fi
-     /etc/rc.d/rc.yp restart    
-     /etc/rc.d/rc.nfsd restart
-     /etc/rc.d/rc.inet2 restart
-     rpcinfo -p localhost
-
+     nisdomainname -F /etc/defaultdomain
      end_msg "$MSG"
+
+
+MSG="Configuring monit on server "
+start_msg "$MSG"
+if [ "$TARGET" == "SERVER" ]; then 
+    if $(command_exists monit) && [[ $FORCE -eq 0 ]]; then
+	echo "#    -> already installed"
+    else
+	source /root/.bashrc
+	slpkg -s sbo monit
+	chmod +x /etc/rc.d/rc.monit 
+	backup_file /root/.monitrc
+	copy_config "$FDIR/SERVER-root-dotmonitrc" "/root/.monitrc"
+	backup_file /etc/rc.d/rc.local
+	echo "/usr/bin/monit -c /root/.monitrc &> /var/log/log-monit-root&" >> /etc/rc.d/rc.local
+	/etc/rc.d/rc.monit restart
+    fi
+else
+    echo "Not configuring on client (for now)."
+fi
+end_msg "$MSG"
 
 
 if [ "$TARGET" == "CLIENT" ]; then 
@@ -341,6 +323,18 @@ if [ "$TARGET" == "CLIENT" ]; then
 	chmod 640 /root/.ssh/authorized_keys
     else
 	echo "#    -> already configured"
+    fi
+    end_msg "$MSG"
+    
+    MSG="Allowing root login for client"
+    start_msg "$MSG"
+    bfile="/etc/ssh/sshd_config"
+    if [ x"" == x"$(grep '^PermitRootLogin.*yes' $bfile)" ] || [ $FORCE -eq 1 ] ; then
+	backup_file $bfile
+	echo "PermitRootLogin yes" >> $bfile
+	/etc/rc.d/rc.sshd restart
+    else
+	echo "#    -> already_configured"
     fi
     end_msg "$MSG"
 fi
@@ -368,30 +362,28 @@ fi
 end_msg "$MSG"
 
 
-MSG="Configuring crontab "
+MSG="Configuring crontab per minute, hour, daily, etc"
 start_msg "$MSG"
 crontab -l > /tmp/crontab
 if [ "$TARGET" == "SERVER" ]; then
-    #if [ $(pattern_not_present "network.sh" "/tmp/crontab") ] ; then 
-    if [ x"" == x"$(grep network.sh /etc/crontab)" ] || [ $FORCE -eq 1 ] ; then
+    if [ x"" == x"$(grep minute_maintenance.sh /etc/crontab)" ] || [ $FORCE -eq 1 ] ; then
 	crontab $FDIR/SERVER-crontab -u root
     else
-	echo "#    -> Already configured"
+	echo "#    -> Already configured (per minute)"
     fi
-else
-    #if [ $(pattern_not_present "check_status.sh" "/tmp/crontab") ] ; then 
+    TNAME="/etc/cron.daily/daily_maintenance.sh"
+    if [ ! -f $TNAME ] || [ $FORCE -eq 1 ]; then
+        copy_config $FDIR/SERVER-cron/daily_maintenance.sh "$TNAME"
+    else
+        echo "#    -> Already configured (daily)"
+    fi
+else # CLIENT
     if [ x"" == x"$(grep check_status.sh /tmp/crontab)" ] || [ $FORCE -eq 1 ] ; then
 	crontab $FDIR/CLIENT-crontab -u root
     else
 	echo "#    -> Already configured"
     fi
 fi
-echo "Adding install packages scripts to cron.hourly"
-bname=install_upgrade_slackware_packages.sh
-if [ ! -f /etc/cron.hourly/$bname ]; then
-    cp $FDIR/etc-cron.hourly-$bname /etc/cron.hourly/$bname
-fi
-
 end_msg "$MSG"
 
 
@@ -416,3 +408,11 @@ else
     echo "Not configuring on client."
 fi
 end_msg "$MSG"
+
+
+# run services (better done on script that keeps the system up, when the client is on the network)
+#/etc/rc.d/rc.nfsd restart
+#mount -a 
+#/etc/rc.d/rc.yp restart    
+#/etc/rc.d/rc.inet2 restart
+#rpcinfo -p localhost
