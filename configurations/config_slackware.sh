@@ -50,13 +50,20 @@ function timezone {
 
 function activate_wakeonlan {
     # see: https://docs.slackware.com/howtos:network_services:wol
-    echo "Setting Wake-on-LAN to Enabled"
+    echo "Activating wakeonlan on rc.local"
+    if [ x"" = x"$(grep wol /etc/rc.d/rc.local | grep -v grep)" ]; then
+	backup_file /etc/rc.d/rc.local
+	echo 'echo \"Setting Wake-on-LAN to Enabled\"' >> /etc/rc.d/rc.local
+	echo '/usr/sbin/ethtool -s eth0 wol g' >> /etc/rc.d/rc.local
+    else
+	configured
+    fi
     /usr/sbin/ethtool -s eth0 wol g
 }
 
 function slim {
     echo "Configuring slim login manager"
-    if [ x"" == x"$(grep slim /etc/rc.d/rc.4 | grep -v grep)" ]; then
+    if [ x"" = x"$(grep slim /etc/rc.d/rc.4 | grep -v grep)" ]; then
 	backup_file /etc/rc.d/rc.4
 	sed -i.bck '/echo "Starting up X11 session manager..."/a \\n# start SLiM ...\nif [ -x /usr/bin/slim ]; then exec /usr/bin/slim; fi ' /etc/rc.d/rc.4
 	ln -sf /etc/X11/xinit/xinitrc.xfce /etc/X11/xinitrc
