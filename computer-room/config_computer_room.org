@@ -445,32 +445,51 @@ end_msg "$MSG"
    This crontab reads a given script and runs it every some time
    #+name:crontab_config
    #+begin_src sh :exports code 
-MSG="Configuring crontab "
+MSG="Configuring crontab per minute, hour, daily, etc"
 start_msg "$MSG"
 crontab -l > /tmp/crontab
 if [ "$TARGET" == "SERVER" ]; then
-    #if [ $(pattern_not_present "network.sh" "/tmp/crontab") ] ; then 
-    if [ x"" == x"$(grep network.sh /etc/crontab)" ] || [ $FORCE -eq 1 ] ; then
+    if [ x"" == x"$(grep minute_maintenance.sh /etc/crontab)" ] || [ $FORCE -eq 1 ] ; then
 	crontab $FDIR/SERVER-crontab -u root
     else
-	echo "#    -> Already configured"
+	echo "#    -> Already configured (per minute)"
     fi
-else
-    #if [ $(pattern_not_present "check_status.sh" "/tmp/crontab") ] ; then 
+    TNAME="/etc/cron.daily/daily_maintenance.sh"
+    if [ ! -f $TNAME ] || [ $FORCE -eq 1 ]; then
+        copy_config $FDIR/SERVER-cron/daily_maintenance.sh "$TNAME"
+    else
+        echo "#    -> Already configured (daily)"
+    fi
+else # CLIENT
     if [ x"" == x"$(grep check_status.sh /tmp/crontab)" ] || [ $FORCE -eq 1 ] ; then
 	crontab $FDIR/CLIENT-crontab -u root
     else
 	echo "#    -> Already configured"
     fi
 fi
-bname=install_upgrade_slackware_packages.sh
-if [ ! -f /etc/cron.hourly/$bname ]; then
-    echo "Adding install packages scripts to cron.hourly"
-    cp $FDIR/etc-cron.hourly-$bname /etc/cron.hourly/$bname
-fi
-
 end_msg "$MSG"
 
+   #+end_src
+** PACKAGES
+   This uses the ~/home/PACKAGES.list~ approach read by the weekly
+   cronjob to install the needed packages. Of course, it can be run
+   when sooner, when needed.
+   #+begin_src shell
+MSG="Creating package list"
+start_msg "$MSG"
+if [ "TARGET" == "SERVER" ]; then
+    if [ ! -f /home/PACKAGES.list ]; then
+	cat << EOF > /home/PACKAGES.list
+bonnie++ arno-iptables-firewall iotop wol squid tor  autossh  parallel sshfs-fuse xfce4-xkb-plugin
+dropbox ffmpeg syncthing
+ganglia ganglia-web glusterfs rrdtool papi openmpi hdf5 
+octave qtoctave codeblocks geany kdiff3 kile 
+R grads rstudio-desktop cdo 
+obs-studio ssr asciinema 
+EOF
+    fi
+fi
+end_msg "$MSG"
    #+end_src
 ** ONGOING Install and configure monit 
    Monit is a tool that allows to monitor and restart if needed

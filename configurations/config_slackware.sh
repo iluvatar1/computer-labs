@@ -94,12 +94,11 @@ function lilo {
 }
 
 function cron_update_slackware {
-    echo "Configuring cronjob for updating slackware"
-    bname="update_slackware"
-    if [ ! -f /etc/cron.d/${bname}_cronjob ] || [ ! -f /root/scripts/${bname}.sh ]; then
+    echo "Configuring cronjob for updating slackware patches and firefox"
+    bname="$HOME/repos/computer-labs/configurations/install_upgrade_slackware_packages.sh"
+    if [ ! -f "/etc/cron.weekly/${bname}" ]; then
 	mkdir -p /root/scripts 2>/dev/null
-	cp -f ${bname}.sh /root/scripts/
-	cp -f ${bname}_cronjob /etc/cron.d/
+	cp -f ${bname} /etc/cron.weekly/
     else
 	configured
     fi
