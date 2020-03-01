@@ -549,14 +549,8 @@ if $(command_exists slim) && [[ $FORCE -eq 0 ]]; then
 else
     source /root/.bashrc
     slpkg -s sbo slim
-    chmod +x /etc/rc.d/rc.cntlm 
-    backup_file /etc/cntlm.conf
-    copy_config "$FDIR/SERVER-etc-cntlm.conf" "/etc/cntlm.conf"
-    echo "Please write the password for the account to be used with cntlm"
-    cntlm -H > /tmp/cntlm-hashed
-    cat /tmp/cntlm-hashed >> /etc/cntlm.conf
-    rm -f /tmp/cntlm-hashed
-    /etc/rc.d/rc.cntlm restart
+    # The script config_slackware already added slim as an alternative 
+    # TODO Setup a nicer theme
 fi
 end_msg "$MSG"
 
