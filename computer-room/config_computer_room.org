@@ -72,17 +72,6 @@ PROXY=${SERVERIP}:3128
      end_msg "$MSG"
 
    #+END_SRC
-** [Deprecated] Installing sbopkg                                  :noexport:
-   #+NAME: sbopkg_config
-   #+BEGIN_SRC bash :exports code 
-MSG="Installing sbopkg"
-echo "$MSG"
-installpkg "$FDIR/sbopkg-0.38.1-noarch-1_wsr.tgz"
-echo "DONE: $MSG"
-   #+END_SRC
-
-** [Deprecated] Install slpkg : Moved to slackware config.         :noexport:
-** [Deprecated] Moved to slackware config: Fix dhcpcd client (advertise mac address instead of ipv6 stuff)  
 ** Fix xinitrc
    #+NAME: xinitrc_config
    #+BEGIN_SRC bash :exports code
@@ -652,6 +641,16 @@ echo "###############################################"
    - https://stackoverflow.com/questions/43597283/pass-the-password-as-an-argument-in-pssh
    - https://www.golinuxcloud.com/pssh-public-key-authentication-passwordless/
 
+** [Deprecated] Installing sbopkg                                  :noexport:
+   #+NAME: sbopkg_config
+   #+BEGIN_SRC bash :exports code 
+MSG="Installing sbopkg"
+echo "$MSG"
+installpkg "$FDIR/sbopkg-0.38.1-noarch-1_wsr.tgz"
+echo "DONE: $MSG"
+   #+END_SRC
+** [Deprecated] Install slpkg : Moved to slackware config.         :noexport:
+** [Deprecated] Moved to slackware config: Fix dhcpcd client (advertise mac address instead of ipv6 stuff)  
 * Auxiliary scripts
 ** Create an user
   #+BEGIN_SRC sh :exports code :mkdirp yes :tangle scripts/create_user.sh 
