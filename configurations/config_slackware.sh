@@ -93,7 +93,7 @@ function dhcp_eth1 {
     fi
 }
 
-function lilo {
+function lilo_time {
     # Configuring lilo
     echo "Configuring lilo delay time to 5 seconds ..."
     bname="/etc/lilo.conf"
@@ -189,7 +189,7 @@ timezone
 slim
 slackpkgmirror
 dhcp_eth1
-lilo
+lilo_time
 cron_update_slackware
 slpkg_install
 dhcpcd_clientid
