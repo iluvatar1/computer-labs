@@ -48,6 +48,12 @@ function timezone {
     fi
 }
 
+function activate_wakeonlan {
+    # see: https://docs.slackware.com/howtos:network_services:wol
+    echo "Setting Wake-on-LAN to Enabled"
+    /usr/sbin/ethtool -s eth0 wol g
+}
+
 function slim {
     echo "Configuring slim login manager"
     if [ x"" == x"$(grep slim /etc/rc.d/rc.4 | grep -v grep)" ]; then
@@ -87,10 +93,10 @@ function lilo {
     if [ x"" == x"$(grep -re 'timeout.*50' 2>/dev/null $bname)" ]; then
 	backup_file $bname
 	sed -i.bck 's/timeout = 1200/timeout = 50/' $bname
-	lilo
     else
 	configured
     fi
+    lilo
 }
 
 function cron_update_slackware {
@@ -180,5 +186,6 @@ lilo
 cron_update_slackware
 slpkg_install
 dhcpcd_clientid
+activate_wakeonlan
 
 echo "Done."
