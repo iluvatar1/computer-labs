@@ -196,8 +196,8 @@ function config_ntp {
 # dnsmasq
 function config_dnsmasq {
     MSG="Configuring dnsmasq "
+    start_msg "$MSG"
     if [ "$TARGET" == "SERVER" ]; then
-	start_msg "$MSG"
 	TFILE="/etc/dnsmasq.conf"
 	if [ ! -f $TFILE ] || [ $FORCE -eq 1 ]; then  
 	    copy_config "$FDIR/SERVER-etc-dnsmasq.conf" "$TFILE"
@@ -211,8 +211,10 @@ function config_dnsmasq {
 	fi
 	chmod +x /etc/rc.d/rc.dnsmasq 
 	/etc/rc.d/rc.dnsmasq restart
-	end_msg "DONE: $MSG"
+    else
+        echo "Not configuring on client" 
     fi
+    end_msg $MSG"
 }
    #+END_SRC
 
