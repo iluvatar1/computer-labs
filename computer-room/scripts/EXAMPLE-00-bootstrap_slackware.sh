@@ -135,8 +135,8 @@ EOF
 
 # ntp server
 function config_ntp {
+    MSG="Configuring ntp "
     if [ "$TARGET" == "CLIENT" ]; then
-	MSG="Configuring ntp "
 	start_msg "$MSG"
 	#if [ $(pattern_not_present "$SERVERIP" "/etc/ntp.conf") ]; then
 	if [ x"" == x"$(grep $SERVERIP /etc/ntp.conf)" ] || [ $FORCE -eq 1 ] ; then
@@ -149,15 +149,17 @@ function config_ntp {
 	else
 	    echo "#    -> already configured"
 	fi
-	end_msg "$MSG"
+    else
+	echo "# Not configuring ntp on server"
     fi
+    end_msg "$MSG"
 }
 
 # dnsmasq
 function config_dnsmasq {
     MSG="Configuring dnsmasq "
+    start_msg "$MSG"
     if [ "$TARGET" == "SERVER" ]; then
-	start_msg "$MSG"
 	TFILE="/etc/dnsmasq.conf"
 	if [ ! -f $TFILE ] || [ $FORCE -eq 1 ]; then  
 	    copy_config "$FDIR/SERVER-etc-dnsmasq.conf" "$TFILE"
@@ -171,8 +173,10 @@ function config_dnsmasq {
 	fi
 	chmod +x /etc/rc.d/rc.dnsmasq 
 	/etc/rc.d/rc.dnsmasq restart
-	end_msg "DONE: $MSG"
+    else
+        echo "Not configuring on client" 
     fi
+    end_msg $MSG"
 }
 
 # firewall 
