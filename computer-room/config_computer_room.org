@@ -519,7 +519,7 @@ end_msg "$MSG"
    #+begin_src sh :exports code
 MSG="Configuring cntlm on server "
 start_msg "$MSG"
-if [ "$TARGET" == "$SERVER" ]; then 
+if [ "$TARGET" == "SERVER" ]; then 
     if $(command_exists cntlm) && [[ $FORCE -eq 0 ]]; then
 	echo "#    -> already installed"
     else
