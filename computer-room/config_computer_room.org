@@ -188,7 +188,7 @@ fi
 # dnsmasq
 MSG="Configuring dnsmasq "
 if [ "$TARGET" == "SERVER" ]; then
-    start_msg "$MGS"
+    start_msg "$MSG"
     TFILE="/etc/dnsmasq.conf"
     if [ ! -f $TFILE ] || [ $FORCE -eq 1 ]; then  
 	copy_config "$FDIR/SERVER-etc-dnsmasq.conf" "$TFILE"
@@ -200,6 +200,7 @@ if [ "$TARGET" == "SERVER" ]; then
     else
 	echo "Already configured. Restarting services ..."
     fi
+    chmod +x /etc/rc.d/rc.dnsmasq 
     /etc/rc.d/rc.dnsmasq restart
     end_msg "DONE: $MSG"
 fi
