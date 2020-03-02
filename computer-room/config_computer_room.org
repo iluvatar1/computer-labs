@@ -169,8 +169,8 @@ function config_network {
    #+begin_src sh 
 # ntp server
 function config_ntp {
+    MSG="Configuring ntp "
     if [ "$TARGET" == "CLIENT" ]; then
-	MSG="Configuring ntp "
 	start_msg "$MSG"
 	#if [ $(pattern_not_present "$SERVERIP" "/etc/ntp.conf") ]; then
 	if [ x"" == x"$(grep $SERVERIP /etc/ntp.conf)" ] || [ $FORCE -eq 1 ] ; then
@@ -183,8 +183,10 @@ function config_ntp {
 	else
 	    echo "#    -> already configured"
 	fi
-	end_msg "$MSG"
+    else
+	echo "# Not configuring ntp on server"
     fi
+    end_msg "$MSG"
 }
    #+end_src
 
