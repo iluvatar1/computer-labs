@@ -484,6 +484,7 @@ function config_crontab {
    This uses the ~/home/PACKAGES.list~ approach read by the weekly
    cronjob to install the needed packages. Of course, it can be run
    when sooner, when needed.
+   #+name: packages_config
    #+begin_src shell
 function config_packages {
     MSG="Creating package list"
@@ -640,6 +641,8 @@ echo "###############################################"
 <<shutdown_config>>
 
 <<crontab_config>>
+
+<<packages_config>>
 
 <<cntlm_config>>
 
