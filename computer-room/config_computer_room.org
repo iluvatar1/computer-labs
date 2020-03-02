@@ -564,12 +564,13 @@ end_msg "$MSG"
 # NOTE: The original base file is in the config_computer_room.org file
 
 SCRIPTS_DIR=$HOME/repos/computer-labs/computer-room/scripts
+CONFIG=${CONFIG:-params.conf}
 
-if [ ! -f params.conf ]; then 
-    echo "ERROR: Config file not found -> params.conf"
+if [ ! -f $CONFIG ]; then 
+    echo "ERROR: Config file not found -> $CONFIG"
     exit 1
 fi
-source params.conf
+source $CONFIG
 source $SCRIPTS_DIR/util_functions.sh
 
 # check args
