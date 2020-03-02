@@ -439,7 +439,7 @@ MSG="Configuring crontab per minute, hour, daily, etc"
 start_msg "$MSG"
 crontab -l > /tmp/crontab
 if [ "$TARGET" == "SERVER" ]; then
-    if [ x"" == x"$(grep minute_maintenance.sh /etc/crontab)" ] || [ $FORCE -eq 1 ] ; then
+    if [ x"" == x"$(grep minute_maintenance.sh /tmp/crontab)" ] || [ $FORCE -eq 1 ] ; then
 	crontab $FDIR/SERVER-crontab -u root
     else
 	echo "#    -> Already configured (per minute)"
