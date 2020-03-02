@@ -29,25 +29,25 @@ if [[ $FORCE -eq 1 ]]; then
 fi
 echo "###############################################"
 
-     # Configure root internet access
-     MSG="Configuring proxy for root"
-     start_msg "$MSG"
-     bname="/root/.bashrc"
-     if [ x"" == x"$(grep https_proxy ${bname})" ] || [ $FORCE -eq 1 ] ; then
-	 touch $bname
-	 backup_file $bname
-	 cat <<EOF > $bname
-	 export PROXY="$PROXY"
+# Configure root internet access
+MSG="Configuring proxy for root"
+start_msg "$MSG"
+bname="/root/.bashrc"
+if [ x"" == x"$(grep https_proxy ${bname})" ] || [ $FORCE -eq 1 ] ; then
+    touch $bname
+    backup_file $bname
+    cat <<EOF > $bname
+    	 export PROXY="$PROXY"
 	 export http_proxy="http://\$PROXY"
 	 export https_proxy="http://\$PROXY" 
 	 export ftp_proxy="ftp://\$PROXY"
 	 export RSYNC_PROXY="\$PROXY" 
-     EOF
-     else
-	 echo "#    -> already configured."
-     fi
-     source /root/.bashrc
-     end_msg "$MSG"
+EOF
+else
+    echo "#    -> already configured."
+fi
+source /root/.bashrc
+end_msg "$MSG"
 
 
 
