@@ -176,7 +176,7 @@ function config_dnsmasq {
     else
         echo "Not configuring on client" 
     fi
-    end_msg $MSG"
+    end_msg "$MSG"
 }
 
 # firewall 
