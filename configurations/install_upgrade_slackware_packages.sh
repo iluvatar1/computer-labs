@@ -13,7 +13,7 @@ source /root/.bashrc
 
 echo "Configuring and updating slpkg ... "
 # Check slackware version
-if [ x"$(grep 14.2+ /etc/slackware-version | grep -v grep)" != x"" ]; then
+if [ x"$(grep 14.2+ /etc/slackware-version | grep -v grep)" == x"" ]; then
     sed -i.bck 's/RELEASE=.*/RELEASE=stable/' /etc/slpkg/slpkg.conf;
 else
     sed -i.bck 's/RELEASE=.*/RELEASE=current/' /etc/slpkg/slpkg.conf;
