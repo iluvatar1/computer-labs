@@ -407,6 +407,24 @@ function config_crontab {
     end_msg "$MSG"
 }
 
+function config_packages {
+    MSG="Creating package list"
+    start_msg "$MSG"
+    if [ "TARGET" == "SERVER" ]; then
+	if [ ! -f /home/PACKAGES.list ]; then
+	    cat << EOF > /home/PACKAGES.list
+bonnie++ arno-iptables-firewall iotop wol squid tor  autossh  parallel sshfs-fuse xfce4-xkb-plugin
+dropbox ffmpeg syncthing
+ganglia ganglia-web glusterfs rrdtool papi openmpi hdf5 
+octave qtoctave codeblocks geany kdiff3 kile 
+R grads rstudio-desktop cdo 
+obs-studio ssr asciinema 
+EOF
+	fi
+    fi
+    end_msg "$MSG"
+}
+
 function config_cntlm {
     MSG="Configuring cntlm on server "
     start_msg "$MSG"
