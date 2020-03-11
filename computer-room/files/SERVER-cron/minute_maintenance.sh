@@ -2,15 +2,23 @@
 
 echo "Testing network interfaces ..."
 date +%c
-stat=$(/sbin/ifconfig | grep 168.176);
+stat=$(/sbin/ifconfig | grep 168.176.35.111);
 if [ "" == "$stat" ]; then
     echo "Restarting eth0 ..."
     #    /sbin/ifup eth1
     #/sbin/ifconfig eth0 down
     #/sbin/ifconfig eth0 up
+    #/etc/rc.d/rc.inet1 eth0_restart
+
+    # sometimes is usefull to flush the cache, but it takes around 10 secs
+    # ip addr flush dev eth0
+    dhcpcd -k
+    pkill dhclient
+    sleep 1
     /etc/rc.d/rc.inet1 eth0_restart
+    #/sbin/dhclient eth0
 fi
-stat=$(/sbin/ifconfig | grep 192.168);
+stat=$(/sbin/ifconfig | grep 192.168.10.1);
 if [ x"" == x"$stat" ]; then
     echo "Restarting eth1 ..."
     #/sbin/ifconfig eth1 down
@@ -24,8 +32,9 @@ fi
 
 # wake on lan
 echo "Wakeonlan"
-if [ ! -f /root/MACS ]; then 
-    wakeonlan -i 192.168.10.255 -f /root/MACS
+if [ -f /root/MACS ] ; then 
+    wol -i 192.168.10.255 -f /root/MACS
+    #wol -f /root/MACS
 else
     echo "File does not exists: /root/MACS"
 fi
@@ -33,5 +42,5 @@ fi
 echo "rebuild nis database"
 make -C /var/yp
 
-echo "Advertising correct speed for eth1"
-ethtool -s eth1 advertise 0x020
+#echo "Advertising correct speed for eth1"
+#ethtool -s eth1 advertise 0x010
