@@ -12,6 +12,13 @@ either a client or a server. At the end
 you just run the mentioned script and hopefully everything will work
 as expected. 
 
+- Check https://www.redhat.com/sysadmin/my-survival-kit
+
+*  Tasks [0/1]
+  - [ ] To burn_persistence liveslak :
+    - [ ] add upslak.sh command to increase the wait time to at least 20 secs
+    - [ ] Add required modules like valgrind, ddd, etc 
+
 * Description
   - The system to be installed is slackware 14.2 64bits, although some script
     might help to keep it updated
@@ -1249,3 +1256,8 @@ psshn 'source /root/.bashrc ; slackpkg -batch=on -default_answer=y update '
 psshn 'source /root/.bashrc ; slackpkg -batch=on -default_answer=y upgrade patches '
 
   #+end_src
+
+* To check
+  - Munge for auth: https://dun.github.io/munge/
+  - ldap for auth: link with unal server 
+  - pdsh: Parallel shell  https://github.com/chaos/pdsh

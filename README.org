@@ -105,3 +105,6 @@ structure and usage.
    Here are several examples to create either a basebox and some
    vagrantfiles .  
 
+* TOCHECK 
+  - https://github.com/bifferos/explodeinstaller
+  - https://github.com/akosiaris/packer-slackware/blob/master/slackware64-14.2.json
