@@ -34,4 +34,4 @@ echo "rebuild nis database"
 make -C /var/yp
 
 echo "Advertising correct speed for eth1"
-ethtool -s eth1 advertise 0x020
+ethtool -s eth1 advertise 0x010
