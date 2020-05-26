@@ -10,9 +10,13 @@ SPACK_PKGS=(gsl)
 # Functions definitions
 ###############################################################################
 install_with_slpkg () {
-    slpkg update
+    rm -f /var/log/slpkg.log
+    slpkg update >> /var/log/slpkg.log
     for pkg in "${SLPKG_PKGS[@]}"; do
-	slpkg -s sbo "$pkg"
+	# First check if package can be downloaded from droplet
+
+	# Package must be compiled
+	slpkg -s sbo "$pkg" >> /var/log/slpkg.log
     done
 }
 
