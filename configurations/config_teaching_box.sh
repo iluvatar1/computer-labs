@@ -11,13 +11,13 @@ SPACK_PKGS=(gsl)
 ###############################################################################
 install_with_slpkg () {
     slpkg update
-    for pkg in "${SPACK_PKGS[@]}"; do
+    for pkg in "${SLPKG_PKGS[@]}"; do
 	slpkg -s sbo "$pkg"
     done
 }
 
 install_with_spack () {
-    for pkg in "${SLPKG_PKGS[@]}"; do
+    for pkg in "${SPACK_PKGS[@]}"; do
 	spack install "$pkg"
     done
 }
