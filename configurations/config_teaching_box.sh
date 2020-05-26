@@ -68,7 +68,7 @@ install_perf () {
     MSG="Installing perf ..."
     echo "$MSG"
     sleep 2
-    if ! command perf 2>/dev/null; then
+    if ! hash perf 2>/dev/null; then
 	cd /usr/src/linux/tools/perf || exit
 	VERSION=$(uname -r) make -j 2 prefix=/usr/local install
 	echo "Done"
@@ -106,7 +106,7 @@ rm -f /var/log/log-install.txt 2>/dev/null
     bash config_slackware.sh 
     bash /etc/rc.d/rc.inet1 restart 
     check_live_user
-    bash install_binary_packages
+    install_binary_packages
     install_with_slpkg 
     install_spack 
     install_with_spack 
