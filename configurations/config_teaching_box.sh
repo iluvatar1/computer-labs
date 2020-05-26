@@ -27,11 +27,11 @@ install_spack () {
     echo "$MSG"
     sleep 2
     if [ ! -d /home/live/repos/spack ]; then
-	su - live
 	mkdir -p /home/live/repos/ 
 	cd /home/live/repos/ || exit 1
 	git clone https://github.com/spack/spack 
-	echo "source /home/live/repos/spack/share/spack/setup-env.sh" >> ~/.bashrc
+	echo "source /home/live/repos/spack/share/spack/setup-env.sh" >> /home/live/.bashrc
+	chown -R live /home/live/repos /home/live/.bashrc
 	echo "Done"
     else
 	echo "Already installed"
@@ -65,14 +65,35 @@ install_perf () {
     fi
 }
 
+install_latest_firefox() {
+    MSG="Installing latest firefox ..."
+    echo "$MSG"
+    sleep 2
+    if [ x"" != x"$(firefox --version | grep esr)" ]; then
+	cd
+	if [ ! -d $HOME/repos/ ]; then
+	    mkdir -p $HOME/repos
+	fi 
+	cd $HOME/repos || exit
+	if [ ! -d computer-labs ]; then
+	    git clone https://github.com/iluvatar1/computer-labs
+	fi
+	cd computer-labs || exit
+	bash packages/latest-firefox.sh -i
+	echo "Done"
+    else
+	echo "Already installed: $(firefox --version)"
+    fi
+}
 
 ###############################################################################
 # Main 
 ###############################################################################
-bash config_slackware.sh 
-check_live_user
-install_with_slpkg
-install_spack
-install_with_spack
-install_perf
-bash /root/repos/computer-labs/packages/latest-firefox.sh -i
+rm -f /var/log/log-install.txt 2>/dev/null
+bash config_slackware.sh >> /var/log/log-install.txt
+check_live_user >> /var/log/log-install.txt
+install_with_slpkg >> /var/log/log-install.txt
+install_spack >> /var/log/log-install.txt
+install_with_spack >> /var/log/log-install.txt
+install_perf >> /var/log/log-install.txt
+install_latest_firefox >> /var/log/log-install.txt
