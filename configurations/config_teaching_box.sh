@@ -31,7 +31,7 @@ install_with_slpkg () {
 
 install_with_spack () {
     for pkg in "${SPACK_PKGS[@]}"; do
-	sudo -u live spack install "$pkg"
+	sudo -u live /home/live/repos/spackbin/spack install "$pkg"
     done
 }
 
