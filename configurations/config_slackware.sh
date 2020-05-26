@@ -183,6 +183,10 @@ function dhcpcd_clientid {
     fi
 }
 
+#####################################################
+# MAIN
+#####################################################
+
 inittab
 services_nfs_ssh
 timezone
@@ -190,7 +194,7 @@ slim
 slackpkgmirror
 dhcp_eth1
 lilo_time
-cron_update_slackware
+# cron_update_slackware # This is better to be run after testing on one machine
 slpkg_install
 dhcpcd_clientid
 activate_wakeonlan
