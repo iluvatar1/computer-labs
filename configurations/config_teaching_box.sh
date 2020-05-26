@@ -9,13 +9,14 @@ SPACK_PKGS=(gsl)
 ###############################################################################
 # Functions definitions
 ###############################################################################
-install_with_spack () {
+install_with_slpkg () {
+    slpkg update
     for pkg in "${SPACK_PKGS[@]}"; do
 	slpkg -s sbo "$pkg"
     done
 }
 
-install_with_slpkg () {
+install_with_spack () {
     for pkg in "${SLPKG_PKGS[@]}"; do
 	spack install "$pkg"
     done
@@ -54,8 +55,10 @@ install_perf () {
     MSG="Installing perf ..."
     echo "$MSG"
     sleep 2
+
     if ! command perf 2>/dev/null; then
-	VERSION=$(uname -r) slpkg -s sbo perf
+	cd /usr/src/linux/tools/perf || exit
+	make -j 2 prefix=/usr/local install
 	echo "Done"
     else
 	echo "Already installed"
@@ -72,4 +75,4 @@ install_with_slpkg
 install_spack
 install_with_spack
 install_perf
-bash ../packages/latest-firefox.sh -i
+bash /root/repos/computer-labs/packages/latest-firefox.sh -i

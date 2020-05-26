@@ -121,11 +121,14 @@ function slpkg_aux {
     echo "You might need to setup a proxy ..."
     sleep 5
     VERSION=$1
-    cd ~/Downloads
-    source /root/.bashrc
-    wget -c https://gitlab.com/dslackw/slpkg/-/archive/$VERSION/slpkg-$VERSION.tar.gz
-    tar xf slpkg-$VERSION.tar.gz
-    cd slpkg-$VERSION
+    mkdir ~/Downloads 2>/dev/null
+    cd ~/Downloads || exit
+    if [ -f /root/.bashrc ]; then 
+	. /root/.bashrc
+    fi
+    wget -c "https://gitlab.com/dslackw/slpkg/-/archive/$VERSION/slpkg-$VERSION.tar.gz"
+    tar xf "slpkg-$VERSION.tar.gz"
+    cd "slpkg-$VERSION" || exit
     ./install.sh
 }
 function slpkg_install {
@@ -137,7 +140,7 @@ function slpkg_install {
     else
 	if hash python3 2>/dev/null && hash pip3 2>/dev/null; then
 	    pip3 install urllib3
-	    slpkg_aux 3.8.2
+	    slpkg_aux 3.8.8
 	else # python 2
 	    slpkg_aux 3.4.3
 	fi
