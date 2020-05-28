@@ -87,6 +87,9 @@ function slim {
 	sed -i.bck '/echo "Starting up X11 session manager..."/a \\n# start SLiM ...\nif [ -x /usr/bin/slim ]; then exec /usr/bin/slim; fi ' /etc/rc.d/rc.4
 	ln -sf /etc/X11/xinit/xinitrc.xfce /etc/X11/xinitrc
 	slpkg -s sbo slim
+	# change theme to slackware black
+	backup_file /etc/slim.conf
+	sed -i 's/current_them.*default/current_theme     slackware-black/' /etc/slim.conf
     else
 	configured
     fi
