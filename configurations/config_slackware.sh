@@ -216,6 +216,8 @@ xorg-virtualmonitor () {
     	Option "PreferredMode" "1920x1200" "1680x1050" "1440x900"
 	EndSection
 EOF
+    else
+	configured
     fi
 }
 
