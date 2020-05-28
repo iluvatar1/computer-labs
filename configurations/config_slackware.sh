@@ -57,7 +57,7 @@ ntp () {
     else
 	configured
     fi
-    /etc/rc.d/rc.ntp restart
+    /etc/rc.d/rc.ntpd restart
 }
 
 function activate_wakeonlan {
