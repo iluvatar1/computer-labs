@@ -48,6 +48,18 @@ function timezone {
     fi
 }
 
+ntp () {
+    echo "Configuring ntp server ..."
+    if [ x"" != x"$(grep co.pool /etc/ntp.conf | grep -v grep 2>/dev/null)" ]; then
+	backup_file /etc/ntp.conf
+	echo "server   0.pool.ntp.org   iburst" >> /etc/ntp.conf
+	echo "server   0.co.pool.ntp.org   iburst" >> /etc/ntp.conf
+    else
+	configured
+    fi
+    /etc/rc.d/rc.ntp restart
+}
+
 function activate_wakeonlan {
     # see: https://docs.slackware.com/howtos:network_services:wol
     echo "Activating wakeonlan on rc.local"
@@ -193,6 +205,7 @@ function dhcpcd_clientid {
 inittab
 services_nfs_ssh
 timezone
+ntp
 slim
 slackpkgmirror
 dhcp_eth1
