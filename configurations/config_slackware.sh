@@ -111,6 +111,7 @@ function dhcp_eth1 {
     else
 	configured
     fi
+    chmod +x /etc/rc.d/rc.networkmanager
 }
 
 function lilo_time {
