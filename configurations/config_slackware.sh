@@ -213,7 +213,7 @@ xorg-virtualmonitor () {
 	cat << EOF > /etc/X11/xorg.conf.d/11-monitor.conf
 	Section "Monitor"
      	Identifier "Virtual1"
-    	Option "PreferredMode" "1920x1200" "1680x1050" "1440x900"
+    	Option "PreferredMode" "1680x1050"
 	EndSection
 EOF
     else
