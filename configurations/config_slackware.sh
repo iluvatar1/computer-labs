@@ -79,6 +79,7 @@ function slim {
 	backup_file /etc/rc.d/rc.4
 	sed -i.bck '/echo "Starting up X11 session manager..."/a \\n# start SLiM ...\nif [ -x /usr/bin/slim ]; then exec /usr/bin/slim; fi ' /etc/rc.d/rc.4
 	ln -sf /etc/X11/xinit/xinitrc.xfce /etc/X11/xinitrc
+	slpkg -s sbo slim
     else
 	configured
     fi
