@@ -207,6 +207,18 @@ function dhcpcd_clientid {
     fi
 }
 
+xorg-virtualmonitor () {
+    echo "Configuring virtual monitor resolutions (virtualbox machine)"
+    if [ ! -f /etc/X11/xorg.conf.d/11-monitor.conf ]; then
+	cat << EOF > /etc/X11/xorg.conf.d/11-monitor.conf
+	Section "Monitor"
+     	Identifier "Virtual1"
+    	Option "PreferredMode" "1920x1200" "1680x1050" "1440x900"
+	EndSection
+EOF
+    fi
+}
+
 #####################################################
 # MAIN
 #####################################################
@@ -224,5 +236,6 @@ lilo_time
 slpkg_install
 dhcpcd_clientid
 activate_wakeonlan
+xorg-virtualmonitor
 
 echo "Done."
