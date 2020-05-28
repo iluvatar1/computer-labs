@@ -73,6 +73,13 @@ function activate_wakeonlan {
     /usr/sbin/ethtool -s eth0 wol g
 }
 
+skeleton () {
+    echo "Configuring users home skeleton"
+    if [ x"" = x"$(grep startxfce4 /etc/skel/.xinitrc 2>/dev/null)" ]; then
+	echo "exec startxfce4" >> /etc/skel/.xinitrc
+    fi
+}
+
 function slim {
     echo "Configuring slim login manager"
     if [ x"" = x"$(grep slim /etc/rc.d/rc.4 | grep -v grep)" ]; then
@@ -208,6 +215,7 @@ services_nfs_ssh
 timezone
 ntp
 slim
+skeleton
 slackpkgmirror
 dhcp_eth1
 lilo_time
