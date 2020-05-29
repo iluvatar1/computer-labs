@@ -9,6 +9,20 @@ SPACK_PKGS=(gsl)
 ###############################################################################
 # Functions definitions
 ###############################################################################
+setup () {
+    echo "Setting up environment"
+    echo "Cloning computer-labs repo ..."
+    if [ ! -d "$HOME/repos" ]; then
+	mkdir -p "$HOME/repos"
+    fi
+    cd "$HOME/repos/" || exit
+    if [ ! -d "computer-labs" ]; then
+	git clone https://github.com/iluvatar1/computer-labs
+    fi
+    cd computer-labs || exit
+    git pull
+}
+
 install_binary_packages () {
     BASEURL="http://157.245.132.188/PACKAGES/slackware64-current/"
     cd /tmp || exit
@@ -110,6 +124,8 @@ install_latest_firefox() {
 ###############################################################################
 rm -f /var/log/log-install.txt 2>/dev/null
 {
+    setup
+    cd "$HOME/repos/computer-labs/configurations"
     bash config_slackware.sh 
     bash /etc/rc.d/rc.inet1 restart 
     check_live_user
