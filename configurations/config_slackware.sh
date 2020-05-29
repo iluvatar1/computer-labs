@@ -163,7 +163,7 @@ function slpkg_aux {
     if [ -f /root/.bashrc ]; then 
 	. /root/.bashrc
     fi
-    wget -c "https://gitlab.com/dslackw/slpkg/-/archive/$VERSION/slpkg-$VERSION.tar.gz"
+    wget -c -nc "https://gitlab.com/dslackw/slpkg/-/archive/$VERSION/slpkg-$VERSION.tar.gz"
     tar xf "slpkg-$VERSION.tar.gz"
     cd "slpkg-$VERSION" || exit
     ./install.sh
