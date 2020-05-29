@@ -12,13 +12,14 @@ SPACK_PKGS=(gsl)
 install_binary_packages () {
     BASEURL="http://157.245.132.188/PACKAGES/slackware64-current/"
     cd /tmp || exit
-    wget "$BASEURL/PACKAGES.txt" 2> /dev/null
+    rm -f "PACKAGES.txt" 2>/dev/null
+    wget -c "$BASEURL/PACKAGES.txt" 2> /dev/null
     while read -r line; do
 	echo "Installing: $line"
 	bname=${line%.*}
 	echo "  basename: $bname"
 	if [ ! -f "/var/log/packages/$bname" ]; then 
-	    wget "$BASEURL/$line"
+	    wget -c "$BASEURL/$line"
 	    installpkg "$line"
 	else
 	    echo "Already installed: $line"
