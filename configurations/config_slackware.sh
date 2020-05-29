@@ -81,17 +81,25 @@ skeleton () {
 }
 
 function slim {
-    echo "Configuring slim login manager"
+    echo "Installing/Configuring slim login manager"
     if [ x"" = x"$(grep slim /etc/rc.d/rc.4 | grep -v grep)" ]; then
 	backup_file /etc/rc.d/rc.4
 	sed -i.bck '/echo "Starting up X11 session manager..."/a \\n# start SLiM ...\nif [ -x /usr/bin/slim ]; then exec /usr/bin/slim; fi ' /etc/rc.d/rc.4
 	ln -sf /etc/X11/xinit/xinitrc.xfce /etc/X11/xinitrc
+    else
+	configured
+    fi
+    if hash slim 2?dev/null; then
+	echo "Slim already installed"
+    else
 	slpkg -s sbo slim
-	# change theme to slackware black
+    fi
+    # change theme to slackware black
+    if [ x"" = x"$(grep slackware-black /etc/slim.conf | grep -v grep)" ]; then
 	backup_file /etc/slim.conf
 	sed -i 's/current_them.*default/current_theme     slackware-black/' /etc/slim.conf
     else
-	configured
+	echo "Slim: slackware-black theme already configured"
     fi
 }
 
