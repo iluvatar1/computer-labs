@@ -50,7 +50,7 @@ function timezone {
 
 ntp () {
     echo "Configuring ntp server ..."
-    if [ x"" != x"$(grep co.pool /etc/ntp.conf | grep -v grep 2>/dev/null)" ]; then
+    if [ x"" = x"$(grep co.pool /etc/ntp.conf | grep -v grep 2>/dev/null)" ]; then
 	backup_file /etc/ntp.conf
 	echo "server   0.pool.ntp.org   iburst" >> /etc/ntp.conf
 	echo "server   0.co.pool.ntp.org   iburst" >> /etc/ntp.conf
