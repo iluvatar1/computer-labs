@@ -15,8 +15,9 @@ install_binary_packages () {
     wget "$BASEURL/PACKAGES.txt" 2> /dev/null
     while read -r line; do
 	echo "Installing: $line"
-	bname=$(basename $line)
-	if [ ! -f /var/log/packages/$bname ]; then 
+	bname=$(basename "$line")
+	echo "  basename: $bname"
+	if [ ! -f "/var/log/packages/$bname" ]; then 
 	    wget "$BASEURL/$line"
 	    installpkg "$line"
 	else
