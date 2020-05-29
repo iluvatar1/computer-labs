@@ -89,7 +89,7 @@ function slim {
     else
 	configured
     fi
-    if hash slim 2?dev/null; then
+    if hash slim 2>/dev/null; then
 	echo "Slim already installed"
     else
 	slpkg -s sbo slim
@@ -239,6 +239,7 @@ EOF
 inittab
 services_nfs_ssh
 timezone
+slpkg_install
 ntp
 slim
 skeleton
@@ -246,7 +247,6 @@ slackpkgmirror
 dhcp_eth1
 lilo_time
 # cron_update_slackware # This is better to be run after testing on one machine
-slpkg_install
 dhcpcd_clientid
 activate_wakeonlan
 xorg-virtualmonitor
