@@ -80,7 +80,7 @@ skeleton () {
     fi
 }
 
-function slim {
+function slim_install_config {
     echo "Installing/Configuring slim login manager"
     if [ x"" = x"$(grep slim /etc/rc.d/rc.4 | grep -v grep)" ]; then
 	backup_file /etc/rc.d/rc.4
@@ -241,7 +241,7 @@ services_nfs_ssh
 timezone
 slpkg_install
 ntp
-slim
+slim_install_config
 skeleton
 slackpkgmirror
 dhcp_eth1
