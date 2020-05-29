@@ -129,6 +129,8 @@ function dhcp_eth1 {
     fi
     chmod +x /etc/rc.d/rc.networkmanager
     /etc/rc.d/rc.networkmanager restart
+    /etc/rc.d/rc.networkmanager restart
+    sleep 2
 }
 
 function lilo_time {
