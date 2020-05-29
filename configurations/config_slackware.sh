@@ -80,7 +80,7 @@ skeleton () {
     fi
 }
 
-xdm_theme_install {
+xdm_theme_install () {
     echo "Installing xdm theme"
     slpkg -s sbo xdm-slackware-theme
 }
