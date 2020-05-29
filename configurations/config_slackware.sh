@@ -80,6 +80,11 @@ skeleton () {
     fi
 }
 
+xdm_theme_install {
+    echo "Installing xdm theme"
+    slpkg -s sbo xdm-slackware-theme
+}
+
 function slim_install_config {
     echo "Installing/Configuring slim login manager"
     if [ x"" = x"$(grep slim /etc/rc.d/rc.4 | grep -v grep)" ]; then
@@ -200,7 +205,8 @@ EOF
     else
 	configured
     fi
-    echo "Recommended to run : slpkg upgrade"
+    echo "Recommended to run : slpkg update"
+    slpkg update
     echo "DONE: $MSG"
 }
 
@@ -241,7 +247,8 @@ services_nfs_ssh
 timezone
 slpkg_install
 ntp
-slim_install_config
+#slim_install_config
+xdm_theme_install
 skeleton
 slackpkgmirror
 dhcp_eth1
