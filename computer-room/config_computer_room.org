@@ -518,24 +518,6 @@ function config_cntlm {
     end_msg "$MSG"
 }
    #+end_src
-** TODO Install and configure slim
-   #+name:slim_config
-   #+begin_src sh :exports code
-function config_slim {
-    MSG="Installing and configuring slim "
-    start_msg "$MSG"
-    if $(command_exists slim) && [[ $FORCE -eq 0 ]]; then
-	echo "#    -> already installed"
-    else
-	source /root/.bashrc
-	slpkg -s sbo slim
-	# The script config_slackware already added slim as an alternative 
-	# TODO Setup a nicer theme
-    fi
-    end_msg "$MSG"
-}
-   #+end_src
-   
 ** Write final script
    #+BEGIN_SRC bash :exports code :noweb yes :tangle scripts/EXAMPLE-00-bootstrap_slackware.sh :tangle-mode (identity #o444) 
 #!/bin/bash
@@ -596,13 +578,9 @@ echo "###############################################"
 
 <<cntlm_config>>
 
-<<slim_config>>
-
 # Call all functions
 config_proxy
 config_network
-config_xinitrc
-config_latam_kbd
 config_ntp
 config_dnsmasq
 config_firewall
@@ -614,7 +592,6 @@ config_shutdown_perms
 config_crontab
 config_packages
 config_cntlm
-config_slim
 
 # run services (better done on script that keeps the system up, when the client is on the network)
 #/etc/rc.d/rc.nfsd restart
