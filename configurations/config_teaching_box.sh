@@ -147,7 +147,7 @@ rm -f /var/log/log-install.txt 2>/dev/null
     cd "$HOME/repos/computer-labs/configurations"
     bash config_slackware.sh 
     #bash /etc/rc.d/rc.inet1 restart 
-    bash /etc/rc.d/rc.networkmanager restart
+    #bash /etc/rc.d/rc.networkmanager restart
     check_live_user
     config_sane_emacs_live_user
     install_binary_packages
