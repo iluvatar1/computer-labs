@@ -42,7 +42,8 @@ function services_nfs_ssh {
 function timezone {
     echo "Configuring timezone to Bogota ..."
     if [ x"" != x"$(diff /usr/share/zoneinfo/America/Bogota /etc/localtime)" ]; then 
-	cp -f /usr/share/zoneinfo/America/Bogota /etc/localtime
+	#cp -f /usr/share/zoneinfo/America/Bogota /etc/localtime
+	expect set_bogota_tz.exp 
     else
 	configured
     fi
