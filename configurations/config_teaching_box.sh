@@ -119,6 +119,16 @@ install_latest_firefox() {
     fi
 }
 
+config_sane_emacs_live_user () {
+    echo "Configuring saneemacs"
+    cd /home/live || exit
+    if [ ! -f .emacs.d/init.el ]; then 
+	sudo -u live mkdir -p .emacs.d;
+	sudo -u live curl https://sanemacs.com/sanemacs.el > ~/.emacs.d/init.el
+	sudo -u live timeout 10s emacs -nw 
+    fi
+}
+
 ###############################################################################
 # Main 
 ###############################################################################
@@ -130,6 +140,7 @@ rm -f /var/log/log-install.txt 2>/dev/null
     #bash /etc/rc.d/rc.inet1 restart 
     bash /etc/rc.d/rc.networkmanager restart
     check_live_user
+    config_sane_emacs_live_user
     install_binary_packages
     install_with_slpkg 
     install_spack 
