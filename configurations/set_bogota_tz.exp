@@ -43,7 +43,7 @@ if {$force_conservative} {
 
 
 set timeout -1
-spawn timeconfig
+spawn /usr/sbin/timeconfig
 match_max 100000
 expect -exact ")0\[1;37r\[m\[4l\[?7h\[39;49m\[39;49m\[m\[H\[J\[26d\[37m\[44m\[J\[H\[K
 \[K
