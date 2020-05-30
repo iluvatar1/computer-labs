@@ -43,12 +43,21 @@ function services_nfs_ssh {
 
 function timezone {
     echo "Configuring timezone to Bogota ..."
-    if [ x"" != x"$(diff /usr/share/zoneinfo/America/Bogota /etc/localtime)" ]; then 
-	cp -f /usr/share/zoneinfo/America/Bogota /etc/localtime
-	/usr/bin/expect -f /root/repos/computer-labs/configurations/set_bogota_tz.exp 
-    else
-	configured
+    TZFILE=/usr/share/zoneinfo/America/Bogota
+    if [ x"" != x"$(diff $TZFILE  /etc/localtime)" ]; then 
+	echo "Copying $TZFILE to localtime"
+	cp -f "$TZFILE" /etc/localtime
     fi
+    SCRIPT_NAME="set_timezone_bogota.exp"
+    if [ ! -e "/usr/local/bin/$SCRIPT_NAME" ]; then
+	echo "Copying set timezone script to /usr/local/bin"
+	cp {/root/repos/computer-labs/configurations/,/usr/local/bin/}"${SCRIPT_NAME}"
+    fi
+    if [ x"" = x"$(grep $SCRIPT_NAME /etc/rc.d/rc.local)" ]; then
+	echo "Adding timezone command to rc.local"
+	echo "/usr/local/bin/$SCRIPT_NAME" >> /etc/rc.d/rc.local
+    fi
+    echo "Done"
 }
 
 ntp () {
