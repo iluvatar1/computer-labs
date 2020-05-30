@@ -132,7 +132,7 @@ config_sane_emacs_live_user () {
 	echo "(use-package modus-vivendi-theme)" | sudo -u live tee -a /home/live/.emacs.d/init.el 
 	echo "(use-package modus-operandi-theme)" | sudo -u live tee -a /home/live/.emacs.d/init.el 
 	echo "(load-theme  'modus-vivendi t)" | sudo -u live tee -a /home/live/.emacs.d/init.el 
-	sudo -u live timeout 20s emacs -nw 
+	sudo -u live timeout 22s emacs -nw 
     fi
 }
 
