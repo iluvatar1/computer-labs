@@ -132,7 +132,7 @@ config_sane_emacs_live_user () {
 	echo "(use-package modus-vivendi-theme)" | sudo -u live tee -a /home/live/.emacs.d/init.el 
 	echo "(use-package modus-operandi-theme)" | sudo -u live tee -a /home/live/.emacs.d/init.el 
 	echo "(load-theme  'modus-vivendi t)" | sudo -u live tee -a /home/live/.emacs.d/init.el 
-	sudo -u live timeout 22s emacs -nw 
+	sudo -u live timeout 25s emacs -nw 
     fi
 }
 
@@ -151,7 +151,7 @@ rm -f /var/log/log-install.txt 2>/dev/null
     config_sane_emacs_live_user
     install_binary_packages
     install_with_slpkg 
-    install_spack 
+    # install_spack # takes too much time
     install_with_spack 
     install_perf 
     install_latest_firefox 
