@@ -122,9 +122,9 @@ install_latest_firefox() {
 config_sane_emacs_live_user () {
     echo "Configuring saneemacs"
     cd /home/live || exit
-    if [ ! -f .emacs.d/init.el ]; then 
-	sudo -u live mkdir -p .emacs.d;
-	sudo -u live curl https://sanemacs.com/sanemacs.el > ~/.emacs.d/init.el
+    if [ ! -f /home/live/.emacs.d/init.el ]; then 
+	sudo -u live mkdir -p /home/live/.emacs.d;
+	sudo -u live curl https://sanemacs.com/sanemacs.el > /home/live/.emacs.d/init.el
 	sudo -u live timeout 10s emacs -nw 
     fi
 }
