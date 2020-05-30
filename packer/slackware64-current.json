@@ -8,6 +8,7 @@
     "iso_checksum_type": "md5",
     "ssh_username": "root",
     "ssh_password": "vagrant",
+    "ssh_pty": true,
     "vm_name":"slackware-current-vbox",
     "shutdown_command": "shutdown -h now",
     "hard_drive_interface": "sata",
