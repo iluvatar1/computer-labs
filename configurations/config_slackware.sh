@@ -247,6 +247,15 @@ end_msg () {
     echo "$1"
 }
 
+config_bashrc () {
+    echo "Adding loading of /etc/profile to skeleton bashrc"
+    if [ x"" = x"$(grep profile /etc/skel/.bashrc 2>/dev/null)" ]; then
+	echo "source /etc/profile " >> /etc/skel/.bashrc
+    else
+	configured
+    fi
+}
+
 config_xinitrc () {
     MSG="Fixing xinitrc on /etc/skel"
     start_msg "$MSG"
@@ -314,5 +323,6 @@ activate_wakeonlan
 xorg_virtualmonitor
 config_xinitrc
 config_latam_kbd
+config_bashrc
 
 echo "Done."
