@@ -152,8 +152,8 @@ rm -f /var/log/log-install.txt 2>/dev/null
     config_sane_emacs_live_user
     install_binary_packages
     install_with_slpkg 
-    # install_spack # takes too much time
-    install_with_spack 
+    install_spack 
+    #install_with_spack  # takes too much time
     install_perf 
     install_latest_firefox 
 } &>> /var/log/log-install.txt
