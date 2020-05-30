@@ -29,10 +29,10 @@ install_binary_packages () {
     rm -f "PACKAGES.txt" 2>/dev/null
     wget -c -nc "$BASEURL/PACKAGES.txt" 2> /dev/null
     while read -r line; do
-	echo "Installing: $line"
+	echo "Installing (from binary): $line"
 	bname=${line%.*}
 	echo "  basename: $bname"
-	if [ ! -f "/var/log/packages/$bname" ]; then 
+	if [ ! -e "/var/log/packages/$bname" ]; then 
 	    wget -c -nc "$BASEURL/$line"
 	    installpkg "$line"
 	else
@@ -45,7 +45,7 @@ install_with_slpkg () {
     rm -f /var/log/slpkg.log
     slpkg update >> /var/log/slpkg.log
     for pkg in "${SLPKG_PKGS[@]}"; do
-	echo "Installing: $pkg"
+	echo "Installing (with slpkg): $pkg"
 	slpkg -s sbo "$pkg" >> /var/log/slpkg.log
     done
 }

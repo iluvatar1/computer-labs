@@ -44,7 +44,7 @@ function services_nfs_ssh {
 function timezone {
     echo "Configuring timezone to Bogota ..."
     if [ x"" != x"$(diff /usr/share/zoneinfo/America/Bogota /etc/localtime)" ]; then 
-	#cp -f /usr/share/zoneinfo/America/Bogota /etc/localtime
+	cp -f /usr/share/zoneinfo/America/Bogota /etc/localtime
 	/usr/bin/expect -f /root/repos/computer-labs/configurations/set_bogota_tz.exp 
     else
 	configured
@@ -129,7 +129,6 @@ function dhcp_eth1 {
 	configured
     fi
     chmod +x /etc/rc.d/rc.networkmanager
-    /etc/rc.d/rc.networkmanager restart
     /etc/rc.d/rc.networkmanager restart
     sleep 2
 }
