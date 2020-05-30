@@ -241,6 +241,60 @@ EOF
     fi
 }
 
+start_msg () {
+    echo "$1"
+}
+
+end_msg () {
+    echo "$1"
+}
+
+config_xinitrc () {
+    MSG="Fixing xinitrc on /etc/skel"
+    start_msg "$MSG"
+    if [ ! -f /etc/skel/.xinitrc ]; then 
+	cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xinitrc
+	chmod +x /etc/skel/.xinitrc
+    else
+	echo "#    -> Already fixed"
+    fi
+    end_msg "$MSG"
+    MSG="Fixing xsession on /etc/skel"
+    start_msg "$MSG"
+    if [ ! -f /etc/skel/.xsession ]; then 
+	cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xsession
+    else
+	echo "#   -> Already fixed"
+    fi
+    end_msg "$MSG"
+}
+
+# latam keyboard
+config_latam_kbd () {
+    MSG="Configuring default X windows keyboard to be latam ..."
+    start_msg "$MSG"
+    bfile=/etc/X11/xorg.conf.d/90-keyboard-layout.conf
+    if [ x"" = x"$(grep latam ${bfile} 2>/dev/null)" ] ; then
+	if [ -f $bfile ]; then
+	    backup_file $bfile
+	fi
+	cat<<EOF > $bfile
+Section "InputClass"
+        Identifier "keyboard defaults"
+        MatchIsKeyboard "on"
+        #MatchDevicePath "/dev/input/event*"
+        #Driver "evdev"
+        Option "XkbLayout" "latam,us"
+        #Option "XkbVariant" ""
+        Option "XkbOptions" "terminate:ctrl_alt_bksp"
+EndSection
+EOF
+    else
+	echo "#    -> already configured"
+    fi
+    end_msg "$MSG"
+}
+
 #####################################################
 # MAIN
 #####################################################
@@ -260,5 +314,7 @@ lilo_time
 dhcpcd_clientid
 activate_wakeonlan
 xorg-virtualmonitor
+config_xinitrc
+config_latam_kbd
 
 echo "Done."

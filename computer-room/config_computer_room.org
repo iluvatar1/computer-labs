@@ -80,59 +80,6 @@ EOF
     end_msg "$MSG"
 }
    #+END_SRC
-** Fix xinitrc
-   #+NAME: xinitrc_config
-   #+BEGIN_SRC bash :exports code
-function config_xinitrc {
-    MSG="Fixing xinitrc on /etc/skel"
-    start_msg "$MSG"
-    if [ ! -f /etc/skel/.xinitrc ] || [[ $FORCE -eq 1 ]]; then 
-	cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xinitrc
-	chmod +x /etc/skel/.xinitrc
-    else
-	echo "#    -> Already fixed"
-    fi
-    end_msg "$MSG"
-    MSG="Fixing xsession on /etc/skel"
-    start_msg "$MSG"
-    if [ ! -f /etc/skel/.xsession ] || [[ $FORCE -eq 1 ]]; then 
-	cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xsession
-    else
-	echo "#   -> Already fixed"
-    fi
-    end_msg "$MSG"
-}
-   #+END_SRC
-** Latam keyboard
-   #+name:latam_keyboard
-   #+begin_src sh
-# latam keyboard
-function config_latam_kbd {
-    MSG="Configuring default X windows keyboard to be latam ..."
-    start_msg "$MSG"
-    bfile=/etc/X11/xorg.conf.d/90-keyboard-layout.conf
-    #if [ $(pattern_not_present "latam" "$bfile") ]; then 
-    if [ x"" == x"$(grep latam ${bfile} 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-	if [ -f $bfile ]; then
-	    backup_file $bfile
-	fi
-	cat<<EOF > $bfile
-Section "InputClass"
-        Identifier "keyboard-all"
-        MatchIsKeyboard "on"
-        MatchDevicePath "/dev/input/event*"
-        Driver "evdev"
-        Option "XkbLayout" "latam"
-        #Option "XkbVariant" ""
-        Option "XkbOptions" "terminate:ctrl_alt_bksp"
-EndSection
-EOF
-    else
-	echo "#    -> already configured"
-    fi
-    end_msg "$MSG"
-}
-   #+end_src
 ** Configure Network interfaces
    #+name: nic_config
    #+BEGIN_SRC bash :exports code 
@@ -626,10 +573,6 @@ echo "###############################################"
 <<proxy_config>>
 
 <<nic_config>>
-
-<<xinitrc_config>>
-
-<<latam_keyboard>>
 
 <<ntp_config>>
 
