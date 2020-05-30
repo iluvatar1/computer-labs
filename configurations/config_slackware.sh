@@ -73,16 +73,14 @@ function activate_wakeonlan {
     /usr/sbin/ethtool -s eth0 wol g
 }
 
-skeleton () {
-    echo "Configuring users home skeleton"
-    if [ x"" = x"$(grep startxfce4 /etc/skel/.xinitrc 2>/dev/null)" ]; then
-	echo "exec startxfce4" >> /etc/skel/.xinitrc
-    fi
-}
-
 xdm_theme_install () {
     echo "Installing xdm theme"
     slpkg -s sbo xdm-slackware-theme
+}
+
+xfce4_plugins_install () {
+    echo "Installing xfce4 plugins ..."
+    slpkg -s sbo xfce4-xkb-plugin
 }
 
 function slim_install_config {
@@ -227,7 +225,7 @@ function dhcpcd_clientid {
     fi
 }
 
-xorg-virtualmonitor () {
+xorg_virtualmonitor () {
     echo "Configuring virtual monitor resolutions (virtualbox machine)"
     if [ ! -f /etc/X11/xorg.conf.d/11-monitor.conf ]; then
 	cat << EOF > /etc/X11/xorg.conf.d/11-monitor.conf
@@ -306,14 +304,14 @@ slpkg_install
 ntp
 #slim_install_config
 xdm_theme_install
-skeleton
+xfce4_plugins_install
 slackpkgmirror
 dhcp_eth1
 lilo_time
 # cron_update_slackware # This is better to be run after testing on one machine
 dhcpcd_clientid
 activate_wakeonlan
-xorg-virtualmonitor
+xorg_virtualmonitor
 config_xinitrc
 config_latam_kbd
 
