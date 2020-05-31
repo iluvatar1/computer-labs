@@ -105,6 +105,11 @@ structure and usage.
    Here are several examples to create either a basebox and some
    vagrantfiles .  
 
+* packer
+  Here I put some scripts to automate slackware installation. Strongly
+  inspired on https://github.com/akosiaris/packer-slackware/ , adapted
+  for slackware current. 
 * TOCHECK 
   - https://github.com/bifferos/explodeinstaller
   - https://github.com/akosiaris/packer-slackware/blob/master/slackware64-14.2.json
+  - https://github.com/Cyclenerd/postinstall/blob/master/postinstall.sh
