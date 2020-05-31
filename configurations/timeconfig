@@ -1,0 +1,60 @@
+#!/bin/sh
+#
+# timeconfig         COPIED FROM Slackware Linux timezone configuration utility.
+#
+# Author:            Patrick Volkerding <volkerdi@slackware.com>
+# Modified by:  David Cantrell <david@slackware.com>, 06-Oct-2000
+#
+
+# setup our temp locations and variables
+TMP=/var/log/setup/tmp
+if [ -r $TMP/SeTT_PX ]; then
+   T_PX="`cat $TMP/SeTT_PX`"
+elif [ ! "$!" = "" ]; then
+   T_PX=$1
+else
+   T_PX=/
+fi
+T_PX=/
+
+# the hardware clock configuration file
+HWCLOCK_CONF=$T_PX/etc/hardwareclock
+
+# setzone( $TIMEZONE )
+#
+# This function accepts a time zone as the only parameter and sets it as
+# the default system time zone.
+setzone()
+{
+   TZ=$1
+
+   cd $T_PX/etc
+   if [ -r $T_PX/usr/share/zoneinfo/$TZ -o \
+        -r /var/log/mount/usr/share/zoneinfo/$TZ -o \
+        -L $T_PX/usr/share/zoneinfo/$TZ -o \
+        -L /var/log/mount/usr/share/zoneinfo/$TZ ]; then
+      rm -f localtime-copied-from
+      ln -sf /usr/share/zoneinfo/$TZ localtime-copied-from
+      rm -f localtime
+      cd ..
+      #chroot . cp etc/localtime-copied-from etc/localtime
+      cp -f etc/localtime-copied-from etc/localtime
+   fi
+}
+
+# writeconf( $CLOCK_SET_TO )
+#
+# Writes out $HWCLOCK_CONF that tells rc.S how the hardware clock
+# value is stored.
+writeconf()
+{
+   echo "# /etc/hardwareclock" > $HWCLOCK_CONF
+   echo "#" >> $HWCLOCK_CONF
+   echo "# Tells how the hardware clock time is stored." >> $HWCLOCK_CONF
+   echo "# You should run timeconfig to edit this file." >> $HWCLOCK_CONF
+   echo >> $HWCLOCK_CONF
+   echo $1 >> $HWCLOCK_CONF
+}
+
+writeconf "localtime"
+setzone "America/Bogota"
