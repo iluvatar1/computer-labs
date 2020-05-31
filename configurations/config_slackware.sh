@@ -49,9 +49,9 @@ function timezone {
 	cp -f "$TZFILE" /etc/localtime
 	backup_file /etc/hardwareclock
 	echo "localtime" > /etc/hardwareclock
-	/usr/sbin/ntpdate pool.ntp.org
-	sleep 5
-	#/usr/sbin/sntp -s pool.ntp.org
+	/usr/sbin/ntpdate 0.pool.ntp.org
+	sleep 2
+	#/usr/sbin/sntp -s 0.pool.ntp.org
 	#sleep 2
 	/sbin/hwclock -w
     fi
