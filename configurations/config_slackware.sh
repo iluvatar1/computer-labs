@@ -42,24 +42,19 @@ function services_nfs_ssh {
 }
 
 function timezone {
-    echo "Configuring timezone to Bogota ..."
+    echo "Configuring timezone to Bogota using script based on slackware timeconfig ..."
     TZFILE=/usr/share/zoneinfo/America/Bogota
     if [ x"" != x"$(diff $TZFILE  /etc/localtime)" ]; then 
-	echo "Copying $TZFILE to localtime"
-	cp -f "$TZFILE" /etc/localtime
-	backup_file /etc/hardwareclock
-	echo "localtime" > /etc/hardwareclock
-	/usr/sbin/ntpdate 0.pool.ntp.org
-	sleep 2
-	#/usr/sbin/sntp -s 0.pool.ntp.org
-	#sleep 2
-	/sbin/hwclock -w
+	echo "Setting timezone and hardware clock "
+	bash /root/repos/computer-labs/configurations/timeconfig
+    else
+	configured
     fi
     echo "Done"
 }
 
 ntp () {
-    echo "Configuring ntp server ..."
+    echo "Configuring more ntp servers ..."
     if [ x"" = x"$(grep co.pool /etc/ntp.conf | grep -v grep 2>/dev/null)" ]; then
 	backup_file /etc/ntp.conf
 	echo "server   0.pool.ntp.org   iburst" >> /etc/ntp.conf
