@@ -48,7 +48,12 @@ function timezone {
 	echo "Copying $TZFILE to localtime"
 	cp -f "$TZFILE" /etc/localtime
 	backup_file /etc/hardwareclock
-	echo "localtime" > /etc/hardwareclock 
+	echo "localtime" > /etc/hardwareclock
+	/usr/sbin/ntpdate pool.ntp.org
+	sleep 5
+	#/usr/sbin/sntp -s pool.ntp.org
+	#sleep 2
+	/sbin/hwclock -w
     fi
     echo "Done"
 }
