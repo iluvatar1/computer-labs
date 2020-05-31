@@ -43,7 +43,7 @@ function services_nfs_ssh {
 
 function timezone {
     echo "Configuring timezone to Bogota using script based on slackware timeconfig ..."
-    if [ x"" != x"$(grep timeconfig  /etc/rc.d/rc.local)" ]; then 
+    if [ x"" = x"$(grep timeconfig  /etc/rc.d/rc.local)" ]; then 
 	echo "Setting timezone and hardware clock in rc.local "
 	TNAME="/etc/rc.d/rc.local"
 	echo "# Setting up date and time " >> $TNAME
