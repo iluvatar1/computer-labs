@@ -43,12 +43,12 @@ function services_nfs_ssh {
 
 function timezone {
     echo "Configuring timezone to Bogota using script based on slackware timeconfig ..."
-    TZFILE=/usr/share/zoneinfo/America/Bogota
-    if [ x"" != x"$(diff $TZFILE  /etc/localtime)" ]; then 
-	echo "Setting timezone and hardware clock "
-	bash /root/repos/computer-labs/configurations/timeconfig
-    else
-	configured
+    if [ x"" != x"$(grep timeconfig  /etc/rc.d/rc.local)" ]; then 
+	echo "Setting timezone and hardware clock in rc.local "
+	TNAME="/etc/rc.d/rc.local"
+	echo "# Setting up date and time " >> $TNAME
+	echo "bash /root/repos/computer-labs/configurations/timeconfig" >> $TNAME 
+	echo "ntpdate 0.pool.ntp.org &> /dev/null" >> $TNAME
     fi
     echo "Done"
 }
