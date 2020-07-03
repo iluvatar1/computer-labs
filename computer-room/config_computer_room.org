@@ -1181,3 +1181,49 @@ psshn 'source /root/.bashrc ; slackpkg -batch=on -default_answer=y upgrade patch
   - Munge for auth: https://dun.github.io/munge/
   - ldap for auth: link with unal server 
   - pdsh: Parallel shell  https://github.com/chaos/pdsh
+* Parallel filesystems
+** glusterfs
+   - https://www.howtoforge.com/tutorial/high-availability-storage-with-glusterfs-on-ubuntu-1804/#step-configure-glusterfs-servers
+   - https://docs.gluster.org/en/latest/Administrator%20Guide/Setting%20Up%20Volumes/
+   - https://microdevsys.com/wp/mount-failed-please-check-the-log-file-for-more-details/
+   - https://sysadmins.co.za/setup-a-distributed-storage-volume-with-glusterfs/
+     1. Create a trusted storage pool (all this is supposed to run in =192.168.10.1=)
+	- Get the storage servers :
+	  #+BEGIN_SRC shell
+	  pssh -i -h /home/oquendo/INFO/MYHOSTS   'df -h | grep /opt'
+	  #+END_SRC
+	  From here I will use ~4,5,8,19,33,34~ since they have more than 300Gb in opt, each one. 
+	  I have saved this names in ~/home/oquendo/INFO/HOSTSSTORAGE~
+	  #+BEGIN_SRC shell
+	  pssh -i  -h /home/oquendo/INFO/HOSTSSTORAGE   'mkdir /opt/glusterbrick'
+	  #+END_SRC
+	- Now really create the storage pool:
+	  #+BEGIN_SRC 
+	  pssh -i  -h /home/oquendo/INFO/HOSTSSTORAGE   'chmod +x /etc/rc.d/rc.glusterd '
+	  pssh -i  -h /home/oquendo/INFO/HOSTSSTORAGE   '/etc/rc.d/rc.glusterd start '
+	  for num in 4 5 8 19 33 34 ; do gluster peer probe 192.168.10.$num; done
+	  gluster peer status
+	  gluster pool list
+	  gluster volume create gfsdist 192.168.10.{4,5,8,19,33,34}:/opt/glusterbrick
+	  #+END_SRC
+     2. Start the volume
+	#+BEGIN_SRC shell
+	gluster volume start gfsdist
+	#+END_SRC
+     3. Then mount it on a client
+	#+BEGIN_SRC shell
+	mount.glusterfs 192.168.10.1:/gfsdist /mnt/tmp/
+	#+END_SRC
+	To mount it on many clients:
+	#+BEGIN_SRC shell
+	pssh -i -h /home/oquendo/INFO/MYHOSTS 'echo "# GLUSTER" >> /etc/fstab '
+	pssh -i -h /home/oquendo/INFO/MYHOSTS 'echo "192.168.10.1:/gfsdist  /mnt/glusterfs glusterfs defaults,_netdev 0 0" >> /etc/fstab '
+	pssh -i -h /home/oquendo/INFO/MYHOSTS 'mkdir /mnt/glusterfs '
+	pssh -i -h /home/oquendo/INFO/MYHOSTS 'mount -a '
+	pssh -i -h /home/oquendo/INFO/MYHOSTS 'df -h '
+	#+END_SRC
+     4. If you want to add more bricks (execute on =192.168.10.1=, and
+        see
+        https://docs.gluster.org/en/latest/Administrator%20Guide/Managing%20Volumes/#expanding-volumes)
+	
+	
