@@ -7,6 +7,11 @@ structure and usage.
    know how. It would be useful if the computers could be configured
    to boot from pxe by default and somehow clonezilla determines if
    the system needs to be reimaged.
+
+   Working versions: 
+   - clonezilla-live-2.6.4-10-amd64.iso
+   - drbl-live-xfce-2.6.2-1-amd64.iso
+
 * =computer-room=[0/1]
    This shows several scripts that can be used to configure either a
    client or a server for a computer room. 
