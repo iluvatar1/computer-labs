@@ -168,15 +168,18 @@
   "provisioners": [
     {
       "script": "config_teaching_box.sh",
-      "type": "shell"
-    }
+      "type": "shell",
+      "valid_exit_codes":[0,2]
+    },
     {
       "script": "vbox_guest_additions.sh",
-      "type": "shell"
-    }
+      "type": "shell",
+      "valid_exit_codes":[0,2]
+    },
     {
       "script": "install_and_setup_doom_emacs.sh",
-      "type": "shell"
+      "type": "shell",
+      "valid_exit_codes":[0,2]
     }
   ]
 }
