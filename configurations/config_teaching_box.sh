@@ -150,7 +150,7 @@ rm -f /var/log/log-install.txt 2>/dev/null
     #bash /etc/rc.d/rc.networkmanager restart
     check_live_user
     #config_sane_emacs_live_user # removed in favor of doom emacs
-    bash install_and_setup_doom_emacs.sh
+    sudo -u live bash install_and_setup_doom_emacs.sh
     install_binary_packages
     install_with_slpkg 
     install_spack 

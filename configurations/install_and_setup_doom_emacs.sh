@@ -104,6 +104,7 @@ cat <<EOF > "${FNAME}"
 EOF
 
 echo "Installing emacs doom ..."
+cd $HOME
 yes y | ~/.emacs.d/bin/doom install
 
 #echo "Running sync and build"
