@@ -119,24 +119,24 @@ install_latest_firefox() {
     fi
 }
 
-config_sane_emacs_live_user () {
-    echo "Configuring saneemacs"
-    cd /home/live || exit
-    if [ ! -f /home/live/.emacs.d/init.el ]; then 
-	sudo -u live mkdir -p /home/live/.emacs.d;
-	sudo -u live curl https://sanemacs.com/sanemacs.el | sudo -u live tee /home/live/.emacs.d/init.el
-	echo "(menu-bar-mode 1)" | sudo -u live tee -a /home/live/.emacs.d/init.el 
-	echo "(tool-bar-mode 1)" | sudo -u live tee -a /home/live/.emacs.d/init.el 
-	echo "(scroll-bar-mode 1)" | sudo -u live tee -a /home/live/.emacs.d/init.el 
-	echo "(use-package magit)" | sudo -u live tee -a /home/live/.emacs.d/init.el 
-	echo "(use-package modus-vivendi-theme)" | sudo -u live tee -a /home/live/.emacs.d/init.el 
-	echo "(use-package modus-operandi-theme)" | sudo -u live tee -a /home/live/.emacs.d/init.el 
-	echo "(load-theme  'modus-vivendi t)" | sudo -u live tee -a /home/live/.emacs.d/init.el
-	# install emacs packages according configuration
-	timeout 20s sudo -u live -i emacs
-    fi
-}
-
+# config_sane_emacs_live_user () {
+#     # WARNING: Reaplaced by doom emacs
+#     echo "Configuring saneemacs"
+#     cd /home/live || exit
+#     if [ ! -f /home/live/.emacs.d/init.el ]; then
+# 	sudo -u live mkdir -p /home/live/.emacs.d;
+# 	sudo -u live curl https://sanemacs.com/sanemacs.el | sudo -u live tee /home/live/.emacs.d/init.el
+# 	echo "(menu-bar-mode 1)" | sudo -u live tee -a /home/live/.emacs.d/init.el
+# 	echo "(tool-bar-mode 1)" | sudo -u live tee -a /home/live/.emacs.d/init.el
+# 	echo "(scroll-bar-mode 1)" | sudo -u live tee -a /home/live/.emacs.d/init.el
+# 	echo "(use-package magit)" | sudo -u live tee -a /home/live/.emacs.d/init.el
+# 	echo "(use-package modus-vivendi-theme)" | sudo -u live tee -a /home/live/.emacs.d/init.el
+# 	echo "(use-package modus-operandi-theme)" | sudo -u live tee -a /home/live/.emacs.d/init.el
+# 	echo "(load-theme  'modus-vivendi t)" | sudo -u live tee -a /home/live/.emacs.d/init.el
+# 	# install emacs packages according configuration
+# 	timeout 20s sudo -u live -i emacs
+#     fi
+# }
 
 ###############################################################################
 # Main 
@@ -149,11 +149,12 @@ rm -f /var/log/log-install.txt 2>/dev/null
     #bash /etc/rc.d/rc.inet1 restart 
     #bash /etc/rc.d/rc.networkmanager restart
     check_live_user
-    config_sane_emacs_live_user
+    #config_sane_emacs_live_user # removed in favor of doom emacs
+    bash install_and_setup_doom_emacs.sh
     install_binary_packages
     install_with_slpkg 
     install_spack 
     #install_with_spack  # takes too much time
     install_perf 
-    install_latest_firefox 
+    install_latest_firefox
 } &>> /var/log/log-install.txt
