@@ -5,6 +5,8 @@ install_virtualbox_guest_additions () {
         TMPDIR=$(mktemp -d)
         mount -o loop ~/VBoxGuestAdditions.iso ${TMPDIR}
         yes yes | ${TMPDIR}/VBoxLinuxAdditions.run --nox11 --nochown
+        umount ${TMPDIR}
+        ls
 
         # VBOX_ADD=VirtualBox-6.1.12-139181-Linux_amd64.run
         # if [ ! -f ${VBOX_ADD} ]; then
