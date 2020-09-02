@@ -47,6 +47,7 @@ cat <<EOF > "${FNAME}"
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
 (setq doom-theme 'modus-vivendi)
 (add-to-list 'exec-path "/usr/local/bin/")
+(menu-bar-mode 1)
 ;;(setq ccls-executable "/usr/local/bin/ccls")
 EOF
 
