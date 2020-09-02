@@ -156,5 +156,5 @@ rm -f /var/log/log-install.txt 2>/dev/null
     install_spack 
     #install_with_spack  # takes too much time
     install_perf 
-    install_latest_firefox
+    #install_latest_firefox slackware current is installing v78, which is ok
 } &>> /var/log/log-install.txt
