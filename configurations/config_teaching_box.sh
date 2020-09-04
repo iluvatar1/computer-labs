@@ -143,7 +143,7 @@ config_shell_prompt () {
     echo "Configuring bashit"
     cd /home/live || exit
     sudo -u live git clone --depth=1 https://github.com/Bash-it/bash-it.git /home/live/.bash_it
-    sudo -u live /home/live/.bash_it/install.sh --silentw
+    sudo -u live /home/live/.bash_it/install.sh --silent
 }
 
 ###############################################################################
