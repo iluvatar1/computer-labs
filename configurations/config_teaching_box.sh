@@ -13,11 +13,11 @@ setup () {
     echo "Setting up environment"
     echo "Cloning computer-labs repo ..."
     if [ ! -d "$HOME/repos" ]; then
-	mkdir -p "$HOME/repos"
+    mkdir -p "$HOME/repos"
     fi
     cd "$HOME/repos/" || exit
     if [ ! -d "computer-labs" ]; then
-	git clone https://github.com/iluvatar1/computer-labs
+    git clone https://github.com/iluvatar1/computer-labs
     fi
     cd computer-labs || exit
     git pull
@@ -160,9 +160,9 @@ rm -f /var/log/log-install.txt 2>/dev/null
     #config_sane_emacs_live_user # removed in favor of doom emacs
     sudo -u live bash install_and_setup_doom_emacs.sh
     install_binary_packages
-    install_with_slpkg 
+    # install_with_slpkg # Already installed with binary versions
     install_spack 
-    #install_with_spack  # takes too much time
+    #install_with_spack  # takes too much time, not needed
     install_perf 
     #install_latest_firefox slackware current is installing v78, which is ok
     config_shell_prompt
