@@ -70,7 +70,7 @@
       "ssh_pty": true,
       "ssh_username": "root",
       "type": "virtualbox-iso",
-      "usb": false,
+      "usb": true,
       "vboxmanage": [
         [
           "modifyvm",
@@ -154,6 +154,12 @@
           "modifyvm",
           "{{.Name}}",
           "--audioout",
+          "on"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--usbohci",
           "on"
         ],
         [
