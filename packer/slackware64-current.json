@@ -141,6 +141,18 @@
         [
           "modifyvm",
           "{{.Name}}",
+          "--audio",
+          "coreaudio"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--audiocontroller",
+          "ac97"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
           "--audioout",
           "on"
         ],
