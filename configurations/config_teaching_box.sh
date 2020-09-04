@@ -138,6 +138,14 @@ install_latest_firefox() {
 #     fi
 # }
 
+config_shell_prompt () {
+    # Install bash it
+    echo "Configuring bashit"
+    cd /home/live || exit
+    sudo -u live git clone --depth=1 https://github.com/Bash-it/bash-it.git /home/live/.bash_it
+    sudo -u live /home/live/.bash_it/install.sh --silentw
+}
+
 ###############################################################################
 # Main 
 ###############################################################################
@@ -157,4 +165,5 @@ rm -f /var/log/log-install.txt 2>/dev/null
     #install_with_spack  # takes too much time
     install_perf 
     #install_latest_firefox slackware current is installing v78, which is ok
+    config_shell_prompt
 } &>> /var/log/log-install.txt
