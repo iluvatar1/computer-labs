@@ -7,21 +7,21 @@
 
 This document presents a basic procedure to configure a computer room
 in slackware. This generates a script, called
-=bootsrap_slackware.sh= that uses a bunch of config files to setup
+=bootsrap_slackware_computer_room.sh= that uses a bunch of config files to setup
 either a client or a server. At the end
 you just run the mentioned script and hopefully everything will work
 as expected. 
 
 - Check https://www.redhat.com/sysadmin/my-survival-kit
 
-*  Tasks [0/1]
+* Tasks [0/1]
   - [ ] To burn_persistence liveslak :
     - [ ] add upslak.sh command to increase the wait time to at least 20 secs
     - [ ] Add required modules like valgrind, ddd, etc 
 
 * Description
-  - The system to be installed is slackware 14.2 64bits, although some script
-    might help to keep it updated
+  - The system to be installed is slackware 14.2-current 64bits, although some script
+    might help to keep it updated with security patches
   - Services to be configured:
     - DHCP + DNS + MASQUERADING : Using dnsmasq
     - NAT : Through arno iptables firewall
@@ -519,7 +519,7 @@ function config_cntlm {
 }
    #+end_src
 ** Write final script
-   #+BEGIN_SRC bash :exports code :noweb yes :tangle scripts/EXAMPLE-00-bootstrap_slackware.sh :tangle-mode (identity #o444) 
+   #+BEGIN_SRC bash :exports code :noweb yes :tangle scripts/EXAMPLE-00-bootstrap_slackware_computer_room.sh :tangle-mode (identity #o444)
 #!/bin/bash
 
 # NOTE: The original base file is in the config_computer_room.org file
