@@ -1,7 +1,6 @@
 * Data science (check this one)
   https://github.com/jupyter/docker-stacks/tree/master/datascience-notebook
   https://towardsdatascience.com/how-docker-can-help-you-become-a-more-effective-data-scientist-7fc048ef91d5
-  
 
 * Official from docker
   https://hub.docker.com/_/gcc/
@@ -18,4 +17,6 @@
 * Docker eclipse cdt
   https://github.com/ivankostov/eclipse-cdt
 
-
+* Slackware
+- https://github.com/aclemons/slackware-dockerfiles
+- https://docs.slackware.com/howtos:misc:slackware_docker_image
