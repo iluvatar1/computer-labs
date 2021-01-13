@@ -63,13 +63,13 @@ useradd -u 310 -d /var/lib/munge -s /bin/false -g munge munge
   TEMPDIR=$(mktemp -d)
   cd $TEMPDIR
   wget https://slackbuilds.org/slackbuilds/14.2/network/munge.tar.gz
-  tar xf munge.tar.gz
-  cd munge
   wget https://github.com/dun/munge/releases/download/munge-0.5.14/munge-0.5.14.tar.xz
-  VERSION=0.5.14 bash munge.SlackBuild
-    #+end_src
+  export VERSION=0.5.14
+  slpkg -a munge.tar.gz munge-0.5.14.tar.xz
+  unset VERSION
+      #+end_src
   - Install munge package
-    #+begin_src  shell
+    ,#+begin_src  shell
 installpkg /tmp/munge-0.5.14-x86_64-1_SBo.tgz
 for dbase in /var/run/ /var/log/ /etc/; do
     chown munge $dbase/munge
@@ -105,12 +105,12 @@ slpkg -s sbo rrdtool numactl
   cd ~/Downloads
   # hwloc
   wget https://slackbuilds.org/slackbuilds/14.2/system/hwloc.tar.gz
-  tar xf hwloc.tar.gz
-  mv hwloc 00-hwloc
-  cd 00-hwloc
   wget https://download.open-mpi.org/release/hwloc/v2.3/hwloc-2.3.0.tar.bz2
+  export VERSION=2.3.0
+  slpkg -a hwloc.tar.gz hwloc-2.3.0.tar.bz2
+  unset VERSION
+  installpkg /tmp/hwloc*tgz
   # TODO: maybe add numjobs to make
-  VERSION=2.3.0 ./hwloc.SlackBuild
   #+end_src
   + openpmix
     #+begin_src shell
@@ -418,23 +418,22 @@ useradd -u 311 -d /var/lib/slurm -s /bin/false -g slurm slurm
   #+begin_src shell
 cd ~/Downloads
 wget https://slackbuilds.org/slackbuilds/14.2/network/slurm.tar.gz
-tar xf slurm.tar.gz
-mv slurm 02-slurm
-cd 02-slurm
 wget https://download.schedmd.com/slurm/slurm-20.11.2.tar.bz2
-VERSION=20.11.2 HWLOC=yes RRDTOOL=yes bash slurm.SlackBuild
+export VERSION=20.11.2
+export HWLOC=yes
+export RRDTOOL=yes
+slpkg -a slurm.tar.gz slurm-20.11.2.tar.bz2
 installpkg /tmp/slurm-20.11.2-x86_64-1_SBo.tgz
+unset VERSION HWLOC RRDTOOL
 #+end_src
 - Install openmpi to play nice with slurm
   #+begin_src shell
 cd ~/Downloads
 wget https://slackbuilds.org/slackbuilds/14.2/system/openmpi.tar.gz
-tar xf openmpi.tar.gz
-mv openmpi 03-openmpi
-cd 03-openmpi
 wget https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.0.tar.bz2
-sed -i 's/make/make -j 8/' openmpi.SlackBuild
-VERSION=4.1.0 PMI=yes ./openmpi.SlackBuild
+export VERSION=4.1.0
+export PMI=yes
+slpkg -a openmpi.tar.gz openmpi-4.1.0.tar.bz2
 installpkg /tmp/openmpi-4.1.0-x86_64-2_SBo.tgz
   #+end_src
 - On each node and master:
