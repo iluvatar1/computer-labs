@@ -15,7 +15,8 @@ CHECK process dnsmasq with pidfile /var/run/dnsmasq.pid
       start program = "/etc/rc.d/rc.dnsmasq start"
       stop program = "/etc/rc.d/rc.dnsmasq stop"
 
-CHECK process x2goserver with pidfile /var/run/s2goserver.pid
+CHECK process x2goserver matching x2go
+      #with pidfile /var/run/s2goserver.pid
       start program = "/etc/rc.d/rc.x2goserver start"
       stop program = "/etc/rc.d/rc.x2goserver stop"
 
