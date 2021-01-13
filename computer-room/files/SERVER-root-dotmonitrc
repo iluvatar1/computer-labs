@@ -5,7 +5,7 @@ set httpd port 2812 and
     ALLOW admin:monitabcde54321
 
 CHECK process cntlm with pidfile /var/run/cntlm.pid
-      matching "cntlm"
+      #matching "cntlm"
       #start program = "/usr/bin/syncthing"
       #stop program = "/usr/bin/killall syncthing"
       start program = "/etc/rc.d/rc.cntlm start"

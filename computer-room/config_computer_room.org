@@ -8,16 +8,12 @@
 This document presents a basic procedure to configure a computer room
 in slackware. This generates a script, called
 =bootsrap_slackware_computer_room.sh= that uses a bunch of config files to setup
-either a client or a server. At the end
+either a client or a server. The script will read a configuration file, like
+=computer_room.conf=, to set some environment vars.  At the end
 you just run the mentioned script and hopefully everything will work
 as expected. 
 
 - Check https://www.redhat.com/sysadmin/my-survival-kit
-
-* Tasks [0/1]
-  - [ ] To burn_persistence liveslak :
-    - [ ] add upslak.sh command to increase the wait time to at least 20 secs
-    - [ ] Add required modules like valgrind, ddd, etc 
 
 * Description
   - The system to be installed is slackware 14.2-current 64bits, although some script
@@ -33,16 +29,19 @@ as expected.
   - The internal network of class C will use the segment 192.168.10.0/24
 
 * Slackware installation
-  Just download it from the official slackware web page. Get the dvd
-  version. Install everything. It is advisable to have at least four
-  partitions: one for root, one for swap, one for home, and one for tmp.
+Just download it from the official slackware web page. Get the dvd
+version. Install everything. It is advisable to have at least four
+partitions: one for root, one for swap, one for home, and one for tmp.
   
-  Then use the configuration script on ~../configurations~ to config
-  the slackware machine. 
+Then use the configuration script on ~../configurations~ to config
+the slackware machine.
+
+As of 2019, clonezilla is used to image a golden image from a virtual machine
+install into each computer.
 
 * Configuration of client and server for a computer room
 ** Parameters to configure bootstrap script
-   #+begin_src sh :exports code :tangle scripts/EXAMPLE_params.conf
+#+begin_src sh :exports code :tangle scripts/computer_room.conf
 BASE_SERVERIP=192.168 
 SERVERIP=${BASE_SERVERIP}.10.1
 NISDOMAIN=salafisnis
@@ -54,7 +53,7 @@ FORCE=0 # Force rewrite of all config even if it is already configured
 #PROXY=fisicasop_fcbog:PASSWD@proxyapp.unal.edu.co:8080
 # local cntlm config running on server
 PROXY=${SERVERIP}:3128
-   #+end_src
+#+end_src
 ** Configuring root internet behind proxy unal
    #+NAME: proxy_config
    #+BEGIN_SRC bash :exports code 
@@ -173,9 +172,9 @@ function config_dnsmasq {
    #+END_SRC
 
 ** Firewall ( also for NAT) : Arno iptables firewall.
-   I will use arno iptables firewall because it has worked pretty well
-   before . It must be installed before this step. If not installed , I
-   will try to use slpkg to install it.
+I will use arno iptables firewall because it has worked pretty well
+before . It must be installed before this step. If not installed , I
+will try to use slpkg to install it.
 
    #+NAME: firewall_config
    #+BEGIN_SRC bash :exports code
@@ -202,24 +201,6 @@ function config_firewall {
     fi
     # read
 }
-   #+END_SRC
-** [Deprecated] kanif cluster tools                                :noexport:
-   #+NAME: kanif_config
-   #+BEGIN_SRC bash :exports code 
-# kanif cluster tools
-#echo "Configuring kanif "
-#ssh-keygen -t rsa
-#for a in ssf6 ssf7 ssf8 ssf9; do
-#    yes 'PASSWORD' | ssh-copy-id -i ~/.ssh/id_rsa.pub $q
-#done
-# if [ "$TARGET" == "SERVER" ]; then
-#     echo "Kanif assumed to be installed in slackware."
-# fi
-# copy_config "$FDIR/SERVER-etc-c3.conf" "/etc/kanif.conf"
-# #kash ls
-# echo "DONE: Configuring kanif "
-# # read
-
    #+END_SRC
 ** NFS
    #+NAME: nfs_config
@@ -437,15 +418,15 @@ function config_crontab {
 
    This uses the ~/home/PACKAGES.list~ approach read by the weekly
    cronjob to install the needed packages. Of course, it can be run
-   when sooner, when needed.
+   sooner when needed.
    #+name: packages_config
    #+begin_src shell
 function config_packages {
     MSG="Creating package list"
     start_msg "$MSG"
-    if [ "TARGET" == "SERVER" ]; then
-	if [ ! -f /home/PACKAGES.list ]; then
-	    cat << EOF > /home/PACKAGES.list
+    if [ "$TARGET" == "SERVER" ]; then
+	    if [ ! -f /home/PACKAGES.list ]; then
+	        cat << EOF > /home/PACKAGES.list
 bonnie++ arno-iptables-firewall iotop wol squid tor  autossh  parallel sshfs-fuse xfce4-xkb-plugin
 dropbox ffmpeg syncthing
 ganglia ganglia-web glusterfs rrdtool papi openmpi hdf5 
@@ -453,16 +434,16 @@ octave qtoctave codeblocks geany kdiff3 kile
 R grads rstudio-desktop cdo 
 obs-studio ssr asciinema 
 EOF
-	fi
+	    fi  
     fi
     end_msg "$MSG"
 }
    #+end_src
-** ONGOING Install and configure monit 
-   Monit is a tool that allows to monitor and restart if needed
-   different services, files, etc. This will be another level of
-   redundancy (besides the scripts in crontab) to keep services
-   running. TODO: configure essential services on server and clients. 
+** TODO Install and configure monit
+Monit is a tool that allows to monitor and restart if needed
+different services, files, etc. This will be another level of
+redundancy (besides the scripts in crontab) to keep services
+running. TODO: configure essential services on server and clients.
    #+name:monit_config
    #+begin_src sh :exports code
 function config_monit {
@@ -488,10 +469,10 @@ function config_monit {
 }
    #+end_src
 ** cntlm 
-   This allows to create a bypassing pry that handles all auth and
-   allows for computers to use  a simple proxy with no auth. For
-   instance, with this I can now use emacs and install packages
-   without much hassle. 
+This allows to create a bypassing pry that handles all auth and
+allows for computers to use  a simple proxy with no auth. For
+instance, with this I can now use emacs and install packages
+without much hassle.
    #+name:cntlm_config
    #+begin_src sh :exports code
 function config_cntlm {
@@ -518,14 +499,19 @@ function config_cntlm {
     end_msg "$MSG"
 }
    #+end_src
+** pssh: Already installed, use the following links to fix the password
+   - https://unix.stackexchange.com/questions/128974/parallel-ssh-with-passphrase-protected-ssh-key
+   - https://www.funtoo.org/Keychain
+   - https://stackoverflow.com/questions/43597283/pass-the-password-as-an-argument-in-pssh
+   - https://www.golinuxcloud.com/pssh-public-key-authentication-passwordless/
 ** Write final script
-   #+BEGIN_SRC bash :exports code :noweb yes :tangle scripts/EXAMPLE-00-bootstrap_slackware_computer_room.sh :tangle-mode (identity #o444)
+#+BEGIN_SRC bash :exports code :noweb yes :tangle scripts/bootstrap_slackware_computer_room.sh :tangle-mode (identity #o444)
 #!/bin/bash
 
 # NOTE: The original base file is in the config_computer_room.org file
 
 SCRIPTS_DIR=$HOME/repos/computer-labs/computer-room/scripts
-CONFIG=${CONFIG:-params.conf}
+CONFIG=${CONFIG:-computer_room.conf}
 
 if [ ! -f $CONFIG ]; then 
     echo "ERROR: Config file not found -> $CONFIG"
@@ -601,24 +587,8 @@ config_cntlm
 #rpcinfo -p localhost
 
 
-   #+END_SRC
+#+END_SRC
 
-** TODO pssh?
-   - https://unix.stackexchange.com/questions/128974/parallel-ssh-with-passphrase-protected-ssh-key
-   - https://www.funtoo.org/Keychain
-   - https://stackoverflow.com/questions/43597283/pass-the-password-as-an-argument-in-pssh
-   - https://www.golinuxcloud.com/pssh-public-key-authentication-passwordless/
-
-** [Deprecated] Installing sbopkg                                  :noexport:
-   #+NAME: sbopkg_config
-   #+BEGIN_SRC bash :exports code 
-MSG="Installing sbopkg"
-echo "$MSG"
-installpkg "$FDIR/sbopkg-0.38.1-noarch-1_wsr.tgz"
-echo "DONE: $MSG"
-   #+END_SRC
-** [Deprecated] Install slpkg : Moved to slackware config.         :noexport:
-** [Deprecated] Moved to slackware config: Fix dhcpcd client (advertise mac address instead of ipv6 stuff)  
 * Auxiliary scripts
 ** Create an user
   #+BEGIN_SRC sh :exports code :mkdirp yes :tangle scripts/create_user.sh 
@@ -742,8 +712,8 @@ echo "DONE."
 
    #+end_src
 ** Data dir for users
-   In case there are some hard disk space to share between users,
-   create directories for each one
+In case there are some hard disk space to share between users,
+create directories for each one
    #+begin_src sh  :exports code :tangle scripts/create_data_dirs_for_users.sh :tangle-mode (identity #o444)
 #!/bin/bash
 
@@ -825,106 +795,112 @@ fi
     runiostat
   #+END_SRC
 
-* Problems and solutions [6/6]
+** Update patches
+#+begin_src shell :tangle scripts/update_patches.sh
+alias psshn="pssh -i -A  -h /home/oquendo/MYHOSTS  -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null  -O  GlobalKnownHostsFile=/dev/null"
+
+#psshn 'echo "check_certificate = off" > /root/.wgetrc'
+#psshn 'source /root/.bashrc ; slackpkg -batch=on -default_answer=y update '
+##psshn 'killall -9 slackpkg; rm -f /var/lock/slackpkg.* '
+#psshn 'source /root/.bashrc ; slackpkg -batch=on -default_answer=y upgrade patches'
+
+psshn 'source /root/.bashrc; slpkg upgrade'
+psshn "source /root/.bashrc; slpkg -s slack '' --patches"
+
+
+#+end_src
+* Problems and solutions [11/11]
 ** DONE Solving problems with xinit and xfce for all and new users
-   CLOSED: [2020-02-29 Sat 19:27]
-   - Make sure all users are on the video group. Maybe run
-     #+BEGIN_SRC bash
-     usermod -a -G audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner USERNAME
-     #+END_SRC
-     on each user.
-   - Make sure that the minimum gid in yp nis is 2 (see file
-     =/var/yp/Makefile=)
+CLOSED: [2020-02-29 Sat 19:27]
+- Make sure all users are on the video group. Maybe run
+  #+BEGIN_SRC bash
+usermod -a -G audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner USERNAME
+  #+END_SRC
+  on each user.
+- Make sure that the minimum gid in yp nis is 2 (see file =/var/yp/Makefile=)
 
 ** DONE Dhcpcd                                                    :SLACKWARE:
-   CLOSED: [2019-10-16 Wed 10:25]
-   The latest slackware version advertises the nic using a new
-   identity called iuad or something but the dhcp server at unal does
-   not read it so I needed to edit the /etc/dhcpcd.conf file and
-   activate sending the hardware address
+CLOSED: [2019-10-16 Wed 10:25]
+The latest slackware version advertises the nic using a new
+identity called iuad or something but the dhcp server at unal does
+not read it so I needed to edit the /etc/dhcpcd.conf file and
+activate sending the hardware address. Done at the config slackware script.
 ** DONE Advertising Ethernet speeds for eth1
    CLOSED: [2019-10-16 Wed 10:25]
-   (SLackware does not have this problem)
-  The connection from/to server through eth1 was at a maximum of
-  10MB/s. while the interface supported gigabit. After many tests I
-  found that by using the command
-  #+begin_src shell
-  ethtool -s eth1 advertise 0x010
-  #+end_src
-  I was able to advertise up to gigabit and then run at 100MB/s, which
-  is the least acceptable given the router.
+(Slackware does not have this problem)
+The connection from/to server through eth1 was at a maximum of
+10MB/s. while the interface supported gigabit. After many tests I
+found that by using the command
+#+begin_src shell
+ethtool -s eth1 advertise 0x010
+#+end_src
+I was able to advertise up to gigabit and then run at 100MB/s, which
+is the least acceptable given the router.
 
-  For slackware I added this to the minute_maintenance.sh . 
+For slackware I added this to the minute_maintenance.sh .
 
-  To make this command permanent in debian, I had to add the following
-  line under the config for ~eth1~ in the file
-  ~/etc/network/interfaces~
-  #+begin_src shell 
-  post-up /sbin/ethtool -s eth1 advertise 0x010
-  #+end_src
-** Setup dropbox
-  #+begin_src sh
-   ~/miniconda3/bin/python ~/dropbox.py proxy manual http proxyapp.unal.edu.co 8080 USERNAME PASSWORD
-  #+end_src
-** Instalando paquetes en R desde una cuenta de usuario
-  Para instalar paquetes desde una cuenta de usuario se usa el comando
-  normal ~install.packages~ . Pero si se hace desde un computador de
-  la universidad, es necesario configurar el proxy antes de entrar a
-  ~R~. 
-  
-  *Nota*: Una vez instalados los paquetes no es necesario volver a
-   instalarlos, pero cada usuario debe instalar sus paquetes en su
-   cuenta. 
+To make this command permanent in debian, I had to add the following
+line under the config for ~eth1~ in the file
+~/etc/network/interfaces~
+#+begin_src shell
+post-up /sbin/ethtool -s eth1 advertise 0x010
+#+end_src
+** DONE Setup dropbox
+#+begin_src sh
+~/miniconda3/bin/python ~/dropbox.py proxy manual http proxyapp.unal.edu.co 8080 USERNAME PASSWORD
+#+end_src
+** DONE Instalando paquetes en R desde una cuenta de usuario
+Para instalar paquetes desde una cuenta de usuario se usa el comando
+normal ~install.packages~ . Pero si se hace desde un computador de
+la universidad, es necesario configurar el proxy antes de entrar a
+~R~.
+
+*Nota*: Una vez instalados los paquetes no es necesario volver a
+instalarlos, pero cada usuario debe instalar sus paquetes en su
+cuenta.
 
 *** Configuración del proxy
-   Existen dos formas de hacerlo. La primera, es la mas sencilla pero
-   debe hacerse cada vez que se abra una consola nueva. Esta primera
-   forma consiste en exportar las variables del proxy de la siguiente
-   manera
-   #+BEGIN_SRC sh :exports code
+Existen dos formas de hacerlo. La primera, es la mas sencilla pero
+debe hacerse cada vez que se abra una consola nueva. Esta primera
+forma consiste en exportar las variables del proxy de la siguiente
+manera
+#+BEGIN_SRC sh :exports code
 export http_proxy="http://USERNAME:PASSWORD@proxyapp.unal.edu.co:8080/"
-export https_proxy="https://USERNAME:PASSWORD@proxyapp.unal.edu.co:8080/"
+export https_proxy="http://USERNAME:PASSWORD@proxyapp.unal.edu.co:8080/"
 export ftp_proxy="http://USERNAME:PASSWORD@proxyapp.unal.edu.co:8080/"
-   #+END_SRC
-   en donde se debe reemplazar =USERNAME= por el nombre del usuario
-   (de la universidad, sin incluir @unal.edu.co) y =PASSWORD= es el password de
-   la universidad. En adelante podrá navegar por la consola. Se se
-   desea que estos comandos siempre se ejecuten al abrir una consola,
-   se pueden copiar al final del archivo =~/.ḃashrc= .
+#+END_SRC
+en donde se debe reemplazar =USERNAME= por el nombre del usuario
+(de la universidad, sin incluir @unal.edu.co) y =PASSWORD= es el password de
+la universidad. En adelante podrá navegar por la consola. Se se
+desea que estos comandos siempre se ejecuten al abrir una consola,
+se pueden copiar al final del archivo =~/.ḃashrc= .
 
-   La segunda forma consiste en añadir el proxy a la información del
-   profile de =R=. Para esto, debe abrir el archivo oculto
-   =~.Renviron= (se puede abrir desde el mismo =R= usando el comando
-   =file.edit('~˙Renviron')=, y escribir allí
-   #+BEGIN_SRC sh
+La segunda forma consiste en añadir el proxy a la información del
+profile de =R=. Para esto, debe abrir el archivo oculto
+=~.Renviron= (se puede abrir desde el mismo =R= usando el comando
+=file.edit('~˙Renviron')=, y escribir allí
+#+BEGIN_SRC sh
 http_proxy=http://USERNAME:PASSWORD@proxyapp.unal.edu.co:8080/
 http_proxy_user=USERNAME:PASSWORD
 
 https_proxy=https://USERNAME:PASSWORD@proxyapp.unal.edu.co:8080/
 https_proxy_user=USERNAME:PASSWORD
-   #+END_SRC
-   con la convención ya explicada. Este archivo es leido por =R= y por
-   =R studio=. En adelante, cada vez que se ejecute =R= se cargarán
-   estas variables.
+#+END_SRC
+con la convención ya explicada. Este archivo es leido por =R= y por
+=R studio=. En adelante, cada vez que se ejecute =R= se cargarán
+estas variables.
 
 *** Instalación de paquetes
-   En este caso simplemente se debe entrar a =R= y ejecutar el comando
-   #+BEGIN_SRC sh
-   install.packages(c("ggplot", "dplyr", "p", "rgeos", "digest", "foreign"), repos="https://www.icesi.edu.co/CRAN/")
-   #+END_SRC
-   Ese repositorio/mirror está ubicado en Colombia y es rápido, pero se puede
-   usar cualquier otro.
+En este caso simplemente se debe entrar a =R= y ejecutar el comando
+#+BEGIN_SRC sh
+install.packages(c("ggplot", "dplyr", "p", "rgeos", "digest", "foreign"), repos="https://www.icesi.edu.co/CRAN/")
+#+END_SRC
+Ese repositorio/mirror está ubicado en Colombia y es rápido, pero se puede
+usar cualquier otro.
 
-   Los paquetes quedaran instalados en las cuentas locales de los
-   usuarios. 
-** Anaconda problems with qt
- If some error like "Cannot run ... QT ... xcb plugin ... " appears,
- maybe it needs to fix permissions. Run the following command:
- #+begin_src shell
-  sudo chmod 755 /opt/anaconda2/bin/qt.conf
- #+end_src
-** Formating usb (recovering the usb)
-  Use gdisk
+Los paquetes quedaran instalados en las cuentas locales de los usuarios.
+** DONE Formating usb (recovering the usb)
+Use gdisk
   #+begin_src sh
    gdisk
    enter recovery
@@ -951,15 +927,6 @@ https_proxy_user=USERNAME:PASSWORD
   kash ". ~/.bashrc; . /home/oquendo/PATH.sh; installpkg /home/oquendo/Downloads/pip-9.0.1-x86_64-1_SBo.tgz; pip install matplotlib numpy; cd /home/oquendo/Escritorio/HerrComp/05-Debugging/gdb_numpy-1.0/; python setup.py install"
   #+end_src
   
-** DONE [OLD] Armadillo problems with anaconda
-   CLOSED: [2019-10-16 Wed 10:31]
-  When installing armadillo, it finds the anaconda MKL and then a lot
-  of problems arise when trying to run progrms with armadillo. This
-  happens because putting anaconda bin on the path, in the first
-  place, "overwrites" pkgconfig and many other system
-  commands. Solution? eliminate anaconda from the path and then use
-  alias or simething similar, like linking anaconda python, ipython,
-  etc to /usr/local/bin, and no more.
 ** DONE [OLD] Anaconda problems with qt
    CLOSED: [2019-10-16 Wed 10:31]
   If some error like "Cannot run ... QT ... xcb plugin ... " appears,
@@ -967,7 +934,7 @@ https_proxy_user=USERNAME:PASSWORD
   #+begin_src shell
   sudo chmod 755 /opt/anaconda2/bin/qt.conf
   #+end_src
-** [OLD] Ubuntu and related
+** DONE [OLD] Ubuntu and related
 *** Update git
    #+BEGIN_SRC sh
 STATUS="$(grep -re wheezy-backports /etc/apt/sources.list | grep -v grep)"
@@ -980,7 +947,7 @@ apt-get update
 apt-get -t  wheezy-backports install "git" -y   
    #+END_SRC
   
-** [OLD] Armadillo problems with anaconda
+** DONE [OLD] Armadillo problems with anaconda
  When installing armadillo, it finds the anaconda MKL and then a lot
  of problems arise when trying to run progrms with armadillo. This
  happens because putting anaconda bin on the path, in the first
@@ -989,7 +956,7 @@ apt-get -t  wheezy-backports install "git" -y
  alias or simething similar, like linking anaconda python, ipython,
  etc to /usr/local/bin, and no more.
 
-** [OLD] sbopkg behing firewall blocking rsync
+** DONE [OLD] sbopkg behing firewall blocking rsync
    From : https://www.linuxquestions.org/questions/slackware-14/sbopkg-problem-774301/
    1. Download & install TOR from www.torproject.org
    2. Install polipo & torsocks
@@ -1019,118 +986,6 @@ apt-get -t  wheezy-backports install "git" -y
    - Install whatever
    - load whatever with modeule load
    - make an example
-** Ganglia
-   [[http://ganglia.info/][Ganglia]] is a system used to monitor clusters. I will start using it
-   to check the status of the computer room. The isnstallation is
-   different for server and client. I will put both here. 
-*** Server installation and configuration
-    I need to install =rrdtool=, =ganglia= with gmetad activated, and
-    =ganglia-web=. I will use slackbuilds although I cannot use sbopkg
-    or similar since it does not work with the proxy.
-    #+BEGIN_SRC bash :exports code :tangle scripts/ganglia-all-install-full.sh :tangle-mode (identity #o444)
-# This scripts install ganglia and its requirements (rrdtool) on a server.
-source ~/.bashrc
-mkdir /tmp/ganglia
-cd /tmp/ganglia
-
-# Install rrdtool
-if hash rrdtool &>/dev/null ; then
-    echo "   Already installed"
-else
-    cd /tmp/ganglia
-    echo "Downloading, compiling and installing rrdtool ..."
-    wget -nc -c  http://oss.oetiker.ch/rrdtool/pub/rrdtool-1.7.0.tar.gz &&
-	wget -nc -c https://slackbuilds.org/slackbuilds/14.2/libraries/rrdtool.tar.gz &&
-	tar xf rrdtool.tar.gz &&
-	cd rrdtool &&
-	cp ../rrdtool-1.7.0.tar.gz ./ &&
-	bash rrdtool.SlackBuild &&
-	installpkg /tmp/rrdtool-1.7.0-x86_64-1_SBo.tgz &&
-	echo "Done rrdtool. "
-fi
-
-# Install confuse
-if [ ! -f /usr/lib64/libconfuse.la ]; then 
-    cd /tmp/ganglia
-    echo "Downloading, compiling and installing confuse ..."
-    wget -nc -c  https://github.com/martinh/libconfuse/releases/download/v3.2/confuse-3.2.tar.gz &&
-	wget -nc -c https://slackbuilds.org/slackbuilds/14.2/libraries/confuse.tar.gz &&
-	tar xf confuse.tar.gz &&
-	cd confuse &&
-	cp ../confuse-3.2.tar.gz ./ &&
-	bash confuse.SlackBuild &&
-	installpkg /tmp/confuse-3.2-x86_64-1_SBo.tgz &&
-	echo "Done lib confuse. "
-fi
-
-# install ganglia activating gmetad
-if hash ganglia-config &>/dev/null ; then
-    echo "    Already installed"
-else
-    cd /tmp/ganglia
-    echo "Downloading, compiling and installing ganglia/gmetad ..."
-    wget -nc -c  http://downloads.sourceforge.net/ganglia/ganglia-3.7.2.tar.gz &&
-	wget -nc -c https://slackbuilds.org/slackbuilds/14.2/network/ganglia.tar.gz &&
-	tar xf ganglia.tar.gz &&
-	cd ganglia &&
-	cp ../ganglia-3.7.2.tar.gz ./ &&
-	OPT=gmetad ./ganglia.SlackBuild &&
-	installpkg /tmp/ganglia-3.7.2-x86_64-1_SBo.tgz &&
-	echo "Done ganglia/gmetad. "
-fi
-
-# install ganglia-web
-if [ ! -d /var/www/htdocs/ganglia/ ]; then 
-    cd /tmp/ganglia
-    echo "Downloading, compiling and installing ganglia-web ..."
-    wget -nc -c  http://downloads.sourceforge.net/ganglia/ganglia-web-3.7.2.tar.gz &&
-	wget -nc -c https://slackbuilds.org/slackbuilds/14.2/network/ganglia-web.tar.gz &&
-	tar xf ganglia-web.tar.gz &&
-	cd ganglia-web &&
-	cp ../ganglia-web-3.7.2.tar.gz ./ &&
-	./ganglia-web.SlackBuild &&
-	installpkg /tmp/ganglia-web-3.7.2-x86_64-1_SBo.tgz &&
-	echo "Done ganglia-web. "
-fi
-    #+END_SRC
-
-    And this is the configuration file
-    #+BEGIN_SRC bash :exports code :tangle scripts/ganglia-server-config-gmetad.sh :tangle-mode (identity #o444)
-# configure
-if [ ! -f /etc/gmetad.conf ]; then
-    echo "Configuring ganglia monitor gmetad..."
-    cat <<EOF > /etc/gmetad.conf
-# /etc/gmetad.conf on server
-data_source "clustersalafis" $SERVER_DOMAINNAME
-EOF
-    echo "Done."
-fi
-    #+END_SRC
-*** Client 
-    The client can use the same server install script, but the
-    configuration changes as follows
-    #+BEGIN_SRC bash :exports code :tangle scripts/ganglia-client-config-gmond.sh :tangle-mode (identity #o444)
-if [ ! -f /etc/gmond.conf ]; then 
-    echo "Configuring gmond.conf ..."
-    cat <<EOF > /etc/gmond.conf
-#/etc/gmond.conf - on clustersalafis
-cluster {
-  name = "clustersalafis"
-  owner = "unspecified"
-  latlong = "unspecified"
-  url = "unspecified"
-}
- 
-udp_send_channel {
-  mcast_join = $SERVERIP
-  port = 8649
-  ttl = 1
-}
-EOF
-fi
-echo "Done"
-    #+END_SRC
-
 ** CDO [2019-09-18 Wed]
    Use alien AST
 ** GRADS [2019-09-18 Wed]
@@ -1161,73 +1016,10 @@ via off
 forwarded_for off
 
 # describe external proxy server
-cache_peer 168.176.239.30 parent 8080 0 no-query default proxy-only login=fisicasop_fcbog:s4l4fis219
+cache_peer 168.176.239.30 parent 8080 0 no-query default proxy-only login=fisicasop_fcbog:PASSWD
 http_port 10000
 acl port10000 myport 10000
 cache_peer_access 168.176.239.30 allow port10000
   #+end_src
-* NOTES
-  #+begin_src shell
-alias psshn="pssh -i -A  -h /home/oquendo/MYHOSTS  -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null  -O  GlobalKnownHostsFile=/dev/null"
-
-psshn 'echo "check_certificate = off" > /root/.wgetrc'
-psshn 'source /root/.bashrc ; slackpkg -batch=on -default_answer=y update '
-#psshn 'killall -9 slackpkg; rm -f /var/lock/slackpkg.* '
-psshn 'source /root/.bashrc ; slackpkg -batch=on -default_answer=y upgrade patches '
-
-  #+end_src
-
-* To check
-  - Munge for auth: https://dun.github.io/munge/
-  - ldap for auth: link with unal server 
-  - pdsh: Parallel shell  https://github.com/chaos/pdsh
-* Parallel filesystems
-** glusterfs
-   - https://www.howtoforge.com/tutorial/high-availability-storage-with-glusterfs-on-ubuntu-1804/#step-configure-glusterfs-servers
-   - https://docs.gluster.org/en/latest/Administrator%20Guide/Setting%20Up%20Volumes/
-   - https://microdevsys.com/wp/mount-failed-please-check-the-log-file-for-more-details/
-   - https://sysadmins.co.za/setup-a-distributed-storage-volume-with-glusterfs/
-1. Create a trusted storage pool (all this is supposed to run in =192.168.10.1=)
-	- Get the storage servers :
-	  #+BEGIN_SRC shell
-	  pssh -i -h /home/oquendo/INFO/MYHOSTS   'df -h | grep /opt'
-	  #+END_SRC
-	  From here I will use ~4,5,8,19,33,34~ since they have more than 300Gb in opt, each one. 
-	  I have saved this names in ~/home/oquendo/INFO/HOSTSSTORAGE~
-	  #+BEGIN_SRC shell
-	  pssh -i  -h /home/oquendo/INFO/HOSTSSTORAGE   'mkdir /opt/glusterbrick'
-	  #+END_SRC
-	- Now really create the storage pool:
-	  #+BEGIN_SRC shell
-pssh -i  -h /home/oquendo/INFO/HOSTSSTORAGE   'chmod +x /etc/rc.d/rc.glusterd '
-pssh -i  -h /home/oquendo/INFO/HOSTSSTORAGE   '/etc/rc.d/rc.glusterd start '
-for IP in $(cat /home/oquendo/INFO/HOSTSSTORAGE); do
-    gluster peer probe ${IP%:22};
-done
-gluster peer status
-gluster pool list
-for IP in $(cat /home/oquendo/INFO/HOSTSSTORAGE); do
-    gluster volume create gfsdist ${IP%:22}:/opt/glusterbrick ;
-done
-	  #+END_SRC
-2. Start the volume
-	#+BEGIN_SRC shell
-	gluster volume start gfsdist
-	#+END_SRC
-3. Then mount it on a client
-	#+BEGIN_SRC shell
-	mount.glusterfs 192.168.10.1:/gfsdist /mnt/tmp/
-	#+END_SRC
-	To mount it on many clients:
-	#+BEGIN_SRC shell
-	pssh -i -h /home/oquendo/INFO/MYHOSTS 'echo "# GLUSTER" >> /etc/fstab '
-	pssh -i -h /home/oquendo/INFO/MYHOSTS 'echo "192.168.10.1:/gfsdist  /mnt/glusterfs glusterfs defaults,_netdev 0 0" >> /etc/fstab '
-	pssh -i -h /home/oquendo/INFO/MYHOSTS 'mkdir /mnt/glusterfs '
-	pssh -i -h /home/oquendo/INFO/MYHOSTS 'mount -a '
-	pssh -i -h /home/oquendo/INFO/MYHOSTS 'df -h '
-	#+END_SRC
-4. If you want to add more bricks (execute on =192.168.10.1=, and
-        see
-        https://docs.gluster.org/en/latest/Administrator%20Guide/Managing%20Volumes/#expanding-volumes)
-	
-	
+* Todo [0/1]
+- [ ] ldap for auth: link with unal server
