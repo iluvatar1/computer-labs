@@ -161,6 +161,7 @@ slpkg_install () {
 	    sed -i.bck 's/RELEASE=stable/RELEASE=current/' /etc/slpkg/slpkg.conf
 	    sed -i.bck 's/DEFAULT_ANSWER=n/DEFAULT_ANSWER=y/' /etc/slpkg/slpkg.conf
 	    sed -i.bck 's/DOWNDER_OPTIONS=.*/DOWNDER_OPTIONS=-c -N --no-check-certificate/' /etc/slpkg/slpkg.conf
+        sed -i.bck 's/NOT_DOWNGRADE=off/NOT_DOWNGRADE=on/' /etc/slpkg/slpkg.conf
 	    backup_file /etc/slpkg/repositories.conf
         for reponame in slack sbo alien; do
             sed -i.bck 's/^# '$reponame'$/'$reponame'/' /etc/slpkg/repositories.conf
