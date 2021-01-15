@@ -67,7 +67,7 @@ cat <<EOF > "${FNAME}"
         modeline
         ;ophints
         ;(popup +defaults)
-        treemacs
+        neotree
         :editor
         file-templates
         fold
@@ -87,7 +87,7 @@ cat <<EOF > "${FNAME}"
         make
         pdf
         :lang 
-        (cc +lsp)
+        (cc)
         emacs-lisp
         latex
         markdown
