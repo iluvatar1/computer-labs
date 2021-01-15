@@ -1,3 +1,4 @@
+#+STARTUP: overview
 This repository contains several scripts to build different kind of
 tools that I have needed along time. The following describes the
 structure and usage.
@@ -47,13 +48,10 @@ structure and usage.
    state. In principle, to configure slackware, you should run the
    following scripts:
    #+BEGIN_SRC sh
-   bash config_slackware.sh
-   bash base_packages_slackware.sh
-   bash update_slackware.sh
+   bash configurations/config_slackware.sh
+   bash packages/install_packages_slackware.sh # use COMPILE=yes if you want to compule the packages
    #+END_SRC
-   I am still fixing the last one since somehow it is killing
-   coreutils and I endup with a bricked system with no coreutils ... 
-** Lubuntu [9/11]
+** OLD Lubuntu [9/11]
    - [X] Configure/install google remote desktop:
      https://support.google.com/chrome/answer/1649523?co=GENIE.Platform%3DDesktop&hl=en 
    - [X] Configure zerotier one : 

@@ -44,13 +44,3 @@ if [ -f $SOURCE_FILE ]; then
 else
     echo "$SOURCE_FILE does not exists."
 fi
-
-echo "Installing latest firefox (beta channel) ..."
-tname=$HOME/Downloads/latest_firefox.sh
-if [ ! -f $tname ]; then
-    wget https://gist.githubusercontent.com/ruario/9672798/raw/8838b901c411289c7780d68eadeb8f655c9d46c2/latest-firefox.sh -O $tname
-fi
-FFCHANNEL=beta bash $tname --install &>/tmp/ff-log
-
-echo "Done."
-

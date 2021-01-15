@@ -2,6 +2,7 @@
 #+AUTHOR: William Oquendo
 #+email: woquendo@gmail.com
 #+INFOJS_OPT: 
+#+STARTUP: Overview
 #+BABEL: :session *R* :cache yes :results output graphics :exports both :tangle yes 
 -----
 
@@ -977,6 +978,8 @@ apt-get -t  wheezy-backports install "git" -y
   - src2pkg: https://distro.ibiblio.org/amigolinux/download/src2pkg/
   - https://idlemoor.github.io/slackrepo/links.html
 
+** Auxiliary packages
+Add alien repo to slpkg and then install libreoffice poppler-compat inkscape vlc
 ** Spack
    - clone it
    - source env
