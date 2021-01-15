@@ -48,14 +48,16 @@ services_nfs_ssh () {
 
 timezone () {
     pm "Configuring timezone to Bogota using script based on slackware timeconfig ..."
-    if [ x"" = x"$(grep timeconfig  /etc/rc.d/rc.local)" ]; then 
-        pm "Setting timezone and hardware clock in rc.local "
-	    TNAME="/etc/rc.d/rc.local"
-	    echo "# Setting up date and time " >> $TNAME
-	    echo "bash /root/repos/computer-labs/configurations/timeconfig" >> $TNAME
-	    echo "ntpdate 0.pool.ntp.org &> /dev/null" >> $TNAME
-        bash /root/repos/computer-labs/configurations/timeconfig
-    fi
+    #if [ x"" = x"$(grep timeconfig  /etc/rc.d/rc.local)" ]; then
+    #    pm "Setting timezone and hardware clock in rc.local "
+	#    TNAME="/etc/rc.d/rc.local"
+	#    echo "# Setting up date and time " >> $TNAME
+	#    echo "bash /root/repos/computer-labs/configurations/timeconfig" >> $TNAME
+	#    echo "ntpdate 0.pool.ntp.org &> /dev/null" >> $TNAME
+    #    bash /root/repos/computer-labs/configurations/timeconfig
+    #fi
+    ln -sf /usr/share/zoneinfo/America/Bogota /etc/localtime
+    #sed -i.bck 's/localtime/UTC/' /etc/hardwareclock
     pm "Done"
 }
 
@@ -68,6 +70,7 @@ ntp () {
     else
 	    configured
     fi
+    chmod +x /etc/rc.d/rc.ntpd
     /etc/rc.d/rc.ntpd restart
 }
 

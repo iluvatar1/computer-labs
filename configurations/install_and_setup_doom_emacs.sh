@@ -1,4 +1,11 @@
-#!/bin/env bash 
+#!/bin/env bash
+
+
+if [ -d $HOME/.doom.d ]; then
+    echo "Doom already installed. Exiting."
+    exit 1
+fi
+
 if [ -d ~/.emacs.d ] ; then
     echo "Backing up old .emacs.d directory"
     mv -v ~/.emacs.d{,-OLD}
