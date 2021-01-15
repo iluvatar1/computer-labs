@@ -29,6 +29,23 @@ config_shell_prompt () {
     fi
 }
 
+install_spack () {
+    MSG="Installing Spack"
+    pm "$MSG"
+    sleep 2
+    if [ ! -d /home/live/repos/spack ]; then
+	    mkdir /home/live/repos/
+	    cd /home/live/repos/ || exit 1
+	    git clone https://github.com/spack/spack
+	    echo "source /home/live/repos/spack/share/spack/setup-env.sh" >> /home/live/.bashrc
+	    chown -R live /home/live /home/live/repos /home/live/.bashrc
+	    pm "Done"
+    else
+	    pm "Already installed"
+    fi
+}
+
+
 ###############################################################################
 # Main 
 ###############################################################################
@@ -41,4 +58,5 @@ rm -f /var/log/log-install.txt 2>/dev/null
     sudo -u live bash install_and_setup_doom_emacs.sh
     config_shell_prompt
     #sudo -u live bash fix_tz_xfce4.sh
+    install_spack
 } &>> /var/log/log-install.txt

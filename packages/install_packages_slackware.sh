@@ -70,22 +70,6 @@ install_latest_firefox() {
     fi
 }
 
-install_spack () {
-    MSG="Installing Spack"
-    pm "$MSG"
-    sleep 2
-    if [ ! -d /home/live/repos/spack ]; then
-	    mkdir -p /home/live/repos/
-	    cd /home/live/repos/ || exit 1
-	    git clone https://github.com/spack/spack
-	    echo "source /home/live/repos/spack/share/spack/setup-env.sh" >> /home/live/.bashrc
-	    chown -R live /home/live/repos /home/live/.bashrc
-	    pm "Done"
-    else
-	    pm "Already installed"
-    fi
-}
-
 install_perf () {
     MSG="Installing perf ..."
     pm "$MSG"
@@ -113,7 +97,6 @@ else
 fi
 
 #install_latest_firefox
-install_spack
 install_perf
 # install some big packages already compiled by alien
 slpkg -s alien libreoffice inkscape vlc poppler-compat

@@ -23,7 +23,7 @@ mkdir -p ~/.doom.d 2>/dev/null
 
 FNAME=~/.doom.d/packages.el
 echo "-> ${FNAME}"
-backup_file "${FNAME}"
+backup "${FNAME}"
 cat <<EOF > "${FNAME}"
 (package! modus-vivendi-theme)
 (package! modus-operandi-theme)
@@ -33,7 +33,7 @@ EOF
 
 FNAME=~/.doom.d/config.el
 echo "-> ${FNAME}"
-backup_file "${FNAME}"
+backup "${FNAME}"
 cat <<EOF > "${FNAME}"
 (setq user-full-name "NAME"
       user-mail-address "EMAIL@gmail.com")
@@ -48,11 +48,37 @@ cat <<EOF > "${FNAME}"
 (menu-bar-mode 1)
 (setq confirm-kill-emacs nil)
 ;;(setq ccls-executable "/usr/local/bin/ccls")
+
+(add-hook 'org-mode-hook 'turn-on-auto-fill)
+(setq org-latex-image-default-width ".45\\textwidth")
+(setq org-latex-images-centered nil)
+(setq org-latex-listings 'minted) ;; colored latex
+(setq org-src-preserve-indentation t) ;; for preserving indentation when tangling
+(setq org-latex-packages-alist '())
+(add-to-list 'org-latex-packages-alist '("" "minted"))
+(setq org-latex-minted-options
+      '(("frame" "lines")
+        ("fontsize" "\\scriptsize")
+        ;;("linenos" "true")
+        ("bgcolor" "Wheat!15")
+        ("escapeinside" "||")
+        ("breaklines" "true")
+        ("breakanywhere" "true")
+        ("bgcolor" "Wheat!15")
+        ("mathescape" "")))
+(setq org-list-allow-alphabetical 't)
+(setenv "PDFLATEX" "pdflatex --shell-escape")
+;;(setq org-latex-pdf-process ("latexmk -f -pdf %f"))
+;;(setq org-latex-pdf-process ("pdflatex --shell-escape %f"))
+(setq org-latex-pdf-process '("latexmk -pdflatex='pdflatex -shell-escape  -interaction nonstopmode' -pdf -bibtex -f %f"))
+(setq org-latex-to-pdf-process '("latexmk -pdflatex='pdflatex -shell-escape  -interaction nonstopmode' -pdf -bibtex -f %f"))
+
+(add-hook 'org-mode-hook (lambda () (electric-indent-local-mode -1)))
 EOF
 
 FNAME=~/.doom.d/init.el
 echo "-> ${FNAME}"
-backup_file "${FNAME}"
+backup "${FNAME}"
 cat <<EOF > "${FNAME}"
 (doom! :completion
         company
