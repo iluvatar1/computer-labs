@@ -163,7 +163,7 @@ slpkg_install () {
 	    sed -i.bck 's/DOWNDER_OPTIONS=.*/DOWNDER_OPTIONS=-c -N --no-check-certificate/' /etc/slpkg/slpkg.conf
 	    backup_file /etc/slpkg/repositories.conf
         for reponame in slack sbo alien; do
-            sed -i.bck 's/# '$repo_name'/'$repo_name'/' /etc/slpkg/repositories.conf
+            sed -i.bck 's/^# '$reponame'$/'$reponame'/' /etc/slpkg/repositories.conf
         done
 	    backup_file /etc/slpkg/blacklist
 	    cat <<EOF > /etc/slpkg/blacklist
