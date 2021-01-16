@@ -30,8 +30,8 @@ config_shell_prompt () {
 }
 
 install_spack () {
-    MSG="Installing Spack"
-    pm "$MSG"
+    MSG="-> Installing Spack"
+    echo "$MSG"
     sleep 2
     if [ ! -d /home/live/repos/spack ]; then
 	    mkdir /home/live/repos/
@@ -39,9 +39,9 @@ install_spack () {
 	    git clone https://github.com/spack/spack
 	    echo "source /home/live/repos/spack/share/spack/setup-env.sh" >> /home/live/.bashrc
 	    chown -R live /home/live /home/live/repos /home/live/.bashrc
-	    pm "Done"
+	    echo "-> Done"
     else
-	    pm "Already installed"
+	    echo "-> Already installed"
     fi
 }
 
@@ -51,6 +51,9 @@ install_spack () {
 ###############################################################################
 rm -f /var/log/log-install.txt 2>/dev/null
 {
+    mkdir -p $HOME/repos
+    cd $HOME/repos
+    git clone https://github.com/iluvatar1/computer-labs
     cd "$HOME/repos/computer-labs/configurations"
     bash config_slackware.sh 
     COMPILE=NO bash ../packages/install_packages_slackware.sh

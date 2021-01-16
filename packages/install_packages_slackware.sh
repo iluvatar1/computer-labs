@@ -100,3 +100,4 @@ fi
 install_perf
 # install some big packages already compiled by alien
 slpkg -s alien libreoffice inkscape vlc poppler-compat
+rm -f /tmp/*tgz 2>/dev/null
