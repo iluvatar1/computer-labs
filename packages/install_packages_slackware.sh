@@ -43,9 +43,9 @@ install_binary_packages () {
 install_with_slpkg_compile () {
     rm -f /var/log/slpkg.log
     slpkg update >> /var/log/slpkg.log
-    for pkg in "${PKG[@]}"; do
+    for pkg in "${PKG[*]}"; do
 	    pm "Installing (with slpkg): $pkg"
-	    slpkg -s sbo "$pkg" >> /var/log/slpkg.log
+	    slpkg -s sbo "$pkg" --rebuild >> /var/log/slpkg.log
     done
 }
 
@@ -90,7 +90,7 @@ install_perf () {
 
 setup
 
-if [ "NO" == "$COMPILE" ]; then
+if [ "NO" = "$COMPILE" ]; then
     install_binary_packages
 else
     install_with_slpkg_compile
