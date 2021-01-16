@@ -182,6 +182,10 @@ EOF
     else
 	    configured
     fi
+    #### PATCH to solve issues between proxy and urllib: use requests #####
+    backup_file /usr/lib64/python3.7/site-packages/slpkg/file_size.py
+    cp -f "$HOME/repos/computer-labs/packages/slpkg/file_size.py" /usr/lib64/python3.7/site-packages/slpkg/file_size.py
+    # Update
     pm "Recommended to run : slpkg update"
     slpkg update
     pm "DONE: $MSG"
