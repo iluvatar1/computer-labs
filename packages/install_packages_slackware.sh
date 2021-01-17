@@ -5,7 +5,7 @@ export PATH=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:/usr/ga
 \
 ################################################################################
 COMPILE=${COMPILE:-NO}
-PKG="keepassx sshfs-fuse autossh xfce4-xkb-plugin flashplayer-plugin slim monit fail2ban corkscrew pip parallel wol valgrind openmpi modules cppcheck iotop gperftools"
+PKG="keepassx sshfs-fuse autossh xfce4-xkb-plugin flashplayer-plugin slim monit fail2ban corkscrew pip parallel wol valgrind openmpi modules cppcheck iotop gperftools xdm-slackware-theme"
 
 pm () {
     echo "  -> $1"
