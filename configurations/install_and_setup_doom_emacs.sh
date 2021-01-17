@@ -1,5 +1,9 @@
 #!/bin/env bash
 
+# NOTE: In MacOsX you must install ironey-server by using
+# -DCMAKE_PREFIX_PATH=/usr/local/opt/llvm
+# See : https://github.com/Sarcasm/irony-mode/wiki/Mac-OS-X-issues-and-workaround
+
 if [ -d $HOME/.doom.d ]; then
     echo "Doom already installed. Exiting."
     exit 1
@@ -113,7 +117,7 @@ cat <<EOF > "${FNAME}"
         make
         pdf
         :lang 
-        (cc)
+        (cc +irony)
         emacs-lisp
         latex
         markdown
