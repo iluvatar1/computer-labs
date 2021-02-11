@@ -510,11 +510,12 @@ function config_cntlm {
 #!/bin/bash
 
 # NOTE: The original base file is in the config_computer_room.org file
+# Color stuff based on: https://devdojo.com/bobbyiliev/how-to-create-an-interactive-menu-in-bash#testing-the-script
 
 SCRIPTS_DIR=$HOME/repos/computer-labs/computer-room/scripts
 CONFIG=${CONFIG:-computer_room.conf}
 
-if [ ! -f $CONFIG ]; then 
+if [ ! -f $CONFIG ]; then
     echo "ERROR: Config file not found -> $CONFIG"
     exit 1
 fi
@@ -532,10 +533,48 @@ BDIR=$PWD
 FDIR=$1
 LINUX="SLACKWARE"
 
+##
+# Color  Variables
+##
+red='\e[31m'
+green='\e[32m'
+yellow='\e[33m'
+blue='\e[34m'
+magenta='\e[35m'
+cyan='\e[36m'
+lred='\e[91m'
+lgreen='\e[92m'
+lyellow='\e[93m'
+lblue='\e[94m'
+lmagenta='\e[95m'
+lcyan='\e[96m'
+white='\e[97m'
+clear='\e[0m'
+
+##
+# Color Functions
+##
+
+ColorGreen(){
+	echo -ne $green$1$clear
+}
+ColorLGreen(){
+	echo -ne $lgreen$1$clear
+}
+ColorBlue(){
+	echo -ne $blue$1$clear
+}
+ColorCyan(){
+	echo -ne $cyan$1$clear
+}
+ColorYellow(){
+	echo -ne $yellow$1$clear
+}
+
 echo "###############################################"
 echo "# Configuring $TARGET ..."
-if [[ $FORCE -eq 1 ]]; then 
-    echo "# Forcing configuration ..."; 
+if [[ $FORCE -eq 1 ]]; then
+    echo "# Forcing configuration ...";
 fi
 echo "###############################################"
 
@@ -566,24 +605,70 @@ echo "###############################################"
 <<cntlm_config>>
 
 # Call all functions
-config_proxy
-config_network
-config_ntp
-config_dnsmasq
-config_firewall
-config_nfs
-config_nis
-config_monit
-config_publicid_sshpassword
-config_shutdown_perms
-config_crontab
-config_packages
-config_cntlm
+all ()
+{
+    config_proxy
+    config_network
+    config_ntp
+    config_dnsmasq
+    config_firewall
+    config_nfs
+    config_nis
+    config_monit
+    config_publicid_sshpassword
+    config_shutdown_perms
+    config_crontab
+    config_packages
+    config_cntlm
+}
+
+menu(){
+echo -ne "
+Services to configure on: $TARGET
+$(ColorGreen '1)') proxy
+$(ColorGreen '2)') network (rc.inet1.conf)
+$(ColorGreen '3)') ntp
+$(ColorGreen '4)') dnsmasq
+$(ColorGreen '5)') firewall
+$(ColorGreen '6)') nfs
+$(ColorGreen '7)') nis
+$(ColorGreen '8)') monit
+$(ColorGreen '9)') public sshkey
+$(ColorGreen '10)') shutdown perms
+$(ColorGreen '11)') crontab
+$(ColorGreen '12)') packages
+$(ColorGreen '13)') cntlm
+$(ColorLGreen '14)') Configure ALL
+$(ColorYellow '0)') Exit
+$(ColorCyan 'Choose an option:') "
+        read a
+        case $a in
+	        1) config_proxy ; menu ;;
+	        2) config_network ; menu ;;
+	        3) config_ntp ; menu ;;
+	        4) config_dnsmasq ; menu ;;
+	        5) config_firewall ; menu ;;
+	        6) config_nfs ; menu ;;
+	        7) config_nis ; menu ;;
+	        8) config_monit ; menu ;;
+	        9) config_publicid_sshpassword ; menu ;;
+	        10) config_shutdown_perms ; menu ;;
+	        11) config_crontab ; menu ;;
+	        12) config_packages ; menu ;;
+	        13) config_cntlm ; menu ;;
+	        14) all ; menu ;;
+		0) exit 0 ;;
+		,*) echo -e $lred"Wrong option."$clear; exit 1;;
+        esac
+}
+
+
+menu
 
 # run services (better done on script that keeps the system up, when the client is on the network)
 #/etc/rc.d/rc.nfsd restart
-#mount -a 
-#/etc/rc.d/rc.yp restart    
+#mount -a
+#/etc/rc.d/rc.yp restart
 #/etc/rc.d/rc.inet2 restart
 #rpcinfo -p localhost
 
