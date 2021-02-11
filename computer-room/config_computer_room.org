@@ -95,7 +95,7 @@ function config_network {
 	    copy_config "$FDIR/SERVER-etc-resolv.conf.head" "$TFILE"
 	fi	
 	#if [ $(pattern_not_present "$SERVERIP" "/etc/rc.d/rc.inet1.conf") ]; then 
-	if [ x"" == x"$(grep $SERVERIP /etc/rc.d/rc/inet1.conf)" ] || [ $FORCE -eq 1 ] ; then
+	if [ x"" == x"$(grep $SERVERIP /etc/rc.d/rc.inet1.conf)" ] || [ $FORCE -eq 1 ] ; then
 	    bash /etc/rc.d/rc.networkmanager stop
 	    chmod -x /etc/rc.d/rc.networkmanager
 	    copy_config "$FDIR/SERVER-etc-rc.d-rc.inet1.conf" /etc/rc.d/rc.inet1.conf
