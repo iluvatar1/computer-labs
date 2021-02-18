@@ -239,7 +239,7 @@ config_bashrc () {
 config_xinitrc () {
     MSG="Fixing xinitrc on /etc/skel"
     start_msg "$MSG"
-    if [ ! -f /etc/skel/.xinitrc ]; then 
+    if [ ! -f /etc/skel/.xinitrc ]; then
         cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xinitrc
 	    chmod +x /etc/skel/.xinitrc
     else
@@ -252,6 +252,14 @@ config_xinitrc () {
         cp -f /etc/xdg/xfce4/xinitrc /etc/skel/.xsession
     else
 	    pm "#   -> Already fixed"
+    fi
+    end_msg "$MSG"
+    MSG="Adding empty .Xauthority to /etc/skel"
+    start_msg "$MSG"
+    if [ ! -f /etc/skel/.Xauthority ]; then
+        touch /etc/skel/.Xauthority
+    else
+	    pm "#    -> Already fixed"
     fi
     end_msg "$MSG"
 }
