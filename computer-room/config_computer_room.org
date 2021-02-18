@@ -518,19 +518,48 @@ function config_cntlm {
     end_msg "$MSG"
 }
    #+end_src
-** *Deprecated* pssh: Already installed, use the following links to fix the password
+** _DEPRECATED_ pssh: Already installed, use the following links to fix the password
    - https://unix.stackexchange.com/questions/128974/parallel-ssh-with-passphrase-protected-ssh-key
    - https://www.funtoo.org/Keychain
    - https://stackoverflow.com/questions/43597283/pass-the-password-as-an-argument-in-pssh
    - https://www.golinuxcloud.com/pssh-public-key-authentication-passwordless/
-** TODO cluster ssh
+** cluster ssh
 Check some tutorial at
 https://www.2daygeek.com/clustershell-clush-run-commands-on-cluster-nodes-remote-system-in-parallel-linux/
-- install:
-  #+begin_src shell
-pip install cluster-shell
-  #+end_src
-- Configure
+#+name: clustershell
+#+begin_src sh :exports code
+function config_clustershell {
+    MSG="Installing and configuring clustershell on server... "
+    start_msg "$MSG"
+    if [ "$TARGET" == "SERVER" ]; then
+        echo "Installing ..."
+	    if $(command_exists clush) && [ $FORCE -eq 0 ]; then
+	        echo "#    -> already installed"
+	    else
+	        source /root/.bashrc
+            pip install cluster-shell
+        fi
+        echo "Configuring ..."
+        if [ ! -d /etc/clustershell ]; then
+            mkdir -p /etc/clustershell
+        fi
+        if [ ! -f /etc/clustershell/clush.conf ]; then
+	        copy_config "$FDIR/SERVER-etc-clustershell-clush.conf" "/etc/clustershell/clush.conf"
+        else
+            echo "clush.conf already existing."
+        fi
+        if [ ! -f /etc/clustershell/groups.d/salafis.yaml ]; then
+            mkdir -p /etc/clustershell/groups.d/
+	        copy_config "$FDIR/SERVER-etc-clustershell-groupsd-salafis.yaml" "/etc/clustershell/groups.d/salafis.yaml"
+        else
+            echo "group salafis.yaml already existing".
+        fi
+    else
+	    echo "Not configuring on client."
+    fi
+    end_msg "$MSG"
+}
+   #+end_src
 ** x2goserver (server)
 #+name: x2go
 #+begin_src shell :exports code
@@ -682,6 +711,7 @@ all ()
     config_packages
     config_cntlm
     config_x2go
+    config_clustershell
 }
 
 menu(){
@@ -701,7 +731,8 @@ $(ColorGreen '11)') crontab
 $(ColorGreen '12)') packages
 $(ColorGreen '13)') cntlm
 $(ColorGreen '14)') x2go
-$(ColorLGreen '15)') Configure ALL
+$(ColorGreen '15)') clustershell
+$(ColorLGreen '16)') Configure ALL
 $(ColorYellow '0)') Exit
 $(ColorCyan 'Choose an option:') "
         read a
@@ -720,7 +751,8 @@ $(ColorCyan 'Choose an option:') "
 	        12) config_packages ; menu ;;
 	        13) config_cntlm ; menu ;;
 	        14) config_x2go ; menu ;;
-	        15) all ; menu ;;
+	        15) config_clustershell ; menu ;;
+	        16) all ; menu ;;
 		0) exit 0 ;;
 		,*) echo -e $lred"Wrong option."$clear; exit 1;;
         esac
