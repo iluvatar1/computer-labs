@@ -250,14 +250,20 @@ function config_nis {
     start_msg "$MSG"
     chmod +x /etc/rc.d/rc.yp
     if [ "$TARGET" == "SERVER" ]; then
-        #if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ] ; then 
-	if [ x"" == x"$(grep $NISDOMAIN /etc/defaultdomain)" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" == x"$(grep $BASE_SERVERIP /etc/hosts.allow)" ] || [ $FORCE -eq 1 ] ; then
+	        copy_config "$FDIR/SERVER-etc-hosts.allow" "/etc/hosts.allow"
+	    else
+            echo "hosts allow already configured"
+	    fi
+
+        #if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ] ; then
+	    if [ x"" == x"$(grep $NISDOMAIN /etc/defaultdomain)" ] || [ $FORCE -eq 1 ] ; then
             copy_config "$FDIR/SERVER-etc-defaultdomain" "/etc/defaultdomain"
         else
             echo "Already configured default nis domain"
         fi
-        #if [ $(pattern_not_present "${NISDOMAIN}" "/etc/yp.conf") ] ; then 
-	if [ x"" == x"$(grep $NISDOMAIN /etc/yp.conf)" ] || [ $FORCE -eq 1 ] ; then
+        #if [ $(pattern_not_present "${NISDOMAIN}" "/etc/yp.conf") ] ; then
+	    if [ x"" == x"$(grep $NISDOMAIN /etc/yp.conf)" ] || [ $FORCE -eq 1 ] ; then
             copy_config "$FDIR/SERVER-etc-yp.conf" "/etc/yp.conf"
             copy_config "$FDIR/SERVER-var-yp-Makefile" "/var/yp/Makefile"
         else
@@ -265,26 +271,27 @@ function config_nis {
         fi
 
         backup_file /etc/rc.d/rc.yp
-        if [ x"" == x"$(grep 'YP_SERVER_ENABLE=1' /etc/rc.d/rc.yp 2>/dev/null)"]; then 
+        if [ x"" == x"$(grep 'YP_SERVER_ENABLE=1' /etc/rc.d/rc.yp 2>/dev/null)"]; then
             sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=0/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=1/ ;' /etc/rc.d/rc.yp
         else
             echo "Already configured as yp server"
         fi
-	
+
         echo "Running nis services ..."
         ypserv
         make -BC /var/yp
         #/usr/lib64/yp/ypinit -m
-    else
+    else # CLIENT
         chmod +x /etc/rc.d/rc.nfsd
+        chmod +x /etc/rc.d/rc.yp
         #if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ]; then
-	if [ x"" == x"$(grep $NISDOMAIN /etc/defaultdomain)" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" == x"$(grep $NISDOMAIN /etc/defaultdomain)" ] || [ $FORCE -eq 1 ] ; then
             bfile="/etc/defaultdomain"
             backup_file $bfile
-            echo ${NISDOMAIN} > $bfile  
-	    bfile="/etc/rc.d/rc.local"
-	    backup_file $bfile
-	    echo 'nisdomainname -F /etc/defaultdomain' > $bfile
+            echo ${NISDOMAIN} > $bfile
+	        bfile="/etc/rc.d/rc.local"
+	        backup_file $bfile
+	        echo 'nisdomainname -F /etc/defaultdomain' > $bfile
             bfile="/etc/yp.conf"
             backup_file $bfile
             echo "ypserver ${SERVERIP}" > $bfile
@@ -300,10 +307,13 @@ function config_nis {
             bfile="/etc/group"
             backup_file $bfile
             echo +::: >> $bfile
-            if [ x"" == x"$(grep 'YP_CLIENT_ENABLE=1' /etc/rc.d/rc.yp) 2>/dev/null" ]; then 
+            if [ x"" == x"$(grep 'YP_CLIENT_ENABLE=1' /etc/rc.d/rc.yp) 2>/dev/null" ]; then
                 backup_file /etc/rc.d/rc.yp
                 sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=1/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=0/ ;' /etc/rc.d/rc.yp
             fi
+            # Remove the broadcast option
+            backup_file /etc/default/yp
+            echo 'YPBIND_OPTS=" "' >> /etc/default/yp
         else
             echo "#    -> already configured."
         fi
