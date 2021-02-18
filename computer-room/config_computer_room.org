@@ -450,7 +450,7 @@ EOF
     end_msg "$MSG"
 }
    #+end_src
-** TODO Install and configure monit
+** Install and configure monit (pending on clients and complement on server)
 Monit is a tool that allows to monitor and restart if needed
 different services, files, etc. This will be another level of
 redundancy (besides the scripts in crontab) to keep services
@@ -523,6 +523,39 @@ function config_cntlm {
    - https://www.funtoo.org/Keychain
    - https://stackoverflow.com/questions/43597283/pass-the-password-as-an-argument-in-pssh
    - https://www.golinuxcloud.com/pssh-public-key-authentication-passwordless/
+** x2goserver (server)
+#+name: x2go
+#+begin_src shell :exports code
+function config_x2go {
+    MSG="Installing and configuring x2go server "
+    start_msg "$MSG"
+
+    echo "Preconfiguring ... "
+    if [ "$TARGET" == "SERVER" ]; then
+        echo "Adding x2gouser user and x2goprint group ..."
+        groupadd -g 290 x2gouser
+        useradd -u 290 -g 290 -c "X2Go Remote Desktop" -M -d /var/lib/x2go -s /bin/false x2gouser
+        groupadd -g 291 x2goprint
+        mkdir -p /var/spool/x2goprint &>/dev/null
+        useradd -u 291 -g 291 -c "X2Go Remote Desktop" -m -d /var/spool/x2goprint -s /bin/false x2goprint
+        chown x2goprint:x2goprint /var/spool/x2goprint
+        chmod 0770 /var/spool/x2goprint
+    fi
+
+    echo "Installing ..."
+    	if $(command_exists x2goversion) && [[ $FORCE -eq 0 ]]; then
+	    echo "#    -> already installed"
+	else
+        echo "Installing x2go ..."
+        source /root/.bashrc
+	    slpkg -s sbo x2goserver
+        /etc/rc.d/rc.inet2 restart
+        x2godbadmin --createdb
+    fi
+
+    end_msg "$MSG"
+}
+#+end_src
 ** Write final script
 #+BEGIN_SRC bash :exports code :noweb yes :tangle scripts/bootstrap_slackware_computer_room.sh :tangle-mode (identity #o444)
 #!/bin/bash
@@ -622,6 +655,8 @@ echo "###############################################"
 
 <<cntlm_config>>
 
+<<x2go_config>>
+
 # Call all functions
 all ()
 {
@@ -638,6 +673,7 @@ all ()
     config_crontab
     config_packages
     config_cntlm
+    config_x2go
 }
 
 menu(){
@@ -656,7 +692,8 @@ $(ColorGreen '10)') shutdown perms
 $(ColorGreen '11)') crontab
 $(ColorGreen '12)') packages
 $(ColorGreen '13)') cntlm
-$(ColorLGreen '14)') Configure ALL
+$(ColorGreen '14)') x2go
+$(ColorLGreen '15)') Configure ALL
 $(ColorYellow '0)') Exit
 $(ColorCyan 'Choose an option:') "
         read a
@@ -674,7 +711,8 @@ $(ColorCyan 'Choose an option:') "
 	        11) config_crontab ; menu ;;
 	        12) config_packages ; menu ;;
 	        13) config_cntlm ; menu ;;
-	        14) all ; menu ;;
+	        14) config_x2go ; menu ;;
+	        15) all ; menu ;;
 		0) exit 0 ;;
 		,*) echo -e $lred"Wrong option."$clear; exit 1;;
         esac
