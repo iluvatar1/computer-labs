@@ -211,32 +211,32 @@ function config_nfs {
     MSG="Configuring nfs "
     start_msg "$MSG"
     if [ "$TARGET" == "SERVER" ]; then
-	#if [ $(pattern_not_present "$BASE_SERVERIP" "/etc/hosts.allow") ]; then
-	if [ x"" == x"$(grep $BASE_SERVERIP /etc/hosts.allow)" ] || [ $FORCE -eq 1 ] ; then
-	    copy_config "$FDIR/SERVER-etc-hosts.allow" "/etc/hosts.allow"
-	else
+	    #if [ $(pattern_not_present "$BASE_SERVERIP" "/etc/hosts.allow") ]; then
+	    if [ x"" == x"$(grep $BASE_SERVERIP /etc/hosts.allow)" ] || [ $FORCE -eq 1 ] ; then
+	        copy_config "$FDIR/SERVER-etc-hosts.allow" "/etc/hosts.allow"
+	    else
             echo "hosts allow already configured"
-	fi
-	#if [ $(pattern_not_present "$SERVERIP" "/etc/exports") ]; then
-	if [ x"" == x"$(grep $SERVERIP /etc/exports)" ] || [ $FORCE -eq 1 ] ; then
-	    copy_config "$FDIR/SERVER-etc-exports" "/etc/exports"
-	else
-	    echo "Exports already configured. Restarting services ..."
-	fi
-	chmod +x /etc/rc.d/rc.nfsd 
-	/etc/rc.d/rc.nfsd restart
-	/etc/rc.d/rc.inet2 restart
-	echo "NOTE: If you have NFS problems, consider editing the /etc/hosts.allow and /etc/hosts.deny files"
+	    fi
+	    #if [ $(pattern_not_present "$SERVERIP" "/etc/exports") ]; then
+	    if [ x"" == x"$(grep $SERVERIP /etc/exports)" ] || [ $FORCE -eq 1 ] ; then
+	        copy_config "$FDIR/SERVER-etc-exports" "/etc/exports"
+	    else
+	        echo "Exports already configured. Restarting services ..."
+	    fi
+	    chmod +x /etc/rc.d/rc.nfsd 
+	    /etc/rc.d/rc.nfsd restart
+	    /etc/rc.d/rc.inet2 restart
+	    echo "NOTE: If you have NFS problems, consider editing the /etc/hosts.allow and /etc/hosts.deny files"
     else
-	bfile="/etc/fstab"
-	#if [ $(pattern_not_present "${SERVERIP}" "$bfile") ]; then
-	if [ x"" == x"$(grep ${SERVERIP} ${bfile})" ] || [ $FORCE -eq 1 ] ; then
-	    backup_file $bfile
-	    echo "# NEW NEW NEW NFS stuff " >> $bfile
-	    echo "${SERVERIP}:/home     /home   nfs     rw,hard,intr,usrquota  0   0" >> $bfile
-	else
-	    echo "#    -> already configured"
-	fi
+	    bfile="/etc/fstab"
+	    #if [ $(pattern_not_present "${SERVERIP}" "$bfile") ]; then
+	    if [ x"" == x"$(grep ${SERVERIP} ${bfile})" ] || [ $FORCE -eq 1 ] ; then
+	        backup_file $bfile
+	        echo "# NEW NEW NEW NFS stuff " >> $bfile
+	        echo "${SERVERIP}:/home     /home   nfs     rw,hard,intr,usrquota  0   0" >> $bfile
+	    else
+	        echo "#    -> already configured"
+	    fi
     fi
     end_msg "$MSG"
 }
