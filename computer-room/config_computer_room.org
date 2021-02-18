@@ -518,11 +518,19 @@ function config_cntlm {
     end_msg "$MSG"
 }
    #+end_src
-** pssh: Already installed, use the following links to fix the password
+** *Deprecated* pssh: Already installed, use the following links to fix the password
    - https://unix.stackexchange.com/questions/128974/parallel-ssh-with-passphrase-protected-ssh-key
    - https://www.funtoo.org/Keychain
    - https://stackoverflow.com/questions/43597283/pass-the-password-as-an-argument-in-pssh
    - https://www.golinuxcloud.com/pssh-public-key-authentication-passwordless/
+** TODO cluster ssh
+Check some tutorial at
+https://www.2daygeek.com/clustershell-clush-run-commands-on-cluster-nodes-remote-system-in-parallel-linux/
+- install:
+  #+begin_src shell
+pip install cluster-shell
+  #+end_src
+- Configure
 ** x2goserver (server)
 #+name: x2go
 #+begin_src shell :exports code
