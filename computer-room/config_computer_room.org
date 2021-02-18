@@ -692,7 +692,7 @@ echo "###############################################"
 
 <<cntlm_config>>
 
-<<x2go_config>>
+<<x2go>>
 
 # Call all functions
 all ()
