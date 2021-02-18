@@ -355,7 +355,7 @@ function config_publicid_sshpassword {
 
 }
    #+end_src
-** TODO Remove permissions to halt/shutdown from button and gui (todo)
+** Remove permissions to halt/shutdown from button and gui (todo)
    #+name:shutdown_config
    #+begin_src sh
 function config_shutdown_perms {
@@ -367,7 +367,7 @@ function config_shutdown_perms {
 	chmod o-x /sbin/halt
 	cp $FDIR/$fname /etc/polkit-1/rules.d/
     else
-	echo "#    -> polkit rules lready configured"
+	echo "#    -> polkit rules already configured"
     fi
 
     tfname=/etc/acpi/acpi_handler.sh
