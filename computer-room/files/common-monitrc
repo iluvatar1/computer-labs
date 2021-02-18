@@ -1,0 +1,24 @@
+#set daemon 30
+#set httpd port 2812 and
+#    USE ADDRESS localhost
+#    ALLOW 127.0.0.1
+#    ALLOW admin:monitabcde54321
+
+CHECK NETWORK eth0 with INTERFACE eth0
+      start program = "/etc/rc.d/rc.inet1 eth0_restart"
+      stop program = "/etc/rc.d/rc.inet1 eth0_stop"
+      if failed link then restart
+
+check filesystem rootfs with path /
+    if space usage > 90% then alert
+
+check filesystem tmpfs with path /tmp
+    if space usage > 90% then alert
+
+check filesystem optfs with path /opt
+    if space usage > 90% then alert
+
+check process ntpd with pidfile /var/run/ntpd.pid
+      start program = "/etc/rc.d/rc.ntpd start"
+      stop  program = "/etc/rc.d/rc.ntpd stop"
+      if failed host 127.0.0.1 port 123 type udp then alert

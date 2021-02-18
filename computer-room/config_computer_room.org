@@ -450,27 +450,35 @@ running. TODO: configure essential services on server and clients.
 function config_monit {
     MSG="Configuring monit on server "
     start_msg "$MSG"
-    if [ "$TARGET" == "SERVER" ]; then 
 	if $(command_exists monit) && [[ $FORCE -eq 0 ]]; then
 	    echo "#    -> already installed"
 	else
-	    source /root/.bashrc
+        echo "Installing monit ..."
+        source /root/.bashrc
 	    slpkg -s sbo monit
-	    chmod +x /etc/rc.d/rc.monit 
-	    backup_file /root/.monitrc
-	    copy_config "$FDIR/SERVER-root-dotmonitrc" "/root/.monitrc"
-	    backup_file /etc/rc.d/rc.local
-	    echo "/usr/bin/monit -c /root/.monitrc &> /var/log/log-monit-root&" >> /etc/rc.d/rc.local
-	    /etc/rc.d/rc.monit restart
-	fi
-    else
-	echo "Not configuring on client (for now)."
     fi
+	chmod +x /etc/rc.d/rc.monit
+    echo "Configuring monit ..."
+    if [ x"" == x"$(grep -e '^include' /etc/monitrc)" ]; then 
+	    backup_file /etc/monitrc
+        echo 'include /etc/monit.d/*' >> /etc/monitrc
+    fi  
+    if [ ! -d /etc/monit.d ]; then
+        mkdir /etc/monit.d
+    fi
+    if [ x"" == x"$(grep -e 'monit' /etc/inittab)" ]; then
+	    backup_file /etc/inittab
+        echo '# Run monit in standard runlevels' >> /etc/inittab
+        echo 'mo:2345:respawn:/usr/bin/monit -Ic /etc/monitrc' >> /etc/inittab
+    fi
+	copy_config "$FDIR/common-monitrc" "/etc/monit.d/00-common-monitrc"
+	copy_config "$FDIR/${TARGET}-monitrc" "/etc/monit.d/01-${TARGET}-monitrc"
+	/etc/rc.d/rc.monit restart
     end_msg "$MSG"
 }
    #+end_src
 ** cntlm 
-This allows to create a bypassing pry that handles all auth and
+This allows to create a bypassing proxy that handles all auth and
 allows for computers to use  a simple proxy with no auth. For
 instance, with this I can now use emacs and install packages
 without much hassle.

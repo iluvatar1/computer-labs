@@ -1,0 +1,17 @@
+CHECK process x2goserver matching x2go
+      #with pidfile /var/run/s2goserver.pid
+      start program = "/etc/rc.d/rc.x2goserver start"
+      stop program = "/etc/rc.d/rc.x2goserver stop"
+
+check process sshd with pidfile /var/run/sshd.pid
+      start program "/etc/rc.d/rc.sshd start"
+      stop program "/etc/rc.d/rc.sshd stop"
+      if failed port 22 protocol ssh then restart
+
+check process ypbind with pidfile /var/run/ypbind.pid
+      start program = "/etc/rc.d/rc.yp start"
+      stop program = "/etc/rc.d/rc.yp stop"
+
+check filesystem datafs with path /home
+      start program  = "/sbin/mount /home"
+      stop program  = "/sbin/umount /home"

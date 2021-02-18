@@ -1,0 +1,41 @@
+CHECK NETWORK eth1 with INTERFACE eth1
+      start program = "/etc/rc.d/rc.inet1 eth1_restart"
+      stop program = "/etc/rc.d/rc.inet1 eth1_stop"
+      if failed link then restart
+
+CHECK process cntlm with pidfile /var/run/cntlm.pid
+      #matching "cntlm"
+      #start program = "/usr/bin/syncthing"
+      #stop program = "/usr/bin/killall syncthing"
+      start program = "/etc/rc.d/rc.cntlm start"
+      stop program = "/etc/rc.d/rc.cntlm stop"
+
+CHECK process dnsmasq with pidfile /var/run/dnsmasq.pid
+      start program = "/etc/rc.d/rc.dnsmasq start"
+      stop program = "/etc/rc.d/rc.dnsmasq stop"
+
+check process sshd with pidfile /var/run/sshd.pid
+      start program "/etc/rc.d/rc.sshd start"
+      stop program "/etc/rc.d/rc.sshd stop"
+      if failed port 443 protocol ssh then restart
+
+check filesystem rootfs with path /home
+    if space usage > 90% then alert
+
+#check process arno-iptables-firewall matching /usr/sbin/arno-iptables-firewall
+
+check process ypserv with pidfile /var/run/ypserv.pid
+      start program = "/etc/rc.d/rc.yp start"
+      stop program = "/etc/rc.d/rc.yp stop"
+
+# Monit NFS Server Monitoring
+check process NFS with pidfile /var/run/rpc.statd.pid
+      start program = "/etc/rc.d/rc.nfsd start"
+      stop program  = "/etc/rc.d/rc.nfsd stop"
+
+check system $HOST
+      if loadavg (1min) > 4 then alert
+      if loadavg (5min) > 2 then alert
+      if cpu usage > 95% for 10 cycles then alert
+      if memory usage > 75% then alert
+      if swap usage > 25% then alert
