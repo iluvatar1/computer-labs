@@ -36,7 +36,7 @@ YPPUSH_ARGS=
 # MINGID is the lowest gid that will be included in the group maps.
 MINUID=$(shell TMP=`egrep '^UID_MIN\s+[0-9]+' /etc/login.defs|sed -e 's/^UID_MIN//'` ; [ -n "$$TMP" ] && echo "$$TMP" || echo 1000)
 #MINGID=$(shell TMP=`egrep '^GID_MIN\s+[0-9]+' /etc/login.defs|sed -e 's/^GID_MIN//'` ; [ -n "$$TMP" ] && echo "$$TMP" || echo 1000)
-#MINUID=1000
+MINUID=200 # This is to use services like virtualbox, munge, slurm, etc
 MINGID=2 # This allows to export all groups. Keep it. uncommented
 
 # Similarly, we also define a MAXUID and MAXGID specifying the maximum
