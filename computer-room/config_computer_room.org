@@ -481,8 +481,8 @@ function config_monit {
         echo '# Run monit in standard runlevels' >> /etc/inittab
         echo 'mo:2345:respawn:/usr/bin/monit -Ic /etc/monitrc' >> /etc/inittab
     fi
-	copy_config "$FDIR/common-monitrc" "/etc/monit.d/00-common-monitrc"
-	copy_config "$FDIR/${TARGET}-monitrc" "/etc/monit.d/01-${TARGET}-monitrc"
+	cp "$FDIR/common-monitrc" "/etc/monit.d/00-common-monitrc"
+	cp "$FDIR/${TARGET}-monitrc" "/etc/monit.d/01-${TARGET}-monitrc"
 	/etc/rc.d/rc.monit restart
     end_msg "$MSG"
 }
