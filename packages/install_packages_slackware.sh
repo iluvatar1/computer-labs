@@ -25,19 +25,10 @@ setup () {
 install_binary_packages () {
     BASEURL="http://157.245.132.188/PACKAGES/slackware64-current/"
     cd /tmp || exit
-    rm -f "PACKAGES.txt" 2>/dev/null
-    wget -c -nc "$BASEURL/PACKAGES.txt" 2> /dev/null
-    while read -r line; do
-	pm "Installing (from binary): $line"
-	bname=${line%.*}
-	pm "  basename: $bname"
-	if [ ! -e "/var/log/packages/$bname" ]; then
-	    wget -c -nc "$BASEURL/$line"
-	    installpkg "$line"
-	else
-	    pm "Already installed: $line"
-	fi
-    done < PACKAGES.txt
+    for ext in tgz txz; do
+        wget -r -np -l1 "${BASEURL}" -A "*.${ext}"
+        for a in *.${ext}; do upgradepkg --install-new $a; done
+    done
 }
 
 install_with_slpkg_compile () {
