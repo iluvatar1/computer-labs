@@ -228,7 +228,7 @@ function config_nfs {
             echo "hosts allow already configured"
 	    fi
 	    #if [ $(pattern_not_present "$SERVERIP" "/etc/exports") ]; then
-	    if [ x"" == x"$(grep $SERVERIP /etc/exports 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" == x"$(grep $BASE_SERVERIP /etc/exports 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	        copy_config "$FDIR/SERVER-etc-exports" "/etc/exports"
 	    else
 	        echo "Exports already configured. Restarting services ..."
@@ -279,9 +279,8 @@ function config_nis {
         else
             echo "Already configured yp"
         fi
-
-        backup_file /etc/rc.d/rc.yp
-        if [ x"" == x"$(grep 'YP_SERVER_ENABLE=1' /etc/rc.d/rc.yp 2>/dev/null)"]; then
+        if [ x"" == x"$(grep 'YP_SERVER_ENABLE=1' /etc/rc.d/rc.yp 2>/dev/null)" ]; then
+            backup_file /etc/rc.d/rc.yp
             sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=0/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=1/ ;' /etc/rc.d/rc.yp
         else
             echo "Already configured as yp server"
