@@ -694,6 +694,8 @@ echo "###############################################"
 
 <<x2go>>
 
+<<clustershell>>
+
 # Call all functions
 all ()
 {
