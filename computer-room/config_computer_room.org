@@ -170,7 +170,7 @@ function config_dnsmasq {
         TFILE="/etc/rc.d/rc.dnsmasq"
 	    if [ x"" = x"$(grep dnsmasq.log $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ]; then  
             echo "Copying rc.dnsmasq file " 
-	    	copy_config "$FDIR/SERVER-rcd/rcdnsmasq" "$TFILE"
+	    	copy_config "$FDIR/SERVER-rcd-rcdnsmasq" "$TFILE"
         fi
         echo "Restarting services ..."
 	    chmod +x /etc/rc.d/rc.dnsmasq 
