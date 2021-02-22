@@ -551,21 +551,22 @@ function config_x2go {
             chown x2goprint:x2goprint /var/spool/x2goprint
             chmod 0770 /var/spool/x2goprint
         else
-            echo "x2gouser already exists. Assuming x2go is already configured"
+            echo "x2gouser already exists. Assuming x2go prerequisites is already configured"
         fi
+    fi
 
-        echo "Installing ..."
-    	if $(command_exists x2goversion) && [[ $FORCE -eq 0 ]]; then
-	        echo "#    -> already installed"
-	    else
-            echo "Installing x2go ..."
-            source /root/.bashrc
-	        slpkg -s sbo x2goserver
-            /etc/rc.d/rc.inet2 restart
-            x2godbadmin --createdb
-        fi
-        /etc/rc.d/rc.x2goserver start
-        end_msg "$MSG"
+    echo "Installing ..."
+    if $(command_exists x2goversion) && [[ $FORCE -eq 0 ]]; then
+	    echo "#    -> already installed"
+	else
+        echo "Installing x2go ..."
+        source /root/.bashrc
+	    slpkg -s sbo x2goserver
+        /etc/rc.d/rc.inet2 restart
+        x2godbadmin --createdb
+    fi
+    /etc/rc.d/rc.x2goserver start
+    end_msg "$MSG"
 }
 #+end_src
 ** Write final script
