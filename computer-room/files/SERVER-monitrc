@@ -18,8 +18,9 @@ check process sshd with pidfile /var/run/sshd.pid
       start program "/etc/rc.d/rc.sshd start"
       stop program "/etc/rc.d/rc.sshd stop"
       if failed port 443 protocol ssh then restart
+      if 5 restarts within 10 cycles then exec "/sbin/reboot -f"
 
-check filesystem rootfs with path /home
+check filesystem homefs with path /home
     if space usage > 90% then alert
 
 #check process arno-iptables-firewall matching /usr/sbin/arno-iptables-firewall
