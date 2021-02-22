@@ -743,7 +743,7 @@ $(ColorGreen '11)') crontab
 $(ColorGreen '12)') packages
 $(ColorGreen '13)') cntlm
 $(ColorGreen '14)') x2go
-$(ColorGreen '15)') monit
+$(ColorGreen '15)') monit (depends on already configured cntlm, x2g0)
 $(ColorLGreen '16)') Configure ALL
 $(ColorYellow '0)') Exit
 $(ColorCyan 'Choose an option:') "
