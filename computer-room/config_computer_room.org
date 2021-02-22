@@ -472,7 +472,8 @@ function config_monit {
     if [ x"" == x"$(grep -e '^include' /etc/monitrc  2>/dev/null)" ]; then
 	    backup_file /etc/monitrc
         echo 'include /etc/monit.d/*' >> /etc/monitrc
-    fi  
+    fi
+    chmod 0700 /etc/monitrc
     if [ ! -d /etc/monit.d ]; then
         mkdir /etc/monit.d
     fi

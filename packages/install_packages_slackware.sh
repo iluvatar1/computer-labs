@@ -26,7 +26,7 @@ install_binary_packages () {
     BASEURL="http://157.245.132.188/PACKAGES/slackware64-current/"
     cd /tmp || exit
     for ext in tgz txz; do
-        wget -r -np -l1 "${BASEURL}" -A "*.${ext}"
+        wget -c -nc -r -np -l1 -P -nd "${BASEURL}" -A "*.${ext}"
         for a in *.${ext}; do upgradepkg --install-new $a; done
     done
 }
@@ -103,6 +103,8 @@ if [ "NO" = "$COMPILE" ]; then
 else
     install_with_slpkg_compile
 fi
+
+pip install clustershell
 
 #install_latest_firefox
 install_perf
