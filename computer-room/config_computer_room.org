@@ -63,7 +63,7 @@ function config_proxy {
     MSG="Configuring proxy for root"
     start_msg "$MSG"
     bname="/root/.bashrc"
-    if [ x"" == x"$(grep https_proxy ${bname})" ] || [ $FORCE -eq 1 ] ; then
+    if [ x"" == x"$(grep https_proxy ${bname} 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	touch $bname
 	backup_file $bname
 	cat <<EOF > $bname
@@ -89,13 +89,13 @@ function config_network {
     start_msg "$MSG"
     if [ "$TARGET" == "SERVER" ]; then
 	#if [ $(pattern_not_present "127.0.0.1" "/etc/resolv.conf.head") ]; then
-	if [ x"" == x"$(grep 127.0.0.1 /etc/resolv.conf.head)" ] || [ $FORCE -eq 1 ] ; then
+	if [ x"" == x"$(grep 127.0.0.1 /etc/resolv.conf.head 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	    echo "Setting up resolv.conf.head "
 	    TFILE="/etc/resolv.conf.head"
 	    copy_config "$FDIR/SERVER-etc-resolv.conf.head" "$TFILE"
 	fi	
 	#if [ $(pattern_not_present "$SERVERIP" "/etc/rc.d/rc.inet1.conf") ]; then 
-	if [ x"" == x"$(grep $SERVERIP /etc/rc.d/rc.inet1.conf)" ] || [ $FORCE -eq 1 ] ; then
+	if [ x"" == x"$(grep $SERVERIP /etc/rc.d/rc.inet1.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	    bash /etc/rc.d/rc.networkmanager stop
 	    chmod -x /etc/rc.d/rc.networkmanager
 	    copy_config "$FDIR/SERVER-etc-rc.d-rc.inet1.conf" /etc/rc.d/rc.inet1.conf
@@ -212,13 +212,13 @@ function config_nfs {
     start_msg "$MSG"
     if [ "$TARGET" == "SERVER" ]; then
 	    #if [ $(pattern_not_present "$BASE_SERVERIP" "/etc/hosts.allow") ]; then
-	    if [ x"" == x"$(grep $BASE_SERVERIP /etc/hosts.allow)" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" == x"$(grep $BASE_SERVERIP /etc/hosts.allow 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	        copy_config "$FDIR/SERVER-etc-hosts.allow" "/etc/hosts.allow"
 	    else
             echo "hosts allow already configured"
 	    fi
 	    #if [ $(pattern_not_present "$SERVERIP" "/etc/exports") ]; then
-	    if [ x"" == x"$(grep $SERVERIP /etc/exports)" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" == x"$(grep $SERVERIP /etc/exports 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	        copy_config "$FDIR/SERVER-etc-exports" "/etc/exports"
 	    else
 	        echo "Exports already configured. Restarting services ..."
@@ -230,7 +230,7 @@ function config_nfs {
     else
 	    bfile="/etc/fstab"
 	    #if [ $(pattern_not_present "${SERVERIP}" "$bfile") ]; then
-	    if [ x"" == x"$(grep ${SERVERIP} ${bfile})" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" == x"$(grep ${SERVERIP} ${bfile} 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	        backup_file $bfile
 	        echo "# NEW NEW NEW NFS stuff " >> $bfile
 	        echo "${SERVERIP}:/home     /home   nfs     rw,hard,intr,usrquota  0   0" >> $bfile
@@ -250,20 +250,20 @@ function config_nis {
     start_msg "$MSG"
     chmod +x /etc/rc.d/rc.yp
     if [ "$TARGET" == "SERVER" ]; then
-	    if [ x"" == x"$(grep $BASE_SERVERIP /etc/hosts.allow)" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" == x"$(grep $BASE_SERVERIP /etc/hosts.allow  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	        copy_config "$FDIR/SERVER-etc-hosts.allow" "/etc/hosts.allow"
 	    else
             echo "hosts allow already configured"
 	    fi
 
         #if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ] ; then
-	    if [ x"" == x"$(grep $NISDOMAIN /etc/defaultdomain)" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" == x"$(grep $NISDOMAIN /etc/defaultdomain  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
             copy_config "$FDIR/SERVER-etc-defaultdomain" "/etc/defaultdomain"
         else
             echo "Already configured default nis domain"
         fi
         #if [ $(pattern_not_present "${NISDOMAIN}" "/etc/yp.conf") ] ; then
-	    if [ x"" == x"$(grep $NISDOMAIN /etc/yp.conf)" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" == x"$(grep $NISDOMAIN /etc/yp.conf  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
             copy_config "$FDIR/SERVER-etc-yp.conf" "/etc/yp.conf"
             copy_config "$FDIR/SERVER-var-yp-Makefile" "/var/yp/Makefile"
         else
@@ -285,7 +285,7 @@ function config_nis {
         chmod +x /etc/rc.d/rc.nfsd
         chmod +x /etc/rc.d/rc.yp
         #if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ]; then
-	    if [ x"" == x"$(grep $NISDOMAIN /etc/defaultdomain)" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" == x"$(grep $NISDOMAIN /etc/defaultdomain  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
             bfile="/etc/defaultdomain"
             backup_file $bfile
             echo ${NISDOMAIN} > $bfile
@@ -307,7 +307,7 @@ function config_nis {
             bfile="/etc/group"
             backup_file $bfile
             echo +::: >> $bfile
-            if [ x"" == x"$(grep 'YP_CLIENT_ENABLE=1' /etc/rc.d/rc.yp) 2>/dev/null" ]; then
+            if [ x"" == x"$(grep 'YP_CLIENT_ENABLE=1' /etc/rc.d/rc.yp  2>/dev/null) 2>/dev/null" ]; then
                 backup_file /etc/rc.d/rc.yp
                 sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=1/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=0/ ;' /etc/rc.d/rc.yp
             fi
@@ -331,7 +331,7 @@ function config_publicid_sshpassword {
 	start_msg "$MSG"
 	mkdir -p /root/.ssh &>/dev/null
 	#if [ $(pattern_not_present "${SERVER_DOMAINNAME}" "/root/.ssh/authorized_keys") ]; then
-	if [ x"" == x"$(grep $SERVER_DOMAINNAME /root/.ssh/authorized_keys)" ] || [ $FORCE -eq 1 ] ; then
+	if [ x"" == x"$(grep $SERVER_DOMAINNAME /root/.ssh/authorized_keys  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	    cat $FDIR/CLIENT-server_id_rsa.pub >> /root/.ssh/authorized_keys
 	    chmod 700 /root/.ssh
 	    chmod 640 /root/.ssh/authorized_keys
@@ -343,7 +343,7 @@ function config_publicid_sshpassword {
 	MSG="Allowing root login for client"
 	start_msg "$MSG"
 	bfile="/etc/ssh/sshd_config"
-	if [ x"" == x"$(grep '^PermitRootLogin.*yes' $bfile)" ] || [ $FORCE -eq 1 ] ; then
+	if [ x"" == x"$(grep '^PermitRootLogin.*yes' $bfile  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	    backup_file $bfile
 	    echo "PermitRootLogin yes" >> $bfile
 	    /etc/rc.d/rc.sshd restart
@@ -372,7 +372,7 @@ function config_shutdown_perms {
 
     tfname=/etc/acpi/acpi_handler.sh
     #if [ $(pattern_not_present "emoves" "$tfname") ]; then
-    if [ x"" == x"$(grep emoves ${tfname})" ] || [ $FORCE -eq 1 ] ; then
+    if [ x"" == x"$(grep emoves ${tfname}  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	copy_config $FDIR/etc-acpi-acpi_handler.sh $tfname
     else
 	echo "#   -> Acpi handler already configured"
@@ -390,7 +390,7 @@ function config_crontab {
     start_msg "$MSG"
     crontab -l > /tmp/crontab
     if [ "$TARGET" == "SERVER" ]; then
-	if [ x"" == x"$(grep minute_maintenance.sh /tmp/crontab)" ] || [ $FORCE -eq 1 ] ; then
+	if [ x"" == x"$(grep minute_maintenance.sh /tmp/crontab  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	    crontab $FDIR/SERVER-crontab -u root
 	else
 	    echo "#    -> Already configured (per minute)"
@@ -402,7 +402,7 @@ function config_crontab {
             echo "#    -> Already configured (daily)"
 	fi
     else # CLIENT
-	if [ x"" == x"$(grep check_status.sh /tmp/crontab)" ] || [ $FORCE -eq 1 ] ; then
+	if [ x"" == x"$(grep check_status.sh /tmp/crontab  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	    crontab $FDIR/CLIENT-crontab -u root
 	else
 	    echo "#    -> Already configured"
@@ -469,14 +469,14 @@ function config_monit {
     fi
 	chmod +x /etc/rc.d/rc.monit
     echo "Configuring monit ..."
-    if [ x"" == x"$(grep -e '^include' /etc/monitrc)" ]; then 
+    if [ x"" == x"$(grep -e '^include' /etc/monitrc  2>/dev/null)" ]; then
 	    backup_file /etc/monitrc
         echo 'include /etc/monit.d/*' >> /etc/monitrc
     fi  
     if [ ! -d /etc/monit.d ]; then
         mkdir /etc/monit.d
     fi
-    if [ x"" == x"$(grep -e 'monit' /etc/inittab)" ]; then
+    if [ x"" == x"$(grep -e 'monit' /etc/inittab  2>/dev/null)" ]; then
 	    backup_file /etc/inittab
         echo '# Run monit in standard runlevels' >> /etc/inittab
         echo 'mo:2345:respawn:/usr/bin/monit -Ic /etc/monitrc' >> /etc/inittab
