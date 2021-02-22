@@ -127,7 +127,7 @@ function config_ntp {
     if [ "$TARGET" == "CLIENT" ]; then
 	    start_msg "$MSG"
 	    #if [ $(pattern_not_present "$SERVERIP" "/etc/ntp.conf") ]; then
-	    if [ x"" == x"$(grep $SERVERIP /etc/ntp.conf)" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" == x"$(grep $SERVERIP /etc/ntp.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
             echo "STATUS -> $(pattern_not_present "$SERVERIP" "/etc/ntp.conf")"
 	        bfile=/etc/ntp.conf
 	        backup_file $bfile
