@@ -716,7 +716,6 @@ all ()
     config_firewall
     config_nfs
     config_nis
-    config_monit
     config_publicid_sshpassword
     config_shutdown_perms
     config_crontab
@@ -724,6 +723,7 @@ all ()
     config_cntlm
     config_x2go
     config_clustershell
+    config_monit
 }
 
 menu(){
@@ -736,14 +736,14 @@ $(ColorGreen '4)') dnsmasq
 $(ColorGreen '5)') firewall
 $(ColorGreen '6)') nfs
 $(ColorGreen '7)') nis
-$(ColorGreen '8)') monit
+$(ColorGreen '8)') clustershell
 $(ColorGreen '9)') public sshkey
 $(ColorGreen '10)') shutdown perms
 $(ColorGreen '11)') crontab
 $(ColorGreen '12)') packages
 $(ColorGreen '13)') cntlm
 $(ColorGreen '14)') x2go
-$(ColorGreen '15)') clustershell
+$(ColorGreen '15)') monit
 $(ColorLGreen '16)') Configure ALL
 $(ColorYellow '0)') Exit
 $(ColorCyan 'Choose an option:') "
@@ -756,14 +756,14 @@ $(ColorCyan 'Choose an option:') "
 	        5) config_firewall ; menu ;;
 	        6) config_nfs ; menu ;;
 	        7) config_nis ; menu ;;
-	        8) config_monit ; menu ;;
+	        8) config_clustershell ; menu ;;
 	        9) config_publicid_sshpassword ; menu ;;
 	        10) config_shutdown_perms ; menu ;;
 	        11) config_crontab ; menu ;;
 	        12) config_packages ; menu ;;
 	        13) config_cntlm ; menu ;;
 	        14) config_x2go ; menu ;;
-	        15) config_clustershell ; menu ;;
+	        15) config_monit ; menu ;;
 	        16) all ; menu ;;
 		0) exit 0 ;;
 		,*) echo -e $lred"Wrong option."$clear; exit 1;;
