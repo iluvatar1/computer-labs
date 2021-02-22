@@ -189,7 +189,7 @@ function config_firewall {
 	else
 	    #sbopkg -e stop -B -k -i arno-iptables-firewall
 	    source /root/.bashrc
-	    slpkg upgrade
+	    #slpkg upgrade
 	    #slpkg -s sbo arno-iptables-firewall-2.0.1e-noarch-3_SBo
 	    slpkg -s sbo arno-iptables-firewall
 	    ln -svf /etc/rc.d/rc.arno-iptables-firewall /etc/rc.d/rc.firewall
