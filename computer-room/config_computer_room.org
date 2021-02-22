@@ -3,7 +3,7 @@
 #+email: woquendo@gmail.com
 #+INFOJS_OPT: 
 #+STARTUP: Overview
-#+BABEL: :session *R* :cache yes :results output graphics :exports both :tangle yes 
+#+BABEL: :session *R* :cache yes :results output graphics :exports both :tangle yes
 -----
 
 This document presents a basic procedure to configure a computer room
@@ -63,7 +63,7 @@ function config_proxy {
     MSG="Configuring proxy for root"
     start_msg "$MSG"
     bname="/root/.bashrc"
-    if [ x"" == x"$(grep https_proxy ${bname} 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+    if [ x"" = x"$(grep https_proxy ${bname} 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	touch $bname
 	backup_file $bname
 	cat <<EOF > $bname
@@ -87,32 +87,32 @@ EOF
 function config_network {
     MSG="Configuring network interfaces "
     start_msg "$MSG"
-    if [ "$TARGET" == "SERVER" ]; then
-	#if [ $(pattern_not_present "127.0.0.1" "/etc/resolv.conf.head") ]; then
-	if [ x"" == x"$(grep 127.0.0.1 /etc/resolv.conf.head 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-	    echo "Setting up resolv.conf.head "
-	    TFILE="/etc/resolv.conf.head"
-	    copy_config "$FDIR/SERVER-etc-resolv.conf.head" "$TFILE"
-	fi	
-	#if [ $(pattern_not_present "$SERVERIP" "/etc/rc.d/rc.inet1.conf") ]; then 
-	if [ x"" == x"$(grep $SERVERIP /etc/rc.d/rc.inet1.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-	    bash /etc/rc.d/rc.networkmanager stop
-	    chmod -x /etc/rc.d/rc.networkmanager
-	    copy_config "$FDIR/SERVER-etc-rc.d-rc.inet1.conf" /etc/rc.d/rc.inet1.conf
-	else
-	    echo "Already configured, just restarting services ..."
-	fi
-	/etc/rc.d/rc.inet1 restart
-    else
-	echo "# Creating Network Manager hook"
-	if [ ! -f "/etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh" ] || [ $FORCE -eq 1 ]; then
-	    cp $FDIR/CLIENT-90networkmanagerhook.sh /etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh
-	    chmod +x /etc/rc.d/rc.networkmanager
-	    bash /etc/rc.d/rc.networkmanager restart
-	    /etc/rc.d/rc.inet2 restart
-	else
-	    echo "#    -> already configured."
-	fi
+    if [ "$TARGET" = "SERVER" ]; then
+	    #if [ $(pattern_not_present "127.0.0.1" "/etc/resolv.conf.head") ]; then
+	    if [ x"" == x"$(grep 127.0.0.1 /etc/resolv.conf.head 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	        echo "Setting up resolv.conf.head "
+	        TFILE="/etc/resolv.conf.head"
+	        copy_config "$FDIR/SERVER-etc-resolv.conf.head" "$TFILE"
+	    fi	
+	    #if [ $(pattern_not_present "$SERVERIP" "/etc/rc.d/rc.inet1.conf") ]; then 
+	    if [ x"" == x"$(grep $SERVERIP /etc/rc.d/rc.inet1.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	        bash /etc/rc.d/rc.networkmanager stop
+	        chmod -x /etc/rc.d/rc.networkmanager
+	        copy_config "$FDIR/SERVER-etc-rc.d-rc.inet1.conf" /etc/rc.d/rc.inet1.conf
+	    else
+	        echo "Already configured, just restarting services ..."
+	    fi
+	    /etc/rc.d/rc.inet1 restart
+    else # CLIENT
+	    echo "# Creating Network Manager hook"
+	    if [ ! -f "/etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh" ] || [ $FORCE -eq 1 ]; then
+	        cp $FDIR/CLIENT-90networkmanagerhook.sh /etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh
+	        chmod +x /etc/rc.d/rc.networkmanager
+	        bash /etc/rc.d/rc.networkmanager restart
+	        /etc/rc.d/rc.inet2 restart
+	    else
+	        echo "#    -> already configured."
+	    fi
     fi
     end_msg "DONE: $MSG"
 }
@@ -124,10 +124,10 @@ function config_network {
 # ntp server
 function config_ntp {
     MSG="Configuring ntp "
-    if [ "$TARGET" == "CLIENT" ]; then
+    if [ "$TARGET" = "CLIENT" ]; then
 	    start_msg "$MSG"
 	    #if [ $(pattern_not_present "$SERVERIP" "/etc/ntp.conf") ]; then
-	    if [ x"" == x"$(grep $SERVERIP /etc/ntp.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" = x"$(grep $SERVERIP /etc/ntp.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
             echo "STATUS -> $(pattern_not_present "$SERVERIP" "/etc/ntp.conf")"
 	        bfile=/etc/ntp.conf
 	        backup_file $bfile
@@ -192,7 +192,7 @@ will try to use slpkg to install it.
 # firewall 
 function config_firewall {
     MSG="Configuring firewall "
-    if [ "$TARGET" == "SERVER" ]; then
+    if [ "$TARGET" = "SERVER" ]; then
 	start_msg "$MSG"
 	if $(command_exists arno-iptables-firewall) && [[ $FORCE -eq 0 ]]; then
 	    echo "    -> firewall already installed and configured."
@@ -220,15 +220,15 @@ function config_firewall {
 function config_nfs {
     MSG="Configuring nfs "
     start_msg "$MSG"
-    if [ "$TARGET" == "SERVER" ]; then
+    if [ "$TARGET" = "SERVER" ]; then
 	    #if [ $(pattern_not_present "$BASE_SERVERIP" "/etc/hosts.allow") ]; then
-	    if [ x"" == x"$(grep $BASE_SERVERIP /etc/hosts.allow 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" = x"$(grep $BASE_SERVERIP /etc/hosts.allow 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	        copy_config "$FDIR/SERVER-etc-hosts.allow" "/etc/hosts.allow"
 	    else
             echo "hosts allow already configured"
 	    fi
 	    #if [ $(pattern_not_present "$SERVERIP" "/etc/exports") ]; then
-	    if [ x"" == x"$(grep $BASE_SERVERIP /etc/exports 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" = x"$(grep $BASE_SERVERIP /etc/exports 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	        copy_config "$FDIR/SERVER-etc-exports" "/etc/exports"
 	    else
 	        echo "Exports already configured. Restarting services ..."
@@ -240,7 +240,7 @@ function config_nfs {
     else
 	    bfile="/etc/fstab"
 	    #if [ $(pattern_not_present "${SERVERIP}" "$bfile") ]; then
-	    if [ x"" == x"$(grep ${SERVERIP} ${bfile} 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" = x"$(grep ${SERVERIP} ${bfile} 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	        backup_file $bfile
 	        echo "# NEW NEW NEW NFS stuff " >> $bfile
 	        echo "${SERVERIP}:/home     /home   nfs     rw,hard,intr,usrquota  0   0" >> $bfile
@@ -258,7 +258,7 @@ function config_nfs {
 function config_sshd {
     MSG="Configuring sshd on port 443 on server "
     start_msg "$MSG"
-    if [ "$TARGET" == "SERVER" ]; then
+    if [ "$TARGET" = "SERVER" ]; then
 	    if [ x"" = x"$(grep -e '^Port 443' /etc/hosts.allow 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
             backup_file /etc/ssh/sshd_config
             sed -i '/^#Port 22/ i ### NEW ###\nPort 22\nPort 443\nPermitRootLogin yes\nAllowGroups sshgroup root\n### NEW ###\n' /etc/ssh/sshd_config
@@ -280,27 +280,27 @@ function config_nis {
     MSG="Configuring nis "
     start_msg "$MSG"
     chmod +x /etc/rc.d/rc.yp
-    if [ "$TARGET" == "SERVER" ]; then
-	    if [ x"" == x"$(grep $BASE_SERVERIP /etc/hosts.allow  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+    if [ "$TARGET" = "SERVER" ]; then
+	    if [ x"" = x"$(grep $BASE_SERVERIP /etc/hosts.allow  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	        copy_config "$FDIR/SERVER-etc-hosts.allow" "/etc/hosts.allow"
 	    else
             echo "hosts allow already configured"
 	    fi
 
         #if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ] ; then
-	    if [ x"" == x"$(grep $NISDOMAIN /etc/defaultdomain  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" = x"$(grep $NISDOMAIN /etc/defaultdomain  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
             copy_config "$FDIR/SERVER-etc-defaultdomain" "/etc/defaultdomain"
         else
             echo "Already configured default nis domain"
         fi
         #if [ $(pattern_not_present "${NISDOMAIN}" "/etc/yp.conf") ] ; then
-	    if [ x"" == x"$(grep $NISDOMAIN /etc/yp.conf  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" = x"$(grep $NISDOMAIN /etc/yp.conf  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
             copy_config "$FDIR/SERVER-etc-yp.conf" "/etc/yp.conf"
             copy_config "$FDIR/SERVER-var-yp-Makefile" "/var/yp/Makefile"
         else
             echo "Already configured yp"
         fi
-        if [ x"" == x"$(grep 'YP_SERVER_ENABLE=1' /etc/rc.d/rc.yp 2>/dev/null)" ]; then
+        if [ x"" = x"$(grep 'YP_SERVER_ENABLE=1' /etc/rc.d/rc.yp 2>/dev/null)" ]; then
             backup_file /etc/rc.d/rc.yp
             sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=0/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=1/ ;' /etc/rc.d/rc.yp
         else
@@ -315,7 +315,7 @@ function config_nis {
         chmod +x /etc/rc.d/rc.nfsd
         chmod +x /etc/rc.d/rc.yp
         #if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ]; then
-	    if [ x"" == x"$(grep $NISDOMAIN /etc/defaultdomain  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" = x"$(grep $NISDOMAIN /etc/defaultdomain  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
             bfile="/etc/defaultdomain"
             backup_file $bfile
             echo ${NISDOMAIN} > $bfile
@@ -337,7 +337,7 @@ function config_nis {
             bfile="/etc/group"
             backup_file $bfile
             echo +::: >> $bfile
-            if [ x"" == x"$(grep 'YP_CLIENT_ENABLE=1' /etc/rc.d/rc.yp  2>/dev/null) 2>/dev/null" ]; then
+            if [ x"" = x"$(grep 'YP_CLIENT_ENABLE=1' /etc/rc.d/rc.yp  2>/dev/null) 2>/dev/null" ]; then
                 backup_file /etc/rc.d/rc.yp
                 sed -i.bck 's/YP_CLIENT_ENABLE=.*/YP_CLIENT_ENABLE=1/ ; s/YP_SERVER_ENABLE=.*/YP_SERVER_ENABLE=0/ ;' /etc/rc.d/rc.yp
             fi
@@ -369,7 +369,7 @@ function config_shutdown_perms {
 
     tfname=/etc/acpi/acpi_handler.sh
     #if [ $(pattern_not_present "emoves" "$tfname") ]; then
-    if [ x"" == x"$(grep emoves ${tfname}  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+    if [ x"" = x"$(grep emoves ${tfname}  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	copy_config $FDIR/etc-acpi-acpi_handler.sh $tfname
     else
 	echo "#   -> Acpi handler already configured"
@@ -386,8 +386,8 @@ function config_crontab {
     MSG="Configuring crontab per minute, hour, daily, etc"
     start_msg "$MSG"
     crontab -l > /tmp/crontab
-    if [ "$TARGET" == "SERVER" ]; then
-	if [ x"" == x"$(grep minute_maintenance.sh /tmp/crontab  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+    if [ "$TARGET" = "SERVER" ]; then
+	if [ x"" = x"$(grep minute_maintenance.sh /tmp/crontab  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	    crontab $FDIR/SERVER-crontab -u root
 	else
 	    echo "#    -> Already configured (per minute)"
@@ -399,7 +399,7 @@ function config_crontab {
             echo "#    -> Already configured (daily)"
 	fi
     else # CLIENT
-	if [ x"" == x"$(grep check_status.sh /tmp/crontab  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	if [ x"" = x"$(grep check_status.sh /tmp/crontab  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	    crontab $FDIR/CLIENT-crontab -u root
 	else
 	    echo "#    -> Already configured"
@@ -432,7 +432,7 @@ function config_crontab {
 function config_packages {
     MSG="Creating package list"
     start_msg "$MSG"
-    if [ "$TARGET" == "SERVER" ]; then
+    if [ "$TARGET" = "SERVER" ]; then
 	    if [ ! -f /home/PACKAGES.list ]; then
 	        cat << EOF > /home/PACKAGES.list
 bonnie++ arno-iptables-firewall iotop wol squid tor  autossh  parallel sshfs-fuse xfce4-xkb-plugin
@@ -466,7 +466,7 @@ function config_monit {
     fi
 	chmod +x /etc/rc.d/rc.monit
     echo "Configuring monit ..."
-    if [ x"" == x"$(grep -e '^include' /etc/monitrc  2>/dev/null)" ]; then
+    if [ x"" = x"$(grep -e '^include' /etc/monitrc  2>/dev/null)" ]; then
 	    backup_file /etc/monitrc
         echo 'include /etc/monit.d/*' >> /etc/monitrc
     fi
@@ -474,7 +474,7 @@ function config_monit {
     if [ ! -d /etc/monit.d ]; then
         mkdir /etc/monit.d
     fi
-    if [ x"" == x"$(grep -e 'monit' /etc/inittab  2>/dev/null)" ]; then
+    if [ x"" = x"$(grep -e 'monit' /etc/inittab  2>/dev/null)" ]; then
 	    backup_file /etc/inittab
         echo '# Run monit in standard runlevels' >> /etc/inittab
         echo 'mo:2345:respawn:/usr/bin/monit -Ic /etc/monitrc' >> /etc/inittab
@@ -495,7 +495,7 @@ without much hassle.
 function config_cntlm {
     MSG="Configuring cntlm on server "
     start_msg "$MSG"
-    if [ "$TARGET" == "SERVER" ]; then 
+    if [ "$TARGET" = "SERVER" ]; then
 	    if $(command_exists cntlm) && [ $FORCE -eq 0 ]; then
 	        echo "#    -> already installed"
 	    else
@@ -528,7 +528,7 @@ https://www.2daygeek.com/clustershell-clush-run-commands-on-cluster-nodes-remote
 function config_clustershell {
     MSG="Installing and configuring clustershell on server... "
     start_msg "$MSG"
-    if [ "$TARGET" == "SERVER" ]; then
+    if [ "$TARGET" = "SERVER" ]; then
         echo "Installing ..."
 	    if $(command_exists clush) && [ $FORCE -eq 0 ]; then
 	        echo "#    -> already installed"
@@ -785,7 +785,7 @@ menu
    #+name:publicid_config
    #+begin_src sh
 function config_publicid_sshpassword {
-    if [ "$TARGET" == "CLIENT" ]; then
+    if [ "$TARGET" = "CLIENT" ]; then
 	MSG="Copying server public key  to configure passwordless access for root"
 	start_msg "$MSG"
 	mkdir -p /root/.ssh &>/dev/null
