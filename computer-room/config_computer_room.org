@@ -80,7 +80,7 @@ EOF
     end_msg "$MSG"
 }
    #+END_SRC
-** NETOWORK INTERFACES: Configure Network interfaces
+** NETWORK INTERFACES: Configure Network interfaces
    #+name: nic_config
    #+BEGIN_SRC bash :exports code 
 # network interfaces
@@ -189,26 +189,30 @@ will try to use slpkg to install it.
 
    #+NAME: firewall_config
    #+BEGIN_SRC bash :exports code
-# firewall 
+# firewall
 function config_firewall {
-    MSG="Configuring firewall "
+    MSG="installing and configuring firewall "
     if [ "$TARGET" = "SERVER" ]; then
-	start_msg "$MSG"
-	if $(command_exists arno-iptables-firewall) && [[ $FORCE -eq 0 ]]; then
-	    echo "    -> firewall already installed and configured."
-	else
-	    #sbopkg -e stop -B -k -i arno-iptables-firewall
-	    source /root/.bashrc
-	    #slpkg upgrade
-	    #slpkg -s sbo arno-iptables-firewall-2.0.1e-noarch-3_SBo
-	    slpkg -s sbo arno-iptables-firewall
+	    start_msg "$MSG"
+	    if $(command_exists arno-iptables-firewall) && [[ $FORCE -eq 0 ]]; then
+	        echo "    -> firewall already installed."
+	    else
+            echo "Installing ... "
+	        #sbopkg -e stop -B -k -i arno-iptables-firewall
+	        source /root/.bashrc
+	        #slpkg upgrade
+	        #slpkg -s sbo arno-iptables-firewall-2.0.1e-noarch-3_SBo
+	        slpkg -s sbo arno-iptables-firewall
+        fi
+        echo "Configuring ..."
 	    ln -svf /etc/rc.d/rc.arno-iptables-firewall /etc/rc.d/rc.firewall
 	    copy_config "$FDIR/SERVER-firewall.conf" "/etc/arno-iptables-firewall/firewall.conf"
 	    chmod o-rwx /etc/arno-iptables-firewall/firewall.conf
 	    chmod +x /etc/rc.d/rc.arno-iptables-firewall
-	fi
-	/etc/rc.d/rc.firewall restart
-	end_msg "$MSG"
+	    /etc/rc.d/rc.firewall restart
+	    end_msg "$MSG"
+    else
+        echo "Not configuring firewall on client"
     fi
     # read
 }
