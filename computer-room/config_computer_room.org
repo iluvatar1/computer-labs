@@ -215,7 +215,7 @@ function config_firewall {
    #+END_SRC
 ** NFS
    #+NAME: nfs_config
-   #+BEGIN_SRC bash :exports code 
+   #+BEGIN_SRC bash :exports code
 # nfs
 function config_nfs {
     MSG="Configuring nfs "
@@ -233,7 +233,7 @@ function config_nfs {
 	    else
 	        echo "Exports already configured. Restarting services ..."
 	    fi
-	    chmod +x /etc/rc.d/rc.nfsd 
+	    chmod +x /etc/rc.d/rc.nfsd
 	    /etc/rc.d/rc.nfsd restart
 	    /etc/rc.d/rc.inet2 restart
 	    echo "NOTE: If you have NFS problems, consider editing the /etc/hosts.allow and /etc/hosts.deny files"
@@ -248,6 +248,27 @@ function config_nfs {
 	        echo "#    -> already configured"
 	    fi
     fi
+    end_msg "$MSG"
+}
+   #+END_SRC
+** SSHD
+#+NAME: sshd_config
+#+BEGIN_SRC bash :exports code
+# sshd
+function config_sshd {
+    MSG="Configuring sshd on port 443 on server "
+    start_msg "$MSG"
+    if [ "$TARGET" == "SERVER" ]; then
+	    if [ x"" = x"$(grep -e '^Port 443' /etc/hosts.allow 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+            backup_file /etc/ssh/sshd_config
+            sed -i '/^#Port 22/ i ### NEW ###\nPort 22\nPort 443\nPermitRootLogin yes\nAllowUsers root\nAllowGroups sshgroup### NEW ###\n' /etc/ssh/sshd_config
+	    else
+            echo "sshd already configured"
+	    fi
+    else # CLIENT
+        echo "Not configuring in client. Using defaults."
+    fi
+	/etc/rc.d/rc.sshd restart
     end_msg "$MSG"
 }
    #+END_SRC
@@ -668,6 +689,8 @@ echo "###############################################"
 
 <<packages_config>>
 
+<<sshd_config>>
+
 <<cntlm_config>>
 
 <<x2go>>
@@ -688,6 +711,7 @@ all ()
     config_crontab
     config_packages
     config_cntlm
+    config_sshd
     config_x2go
     config_clustershell
     config_monit
@@ -709,7 +733,8 @@ $(ColorGreen '10)') shutdown perms
 $(ColorGreen '11)') crontab
 $(ColorGreen '12)') packages
 $(ColorGreen '13)') cntlm
-$(ColorGreen '15)') monit (depends on already configured cntlm, x2g0)
+$(ColorGreen '14)') sshd
+$(ColorGreen '15)') monit (depends on already configured cntlm, x2g0, sshd)
 $(ColorLGreen '16)') Configure ALL
 $(ColorYellow '0)') Exit
 $(ColorCyan 'Choose an option:') "
@@ -728,6 +753,7 @@ $(ColorCyan 'Choose an option:') "
 	        11) config_crontab ; menu ;;
 	        12) config_packages ; menu ;;
 	        13) config_cntlm ; menu ;;
+	        14) config_sshd ; menu ;;
 	        15) config_monit ; menu ;;
 	        16) all ; menu ;;
 		0) exit 0 ;;
