@@ -41,7 +41,7 @@ As of 2019, clonezilla is used to image a golden image from a virtual machine
 install into each computer.
 
 * Configuration of client and server for a computer room
-** Parameters to configure bootstrap script
+** CONFIG: Parameters to configure bootstrap script
 #+begin_src sh :exports code :tangle scripts/computer_room.conf
 BASE_SERVERIP=192.168 
 SERVERIP=${BASE_SERVERIP}.10.1
@@ -55,7 +55,7 @@ FORCE=0 # Force rewrite of all config even if it is already configured
 # local cntlm config running on server
 PROXY=${SERVERIP}:3128
 #+end_src
-** Configuring root internet behind proxy unal
+** PROXY: Configuring root internet behind proxy unal
    #+NAME: proxy_config
    #+BEGIN_SRC bash :exports code 
 # Configure root internet access
@@ -80,7 +80,7 @@ EOF
     end_msg "$MSG"
 }
    #+END_SRC
-** Configure Network interfaces
+** NETOWORK INTERFACES: Configure Network interfaces
    #+name: nic_config
    #+BEGIN_SRC bash :exports code 
 # network interfaces
@@ -118,33 +118,33 @@ function config_network {
 }
    #+END_SRC
 
-** Client ntp
+** NTP: Client ntp
    #+name:ntp_config
    #+begin_src sh 
 # ntp server
 function config_ntp {
     MSG="Configuring ntp "
     if [ "$TARGET" == "CLIENT" ]; then
-	start_msg "$MSG"
-	#if [ $(pattern_not_present "$SERVERIP" "/etc/ntp.conf") ]; then
-	if [ x"" == x"$(grep $SERVERIP /etc/ntp.conf)" ] || [ $FORCE -eq 1 ] ; then
+	    start_msg "$MSG"
+	    #if [ $(pattern_not_present "$SERVERIP" "/etc/ntp.conf") ]; then
+	    if [ x"" == x"$(grep $SERVERIP /etc/ntp.conf)" ] || [ $FORCE -eq 1 ] ; then
             echo "STATUS -> $(pattern_not_present "$SERVERIP" "/etc/ntp.conf")"
-	    bfile=/etc/ntp.conf
-	    backup_file $bfile
-	    cp -f $FDIR/CLIENT-ntp-client.conf $bfile
-	    chmod +x /etc/rc.d/rc.ntpd
-	    /etc/rc.d/rc.ntpd restart
-	else
-	    echo "#    -> already configured"
-	fi
+	        bfile=/etc/ntp.conf
+	        backup_file $bfile
+	        cp -f $FDIR/CLIENT-ntp-client.conf $bfile
+	    else
+	        echo "#    -> already configured"
+	    fi
     else
-	echo "# Not configuring ntp on server"
+	    echo "# Server: using default ntp config"
     fi
+	chmod +x /etc/rc.d/rc.ntpd
+	/etc/rc.d/rc.ntpd restart
     end_msg "$MSG"
 }
    #+end_src
 
-** dnsmasq : dhcp, dns, masquerading
+** DNSMASQ: dhcp, dns, masquerading
    #+name: dnsmasq_config
    #+BEGIN_SRC bash :exports code 
 # dnsmasq
@@ -182,7 +182,7 @@ function config_dnsmasq {
 }
    #+END_SRC
 
-** Firewall ( also for NAT) : Arno iptables firewall.
+** FIREWALL: ( also for NAT) : Arno iptables firewall.
 I will use arno iptables firewall because it has worked pretty well
 before . It must be installed before this step. If not installed , I
 will try to use slpkg to install it.
@@ -331,40 +331,7 @@ function config_nis {
     end_msg "$MSG"
 }
      #+END_SRC
-** Client: Copy public id for password-less access and allow root login
-   #+name:publicid_config
-   #+begin_src sh 
-function config_publicid_sshpassword {
-    if [ "$TARGET" == "CLIENT" ]; then 
-	MSG="Copying server public key  to configure passwordless access for root"
-	start_msg "$MSG"
-	mkdir -p /root/.ssh &>/dev/null
-	#if [ $(pattern_not_present "${SERVER_DOMAINNAME}" "/root/.ssh/authorized_keys") ]; then
-	if [ x"" == x"$(grep $SERVER_DOMAINNAME /root/.ssh/authorized_keys  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-	    cat $FDIR/CLIENT-server_id_rsa.pub >> /root/.ssh/authorized_keys
-	    chmod 700 /root/.ssh
-	    chmod 640 /root/.ssh/authorized_keys
-	else
-	    echo "#    -> already configured"
-	fi
-	end_msg "$MSG"
-	
-	MSG="Allowing root login for client"
-	start_msg "$MSG"
-	bfile="/etc/ssh/sshd_config"
-	if [ x"" == x"$(grep '^PermitRootLogin.*yes' $bfile  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-	    backup_file $bfile
-	    echo "PermitRootLogin yes" >> $bfile
-	    /etc/rc.d/rc.sshd restart
-	else
-	    echo "#    -> already_configured"
-	fi
-	end_msg "$MSG"
-    fi
-
-}
-   #+end_src
-** Remove permissions to halt/shutdown from button and gui (todo)
+** SHUTDOWN PERMS: Remove permissions to halt/shutdown from button and gui (todo)
    #+name:shutdown_config
    #+begin_src sh
 function config_shutdown_perms {
@@ -459,7 +426,7 @@ EOF
     end_msg "$MSG"
 }
    #+end_src
-** Install and configure monit (pending on clients and complement on server)
+** MONIT: Install and configure
 Monit is a tool that allows to monitor and restart if needed
 different services, files, etc. This will be another level of
 redundancy (besides the scripts in crontab) to keep services
@@ -497,7 +464,7 @@ function config_monit {
     end_msg "$MSG"
 }
    #+end_src
-** cntlm 
+** CNTLM: Local proxy
 This allows to create a bypassing proxy that handles all auth and
 allows for computers to use  a simple proxy with no auth. For
 instance, with this I can now use emacs and install packages
@@ -528,12 +495,7 @@ function config_cntlm {
     end_msg "$MSG"
 }
    #+end_src
-** _DEPRECATED_ pssh: Already installed, use the following links to fix the password
-   - https://unix.stackexchange.com/questions/128974/parallel-ssh-with-passphrase-protected-ssh-key
-   - https://www.funtoo.org/Keychain
-   - https://stackoverflow.com/questions/43597283/pass-the-password-as-an-argument-in-pssh
-   - https://www.golinuxcloud.com/pssh-public-key-authentication-passwordless/
-** cluster ssh
+** CLUSTER SSH: For parallel ssh
 Check some tutorial at
 https://www.2daygeek.com/clustershell-clush-run-commands-on-cluster-nodes-remote-system-in-parallel-linux/
 #+name: clustershell
@@ -570,7 +532,7 @@ function config_clustershell {
     end_msg "$MSG"
 }
    #+end_src
-** x2goserver (server)
+** X2GOSERVER
 #+name: x2go
 #+begin_src shell :exports code
 function config_x2go {
@@ -692,8 +654,6 @@ echo "###############################################"
 
 <<monit_config>>
 
-<<publicid_config>>
-
 <<shutdown_config>>
 
 <<crontab_config>>
@@ -716,7 +676,6 @@ all ()
     config_firewall
     config_nfs
     config_nis
-    config_publicid_sshpassword
     config_shutdown_perms
     config_crontab
     config_packages
@@ -737,12 +696,11 @@ $(ColorGreen '5)') firewall
 $(ColorGreen '6)') nfs
 $(ColorGreen '7)') nis
 $(ColorGreen '8)') clustershell
-$(ColorGreen '9)') public sshkey
+$(ColorGreen '9)') x2go
 $(ColorGreen '10)') shutdown perms
 $(ColorGreen '11)') crontab
 $(ColorGreen '12)') packages
 $(ColorGreen '13)') cntlm
-$(ColorGreen '14)') x2go
 $(ColorGreen '15)') monit (depends on already configured cntlm, x2g0)
 $(ColorLGreen '16)') Configure ALL
 $(ColorYellow '0)') Exit
@@ -757,12 +715,11 @@ $(ColorCyan 'Choose an option:') "
 	        6) config_nfs ; menu ;;
 	        7) config_nis ; menu ;;
 	        8) config_clustershell ; menu ;;
-	        9) config_publicid_sshpassword ; menu ;;
+	        9) config_x2go ; menu ;;
 	        10) config_shutdown_perms ; menu ;;
 	        11) config_crontab ; menu ;;
 	        12) config_packages ; menu ;;
 	        13) config_cntlm ; menu ;;
-	        14) config_x2go ; menu ;;
 	        15) config_monit ; menu ;;
 	        16) all ; menu ;;
 		0) exit 0 ;;
@@ -783,6 +740,46 @@ menu
 
 #+END_SRC
 
+** DEPRECATED
+*** pssh: Already installed, use the following links to fix the password
+   - https://unix.stackexchange.com/questions/128974/parallel-ssh-with-passphrase-protected-ssh-key
+   - https://www.funtoo.org/Keychain
+   - https://stackoverflow.com/questions/43597283/pass-the-password-as-an-argument-in-pssh
+   - https://www.golinuxcloud.com/pssh-public-key-authentication-passwordless/
+
+*** Client: Copy public id for password-less access and allow root login
+   #+name:publicid_config
+   #+begin_src sh
+function config_publicid_sshpassword {
+    if [ "$TARGET" == "CLIENT" ]; then
+	MSG="Copying server public key  to configure passwordless access for root"
+	start_msg "$MSG"
+	mkdir -p /root/.ssh &>/dev/null
+	#if [ $(pattern_not_present "${SERVER_DOMAINNAME}" "/root/.ssh/authorized_keys") ]; then
+	if [ x"" == x"$(grep $SERVER_DOMAINNAME /root/.ssh/authorized_keys  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	    cat $FDIR/CLIENT-server_id_rsa.pub >> /root/.ssh/authorized_keys
+	    chmod 700 /root/.ssh
+	    chmod 640 /root/.ssh/authorized_keys
+	else
+	    echo "#    -> already configured"
+	fi
+	end_msg "$MSG"
+
+	MSG="Allowing root login for client"
+	start_msg "$MSG"
+	bfile="/etc/ssh/sshd_config"
+	if [ x"" == x"$(grep '^PermitRootLogin.*yes' $bfile  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	    backup_file $bfile
+	    echo "PermitRootLogin yes" >> $bfile
+	    /etc/rc.d/rc.sshd restart
+	else
+	    echo "#    -> already_configured"
+	fi
+	end_msg "$MSG"
+    fi
+
+}
+   #+end_src
 * Auxiliary scripts
 ** Create an user
   #+BEGIN_SRC sh :exports code :mkdirp yes :tangle scripts/create_user.sh 
