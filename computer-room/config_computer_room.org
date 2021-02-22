@@ -151,20 +151,21 @@ function config_ntp {
 function config_dnsmasq {
     MSG="Configuring dnsmasq "
     start_msg "$MSG"
-    if [ "$TARGET" == "SERVER" ]; then
-	TFILE="/etc/dnsmasq.conf"
-	if [ ! -f $TFILE ] || [ $FORCE -eq 1 ]; then  
-	    copy_config "$FDIR/SERVER-etc-dnsmasq.conf" "$TFILE"
-	    TFILE="/etc/dnsmasq-hosts.conf"
-	    copy_config "$FDIR/SERVER-etc-dnsmasq-hosts.conf" "$TFILE"
+    if [ "$TARGET" = "SERVER" ]; then
+	    TFILE="/etc/dnsmasq.conf"
+	    if [ ! -f $TFILE ] || [ $FORCE -eq 1 ]; then  
+	        copy_config "$FDIR/SERVER-etc-dnsmasq.conf" "$TFILE"
+	        TFILE="/etc/dnsmasq-hosts.conf"
+	        copy_config "$FDIR/SERVER-etc-dnsmasq-hosts.conf" "$TFILE"
+	        chmod +x /etc/rc.d/rc.dnsmasq 
+	        TFILE="/etc/hosts"
+	        copy_config "$FDIR/SERVER-etc-hosts" "$TFILE"
+	    else
+	        echo "Already configured. "
+	    fi
+        echo "Restarting services ..."
 	    chmod +x /etc/rc.d/rc.dnsmasq 
-	    TFILE="/etc/hosts"
-	    copy_config "$FDIR/SERVER-etc-hosts" "$TFILE"
-	else
-	    echo "Already configured. Restarting services ..."
-	fi
-	chmod +x /etc/rc.d/rc.dnsmasq 
-	/etc/rc.d/rc.dnsmasq restart
+	    /etc/rc.d/rc.dnsmasq restart
     else
         echo "Not configuring on client" 
     fi
