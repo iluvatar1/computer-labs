@@ -153,16 +153,20 @@ function config_dnsmasq {
     start_msg "$MSG"
     if [ "$TARGET" = "SERVER" ]; then
 	    TFILE="/etc/dnsmasq.conf"
-	    if [ ! -f $TFILE ] || [ $FORCE -eq 1 ]; then  
+	    if [ x"" = x"$(grep salafisnis $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ]; then  
+            echo "Copying general config file " 
 	        copy_config "$FDIR/SERVER-etc-dnsmasq.conf" "$TFILE"
-	        TFILE="/etc/dnsmasq-hosts.conf"
+        fi
+	    TFILE="/etc/dnsmasq-hosts.conf"
+	    if [ ! -f $TFILE ] || [ $FORCE -eq 1 ]; then  
+            echo "Copying dnsmasq-hosts file " 
 	        copy_config "$FDIR/SERVER-etc-dnsmasq-hosts.conf" "$TFILE"
-	        chmod +x /etc/rc.d/rc.dnsmasq 
-	        TFILE="/etc/hosts"
-	        copy_config "$FDIR/SERVER-etc-hosts" "$TFILE"
-	    else
-	        echo "Already configured. "
-	    fi
+        fi
+        TFILE="/etc/hosts"
+	    if [ x"" = x"$(grep salafisnis $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ]; then  
+            echo "Copying hosts file " 
+	    	copy_config "$FDIR/SERVER-etc-hosts" "$TFILE"
+        fi
         echo "Restarting services ..."
 	    chmod +x /etc/rc.d/rc.dnsmasq 
 	    /etc/rc.d/rc.dnsmasq restart
