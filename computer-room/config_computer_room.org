@@ -539,8 +539,8 @@ function config_x2go {
     MSG="Installing and configuring x2go server "
     start_msg "$MSG"
 
-    echo "Preconfiguring ... "
-    if [ "$TARGET" == "SERVER" ]; then
+    if [ "$TARGET" = "SERVER" ]; then
+        echo "Preconfiguring on server only ... "
         echo "Adding x2gouser user and x2goprint group ..."
         if [ x"" = x"$(grep x2gouser /etc/passwd 2>/dev/null)" ]; then 
             groupadd -g 290 x2gouser
