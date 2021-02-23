@@ -237,9 +237,6 @@ function config_nfs {
 	    else
 	        echo "Exports already configured. Restarting services ..."
 	    fi
-	    chmod +x /etc/rc.d/rc.nfsd
-	    /etc/rc.d/rc.nfsd restart
-	    /etc/rc.d/rc.inet2 restart
 	    echo "NOTE: If you have NFS problems, consider editing the /etc/hosts.allow and /etc/hosts.deny files"
     else
 	    bfile="/etc/fstab"
@@ -252,6 +249,9 @@ function config_nfs {
 	        echo "#    -> already configured"
 	    fi
     fi
+	chmod +x /etc/rc.d/rc.nfsd
+	/etc/rc.d/rc.nfsd restart
+	/etc/rc.d/rc.inet2 restart
     end_msg "$MSG"
 }
    #+END_SRC
@@ -391,23 +391,25 @@ function config_crontab {
     start_msg "$MSG"
     crontab -l > /tmp/crontab
     if [ "$TARGET" = "SERVER" ]; then
-	if [ x"" = x"$(grep minute_maintenance.sh /tmp/crontab  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-	    crontab $FDIR/SERVER-crontab -u root
-	else
-	    echo "#    -> Already configured (per minute)"
-	fi
-	TNAME="/etc/cron.daily/daily_maintenance.sh"
-	if [ ! -f $TNAME ] || [ $FORCE -eq 1 ]; then
+	    if [ x"" = x"$(grep minute_maintenance.sh /tmp/crontab  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+            echo "Configuring miniute maintenance ..."
+	        crontab $FDIR/SERVER-crontab -u root
+	    else
+	        echo "#    -> Already configured (per minute)"
+	    fi
+	    TNAME="/etc/cron.daily/daily_maintenance.sh"
+	    if [ ! -f $TNAME ] || [ $FORCE -eq 1 ]; then
+            echo "Copying daily maintenance ..."
             copy_config $FDIR/SERVER-cron/daily_maintenance.sh "$TNAME"
-	else
+	    else
             echo "#    -> Already configured (daily)"
-	fi
+	    fi
     else # CLIENT
-	if [ x"" = x"$(grep check_status.sh /tmp/crontab  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-	    crontab $FDIR/CLIENT-crontab -u root
-	else
-	    echo "#    -> Already configured"
-	fi
+	    if [ x"" = x"$(grep check_status.sh /tmp/crontab  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	        crontab $FDIR/CLIENT-crontab -u root
+	    else
+	        echo "#    -> Already configured"
+	    fi
     fi
     end_msg "$MSG"
 }
