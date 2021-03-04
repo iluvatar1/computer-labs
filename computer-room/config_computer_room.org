@@ -669,7 +669,7 @@ function config_ganglia {
             cat <<EOF > /etc/gmetad.conf
             # /etc/gmetad.conf on server
             data_source "clustersalafis" $SERVER_DOMAINNAME
-            EOF
+EOF
             echo "Done."
         else
             echo "-> Already configured."
@@ -690,7 +690,7 @@ function config_ganglia {
             port = 8649
             ttl = 1
             }
-            EOF
+EOF
         else
             echo "-> Already configured."
         fi
