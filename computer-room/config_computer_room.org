@@ -823,20 +823,66 @@ function config_publicid_sshpassword {
 * Auxiliary scripts
 ** Create an user
   #+BEGIN_SRC sh :exports code :mkdirp yes :tangle scripts/create_user.sh 
-     #!/bin/bash                                                                                                               
-     if [ x"" != x"$1" ]; then
-	 adduser $1
-	 usermod -a -G audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner $1
-	 make -BC /var/yp
-	 #su - $1                                                                                                              
-	 #xwmconfig                                                                                                            
-     else
-	 echo "Error. Debes llamar este script como:"
-	 echo "bash $0 nombredeusuarionuevo"
-     fi
+#!/bin/bash                                                                                                               
+if [ x"" != x"$1" ]; then
+	adduser $1
+	usermod -a -G audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner $1
+	make -BC /var/yp
+	#su - $1                                                                                                              
+	#xwmconfig                                                                                                            
+else
+	echo "Error. Debes llamar este script como:"
+	echo "bash $0 nombredeusuarionuevo"
+fi
 
   #+END_SRC
    
+** Create users from csv list with usernames and ids
+This script reads a list of usernames and passwords and creates the
+corresponding users
+#+begin_src sh :exports code :tangle scripts/create_users_from_list.sh :tangle-mode (identity #o444)
+#!/bin/bash
+
+# This script creates users according to a list of usernames and passwords
+# The file must be
+# username1 password1 more info
+# username2 password2 more info
+
+# Please review the groups. The sshgroup allows for ssh connections to the server
+
+FNAME=${1}
+if [ ! -f $FNAME ]; then
+    echo "Error: filename $FNAME does not exists"
+    exit 1
+fi
+
+while read line
+do
+    username=$(echo $line | awk '{print $1}')
+    password=$(echo $line | awk '{print $2}')
+    echo username=$username
+    echo password=$password
+    # echo "Deleting account $username"
+    # userdel $username
+    echo Creating account $username
+    useradd -d /home/$username -G audio,cdrom,floppy,plugdev,video,netdev,lp,scanner,sshgroup  -m -s /bin/bash $username
+    echo "Changing password for $username to ${password}"
+    echo ${username}:${password} | chpasswd
+    # make the password expire to force changing it on first login
+    chage -d0 ${username}
+    #echo "Recursive chown ... &"
+    #chown -R $username.$username /home/$username &
+done < $FNAME
+
+#read
+
+echo "Updating nis database"
+make -C /var/yp/
+#service portmap restart
+#service ypserv  restart
+/etc/rc.d/rc.inet2 restart
+echo "DONE."
+   #+end_src
 ** Check and delete inactive users
    - Find inactive users
      #+BEGIN_SRC sh :exports code :tangle scripts/get_inactive.sh
@@ -877,44 +923,7 @@ done
       echo "DONE: results sorted and wrote to user_disk_usage.txt"
 
    #+END_SRC
-** Create users from csv list with usernames and ids
-   This script reads a list of usernames and passwords and creates the
-   corresponding users
-   #+begin_src sh :exports code :tangle scripts/create_users_from_list.sh :tangle-mode (identity #o444)
-#!/bin/bash
-
-FNAME=${1}
-if [[ ! -f $FNAME ]]; then
-    echo "Error: filename $FNAME does not exists"
-    exit 1
-fi
-
-while read line
-do
-    username=$(echo $line | awk '{print $1}')
-    password=$(echo $line | awk '{print $2}')
-    echo username=$username
-    echo password=$password
-    # echo "Deleting account $username"
-    # userdel $username
-    echo Creating account $username
-    useradd -d /home/$username -G audio,cdrom,floppy,plugdev,video -m -s /bin/bash $username 
-    echo "Changing password for $username to ${password}"
-    echo ${username}:${password} | chpasswd
-    #echo "Recursive chown ... &"
-    #chown -R $username.$username /home/$username &
-done < $FNAME
-
-read
-
-echo "Updating nis database"
-make -C /var/yp/
-service portmap restart
-service ypserv  restart
-echo "DONE."
-
-   #+end_src
-** Recreate users from folders inside home 
+** Recreate users from folders inside home
    This is useful when the server was reinstalled
    #+begin_src sh :exports code :tangle scripts/recreate_users_from_directories.sh :tangle-mode (identity #o444)
 #!/bin/bash
