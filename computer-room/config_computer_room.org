@@ -145,38 +145,44 @@ function config_ntp {
    #+end_src
 
 ** DNSMASQ: dhcp, dns, masquerading
+The macs file is actually encrypted with the following command:
+#+begin_src
+openssl enc -aes-256-cbc -iter 10 -salt -in SERVER-etc-dnsmasq-hosts.conf -out SERVER-etc-dnsmasq-hosts.conf.enc
+#+end_src
+The password is stored in other place. Please decrypt befire using it.
    #+name: dnsmasq_config
    #+BEGIN_SRC bash :exports code 
 # dnsmasq
 function config_dnsmasq {
-    MSG="Configuring dnsmasq "
+    MSG="Configuring dnsmasq. Please decrypt the dnsmasq-hosts.conf.enc file "
     start_msg "$MSG"
+    echo "To decrypt, use : openssl enc -d -aes-256-cbc -iter 10 -in file.enc -out file.txt"
     if [ "$TARGET" = "SERVER" ]; then
 	    TFILE="/etc/dnsmasq.conf"
-	    if [ x"" = x"$(grep salafisnis $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ]; then  
-            echo "Copying general config file " 
+	    if [ x"" = x"$(grep salafisnis $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ]; then
+            echo "Copying general config file "
 	        copy_config "$FDIR/SERVER-etc-dnsmasq.conf" "$TFILE"
         fi
 	    TFILE="/etc/dnsmasq-hosts.conf"
-	    if [ ! -f $TFILE ] || [ $FORCE -eq 1 ]; then  
-            echo "Copying dnsmasq-hosts file " 
+	    if [ ! -f $TFILE ] || [ $FORCE -eq 1 ]; then
+            echo "Copying dnsmasq-hosts file "
 	        copy_config "$FDIR/SERVER-etc-dnsmasq-hosts.conf" "$TFILE"
         fi
         TFILE="/etc/hosts"
 	    if [ x"" = x"$(grep salafis $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ]; then
-            echo "Copying hosts file " 
+            echo "Copying hosts file "
 	    	copy_config "$FDIR/SERVER-etc-hosts" "$TFILE"
         fi
         TFILE="/etc/rc.d/rc.dnsmasq"
-	    if [ x"" = x"$(grep dnsmasq.log $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ]; then  
-            echo "Copying rc.dnsmasq file " 
+	    if [ x"" = x"$(grep dnsmasq.log $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ]; then
+            echo "Copying rc.dnsmasq file "
 	    	copy_config "$FDIR/SERVER-etc-rcd-rcdnsmasq" "$TFILE"
         fi
         echo "Restarting services ..."
-	    chmod +x /etc/rc.d/rc.dnsmasq 
+	    chmod +x /etc/rc.d/rc.dnsmasq
 	    /etc/rc.d/rc.dnsmasq restart
     else
-        echo "Not configuring on client" 
+        echo "Not configuring on client"
     fi
     end_msg "$MSG"
 }
