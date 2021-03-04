@@ -579,7 +579,7 @@ function config_x2go {
     if [ "$TARGET" = "SERVER" ]; then
         echo "Preconfiguring on server only ... "
         echo "Adding x2gouser user and x2goprint group ..."
-        if [ x"" = x"$(grep x2gouser /etc/passwd 2>/dev/null)" ]; then 
+        if [ x"" = x"$(grep x2gouser /etc/passwd 2>/dev/null)" ]; then
             groupadd -g 290 x2gouser
             useradd -u 290 -g 290 -c "X2Go Remote Desktop" -M -d /var/lib/x2go -s /bin/false x2gouser
             groupadd -g 291 x2goprint
@@ -603,6 +603,44 @@ function config_x2go {
         x2godbadmin --createdb
     fi
     /etc/rc.d/rc.x2goserver start
+    end_msg "$MSG"
+}
+#+end_src
+** ETC SKEL
+Here I put some defaults for /etc/skel
+#+name: skel
+#+begin_src shell :exports code
+function config_skel {
+    MSG="Configuring /etc/skel "
+    start_msg "$MSG"
+
+    if [ "$TARGET" = "SERVER" ]; then
+        echo "Configuring on server only ... "
+        if [ ! -f /etc/skel/.Xauthority ]; then
+            touch /etc/skel/.Xauthority
+        fi
+        if [ ! -f /etc/skel/.bashrc ]; then
+            cat <<EOF>/etc/skel/.bashrc
+export PROXY="192.168.10.1:3128"
+export http_proxy="http://$PROXY"
+export https_proxy="http://$PROXY"
+export ftp_proxy="ftp://$PROXY"
+export RSYNC_PROXY="$PROXY"
+
+alias ls="ls --color=auto -FG "
+EOF
+        fi
+        if [ ! -f /etc/skel/.bash_profile ]; then
+            cd /etc/skel
+            ln -s .bashrc .bash_profile
+        fi
+        if [ ! -f /etc/skel/.xinitrc ]; then
+            cp /etc/X11/xinit/xinitrc.xfce /etc/skel/.xinitrc
+        fi  
+    else
+        echo "Not configuring on client"
+    fi
+    
     end_msg "$MSG"
 }
 #+end_src
@@ -709,6 +747,8 @@ echo "###############################################"
 
 <<clustershell>>
 
+<<skel>>
+
 # Call all functions
 all ()
 {
@@ -727,6 +767,7 @@ all ()
     config_x2go
     config_clustershell
     config_monit
+    config_skel
 }
 
 menu(){
@@ -747,7 +788,8 @@ $(ColorGreen '12)') packages
 $(ColorGreen '13)') cntlm
 $(ColorGreen '14)') sshd
 $(ColorGreen '15)') monit (depends on already configured cntlm, x2g0, sshd)
-$(ColorLGreen '16)') Configure ALL
+$(ColorLGreen '16)') /etc/skel
+$(ColorLGreen '17)') Configure ALL
 $(ColorYellow '0)') Exit
 $(ColorCyan 'Choose an option:') "
         read a
@@ -767,9 +809,10 @@ $(ColorCyan 'Choose an option:') "
 	        13) config_cntlm ; menu ;;
 	        14) config_sshd ; menu ;;
 	        15) config_monit ; menu ;;
-	        16) all ; menu ;;
+	        16) config_skel ; menu ;;
+	        17) all ; menu ;;
 		0) exit 0 ;;
-		,*) echo -e $lred"Wrong option."$clear; exit 1;;
+		,*) echo -e $lred"Wrong option: $a"$clear; exit 1;;
         esac
 }
 
