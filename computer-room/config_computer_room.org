@@ -644,6 +644,62 @@ EOF
     end_msg "$MSG"
 }
 #+end_src
+** GANGLIA
+[[http://ganglia.info/][Ganglia]] is a system used to monitor clusters. I will start using it
+to check the status of the computer room. The isnstallation is
+different for server and client. I will put both here.
+#+name: ganglia
+#+begin_src shell :exports code
+function config_ganglia {
+    MSG="Installing and configuring ganglia "
+    start_msg "$MSG"
+
+    echo "Installing with slpkg ..."
+    source ~/.bashrc
+    slpkg -s sbo rrdtool
+    slpkg -s sbo confuse
+    export OPT=gmetad
+    slpkg -s sbo ganglia
+    slpkg -s sbo ganglia-web # installs the server on /var/www/htdocs/ganglia
+
+    echo "Configuring on $TARGET ..."
+    if [ "$TARGET" = "SERVER" ]; then
+        echo "Configuring ganglia monitor gmetad..."
+        if [ ! -f /etc/gmetad.conf ]; then
+            cat <<EOF > /etc/gmetad.conf
+            # /etc/gmetad.conf on server
+            data_source "clustersalafis" $SERVER_DOMAINNAME
+            EOF
+            echo "Done."
+        else
+            echo "-> Already configured."
+        fi
+    else # client
+        if [ ! -f /etc/gmond.conf ]; then
+            echo "Configuring gmond.conf ..."
+            cat <<EOF > /etc/gmond.conf
+            #/etc/gmond.conf - on clustersalafis
+            cluster {
+            name = "clustersalafis"
+            owner = "unspecified"
+            latlong = "unspecified"
+            url = "unspecified"
+            }
+            udp_send_channel {
+            mcast_join = $SERVERIP
+            port = 8649
+            ttl = 1
+            }
+            EOF
+        else
+            echo "-> Already configured."
+        fi
+    fi
+    echo "Done"
+    /etc/rc.d/rc.ganglia restart
+    end_msg "$MSG"
+}
+#+end_src
 ** Write final script
 #+BEGIN_SRC bash :exports code :noweb yes :tangle scripts/bootstrap_slackware_computer_room.sh :tangle-mode (identity #o444)
 #!/bin/bash
@@ -749,6 +805,8 @@ echo "###############################################"
 
 <<skel>>
 
+<<ganglia>>
+
 # Call all functions
 all ()
 {
@@ -789,7 +847,8 @@ $(ColorGreen '13)') cntlm
 $(ColorGreen '14)') sshd
 $(ColorGreen '15)') monit (depends on already configured cntlm, x2g0, sshd)
 $(ColorLGreen '16)') /etc/skel
-$(ColorLGreen '17)') Configure ALL
+$(ColorLGreen '17)') ganglia
+$(ColorLGreen '18)') Configure ALL
 $(ColorYellow '0)') Exit
 $(ColorCyan 'Choose an option:') "
         read a
@@ -810,7 +869,8 @@ $(ColorCyan 'Choose an option:') "
 	        14) config_sshd ; menu ;;
 	        15) config_monit ; menu ;;
 	        16) config_skel ; menu ;;
-	        17) all ; menu ;;
+	        17) config_ganglia ; menu ;;
+	        18) all ; menu ;;
 		0) exit 0 ;;
 		,*) echo -e $lred"Wrong option: $a"$clear; exit 1;;
         esac
