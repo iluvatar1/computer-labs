@@ -696,7 +696,8 @@ EOF
         fi
     fi
     echo "Done"
-    /etc/rc.d/rc.ganglia restart
+    chmod +x /etc/rc.d/rc.gmond
+    /etc/rc.d/rc.gmond restart
     end_msg "$MSG"
 }
 #+end_src
