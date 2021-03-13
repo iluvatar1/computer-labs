@@ -645,9 +645,10 @@ EOF
 }
 #+end_src
 ** GANGLIA
-[[http://ganglia.info/][Ganglia]] is a system used to monitor clusters. I will start using it
-to check the status of the computer room. The isnstallation is
-different for server and client. I will put both here.
+[[http://ganglia.info/][Ganglia]] is a system used to monitor clusters. I will start using it to check the
+status of the computer room. The installation is different for server and
+client. I will put both here. For config see here:
+https://blog.42mate.com/monitoring-your-servers-like-a-boss/
 #+name: ganglia
 #+begin_src shell :exports code
 function config_ganglia {
@@ -661,43 +662,44 @@ function config_ganglia {
     export OPT=gmetad
     slpkg -s sbo ganglia
     slpkg -s sbo ganglia-web # installs the server on /var/www/htdocs/ganglia
-
-    echo "Configuring on $TARGET ..."
-    if [ "$TARGET" = "SERVER" ]; then
-        echo "Configuring ganglia monitor gmetad..."
-        if [ ! -f /etc/gmetad.conf ]; then
-            cat <<EOF > /etc/gmetad.conf
-            # /etc/gmetad.conf on server
-            data_source "clustersalafis" $SERVER_DOMAINNAME
-EOF
-            echo "Done."
-        else
-            echo "-> Already configured."
-        fi
-    else # client
-        if [ ! -f /etc/gmond.conf ]; then
-            echo "Configuring gmond.conf ..."
-            cat <<EOF > /etc/gmond.conf
-            #/etc/gmond.conf - on clustersalafis
-            cluster {
-            name = "clustersalafis"
-            owner = "unspecified"
-            latlong = "unspecified"
-            url = "unspecified"
-            }
-            udp_send_channel {
-            mcast_join = $SERVERIP
-            port = 8649
-            ttl = 1
-            }
-EOF
-        else
-            echo "-> Already configured."
-        fi
+    unset OPT
+    
+    echo "Configuring gmond on both server and client ... "
+    if [ x"" == x"$(grep clustersalafis /etc/ganglia/gmond.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+        copy_config "$FDIR/gmond.conf" "/etc/ganglia/gmond.conf"
+    else
+        echo "→ Already configured"
     fi
-    echo "Done"
+    
+    if [ "$TARGET" = "SERVER" ]; then
+        echo "Configuring gmetad (ganglia monitor) on SERVER ..."
+        if [ x"" == x"$(grep clustersalafis /etc/ganglia/gmetad.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+            copy_config "$FDIR/SERVER-gmetad.conf" "/etc/ganglia/gmetad.conf"
+        else
+            echo "-> Already configured."
+        fi
+        echo "Adding extra ganglia config to http/apache on SERVER ..."
+        TFILE="/etc/httpd/httpd.conf"
+        if [ x"" == x"$(grep ganglia.conf $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+            backup_file "$TFILE"
+            sed -i 's/#Include \/etc\/httpd\/mod_php.conf/Include \/etc\/httpd\/mod_php.conf/' "$TFILE"
+            echo "Include /etc/httpd/extra/ganglia.conf" >> "$TFILE"
+        else
+            echo "-> Already configured."
+        fi
+        echo "Copying extra ganglia config on SERVER ..."
+        TFILE="/etc/httpd/extra/ganglia.conf"
+        if [ ! -f "$TFILE" ]; then
+            copy_config "$FDIR/SERVER-etc-httpd-extra-ganglia.conf" "$TFILE"            
+        fi
+        chmod +x /etc/rc.d/rc.httpd
+        chmod +x /etc/rc.d/rc.gmetad
+        /etc/rc.d/rc.httpd restart
+        /etc/rc.d/rc.gmetad restart
+    fi
     chmod +x /etc/rc.d/rc.gmond
     /etc/rc.d/rc.gmond restart
+    echo "Done"
     end_msg "$MSG"
 }
 #+end_src

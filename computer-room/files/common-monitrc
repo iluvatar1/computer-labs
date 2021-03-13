@@ -23,7 +23,7 @@ check process ntpd with pidfile /run/ntpd.pid
       stop  program = "/etc/rc.d/rc.ntpd stop"
       if failed host 127.0.0.1 port 123 type udp then alert
 
-CHECK process ganglia matching gmond
+CHECK process gmond matching gmond
       #with pidfile /var/run/gmond.pid
       start program = "/etc/rc.d/rc.gmond start"
       stop program = "/etc/rc.d/rc.gmond stop"

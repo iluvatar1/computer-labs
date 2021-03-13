@@ -40,3 +40,8 @@ check system $HOST
       if cpu usage > 95% for 10 cycles then alert
       if memory usage > 75% then alert
       if swap usage > 25% then alert
+
+CHECK process gmetad matching gmetad
+      #with pidfile /var/run/gmond.pid
+      start program = "/etc/rc.d/rc.gmetad start"
+      stop program = "/etc/rc.d/rc.gmetad stop"
