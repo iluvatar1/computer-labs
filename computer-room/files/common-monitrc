@@ -27,3 +27,7 @@ CHECK process gmond matching gmond
       #with pidfile /var/run/gmond.pid
       start program = "/etc/rc.d/rc.gmond start"
       stop program = "/etc/rc.d/rc.gmond stop"
+
+check process netdata with pidfile /run/netdata.pid
+      start program = "/etc/rc.d/rc.netdata start"
+      stop  program = "/etc/rc.d/rc.netdata stop"
