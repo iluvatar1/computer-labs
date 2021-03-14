@@ -644,7 +644,7 @@ EOF
     end_msg "$MSG"
 }
 #+end_src
-** GANGLIA
+** TODO GANGLIA (needs testing)
 [[http://ganglia.info/][Ganglia]] is a system used to monitor clusters. I will start using it to check the
 status of the computer room. The installation is different for server and
 client. I will put both here. For config see here:
@@ -705,7 +705,7 @@ function config_ganglia {
     end_msg "$MSG"
 }
 #+end_src
-** NETDATA
+** TODO NETDATA (needs testing)
 NETDATA is an alternative to ganglia and is very simple to configure and gets a
 lot of metrics. See: https://www.netdata.cloud/
 
