@@ -663,14 +663,14 @@ function config_ganglia {
     slpkg -s sbo ganglia
     slpkg -s sbo ganglia-web # installs the server on /var/www/htdocs/ganglia
     unset OPT
-    
+
     echo "Configuring gmond on both server and client ... "
     if [ x"" == x"$(grep clustersalafis /etc/ganglia/gmond.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
         copy_config "$FDIR/gmond.conf" "/etc/ganglia/gmond.conf"
     else
         echo "→ Already configured"
     fi
-    
+
     if [ "$TARGET" = "SERVER" ]; then
         echo "Configuring gmetad (ganglia monitor) on SERVER ..."
         if [ x"" == x"$(grep clustersalafis /etc/ganglia/gmetad.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
@@ -690,13 +690,15 @@ function config_ganglia {
         echo "Copying extra ganglia config on SERVER ..."
         TFILE="/etc/httpd/extra/ganglia.conf"
         if [ ! -f "$TFILE" ]; then
-            copy_config "$FDIR/SERVER-etc-httpd-extra-ganglia.conf" "$TFILE"            
+            copy_config "$FDIR/SERVER-etc-httpd-extra-ganglia.conf" "$TFILE"
         fi
         chmod +x /etc/rc.d/rc.httpd
         chmod +x /etc/rc.d/rc.gmetad
         /etc/rc.d/rc.httpd restart
         /etc/rc.d/rc.gmetad restart
+        ln -sf /etc/ganglia/gmetad.conf /etc/
     fi
+    ln -sf /etc/ganglia/gmond.conf /etc/
     chmod +x /etc/rc.d/rc.gmond
     /etc/rc.d/rc.gmond restart
     echo "Done"
