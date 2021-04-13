@@ -106,13 +106,13 @@ cat <<EOF > "${FNAME}"
         dired
         electric
         undo
-        :term
-        vterm
+        ;;:term
+        ;;vterm
         :checkers
         syntax
         :tools
         (eval +overlay)
-        lsp
+        ;;lsp
         magit
         make
         pdf
