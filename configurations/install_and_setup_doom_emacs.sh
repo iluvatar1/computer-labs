@@ -32,6 +32,8 @@ cat <<EOF > "${FNAME}"
 (package! modus-vivendi-theme)
 (package! modus-operandi-theme)
 (package! try)
+(package! eglot)
+(package! spacemacs-theme)
 EOF
 
 
@@ -77,6 +79,11 @@ cat <<EOF > "${FNAME}"
 (setq org-latex-pdf-process '("latexmk -pdflatex='pdflatex -shell-escape  -interaction nonstopmode' -pdf -bibtex -f %f"))
 (setq org-latex-to-pdf-process '("latexmk -pdflatex='pdflatex -shell-escape  -interaction nonstopmode' -pdf -bibtex -f %f"))
 
+(require 'eglot)
+  (add-to-list 'eglot-server-programs '((c++-mode c-mode) "clangd"))
+  (add-hook 'c-mode-hook 'eglot-ensure)
+  (add-hook 'c++-mode-hook 'eglot-ensure)
+
 (add-hook 'org-mode-hook (lambda () (electric-indent-local-mode -1)))
 EOF
 
@@ -90,7 +97,7 @@ cat <<EOF > "${FNAME}"
         :ui
         doom
         doom-dashboard
-        doom-quit
+        ;doom-quit
         hl-todo
         hydra
         minimap
@@ -115,7 +122,7 @@ cat <<EOF > "${FNAME}"
         ;;lsp
         magit
         make
-        pdf
+        ;pdf
         :lang 
         (cc +irony)
         emacs-lisp
