@@ -22,37 +22,77 @@
   - choose the disk to clone
   - skip checking (but better check if you are getting errors when
     creating the image)
-    - select check the saved image
+  - select check the saved image
   - Do not encrypt
   - choose reboot if you want
   DONE
 
+  Also it can be done with the following procedure:
+  1. Open up a terminal
+  2. Mount the target device, where you want to save the image, into
+     =/home/partimage=
+  3. Run the following command:
+     #+begin_src shell
+/usr/sbin/ocs-sr -q2 -c -j2 -z1p -i 4096 -fsck-y -senc -p choose savedisk IMAGENAME sda
+     #+end_src
+
 * Cloning an image to several computers using clonezilla server
-  - Burn drbl-server live on a usb
-  - Boot the computer-server from the usb
-  - Select other boot modes -> kms (for better screen resolution)
-  - Configure keyboard if needed
-  - X window automatic
-  - On Deskop, double click on clonezilla server
-  - For eth1 select static ip : 192.168.10.1
-  - If the image is on the local hard disk or usb disc, use localdev to mount 
-    - Mount the system (on server salafis sda7 is /home)
-    - Select the parent directory of the directory containing the
-      images (in this case it will be /home/oquendo)
-      The more recent image is called 2017-01-26-01-img-client
-  - Select *advanced mode*
-  - select *restore-disk*
-  - Use default options
-  - *Select -k1 to create partition table proportionally*
-  - Yes to check the image before restoring 
-  - Skip option of always provide clonezilla server
-  - Choose image to clone (should be detected automatically)
-  - Choose sda (target disk to be written on each client)
-  - Choose multicast or *unicast* retore (some switches block
-    multicast so you can try *unicast*). Multicast is great since all
-    computers will update at the same time. Advice: give at least 8
-    minutes to clonezilla to wait for all clients to start.
-  - Choose time clients+time-t-wait or whatever (100 clients, 300 secs)
-  - Here clonezilla starts to check the image
-  - Boot clients using net PXE
-  DONE
+** Drbl server
+- Burn drbl-server live on a usb
+- Boot the computer-server from the usb
+- Select other boot modes -> kms (for better screen resolution)
+- Configure keyboard if needed
+- X window automatic
+- On Deskop, double click on clonezilla server
+- For eth1 select static ip : 192.168.10.1
+- If the image is on the local hard disk or usb disc, use localdev to mount
+  - Mount the system (on server salafis sda7 is /home)
+  - Select the parent directory of the directory containing the
+    images (in this case it will be /home/oquendo)
+    The more recent image is called 2017-01-26-01-img-client
+- Select *advanced mode*
+- select *restore-disk*
+- Use default options
+- *Select -k1 to create partition table proportionally*
+- Yes to check the image before restoring
+- Skip option of always provide clonezilla server
+- Choose image to clone (should be detected automatically)
+- Choose sda (target disk to be written on each client)
+- Choose multicast or *unicast* retore (some switches block
+  multicast so you can try *unicast*). Multicast is great since all
+  computers will update at the same time. Advice: give at least 8
+  minutes to clonezilla to wait for all clients to start.
+- Choose time clients+time-t-wait or whatever (100 clients, 300 secs)
+- Here clonezilla starts to check the image
+- Boot clients using net PXE
+DONE
+
+** lite server
+- Boot the same clonezilla live iso
+- When booting, choose alternative modes to have better resolution.
+- Choose the language
+- Start clonezilla
+- Select lite-server
+- start start lite-server
+- netboot (or both)
+- auto-detect or use-existing-dhcpd
+- select localdev or ssh server or ...
+- nofsck (to skip) or check if you are having problems
+- Select the correct dir with the image
+- Begginer / expert
+- Massive deployment
+- From image
+- restore disk
+- Select the image (should be detected)
+- Select the partition
+- Yes check the image
+- reboot
+- Select the mode: multicast, broadcast, bittorrent
+- Select the number of clients to wait, the time, or boot
+- Here clonezilla checks the image and then starts to wait
+- Boot clients using pxe
+
+Direct command
+#+begin_src shell
+ocs-live-feed-img -cbm netboot -dm auto-detect -lscm massive-deployment -mdst from-image -g auto -e1 auto -e2 -r -x -j2 -sc0 -p reboot -md multicast --time-to-wait 120 start 2021-04-20-21-img1 sda
+#+end_src
