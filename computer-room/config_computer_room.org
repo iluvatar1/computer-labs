@@ -715,7 +715,7 @@ modified slackbuild.
 
 *** Configuration files
 - slackbuild including calls for building mosquitto and libws
-#+begin_src shell :tangle ../files/netdata.SlackBuild
+#+begin_src shell :tangle files/netdata.SlackBuild
 #!/bin/sh
 
 # Slackware build script for netdata
@@ -893,7 +893,7 @@ cd $PKG
 
 #+end_src
 - Configuration for the proxy
-  #+begin_src conf :tangle ../files/etc-netdata-netdata.conf
+  #+begin_src conf :tangle files/etc-netdata-netdata.conf
 [cloud]
     proxy = 192.168.10.1:3128
     

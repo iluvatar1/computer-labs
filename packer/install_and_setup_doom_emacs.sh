@@ -1,1 +1,0 @@
-../configurations/install_and_setup_doom_emacs.sh

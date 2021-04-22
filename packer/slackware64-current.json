@@ -8,9 +8,22 @@
         "<wait>1<enter>",
         "<wait>root<enter>",
         "<wait>fdisk /dev/sda<enter>",
-        "<wait>o<enter>n<enter>p<enter>1<enter><enter><enter>w<enter>",
-        "<wait>setup<enter><wait2s>",
-        "<wait>t<wait><enter><wait><enter>f<enter><wait><enter><wait3><enter>",
+
+        "<wait>g<enter>n<enter>1<enter><enter>+30G<enter>",
+        "n<enter>2<enter><enter>+5G<enter>t<enter>2<enter>19<enter>",
+        "n<enter>3<enter><enter>+10G<enter>",
+        "n<enter>4<enter><enter>+25G<enter>",
+        "n<enter>5<enter><enter><enter>w<enter>",
+
+        "<wait>setup<enter><wait2s>"
+
+        "a<enter><enter><enter><wait4s><enter>",
+        "<enter><enter><enter><wait3s>",
+        "<down><enter><enter><enter><wait3s>/tmp<enter>",
+        "<down><down><enter><enter><enter><wait3s>/home<enter>",
+        "<down><down><down><enter><enter><wait3s>/opt<enter><enter>",
+
+
         "<wait>1<enter>a<enter><wait3>",
         "<wait>f<spacebar>kk<spacebar><enter>",
         "<wait>f<enter>",
@@ -49,7 +62,6 @@
         "echo PermitRootLogin yes >> /etc/ssh/sshd_config<enter>",
         "/etc/rc.d/rc.sshd restart<enter>"
       ],
-      "disk_size": 30000,
       "export_opts": [
         "--manifest",
         "--vsys",
@@ -59,12 +71,13 @@
         "--version",
         "0.1.0"
       ],
+      "disk_size": 80000,
       "guest_additions_interface": "sata",
       "guest_os_type": "Linux26_64",
       "hard_drive_interface": "sata",
-      "iso_checksum": "d52994e8894a814d65a2faa0b2d9ca93",
       "iso_interface": "sata",
-      "iso_url": "file:///Users/oquendo/repos/computer-labs/packer/slackware64-current-install-dvd.iso",
+      "iso_url": "iso/slackware64-current-install-dvd.iso",
+      "iso_checksum": "file:iso/MD5SUM",
       "shutdown_command": "shutdown -h now",
       "skip_export": false,
       "ssh_password": "vagrant",
@@ -177,7 +190,7 @@
         ]
 
       ],
-      "vm_name": "slackware-current-vbox"
+      "vm_name": "slackware-current-vbox-CLIENT"
     }
   ],
   "description": "A slackware 64-bit current installation with Virtualbox tools installed",
@@ -186,7 +199,7 @@
   ],
   "provisioners": [
     {
-      "script": "config_teaching_box.sh",
+      "script": "provision_box.sh",
       "type": "shell",
       "valid_exit_codes":[0,2]
     },
@@ -195,11 +208,6 @@
       "type": "shell",
       "valid_exit_codes":[0,2]
     },
-    {
-      "script": "install_and_setup_doom_emacs.sh",
-      "type": "shell",
-      "valid_exit_codes":[0,2]
-    }
   ]
 }
 
