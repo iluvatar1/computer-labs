@@ -1,0 +1,54 @@
+#+TITLE: Readme Packer
+
+* Partitions
+** Teaching box
+Uses a basic 50 Gb disc.
+
+The following creates a single primary partition with a msdos table
+#+name: teaching-partition
+#+begin_src sh
+        "<wait>o<enter>n<enter>p<enter>1<enter><enter><enter>w<enter>",
+#+end_src
+
+** Client machine salafis
+Use a basic 80 Gb disc.
+
+For this it is better to use several partitions, and =opt= will be put at the
+end to be resized, this will use a gpt partition table, with the following sizes
+|------+------+----------|
+| name | dev  | size (G) |
+|------+------+----------|
+| root | sda1 |       30 |
+| swap | sda2 |        5 |
+| tmp  | sda3 |       10 |
+| home | sda4 |       25 |
+| opt  | sda5 |       10 |
+|------+------+----------|
+
+#+name: client-partition
+#+begin_src sh
+        "<wait>g<enter>n<enter>1<enter><enter>+30G<enter>",
+        "n<enter>2<enter><enter>+5G<enter>t<enter>2<enter>19<enter>",
+        "n<enter>3<enter><enter>+10G<enter>",
+        "n<enter>4<enter><enter>+25G<enter>",
+        "n<enter>5<enter><enter><enter>w<enter>",
+#+end_src
+
+* Target selections
+** Virtualbox
+Since there is only one partition, then it is very easy
+#+name: teaching-targets
+#+begin_src sh
+        "<wait>t<wait><enter><wait><enter>f<enter><wait><enter><wait3><enter>",
+#+end_src
+
+** DONE Client
+Now we have 5 partitions, so we need more work
+#+name: client-targets
+#+begin_src sh
+        "a<enter><enter><enter><wait4s><enter>",
+        "<enter><enter><enter><wait3s>",
+        "<down><enter><enter><enter><wait3s>/tmp<enter>",
+        "<down><down><enter><enter><enter><wait3s>/home<enter>",
+        "<down><down><down><enter><enter><wait3s>/opt<enter><enter>",
+#+end_src

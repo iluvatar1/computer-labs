@@ -1,0 +1,5 @@
+{
+    "provision_script":"../configurations/config_client.sh",
+    "snapshot_name": "Client provisioned",
+    "output_dir": "~/Downloads/box_client"
+}

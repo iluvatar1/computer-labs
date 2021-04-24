@@ -1,0 +1,5 @@
+{
+    "provision_script":"../configurations/config_teaching_box.sh",
+    "snapshot_name": "Teaching box provisioned",
+    "output_dir": "~/Downloads/box_teaching"
+}

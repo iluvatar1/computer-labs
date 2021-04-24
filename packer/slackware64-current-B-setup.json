@@ -1,0 +1,61 @@
+{
+  "builders": [
+    {
+      "type": "virtualbox-vm",
+      "shutdown_command": "shutdown -h now",
+      "ssh_password": "vagrant",
+      "ssh_pty": true,
+      "ssh_username": "root",
+      "vm_name": "base_slack_machine",
+      "attach_snapshot": "After slackware package install",
+      "target_snapshot": "After setup",
+      "keep_registered": "true",
+      "skip_export": "true",
+      "format": "ovf",
+      "boot_wait": "10s",
+      "boot_command":
+      [
+        "<wait>s<enter>",
+        "<wait><enter>",
+        "<wait><enter>",
+        "<wait><enter>",
+        "<wait><enter><wait5s>",
+        "<wait><enter>",
+        "<wait><enter>",
+        "<wait>slackware<enter>",
+        "<wait>example.org<enter>",
+        "<wait><enter>",
+        "<wait><enter>",
+        "<wait><enter>",
+        "<wait><enter>",
+        "<wait><down><down><down><down><down><down><down><down><down><down><down><down><down><spacebar>",
+        "<wait><down><down><down><down><down><spacebar>",
+        "<wait><enter>",
+        "<wait><enter>",
+        "<wait>n<enter>",
+        "<wait><pageDown><pageDown><pageDown><pageDown><pageDown><pageDown><pageDown><down><down><down><down><enter>",
+        "<wait>v<enter>",
+        "<wait><enter>",
+        "<wait><enter>",
+        "<wait>vagrant<enter>",
+        "<wait>vagrant<enter>",
+        "<wait><enter>",
+        "<wait><enter>",
+        "<wait>e<wait><enter><wait><enter>",
+        "<wait><enter>",
+        "<wait10s><enter><wait25s>",
+        "root<enter>",
+        "<wait>vagrant<enter>",
+        "echo PermitRootLogin yes >> /etc/ssh/sshd_config<enter>",
+        "/etc/rc.d/rc.sshd restart<enter>"
+      ]
+    }
+  ] ,
+  "provisioners": [
+    {
+      "script": "../configurations/vbox_guest_additions.sh",
+      "type": "shell",
+      "valid_exit_codes":[0,2]
+    }
+  ]
+}

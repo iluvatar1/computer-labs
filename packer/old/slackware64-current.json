@@ -2,7 +2,7 @@
   "builders": [
     {
       "boot_command": [
-        "<wait><enter><wait25s>",
+        "<wait><enter><wait20s>",
         "<wait>1<enter>",
         "<wait><enter>",
         "<wait>1<enter>",
@@ -15,36 +15,37 @@
         "n<enter>4<enter><enter>+25G<enter>",
         "n<enter>5<enter><enter><enter>w<enter>",
 
-        "<wait>setup<enter><wait2s>"
+        "<wait>setup<enter><wait3s>",
 
-        "a<enter><enter><enter><wait4s><enter>",
-        "<enter><enter><enter><wait3s>",
-        "<down><enter><enter><enter><wait3s>/tmp<enter>",
-        "<down><down><enter><enter><enter><wait3s>/home<enter>",
-        "<down><down><down><enter><enter><wait3s>/opt<enter><enter>",
+        "a<enter><wait><enter><wait><enter><wait4s><enter><wait2s>",
+        "<enter><wait><enter><wait><enter><wait3s>",
+        "<down><wait><enter><wait><enter><wait><enter><wait3s>/tmp<enter><wait3s>",
+        "<down><down><wait><enter><wait><enter><wait><enter><wait3s>/home<enter><wait>",
+        "<down><down><down><wait><enter><wait><enter><wait><enter><wait3s>/opt<enter><wait><enter><wait>",
 
 
         "<wait>1<enter>a<enter><wait3>",
         "<wait>f<spacebar>kk<spacebar><enter>",
         "<wait>f<enter>",
-        "<wait20m>",
+        "<wait25m>",
         "<wait>s<enter>",
         "<wait><enter>",
         "<wait><enter>",
         "<wait><enter>",
-        "<wait><enter>",
-        "<wait5s>",
+        "<wait><enter><wait5s>",
         "<wait><enter>",
         "<wait><enter>",
         "<wait>slackware<enter>",
         "<wait>example.org<enter>",
-        "<wait>n<enter>",
-        "<wait><enter>",
-        "<wait><down><down><down><down><down><down><down><down><down><down><down><down><down><down><spacebar>",
-        "<wait><down><down><down><down><spacebar>",
         "<wait><enter>",
         "<wait><enter>",
-        "<wait>n<enter>",
+        "<wait><enter>",
+        "<wait><enter>",
+        "<wait><down><down><down><down><down><down><down><down><down><down><down><down><down><spacebar>",
+        "<wait><down><down><down><down><down><spacebar>",
+        "<wait><enter>",
+        "<wait><enter>",
+        "<wait><enter>",
         "<wait><down><down><down><down><down><enter>",
         "<wait>v<enter>",
         "<wait><enter>",
@@ -56,7 +57,7 @@
         "<wait>e<wait><enter><wait><enter>",
         "<wait><enter>",
         "<wait10s><enter>",
-        "<wait10><wait10><wait10>",
+        "<wait18s>",
         "root<enter>",
         "<wait>vagrant<enter>",
         "echo PermitRootLogin yes >> /etc/ssh/sshd_config<enter>",
@@ -207,7 +208,7 @@
       "script": "vbox_guest_additions.sh",
       "type": "shell",
       "valid_exit_codes":[0,2]
-    },
+    }
   ]
 }
 

@@ -1,11 +1,3 @@
-*.box
-*.run
-basebox/Vagrantfile
-basebox/.vagrant
-*tmp*
-*~
-*tar.gz
-*tgz
-*txz
 *DS_Store*
-/computer-room/scripts/*.sh
+computer-room/scripts/
+packer_cache

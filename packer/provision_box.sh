@@ -1,1 +1,0 @@
-../configurations/config_teaching_box.sh
