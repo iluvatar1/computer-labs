@@ -915,15 +915,15 @@ function config_netdata {
         slpkg -s slack lz4
         echo "Installing netdata with modified slackbuild ..."
         cd /tmp
-        wget https://slackbuilds.org/slackbuilds/14.2/system/netdata.tar.gz
-        wget https://github.com/netdata/netdata/archive/v1.29.3/netdata-1.29.3.tar.gz
-        tar xf netdata.tar.gz
-        mv netdata/netdata.SlackBuild{,-orig}
-        cp $FDIR/netdata.SlackBuild netdata/
-        chmod +x netdata/netdata.SlackBuild
-        tar czf netdata.tar.gz netdata
-        slpkg -a netdata.tar.gz netdata-1.29.3.tar.gz
-        chmod +x /etc/rc.d/rc.netdata
+        wget https://slackbuilds.org/slackbuilds/14.2/system/netdata.tar.gz &&
+        wget https://github.com/netdata/netdata/archive/v1.29.3/netdata-1.29.3.tar.gz &&
+        tar xf netdata.tar.gz &&
+        mv netdata/netdata.SlackBuild{,-orig} &&
+        cp $FDIR/netdata.SlackBuild netdata/ &&
+        chmod +x netdata/netdata.SlackBuild &&
+        tar czf netdata.tar.gz netdata &&
+        slpkg -a netdata.tar.gz netdata-1.29.3.tar.gz &&
+        chmod +x /etc/rc.d/rc.netdata 
     fi
     
     echo "Configuring proxy on both server and client ... "

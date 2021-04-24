@@ -34,9 +34,10 @@ rm -f /var/log/log-install.txt 2>/dev/null
     cd "$BDIR/packages"
     COMPILE=NO bash install_packages_slackware.sh
     # configure as client
-    cd "$BDIR/computer_room"
+    cd "$BDIR/computer-room"
     # tangle the config file
     emacs --batch -l org config_computer_room.org -f org-babel-tangle
     # run the config script
-    bash scripts/bootstrap_slackware_computer_room.sh files CLIENT
+    cd scripts
+    echo 19 | bash bootstrap_slackware_computer_room.sh ../files CLIENT # 19 means all
 } &>> /var/log/log-install.txt
