@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-clone_config_repo () {
+clone_or_update_config_repo () {
     if [ ! -d "$HOME/repos" ]; then mkdir -p $HOME/repos; fi
     cd $HOME/repos
     if [ ! -d computer-labs ]; then

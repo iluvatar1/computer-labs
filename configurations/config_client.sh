@@ -5,9 +5,9 @@
 ###############################################################################
 rm -f /var/log/log-install.txt 2>/dev/null
 {
-    clone_config_repo
     BDIR="$HOME/repos/computer-labs/"
     source $BDIR/configurations/config_functions.sh
+    clone_or_update_config_repo
     # configure as client
     cd "$BDIR/computer-room"
     # tangle the config file
