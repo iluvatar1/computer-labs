@@ -20,12 +20,6 @@ configured()
 }
 
 
-echo
-echo "##################################################"
-echo " -> Starting configuration for slackware basebox. NOTE: This scripts tries to be idempotent."
-echo "##################################################"
-echo
-
 inittab () {
     pm "Changing default init to 4 ..."
     if [ x"" = x"$(grep 'id:4:initdefault' /etc/inittab | grep -v grep)" ]; then
@@ -293,6 +287,11 @@ EOF
 #####################################################
 # MAIN
 #####################################################
+echo
+echo "##################################################"
+echo " -> Starting configuration for slackware basebox. NOTE: This scripts tries to be idempotent."
+echo "##################################################"
+echo
 
 inittab
 services_nfs_ssh

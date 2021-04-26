@@ -1,0 +1,42 @@
+{
+  "builders":
+  [
+    {
+      "type": "virtualbox-vm",
+      "shutdown_command": "shutdown -h now",
+      "ssh_password": "vagrant",
+      "ssh_pty": true,
+      "ssh_username": "root",
+      "vm_name": "base_slack_machine",
+      "output_directory": "{{user `output_dir`}}",
+      "attach_snapshot": "After packages",
+      "target_snapshot": "{{user `snapshot_name`}}",
+      "keep_registered": "true",
+      "skip_export": "false",
+      "format": "ovf",
+      "boot_wait": "10s",
+      "export_opts":
+      [
+        "--manifest",
+        "--vsys",
+        "0",
+        "--description",
+        "Slackware64 current provisioned",
+        "--version",
+        "0.1.0"
+      ],
+      "boot_command":
+      [
+        "<enter><wait25s>"
+      ]
+    }
+  ] ,
+  "provisioners":
+  [
+    {
+      "script": "{{user `provision_script`}}",
+      "type": "shell",
+      "valid_exit_codes":[0,2]
+    }
+  ]
+}

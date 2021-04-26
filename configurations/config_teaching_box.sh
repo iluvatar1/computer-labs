@@ -3,47 +3,7 @@
 ###############################################################################
 # Functions definitions
 ###############################################################################
-check_live_user () {
-    MSG="Checking if live user exists, otherwise creating it ..."
-    echo "$MSG"
-    sleep 2
-    #if [ ! -d /home/live ]; then
-    if [ x""==x"$(grep live /etc/passwd)" ]; then
-	    useradd -d /home/live -G audio,cdrom,floppy,plugdev,video -m -s /bin/bash live
-	    echo live:live | chpasswd
-	    echo "Done."
-    else
-	    echo "User already exists."
-    fi
-}
-
-config_shell_prompt () {
-    # Install bash it
-    echo "Configuring bashit"
-    if [ ! -d /home/live/.bash_it ]; then
-        cd /home/live || exit
-        sudo -u live git clone --depth=1 https://github.com/Bash-it/bash-it.git /home/live/.bash_it
-        sudo -u live /home/live/.bash_it/install.sh --silent
-    else
-        echo "Already configured"
-    fi
-}
-
-install_spack () {
-    MSG="-> Installing Spack"
-    echo "$MSG"
-    sleep 2
-    if [ ! -d /home/live/repos/spack ]; then
-	    mkdir /home/live/repos/
-	    cd /home/live/repos/ || exit 1
-	    git clone https://github.com/spack/spack
-	    echo "source /home/live/repos/spack/share/spack/setup-env.sh" >> /home/live/.bashrc
-	    chown -R live /home/live /home/live/repos /home/live/.bashrc
-	    echo "-> Done"
-    else
-	    echo "-> Already installed"
-    fi
-}
+source config_functions.sh
 
 
 ###############################################################################
@@ -51,12 +11,7 @@ install_spack () {
 ###############################################################################
 rm -f /var/log/log-install.txt 2>/dev/null
 {
-    mkdir -p $HOME/repos
-    cd $HOME/repos
-    git clone https://github.com/iluvatar1/computer-labs
-    cd "$HOME/repos/computer-labs/configurations"
-    bash config_slackware.sh 
-    COMPILE=NO bash ../packages/install_packages_slackware.sh
+    # Configure teaching box
     check_live_user
     sudo -u live bash install_and_setup_doom_emacs.sh
     config_shell_prompt
