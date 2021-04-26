@@ -1050,17 +1050,13 @@ echo "###############################################"
 # Call all functions
 all ()
 {
-    config_proxy
-    config_network
     config_ntp
     config_dnsmasq
-    config_firewall
     config_nfs
     config_nis
     config_shutdown_perms
     config_crontab
     config_packages
-    config_cntlm
     config_sshd
     config_x2go
     config_clustershell
@@ -1068,6 +1064,10 @@ all ()
     config_skel
     config_ganglia
     config_netdata
+    config_firewall
+    config_cntlm
+    config_network
+    config_proxy
 }
 
 ##################################
