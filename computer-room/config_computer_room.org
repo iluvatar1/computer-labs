@@ -1070,58 +1070,82 @@ all ()
     config_netdata
 }
 
-menu(){
-echo -ne "
-Services to configure on: $TARGET
-$(ColorGreen '1)') proxy
-$(ColorGreen '2)') network (rc.inet1.conf)
-$(ColorGreen '3)') ntp
-$(ColorGreen '4)') dnsmasq
-$(ColorGreen '5)') firewall
-$(ColorGreen '6)') nfs
-$(ColorGreen '7)') nis
-$(ColorGreen '8)') clustershell
-$(ColorGreen '9)') x2go
-$(ColorGreen '10)') shutdown perms
-$(ColorGreen '11)') crontab
-$(ColorGreen '12)') packages
-$(ColorGreen '13)') cntlm
-$(ColorGreen '14)') sshd
-$(ColorGreen '15)') monit (depends on already configured cntlm, x2g0, sshd)
-$(ColorLGreen '16)') /etc/skel
-$(ColorLGreen '17)') ganglia
-$(ColorLGreen '18)') netdata
-$(ColorLGreen '19)') Configure ALL
-$(ColorYellow '0)') Exit
-$(ColorCyan 'Choose an option:') "
-        read a
-        case $a in
-	        1) config_proxy ; menu ;;
-	        2) config_network ; menu ;;
-	        3) config_ntp ; menu ;;
-	        4) config_dnsmasq ; menu ;;
-	        5) config_firewall ; menu ;;
-	        6) config_nfs ; menu ;;
-	        7) config_nis ; menu ;;
-	        8) config_clustershell ; menu ;;
-	        9) config_x2go ; menu ;;
-	        10) config_shutdown_perms ; menu ;;
-	        11) config_crontab ; menu ;;
-	        12) config_packages ; menu ;;
-	        13) config_cntlm ; menu ;;
-	        14) config_sshd ; menu ;;
-	        15) config_monit ; menu ;;
-	        16) config_skel ; menu ;;
-	        17) config_ganglia ; menu ;;
-	        18) config_netdata ; menu ;;
-	        19) all ; menu ;;
-		0) exit 0 ;;
-		,*) echo -e $lred"Wrong option: $a"$clear; exit 1;;
-        esac
-}
+##################################
+# check env vars and configure accordingly
+##################################
+if [[ ($ALL == 1) ]]; then $(ColorCyan 'Configuring ALL'); all; fi
+if [[ ($PROXY == 1) ]]; then $(ColorCyan 'Configuring Proxy'); config_proxy; fi
+if [[ ($NETWORK == 1) ]]; then $(ColorCyan 'Configuring Network'); config_network; fi
+if [[ ($NTP == 1) ]]; then $(ColorCyan 'Configuring ntp'); config_ntp; fi
+if [[ ($DNSMASQ == 1) ]]; then $(ColorCyan 'Configuring dnsmasq'); config_dnsmasq; fi
+if [[ ($FIREWALL == 1) ]]; then $(ColorCyan 'Configuring firewall'); config_firewall; fi
+if [[ ($NFS == 1) ]]; then $(ColorCyan 'Configuring nfs'); config_nfs; fi
+if [[ ($NIS == 1) ]]; then $(ColorCyan 'Configuring nis'); config_nis; fi
+if [[ ($SHUTDOWN_PERMS == 1) ]]; then $(ColorCyan 'Configuring shutdown perms'); config_shutdown_perms; fi
+if [[ ($CRONTAB == 1) ]]; then $(ColorCyan 'Configuring crontab'); config_crontab; fi
+if [[ ($PACKAGES == 1) ]]; then $(ColorCyan 'Configuring packages'); config_packages; fi
+if [[ ($CNTLM == 1) ]]; then $(ColorCyan 'Configuring cntlm'); config_cntlm; fi
+if [[ ($SSHD == 1) ]]; then $(ColorCyan 'Configuring sshd'); config_sshd; fi
+if [[ ($X2GO == 1) ]]; then $(ColorCyan 'Configuring x2go'); config_x2go; fi
+if [[ ($CLUSTERSHELL == 1) ]]; then $(ColorCyan 'Configuring clustershell'); config_clustershell; fi
+if [[ ($MONIT == 1) ]]; then $(ColorCyan 'Configuring monit'); config_monit; fi
+if [[ ($SKEL == 1) ]]; then $(ColorCyan 'Configuring skel'); config_skel; fi
+if [[ ($GANGLIA == 1) ]]; then $(ColorCyan 'Configuring ganglia'); config_ganglia; fi
+if [[ ($NETDATA == 1) ]]; then $(ColorCyan 'Configuring netdata'); config_netdata; fi
 
-
-menu
+##################################
+# use an interactive menu
+##################################
+#menu(){
+#echo -ne "
+#Services to configure on: $TARGET
+# $(ColorGreen '1)') proxy
+# $(ColorGreen '2)') network (rc.inet1.conf)
+# $(ColorGreen '3)') ntp
+# $(ColorGreen '4)') dnsmasq
+# $(ColorGreen '5)') firewall
+# $(ColorGreen '6)') nfs
+# $(ColorGreen '7)') nis
+# $(ColorGreen '8)') clustershell
+# $(ColorGreen '9)') x2go
+# $(ColorGreen '10)') shutdown perms
+# $(ColorGreen '11)') crontab
+# $(ColorGreen '12)') packages
+# $(ColorGreen '13)') cntlm
+# $(ColorGreen '14)') sshd
+# $(ColorGreen '15)') monit (depends on already configured cntlm, x2g0, sshd)
+# $(ColorLGreen '16)') /etc/skel
+# $(ColorLGreen '17)') ganglia
+# $(ColorLGreen '18)') netdata
+# $(ColorLGreen '19)') Configure ALL
+# $(ColorYellow '0)') Exit
+# $(ColorCyan 'Choose an option:') "
+#         read a
+#         case $a in
+# 	        1) config_proxy ; menu ;;
+# 	        2) config_network ; menu ;;
+# 	        3) config_ntp ; menu ;;
+# 	        4) config_dnsmasq ; menu ;;
+# 	        5) config_firewall ; menu ;;
+# 	        6) config_nfs ; menu ;;
+# 	        7) config_nis ; menu ;;
+# 	        8) config_clustershell ; menu ;;
+# 	        9) config_x2go ; menu ;;
+# 	        10) config_shutdown_perms ; menu ;;
+# 	        11) config_crontab ; menu ;;
+# 	        12) config_packages ; menu ;;
+# 	        13) config_cntlm ; menu ;;
+# 	        14) config_sshd ; menu ;;
+# 	        15) config_monit ; menu ;;
+# 	        16) config_skel ; menu ;;
+# 	        17) config_ganglia ; menu ;;
+# 	        18) config_netdata ; menu ;;
+# 	        19) all ; menu ;;
+# 		0) exit 0 ;;
+# 		*) echo -e $lred"Wrong option: $a"$clear; exit 1;;
+#         esac
+# }
+# menu
 
 # run services (better done on script that keeps the system up, when the client is on the network)
 #/etc/rc.d/rc.nfsd restart
