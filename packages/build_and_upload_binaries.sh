@@ -56,6 +56,16 @@ setup () {
     fi
 }
 
+aux_slbuild () {
+    cd /tmp
+    wget "$1"
+    wget "$2"
+    slname="$(basename $1)"
+    pkgname="$(basename $2)"
+    slpkg -a "$slname" "$pkgname"
+    unset $VERSION
+}
+
 build_packages () {
     SLPKG="slpkg -s sbo --rebuild"
     $SLPKG keepassx sshfs-fuse autossh xfce4-xkb-plugin flashplayer-plugin slim monit fail2ban corkscrew pip parallel wol valgrind openmpi modules cppcheck iotop xdm-slackware-theme
@@ -63,32 +73,27 @@ build_packages () {
     export OPT=gmetad
     $SLPKG ganglia ganglia-web
     unset OPT
-    # HPC
-    wget https://slackbuilds.org/slackbuilds/14.2/network/munge.tar.gz
-    wget https://github.com/dun/munge/releases/download/munge-0.5.14/munge-0.5.14.tar.xz
-    export VERSION=0.5.14
-    slpkg -a munge.tar.gz munge-0.5.14.tar.xz
+    export VERSION=6.1.0
+    aux_slbuild https://slackbuilds.org/slackbuilds/14.2/academic/octave.tar.gz  https://mirror.cedia.org.ec/gnu/octave/octave-6.1.0.tar.lz
     unset VERSION
-    # hwloc
-    wget https://slackbuilds.org/slackbuilds/14.2/system/hwloc.tar.gz
-    wget https://download.open-mpi.org/release/hwloc/v2.3/hwloc-2.3.0.tar.bz2
+    # HPC
+    export VERSION=0.5.14
+    aux_slbuild https://slackbuilds.org/slackbuilds/14.2/network/munge.tar.gz https://github.com/dun/munge/releases/download/munge-0.5.14/munge-0.5.14.tar.xz
+    unset VERSION
     export VERSION=2.3.0
-    slpkg -a hwloc.tar.gz hwloc-2.3.0.tar.bz2
+    aux_slbuild https://slackbuilds.org/slackbuilds/14.2/system/hwloc.tar.gz https://download.open-mpi.org/release/hwloc/v2.3/hwloc-2.3.0.tar.bz2
     unset VERSION
     groupadd -g 311 slurm
     useradd -u 311 -d /var/lib/slurm -s /bin/false -g slurm slurm
-    wget https://slackbuilds.org/slackbuilds/14.2/network/slurm.tar.gz
-    wget https://download.schedmd.com/slurm/slurm-20.11.2.tar.bz2
     export VERSION=20.11.2
     export HWLOC=yes
     export RRDTOOL=yes
-    slpkg -a slurm.tar.gz slurm-20.11.2.tar.bz2
+    aux_slbuild https://slackbuilds.org/slackbuilds/14.2/network/slurm.tar.gz https://download.schedmd.com/slurm/slurm-20.11.2.tar.bz2
     unset VERSION HWLOC RRDTOOL
-    wget https://slackbuilds.org/slackbuilds/14.2/system/openmpi.tar.gz
-    wget https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.0.tar.bz2
     export VERSION=4.1.0
     export PMI=yes
-    slpkg -a openmpi.tar.gz openmpi-4.1.0.tar.bz2
+    aux_slbuild https://slackbuilds.org/slackbuilds/14.2/system/openmpi.tar.gz https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.0.tar.bz2
+    unset VERSION PMI
 }
 
 
