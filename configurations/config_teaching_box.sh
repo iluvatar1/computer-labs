@@ -3,7 +3,7 @@
 ###############################################################################
 # Main 
 ###############################################################################
-rm -f /var/log/log-install.txt 2>/dev/null
+rm -f /var/log/log-teaching.txt 2>/dev/null
 {
     BDIR="$HOME/repos/computer-labs/"
     source $BDIR/config_functions.sh
@@ -13,4 +13,4 @@ rm -f /var/log/log-install.txt 2>/dev/null
     config_shell_prompt
     #sudo -u live bash fix_tz_xfce4.sh
     install_spack
-} &>> /var/log/log-install.txt
+} &>> /var/log/log-teaching.txt

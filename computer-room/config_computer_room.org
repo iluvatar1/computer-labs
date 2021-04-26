@@ -256,8 +256,8 @@ function config_nfs {
 	    fi
     fi
 	chmod +x /etc/rc.d/rc.nfsd
-	/etc/rc.d/rc.nfsd restart
-	/etc/rc.d/rc.inet2 restart
+	#/etc/rc.d/rc.nfsd restart
+	#/etc/rc.d/rc.inet2 restart
     end_msg "$MSG"
 }
    #+END_SRC
@@ -269,7 +269,7 @@ function config_sshd {
     MSG="Configuring sshd on port 443 on server "
     start_msg "$MSG"
     if [ "$TARGET" = "SERVER" ]; then
-	    if [ x"" = x"$(grep -e '^Port 443' /etc/hosts.allow 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	    if [ x"" = x"$(grep -e '^Port 443' /etc/ssh/sshd_config 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
             backup_file /etc/ssh/sshd_config
             sed -i '/^#Port 22/ i ### NEW ###\nPort 22\nPort 443\nPermitRootLogin yes\nAllowGroups sshgroup root\n### NEW ###\n' /etc/ssh/sshd_config
 	    else
