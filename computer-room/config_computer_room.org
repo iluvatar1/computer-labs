@@ -1073,25 +1073,25 @@ all ()
 ##################################
 # check env vars and configure accordingly
 ##################################
-if [[ ($ALL == 1) ]]; then $(ColorCyan 'Configuring ALL'); all; fi
-if [[ ($PROXY == 1) ]]; then $(ColorCyan 'Configuring Proxy'); config_proxy; fi
-if [[ ($NETWORK == 1) ]]; then $(ColorCyan 'Configuring Network'); config_network; fi
-if [[ ($NTP == 1) ]]; then $(ColorCyan 'Configuring ntp'); config_ntp; fi
-if [[ ($DNSMASQ == 1) ]]; then $(ColorCyan 'Configuring dnsmasq'); config_dnsmasq; fi
-if [[ ($FIREWALL == 1) ]]; then $(ColorCyan 'Configuring firewall'); config_firewall; fi
-if [[ ($NFS == 1) ]]; then $(ColorCyan 'Configuring nfs'); config_nfs; fi
-if [[ ($NIS == 1) ]]; then $(ColorCyan 'Configuring nis'); config_nis; fi
-if [[ ($SHUTDOWN_PERMS == 1) ]]; then $(ColorCyan 'Configuring shutdown perms'); config_shutdown_perms; fi
-if [[ ($CRONTAB == 1) ]]; then $(ColorCyan 'Configuring crontab'); config_crontab; fi
-if [[ ($PACKAGES == 1) ]]; then $(ColorCyan 'Configuring packages'); config_packages; fi
-if [[ ($CNTLM == 1) ]]; then $(ColorCyan 'Configuring cntlm'); config_cntlm; fi
-if [[ ($SSHD == 1) ]]; then $(ColorCyan 'Configuring sshd'); config_sshd; fi
-if [[ ($X2GO == 1) ]]; then $(ColorCyan 'Configuring x2go'); config_x2go; fi
-if [[ ($CLUSTERSHELL == 1) ]]; then $(ColorCyan 'Configuring clustershell'); config_clustershell; fi
-if [[ ($MONIT == 1) ]]; then $(ColorCyan 'Configuring monit'); config_monit; fi
-if [[ ($SKEL == 1) ]]; then $(ColorCyan 'Configuring skel'); config_skel; fi
-if [[ ($GANGLIA == 1) ]]; then $(ColorCyan 'Configuring ganglia'); config_ganglia; fi
-if [[ ($NETDATA == 1) ]]; then $(ColorCyan 'Configuring netdata'); config_netdata; fi
+if [[ ($ALL == 1) ]]; then ColorCyan 'Configuring ALL'; all; fi
+if [[ ($PROXY == 1) ]]; then ColorCyan 'Configuring Proxy'; config_proxy; fi
+if [[ ($NETWORK == 1) ]]; then ColorCyan 'Configuring Network'; config_network; fi
+if [[ ($NTP == 1) ]]; then ColorCyan 'Configuring ntp'; config_ntp; fi
+if [[ ($DNSMASQ == 1) ]]; then ColorCyan 'Configuring dnsmasq'; config_dnsmasq; fi
+if [[ ($FIREWALL == 1) ]]; then ColorCyan 'Configuring firewall'; config_firewall; fi
+if [[ ($NFS == 1) ]]; then ColorCyan 'Configuring nfs'; config_nfs; fi
+if [[ ($NIS == 1) ]]; then ColorCyan 'Configuring nis'; config_nis; fi
+if [[ ($SHUTDOWN_PERMS == 1) ]]; then ColorCyan 'Configuring shutdown perms'; config_shutdown_perms; fi
+if [[ ($CRONTAB == 1) ]]; then ColorCyan 'Configuring crontab'; config_crontab; fi
+if [[ ($PACKAGES == 1) ]]; then ColorCyan 'Configuring packages'; config_packages; fi
+if [[ ($CNTLM == 1) ]]; then ColorCyan 'Configuring cntlm'; config_cntlm; fi
+if [[ ($SSHD == 1) ]]; then ColorCyan 'Configuring sshd'; config_sshd; fi
+if [[ ($X2GO == 1) ]]; then ColorCyan 'Configuring x2go'; config_x2go; fi
+if [[ ($CLUSTERSHELL == 1) ]]; then ColorCyan 'Configuring clustershell'; config_clustershell; fi
+if [[ ($MONIT == 1) ]]; then ColorCyan 'Configuring monit'; config_monit; fi
+if [[ ($SKEL == 1) ]]; then ColorCyan 'Configuring skel'; config_skel; fi
+if [[ ($GANGLIA == 1) ]]; then ColorCyan 'Configuring ganglia'; config_ganglia; fi
+if [[ ($NETDATA == 1) ]]; then ColorCyan 'Configuring netdata'; config_netdata; fi
 
 ##################################
 # use an interactive menu
