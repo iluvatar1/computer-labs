@@ -284,6 +284,19 @@ EOF
     end_msg "$MSG"
 }
 
+clone_or_update_config_repo () {
+    if [ ! -d "$HOME/repos" ]; then mkdir -p $HOME/repos; fi
+    cd $HOME/repos
+    if [ ! -d computer-labs ]; then
+        git clone https://github.com/iluvatar1/computer-labs
+    else
+        cd computer-labs
+        git pull
+    fi
+
+}
+
+
 #####################################################
 # MAIN
 #####################################################
@@ -307,5 +320,6 @@ config_latam_kbd
 config_bashrc
 slpkg_install
 slackpkgmirror
+clone_or_update_config_repo
 
 pm "Done."

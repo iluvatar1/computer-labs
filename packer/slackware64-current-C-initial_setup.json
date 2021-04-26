@@ -8,20 +8,19 @@
       "ssh_pty": true,
       "ssh_username": "root",
       "vm_name": "base_slack_machine",
-      "output_directory": "{{user `output_dir`}}",
-      "attach_snapshot": "After packages",
-      "target_snapshot": "{{user `snapshot_name`}}",
+      "attach_snapshot": "After finished install",
+      "target_snapshot": "After initial config",
       "keep_registered": "true",
-      "skip_export": "false",
-      "format": "ovf",
+      "skip_export": "true",
       "boot_wait": "10s",
+      "force_delete_snapshot": true,
       "export_opts":
       [
         "--manifest",
         "--vsys",
         "0",
         "--description",
-        "Slackware64 current provisioned",
+        "Slackware64 current with initial config",
         "--version",
         "0.1.0"
       ],
@@ -34,7 +33,12 @@
   "provisioners":
   [
     {
-      "script": "{{user `provision_script`}}",
+      "script": "../configurations/vbox_guest_additions.sh",
+      "type": "shell",
+      "valid_exit_codes":[0,2]
+    },
+    {
+      "script": "../configurations/config_slackware.sh",
       "type": "shell",
       "valid_exit_codes":[0,2]
     }

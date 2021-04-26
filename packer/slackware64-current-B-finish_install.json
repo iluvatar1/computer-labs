@@ -8,7 +8,7 @@
       "ssh_username": "root",
       "vm_name": "base_slack_machine",
       "attach_snapshot": "After slackware package install",
-      "target_snapshot": "After setup",
+      "target_snapshot": "After finished install",
       "keep_registered": "true",
       "skip_export": "true",
       "format": "ovf",
@@ -50,18 +50,6 @@
         "echo PermitRootLogin yes >> /etc/ssh/sshd_config<enter>",
         "/etc/rc.d/rc.sshd restart<enter>"
       ]
-    }
-  ] ,
-  "provisioners": [
-    {
-      "script": "../configurations/vbox_guest_additions.sh",
-      "type": "shell",
-      "valid_exit_codes":[0,2]
-    },
-    {
-      "script": "../configurations/config_slackware.sh",
-      "type": "shell",
-      "valid_exit_codes":[0,2]
     }
   ]
 }

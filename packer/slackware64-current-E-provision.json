@@ -8,10 +8,12 @@
       "ssh_pty": true,
       "ssh_username": "root",
       "vm_name": "base_slack_machine",
-      "attach_snapshot": "After setup",
-      "target_snapshot": "After packages",
+      "output_directory": "{{user `output_dir`}}",
+      "attach_snapshot": "After extra packages",
+      "target_snapshot": "{{user `snapshot_name`}}",
       "keep_registered": "true",
-      "skip_export": "true",
+      "skip_export": "false",
+      "format": "ovf",
       "boot_wait": "10s",
       "force_delete_snapshot": true,
       "export_opts":
@@ -33,7 +35,7 @@
   "provisioners":
   [
     {
-      "script": "../configurations/config_packages.sh",
+      "script": "{{user `provision_script`}}",
       "type": "shell",
       "valid_exit_codes":[0,2]
     }
