@@ -69,7 +69,7 @@ useradd -u 310 -d /var/lib/munge -s /bin/false -g munge munge
   unset VERSION
       #+end_src
   - Install munge package
-    ,#+begin_src  shell
+    #+begin_src  shell
 installpkg /tmp/munge-0.5.14-x86_64-1_SBo.tgz
 for dbase in /var/run/ /var/log/ /etc/; do
     chown munge $dbase/munge
@@ -112,6 +112,9 @@ slpkg -s sbo rrdtool numactl
   installpkg /tmp/hwloc*tgz
   # TODO: maybe add numjobs to make
   #+end_src
+
+  #+RESULTS:
+
   + openpmix
     #+begin_src shell
 # openpmix : TODO Test with version 4

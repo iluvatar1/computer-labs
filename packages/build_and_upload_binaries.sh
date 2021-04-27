@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+#set -euo pipefail
 
 ##
 # Color  Variables
@@ -67,9 +67,28 @@ aux_slbuild () {
 }
 
 build_packages () {
+    # fix slpkg downgrade checking with no installed version. Fixes authossh and nx-libs
+    sed -i.bck 's/ins_ver = "0"/return False/' /usr/lib64/python3.9/site-packages/slpkg/sbo/slackbuild.py
+
+    # Define SLPKG command
     SLPKG="slpkg -s sbo --rebuild"
-    $SLPKG keepassx sshfs-fuse autossh xfce4-xkb-plugin flashplayer-plugin slim monit fail2ban corkscrew pip parallel wol valgrind openmpi modules cppcheck iotop xdm-slackware-theme
-    $SLPKG libuv uuid mongo-c-driver PyYAML arno-iptables-firewall monit cntlm x2goserver confuse rrdtool numactl valkyrie
+
+    PKGS=(blas lapack keepassx sshfs-fuse autossh slim monit fail2ban corkscrew
+    valgrind modules cppcheck iotop xdm-slackware-theme libuv uuid
+    mongo-c-driver PyYAML arno-iptables-firewall cntlm confuse
+    rrdtool numactl vscode-bin wol)
+
+    for pkgname in ${PKGS[*]}; do
+        echo $pkgname
+        $SLPKG $pkgname
+    done
+    # Particular builds
+    # nx-libs lite
+    wget https://slackbuilds.org/slackbuilds/14.2/libraries/nx-libs.tar.gz
+    wget https://code.x2go.org/releases/source/nx-libs/nx-libs-3.5.99.22-lite.tar.gz -O nx-libs-3.5.99.22-full.tar.gz
+    VERSION=3.5.99.22 slpkg -a nx-libs.tar.gz nx-libs-3.5.99.22-full.tar.gz
+    slpkg -s sbo x2goserver
+    #
     export OPT=gmetad
     $SLPKG ganglia ganglia-web
     unset OPT
@@ -105,15 +124,21 @@ cd /tmp
 rm -f *tgz *txz
 
 # build packages
+pm "Building packages ..."
 build_packages
 
 # create PACKAGES.txt file
-ls *tgz *txz > PACKAGES.txt
+pm "Getting the built packages list ..."
+ls *tgz *txz > PACKAGES.txt 2> /dev/null
 
-# read auth config: USER, PASSWD, IP
-source AUTH.txt
+# read auth config: USER, PASSWD, IP. YOU WILL HAVE TO COPY THE PUBLIC KEY
+echo "Do not forget to copy the public id into the server"
+USER=${USER:-oquendo}
+IP=${IP:-localhost}
 
 # upload both packages and PACKAGES.txt
+pm "Sending packages ..."
 for a in *tgz *txz PACKAGES.txt; do
-    rsync -e 'ssh ' -av $a $USER:$PASSWD@$IP:/var/www/html/PACKAGES/slackware64-current/$a
+    pm "$a ..."
+    rsync -e 'ssh -o StrictHostKeyChecking=no' -av $a $USER@$IP:/var/www/html/PACKAGES/slackware64-current/$a
 done
