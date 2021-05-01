@@ -6,7 +6,7 @@
 rm -f /var/log/log-teaching.txt 2>/dev/null
 {
     BDIR="$HOME/repos/computer-labs/"
-    source $BDIR/config_functions.sh
+    source $BDIR/configurations/config_functions.sh
     # Configure teaching box
     check_live_user
     sudo -u live bash install_and_setup_doom_emacs.sh

@@ -47,6 +47,8 @@ install_spack () {
 	    mkdir /home/live/repos/
 	    cd /home/live/repos/ || exit 1
 	    git clone https://github.com/spack/spack
+        cd spack
+        git checkout releases/v0.16
 	    echo "source /home/live/repos/spack/share/spack/setup-env.sh" >> /home/live/.bashrc
 	    chown -R live /home/live /home/live/repos /home/live/.bashrc
 	    echo "-> Done"
