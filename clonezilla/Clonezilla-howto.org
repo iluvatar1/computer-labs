@@ -20,11 +20,13 @@
   - Use savedisk to save local disk to image
   - use the default name or modify it
   - choose the disk to clone
+  - Leeave unchanged (if you wish) the default compression
   - skip checking (but better check if you are getting errors when
     creating the image)
-  - select check the saved image
+  - But better check the saved image, so accept checking the image
   - Do not encrypt
   - choose reboot if you want
+  - Press enter
   DONE
 
   Also it can be done with the following procedure:
@@ -36,7 +38,38 @@
 /usr/sbin/ocs-sr -q2 -c -j2 -z1p -i 4096 -fsck-y -senc -p choose savedisk IMAGENAME sda
      #+end_src
 
+** TODO Use packer for this
+
 * Cloning an image to several computers using clonezilla server
+** lite server
+- Boot the same clonezilla live iso
+- When booting, choose alternative modes to have better resolution.
+- Choose the language
+- Start clonezilla
+- Select lite-server
+- start start lite-server
+- netboot (or both)
+- auto-detect or use-existing-dhcpd
+- select localdev or ssh server or ...
+- nofsck (to skip) or check if you are having problems
+- Select the correct dir with the image
+- Begginer / expert
+- Massive deployment
+- From image
+- restore disk
+- Select the image (should be detected)
+- Select the partition
+- Yes check the image
+- reboot
+- Select the mode: multicast, broadcast, bittorrent
+- Select the number of clients to wait, the time, or boot
+- Here clonezilla checks the image and then starts to wait
+- Boot clients using pxe
+
+Direct command
+#+begin_src shell
+ocs-live-feed-img -cbm netboot -dm auto-detect -lscm massive-deployment -mdst from-image -g auto -e1 auto -e2 -r -x -j2 -sc0 -p reboot -md multicast --time-to-wait 120 start 2021-04-20-21-img1 sda
+#+end_src
 ** Drbl server
 - Burn drbl-server live on a usb
 - Boot the computer-server from the usb
@@ -67,32 +100,3 @@
 - Boot clients using net PXE
 DONE
 
-** lite server
-- Boot the same clonezilla live iso
-- When booting, choose alternative modes to have better resolution.
-- Choose the language
-- Start clonezilla
-- Select lite-server
-- start start lite-server
-- netboot (or both)
-- auto-detect or use-existing-dhcpd
-- select localdev or ssh server or ...
-- nofsck (to skip) or check if you are having problems
-- Select the correct dir with the image
-- Begginer / expert
-- Massive deployment
-- From image
-- restore disk
-- Select the image (should be detected)
-- Select the partition
-- Yes check the image
-- reboot
-- Select the mode: multicast, broadcast, bittorrent
-- Select the number of clients to wait, the time, or boot
-- Here clonezilla checks the image and then starts to wait
-- Boot clients using pxe
-
-Direct command
-#+begin_src shell
-ocs-live-feed-img -cbm netboot -dm auto-detect -lscm massive-deployment -mdst from-image -g auto -e1 auto -e2 -r -x -j2 -sc0 -p reboot -md multicast --time-to-wait 120 start 2021-04-20-21-img1 sda
-#+end_src
