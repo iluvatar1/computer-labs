@@ -1,0 +1,48 @@
+{
+  "builders": [
+    {
+      "boot_command": [
+        "<wait><enter><wait30s>",
+        "<wait><enter>",
+        "<wait><enter><wait5s>",
+        "<wait><enter>",
+        "<down><down><down><down><wait><enter>",
+        "<wait><enter><wait2s>",
+        "<wait><enter>",
+        "<wait><enter>",
+        "<wait><enter>",
+        "<wait>Y<enter><wait2s>",
+        "<wait><down><enter><wait2s>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><wait>{{user `SSH_SERVER_IP`}}<wait><enter>",
+        "<bs><bs><bs><wait>{{user `SSH_SERVER_PORT`}}<wait><enter>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><wait>{{user `SSH_USER`}}<wait><enter>",
+        "<wait><enter>",
+        "<wait><enter>"
+      ],
+      "type": "virtualbox-iso",
+      "guest_os_type": "Linux26_64",
+      "iso_interface": "sata",
+      "iso_url": "{{user `ISO_URL`}}",
+      "iso_checksum": "{{user `ISO_MD5SUM`}}",
+      "ssh_username": "root",
+      "shutdown_command": "/sbin/shutdown -h now",
+      "skip_export": true,
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--memory",
+          2000
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--cpus",
+          2
+        ]
+      ],
+      "vm_name": "clonezilla lite server"
+    }
+  ],
+  "description": "Temporal clonezilla lite server "
+}

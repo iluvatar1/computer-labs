@@ -1,0 +1,11 @@
+{
+    "snapshot_name": "Clonezilla client ready",
+    "output_dir": "{{env `HOME`}}/Downloads/clonezilla_client",
+    "clonezilla_iso": "{{env `HOME`}}/Downloads/Clonezilla/clonezilla-live-2.7.1-22-amd64.iso",
+    "bridge_interface": "en0: Wi-Fi (AirPort)",
+    "SSH_SERVER_IP": "192.168.1.17",
+    "SSH_SERVER_PORT": "443",
+    "SSH_DIR": "oquendo/Downloads",
+    "SSH_USER": "oquendo",
+    "SSH_PASSWORD": "PASSWORD"
+}
