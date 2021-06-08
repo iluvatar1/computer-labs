@@ -6,18 +6,33 @@
         "<wait><enter>",
         "<wait><enter><wait5s>",
         "<wait><enter>",
-        "<down><down><down><down><wait><enter>",
-        "<wait><enter><wait2s>",
+        "<wait3s><down><down><down><down><wait3s><enter>",
+	"<wait><enter><wait>",
         "<wait><enter>",
+        "<wait><enter><wait>",
+        "<wait>Y<enter><wait10s>",
+        "<wait><down><wait><enter><wait2s>",
+        "<wait><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><wait>{{user `SSH_SERVER_IP`}}<wait><enter>",
+        "<wait><bs><bs><bs><wait2s>{{user `SSH_SERVER_PORT`}}<wait><enter>",
+        "<wait><bs><bs><bs><bs><bs><bs><bs><bs><bs><wait>{{user `SSH_USER`}}<wait><enter>",
         "<wait><enter>",
-        "<wait><enter>",
-        "<wait>Y<enter><wait2s>",
-        "<wait><down><enter><wait2s>",
-        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><wait>{{user `SSH_SERVER_IP`}}<wait><enter>",
-        "<bs><bs><bs><wait>{{user `SSH_SERVER_PORT`}}<wait><enter>",
-        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><wait>{{user `SSH_USER`}}<wait><enter>",
-        "<wait><enter>",
-        "<wait><enter>"
+          "<wait><enter>",
+          "<wait>yes<enter>",
+          "<wait>{{user `SSH_PASSWORD`}}<enter>",
+          "<wait><enter>",
+          "<wait><enter>",
+          "<wait><enter>",
+          "<wait><enter>",
+          "<wait><enter>",
+          "<wait><enter>",
+          "<wait><enter>",
+          "<wait><down><enter>",
+          "<wait><enter>",
+          "<wait><enter>",
+          "<wait><down><down><enter>",
+	  "<wait><bs>{{user `NUM_CLIENTS`}}<enter><wait5s>",
+	  "<wait1h>"
+
       ],
       "type": "virtualbox-iso",
       "guest_os_type": "Linux26_64",
@@ -39,6 +54,12 @@
           "{{.Name}}",
           "--cpus",
           2
+        ],
+        [
+          "modifyvm", "{{.Name}}", "--nic1", "bridged", "--bridgeadapter1", "eth1"
+        ],
+        [
+          "modifyvm", "{{.Name}}", "--macaddress1", "080027D4CA13"
         ]
       ],
       "vm_name": "clonezilla lite server"

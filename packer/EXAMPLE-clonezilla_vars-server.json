@@ -4,5 +4,6 @@
     "SSH_SERVER_IP": "192.168.1.1",
     "SSH_SERVER_PORT": "443",
     "SSH_USER": "root",
-    "SSH_PASSWORD": "PASSWORD"
+    "SSH_PASSWORD": "PASSWORD",
+    "NUM_CLIENTS": "1"
 }
