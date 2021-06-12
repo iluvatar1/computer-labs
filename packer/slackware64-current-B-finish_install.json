@@ -19,9 +19,12 @@
         "<wait>s<enter>",
         "<wait><enter>",
         "<wait><enter>",
-        "<wait><enter>",
         "<wait><enter><wait5s>",
         "<wait><enter>",
+
+        "<wait><enter>",
+        "<wait><enter>",
+
         "<wait><enter>",
         "<wait>slackware<enter>",
         "<wait>example.org<enter>",
@@ -29,12 +32,16 @@
         "<wait><enter>",
         "<wait><enter>",
         "<wait><enter>",
-        "<wait><down><down><down><down><down><down><down><down><down><down><down><down><down><spacebar>",
+
+        "<wait><pageDown><pageDown><up><spacebar>",
         "<wait><down><down><down><down><down><spacebar>",
         "<wait><enter>",
+
         "<wait><enter>",
+
         "<wait>n<enter>",
         "<wait><pageDown><pageDown><pageDown><pageDown><pageDown><pageDown><pageDown><down><down><down><down><enter>",
+
         "<wait>v<enter>",
         "<wait><enter>",
         "<wait><enter>",
@@ -43,12 +50,19 @@
         "<wait><enter>",
         "<wait><enter>",
         "<wait>e<wait><enter><wait><enter>",
-        "<wait><enter>",
-        "<wait10s><enter><wait25s>",
+        "<wait>n",
+
+        "reboot<enter><wait40s>",
         "root<enter>",
         "<wait>vagrant<enter>",
         "echo PermitRootLogin yes >> /etc/ssh/sshd_config<enter>",
-        "/etc/rc.d/rc.sshd restart<enter>"
+        "/etc/rc.d/rc.sshd restart<enter>",
+        "liloconfig<wait><enter><down><wait><enter><wait><enter><wait><enter><wait><enter><wait><enter><wait8s>"
+      ],
+      "vboxmanage":
+      [
+        [ "modifyvm", "{{.Name}}", "--recording", "on"],
+        [ "modifyvm", "{{.Name}}", "--recordingfile", "./videocap.webm"]
       ]
     }
   ]

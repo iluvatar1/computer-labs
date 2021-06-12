@@ -1,16 +1,73 @@
+#+STARTUP: overview
 #+TITLE: Readme Packer
 
+* Instructions
+1. Create a basic virtual machine with a virtual disc of 79Gb. Setup a iso
+   device with the slackware install iso. This will be easily done with the
+   following command:
+   #+begin_src shell
+bash create_base_machine.sh
+   #+end_src
+2. Install the first part using
+   #+begin_src shell
+packer build -on-error=ask -timestamp-ui slackware64-current-A-install.json
+   #+end_src
+    This will stop just before configuring the system (after full system
+   install). *Create an snapshot called =After slackware package install=*
+
+   *NOTE:* The system is using EFI but secure boot must be disabled.
+
+   Check the following for setting up the bios for legacy mode (not needed, only
+   disable secure boot):
+   - Dell:
+     - https://www.youtube.com/watch?v=HN2hrrSVZJw
+     - https://www.youtube.com/watch?v=dupH2YrD6OY
+     - https://www.youtube.com/watch?v=DtlMk5_KFlI
+     - https://www.youtube.com/watch?v=MmPx9TZOWgE
+     - Secure boot -> Secure boot enable -> Disable
+     - General -> Advanced boot options -> Click enable legacy option ROMs
+     - General -> Boot sequence -> Legacy
+     - Check: System configuration -> SATA Operation - AHCI
+   - Hewlett-Packard
+     - https://www.youtube.com/watch?v=rG3zR0AAZYg
+     - Secure boot option, legacy support enable y secure boot disable, guardar
+       y salir . De pronto al reiniciar pide un codigo, escribirlo (sale en la
+       pantalla)
+     - En advanced, boot options, bajar la flecha de la derecha y seleccionar el
+       menu legacy boot options
+     - https://h30434.www3.hp.com/t5/Notebook-Operating-System-and-Recovery/Impossible-to-Disable-Secure-Boot/td-p/5543629/page/2
+3. Finish install using the following
+   #+begin_src shell
+packer build -on-error=ask -timestamp-ui slackware64-current-B-finish_install.json
+   #+end_src
+   NOTE: The goal of having separated the package install and the system config
+   is to be able to test the system config that sometimes changes between
+   different slackware versions. Waiting for the whole package install takes a
+   lot of time.
+4. This step configures several system parts like the runlevel, the boot time
+   and so on:
+   #+begin_src shell
+packer build -on-error=ask -timestamp-ui slackware64-current-C-initial_setup.json
+   #+end_src
+   Check the =../configurations/{config_slackware,vbox_guest_additions}.sh= scripts.
+5. Now install the packages
+   #+begin_src shell
+packer build -on-error=ask -timestamp-ui slackware64-current-D-install_packages.json
+   #+end_src
+   This tries to use binaries already compiled and uploaded to a given mirror.
+   Check the scrip =../configurations/config_packages.sh=
+6. Now it comes the configuration of the slackware box either as a virtual
+   machine or as a client for the computer room.
+   - Client for the computer room:
+     #+begin_src shell
+packer build -on-error=ask -timestamp-ui -var-file=provision_vars-client.json slackware64-current-E-provision.json
+     #+end_src
+   - Virtualbox machine for sharing:
+     #+begin_src shell
+packer build -on-error=ask -timestamp-ui -var-file=provision_vars-teaching.json slackware64-current-E-provision.json
+     #+end_src
+
 * Partitions
-** Teaching box
-Uses a basic 50 Gb disc.
-
-The following creates a single primary partition with a msdos table
-#+name: teaching-partition
-#+begin_src sh
-        "<wait>o<enter>n<enter>p<enter>1<enter><enter><enter>w<enter>",
-#+end_src
-
-** Client machine salafis
 Use a basic 80 Gb disc.
 
 For this it is better to use several partitions, and =opt= will be put at the
@@ -19,36 +76,8 @@ end to be resized, this will use a gpt partition table, with the following sizes
 | name | dev  | size (G) |
 |------+------+----------|
 | root | sda1 |       30 |
-| swap | sda2 |        5 |
+| swap | sda2 |        4 |
 | tmp  | sda3 |       10 |
-| home | sda4 |       25 |
+| home | sda4 |       20 |
 | opt  | sda5 |       10 |
 |------+------+----------|
-
-#+name: client-partition
-#+begin_src sh
-        "<wait>g<enter>n<enter>1<enter><enter>+30G<enter>",
-        "n<enter>2<enter><enter>+5G<enter>t<enter>2<enter>19<enter>",
-        "n<enter>3<enter><enter>+10G<enter>",
-        "n<enter>4<enter><enter>+25G<enter>",
-        "n<enter>5<enter><enter><enter>w<enter>",
-#+end_src
-
-* Target selections
-** Virtualbox
-Since there is only one partition, then it is very easy
-#+name: teaching-targets
-#+begin_src sh
-        "<wait>t<wait><enter><wait><enter>f<enter><wait><enter><wait3><enter>",
-#+end_src
-
-** DONE Client
-Now we have 5 partitions, so we need more work
-#+name: client-targets
-#+begin_src sh
-        "a<enter><enter><enter><wait4s><enter>",
-        "<enter><enter><enter><wait3s>",
-        "<down><enter><enter><enter><wait3s>/tmp<enter>",
-        "<down><down><enter><enter><enter><wait3s>/home<enter>",
-        "<down><down><down><enter><enter><wait3s>/opt<enter><enter>",
-#+end_src
