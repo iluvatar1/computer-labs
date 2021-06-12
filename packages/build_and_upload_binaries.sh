@@ -73,7 +73,7 @@ build_packages () {
     # Define SLPKG command
     SLPKG="slpkg -s sbo --rebuild"
 
-    PKGS=(blas lapack keepassx sshfs-fuse autossh slim monit fail2ban corkscrew
+    PKGS=(blas lapack keepassx sshfs-fuse autossh slim fail2ban corkscrew
     valgrind modules cppcheck iotop xdm-slackware-theme libuv uuid
     mongo-c-driver PyYAML arno-iptables-firewall cntlm confuse
     rrdtool numactl vscode-bin wol)
@@ -87,11 +87,22 @@ build_packages () {
     wget https://slackbuilds.org/slackbuilds/14.2/libraries/nx-libs.tar.gz
     wget https://code.x2go.org/releases/source/nx-libs/nx-libs-3.5.99.22-lite.tar.gz -O nx-libs-3.5.99.22-full.tar.gz
     VERSION=3.5.99.22 slpkg -a nx-libs.tar.gz nx-libs-3.5.99.22-full.tar.gz
-    slpkg -s sbo x2goserver
+    # x2go
+    wget https://slackbuilds.org/slackbuilds/14.2/network/x2goserver.tar.gz
+    wget http://ponce.cc/slackware/sources/repo/x2goserver-20201227_08aa5e6.tar.xz
+    VERSION=20201227_08aa5e6 slpkg -a x2goserver.tar.gz x2goserver-20201227_08aa5e6.tar.xz
+    echo "/usr/bin/xfconf-query -c xfwm4 -p /general/use_compositing -s false" > /etc/x2go/xinitrc.d/xfwm4_no_compositing
+    chmod +x /etc/x2go/xinitrc.d/xfwm4_no_compositing
+    #slpkg -s sbo x2goserver
+    # tigervnc for vnc
+    slackpkg install tigervnc
     #
     export OPT=gmetad
     $SLPKG ganglia ganglia-web
     unset OPT
+    export VERSION=5.28.0
+    aux_slbuild https://slackbuilds.org/slackbuilds/14.2/system/monit.tar.gz https://mmonit.com/monit/dist/monit-5.28.0.tar.gz
+    unset VERSION
     export VERSION=6.1.0
     aux_slbuild https://slackbuilds.org/slackbuilds/14.2/academic/octave.tar.gz  https://mirror.cedia.org.ec/gnu/octave/octave-6.1.0.tar.lz
     unset VERSION
