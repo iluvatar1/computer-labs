@@ -111,4 +111,14 @@ install_perf
 # install some big packages already compiled by alien
 slpkg -s alien libreoffice inkscape vlc poppler-compat
 
+# Configure x2go to avoid using compositing with xfce4
+TNAME=/etc/x2go/xinitrc.d/xfwm4_no_compositing
+if ! -f $TNAME; then
+    echo "/usr/bin/xfconf-query -c xfwm4 -p /general/use_compositing -s false" > $TNAME
+fi
+if ! -x $TNAME; then
+    chmod +x $TNAME
+fi
+
+# remove already installed packages
 rm -f /tmp/*tgz 2>/dev/null
