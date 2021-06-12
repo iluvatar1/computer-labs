@@ -1,3 +1,5 @@
+#+STARTUP: overview
+
 * Other tools
   - Gparted: https://gparted.org/
   - kdeploy3: 
@@ -9,7 +11,10 @@
   - https://community.spiceworks.com/topic/861958-clonezilla-scripting
   - https://clonezilla.org/show-live-doc-content.php?topic=clonezilla-live/doc/07_Customized_script_with_PXE
 * Cloning a device into an image
-  Based on Clonezilla live (not the server)
+Currently there is a packer config file that automates this, inside packer/
+directory. Use it.
+** Clonezilla live (manual)
+Based on Clonezilla live (not the server)
   - When booting, choose alternative modes to have better resolution.
   - Choose the language
   - Start clonezilla
@@ -38,10 +43,23 @@
 /usr/sbin/ocs-sr -q2 -c -j2 -z1p -i 4096 -fsck-y -senc -p choose savedisk IMAGENAME sda
      #+end_src
 
-** TODO Use packer for this
 
 * Cloning an image to several computers using clonezilla server
-** lite server
+Currently there is a packer config to automate this, inside packer/ directory.
+Use it
+** lite server (manual)
+*** Direct command  (-sc0? maybe is checking image, remove it)
+1. Mount the remote/external partimag into /home/partimag
+   #+begin_src shell
+sshfs -p 443 root@192.168.10.1:/home/partimag /home/partimag
+   #+end_src
+2. Execute the following command (maybe checl =--clients-to-wait 1=,
+   =--max-time-to-wait 300=, and remember that =-sc0= means no checking image)
+   #+begin_src shell
+ocs-live-feed-img -cbm netboot -dm auto-detect -lscm massive-deployment -mdst from-image -g auto -e1 auto -e2 -r -x -j2 -sc0 -p reboot -md multicast --time-to-wait 120 start 2021-04-20-21-img1 sda
+   #+end_src
+3. Boot the clients using network boot
+*** Manual (Packer?)
 - Boot the same clonezilla live iso
 - When booting, choose alternative modes to have better resolution.
 - Choose the language
@@ -66,11 +84,7 @@
 - Here clonezilla checks the image and then starts to wait
 - Boot clients using pxe
 
-Direct command
-#+begin_src shell
-ocs-live-feed-img -cbm netboot -dm auto-detect -lscm massive-deployment -mdst from-image -g auto -e1 auto -e2 -r -x -j2 -sc0 -p reboot -md multicast --time-to-wait 120 start 2021-04-20-21-img1 sda
-#+end_src
-** Drbl server
+** Drbl server (manual)
 - Burn drbl-server live on a usb
 - Boot the computer-server from the usb
 - Select other boot modes -> kms (for better screen resolution)
