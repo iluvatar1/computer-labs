@@ -272,6 +272,8 @@ function config_sshd {
 	    if [ x"" = x"$(grep -e '^Port 443' /etc/ssh/sshd_config 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
             backup_file /etc/ssh/sshd_config
             sed -i '/^#Port 22/ i ### NEW ###\nPort 22\nPort 443\nPermitRootLogin yes\nAllowGroups sshgroup root\n### NEW ###\n' /etc/ssh/sshd_config
+            echo "ClientAliveInterval 120" >> /etc/ssh/sshd_config
+            echo "ClientAliveCountMax 30" >> /etc/ssh/sshd_config
 	    else
             echo "sshd already configured"
 	    fi
