@@ -483,3 +483,7 @@ chmod +x /etc/rc.d/rc.slurm
 /etc/rc.d/rc.slurm start
   #+end_src
 
+
+* To check
+- Node health check: https://github.com/mej/nhc
+- Install all with spack
