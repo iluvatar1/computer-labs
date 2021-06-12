@@ -31,3 +31,13 @@ CHECK process gmond matching gmond
 check process netdata with pidfile /run/netdata.pid
       start program = "/etc/rc.d/rc.netdata start"
       stop  program = "/etc/rc.d/rc.netdata stop"
+
+check system $HOST
+      if loadavg (1min) > 4 then alert
+      if loadavg (5min) > 2 then alert
+      if cpu usage > 95% for 10 cycles then alert
+      if memory usage > 75% then alert
+      if swap usage > 25% then alert
+      if loadavg (1min) per core > 0.80 for 3 cycles then exec "/sbin/reboot -f "
+      if loadavg (5min) per core > 0.80 for 5 cycles then exec "/sbin/reboot -f "
+      if memory usage > 97% for 3 cycles then exec "/sbin/reboot -f "
