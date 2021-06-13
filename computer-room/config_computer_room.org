@@ -1071,8 +1071,8 @@ all ()
     config_netdata
     config_firewall
     config_cntlm
-    config_network
-    config_proxy
+    #config_network
+    #config_proxy
 }
 
 ##################################
