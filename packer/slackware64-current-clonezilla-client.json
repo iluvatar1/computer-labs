@@ -1,42 +1,42 @@
 {
-  "builders":
-  [
+  "builders": [
     {
       "type": "virtualbox-vm",
-      "shutdown_command": "shutdown -h now",
-      "ssh_password": "vagrant",
-      "ssh_pty": true,
-      "ssh_username": "root",
+      "disable_shutdown": false,
+      "shutdown_command": "",
+      "shutdown_timeout": "5s",
       "vm_name": "base_slack_machine",
-      "output_directory": "{{user `output_dir`}}",
+      "keep_registered": true,
+      "skip_export": true,
+      "guest_additions_mode": "disable",
+      "virtualbox_version_file": "",
+      "communicator": "none",
+      "ssh_username": "root",
       "attach_snapshot": "Client configured",
-      "target_snapshot": "{{user `snapshot_name`}}",
-      "keep_registered": "true",
-      "skip_export": "false",
-      "format": "ovf",
-      "boot_wait": "5s",
-      "force_delete_snapshot": true,
-      "export_opts":
-      [
-        "--manifest",
-        "--vsys",
-        "0",
-        "--description",
-        "Slackware64 current provisioned",
-        "--version",
-        "0.1.0"
-      ],
+      "boot_wait": "15s",
       "vboxmanage": [
         [
-          "storageattach", "{{.Name}}", "--storagectl", "IDE", "--port", "0", "--device", "1", "--type", "dvddrive", "--medium", "{{user `clonezilla_iso`}}"
+          "modifyvm", "{{.Name}}", "--firmware", "bios"
+        ],
+        [
+          "storageattach", "{{.Name}}", "--storagectl", "IDE Controller", "--port", "0", "--device", "1",
+          "--type", "dvddrive", "--medium", "{{user `clonezilla_iso`}}"
         ],
         [
           "modifyvm", "{{.Name}}", "--nic1", "bridged", "--bridgeadapter1", "{{user `bridge_interface`}}"
+        ],
+        [
+          "modifyvm", "{{.Name}}", "--boot1", "dvd", "--boot2", "disk",
+          "--boot3", "none", "--boot4", "none"
         ]
       ],
       "vboxmanage_post": [
         [
-          "storageattach", "{{.Name}}", "--storagectl", "IDE", "--port", "0", "--device", "1", "--type", "dvddrive", "--medium", "emptydrive"
+          "modifyvm", "{{.Name}}", "--firmware", "efi"
+        ],
+        [
+          "storageattach", "{{.Name}}", "--storagectl", "IDE Controller", "--port", "0", "--device", "1",
+          "--type", "dvddrive", "--medium", "emptydrive"
         ],
         [
           "modifyvm", "{{.Name}}", "--nic1", "nat"
@@ -45,33 +45,33 @@
 
       "boot_command":
       [
-        "<enter><wait30s>",
+        "<enter><wait60s>",
+        "<enter><wait2s>",
+        "<enter><wait10s>",
         "<enter><wait3s>",
-        "<enter><wait5s>",
-        "<enter><wait1s>",
-        "<enter><wait1s>",
+        "<enter><wait3s>",
         "<down><enter><wait3s>",
         "<enter><wait20s>",
-        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><wait3s>{{ user `SSH_SERVER_IP` }}<wait3s><enter><wait>",
-        "<bs><bs><bs><bs><wait3s>{{ user `SSH_SERVER_PORT` }}<enter><wait>",
-        "<bs><bs><bs><bs><bs><bs><wait3s>{{ user `SSH_USER` }}<enter><wait>",
-        "<bs><bs><bs><bs><bs><bs><bs><bs><wait3s>{{ user `SSH_DIR` }}<enter><wait>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><wait>{{ user `SSH_SERVER_IP` }}<wait><enter><wait>",
+        "<bs><bs><bs><bs><wait>{{ user `SSH_SERVER_PORT` }}<wait><enter><wait>",
+        "<bs><bs><bs><bs><bs><bs><wait>{{ user `SSH_USER` }}<wait><enter><wait>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><wait>{{ user `SSH_DIR` }}<wait><enter><wait>",
         "<enter><wait1s>",
         "yes<enter><wait3s>",
         "{{ user `SSH_PASSWORD` }}<enter><wait3s>",
         "<enter><wait2s>",
         "<enter><wait>",
         "<enter><wait3s>",
-        "<enter><wait10s>",
+        "<enter><wait18s>",
         "<enter><wait3s>",
         "<enter><wait>",
         "<enter><wait>",
         "<enter><wait>",
         "<enter><wait>",
         "<down><down><down><enter><wait>",
-        "<enter><wait15s>",
+        "<enter><wait25s>",
         "y<enter>",
-        "<wait1h>"
+        "<wait20m>"
       ]
     }
   ]

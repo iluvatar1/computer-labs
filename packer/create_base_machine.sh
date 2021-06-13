@@ -20,7 +20,7 @@ VBoxManage modifyvm $MACHINENAME --memory 2048 --vram 128
 VBoxManage modifyvm $MACHINENAME --nic1 nat
 #Create Disk and connect Iso
 VBoxManage createhd --filename "$DISKPATH" --size 80000 --format VDI
-VBoxManage storagectl $MACHINENAME --name "SATA Controller" --add sata --controller IntelAhci
+VBoxManage storagectl $MACHINENAME --name "SATA Controller" --add sata --controller IntelAhci --portcount 3 --bootable on
 VBoxManage storageattach $MACHINENAME --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium  "$DISKPATH"
 VBoxManage storagectl $MACHINENAME --name "IDE Controller" --add ide --controller PIIX4
 #VBoxManage storageattach $MACHINENAME --storagectl "IDE Controller" --port 1 --device 0 --type dvddrive --medium `pwd`/debian.iso

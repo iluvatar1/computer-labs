@@ -8,6 +8,12 @@
    #+begin_src shell
 bash create_base_machine.sh
    #+end_src
+
+   Hint: For recording virtual box in the enxt steps, use
+   #+begin_src shell
+        [ "modifyvm", "{{.Name}}", "--recording", "on"],
+        [ "modifyvm", "{{.Name}}", "--recordingfile", "./clonezillaclient.webm"]
+   #+end_src
 2. Install the first part using
    #+begin_src shell
 packer build -on-error=ask -timestamp-ui slackware64-current-A-install.json
