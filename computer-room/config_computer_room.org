@@ -76,7 +76,7 @@ EOF
     else
 	echo "#    -> already configured."
     fi
-    source /root/.bashrc
+    #source /root/.bashrc
     end_msg "$MSG"
 }
    #+END_SRC
@@ -108,8 +108,8 @@ function config_network {
 	    if [ ! -f "/etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh" ] || [ $FORCE -eq 1 ]; then
 	        cp ${BDIR}/${FDIR}/CLIENT-90networkmanagerhook.sh /etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh
 	        chmod +x /etc/rc.d/rc.networkmanager
-	        bash /etc/rc.d/rc.networkmanager restart
-	        /etc/rc.d/rc.inet2 restart
+	        #bash /etc/rc.d/rc.networkmanager restart
+	        #/etc/rc.d/rc.inet2 restart
 	    else
 	        echo "#    -> already configured."
 	    fi
