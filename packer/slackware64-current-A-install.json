@@ -2,11 +2,10 @@
   "builders": [
     {
       "type": "virtualbox-vm",
-      "disable_shutdown": true,
+      "disable_shutdown": false,
       "shutdown_command": "",
-      "shutdown_timeout": "1h",
+      "shutdown_timeout": "5s",
       "vm_name": "base_slack_machine",
-      "target_snapshot": "After slackware package install",
       "keep_registered": true,
       "skip_export": true,
       "guest_additions_mode": "disable",
@@ -43,7 +42,9 @@
         "<wait>f<spacebar>kk<spacebar><enter>",
         "<wait>f<enter>",
 
-        "<wait25m>"
+        "<wait25m>",
+
+        "<wait>"
       ],
       "vboxmanage": [
         [
@@ -169,6 +170,14 @@
           "--medium", "emptydrive"
         ]
       ]
+    }
+  ],
+  "provisioners":
+  [
+    {
+      "type": "shell-local",
+      "environment_vars": ["VMNAME={{.Name}}"],
+      "inline": ["/usr/local/bin/VBoxManage snapshot base_slack_machine take 'After slackware package install'"]
     }
   ]
 }
