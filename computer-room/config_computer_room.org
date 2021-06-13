@@ -92,13 +92,13 @@ function config_network {
 	    if [ x"" == x"$(grep 127.0.0.1 /etc/resolv.conf.head 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	        echo "Setting up resolv.conf.head "
 	        TFILE="/etc/resolv.conf.head"
-	        copy_config "$FDIR/SERVER-etc-resolv.conf.head" "$TFILE"
+	        copy_config "${BDIR}/${FDIR}/SERVER-etc-resolv.conf.head" "$TFILE"
 	    fi	
 	    #if [ $(pattern_not_present "$SERVERIP" "/etc/rc.d/rc.inet1.conf") ]; then 
 	    if [ x"" == x"$(grep $SERVERIP /etc/rc.d/rc.inet1.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
 	        bash /etc/rc.d/rc.networkmanager stop
 	        chmod -x /etc/rc.d/rc.networkmanager
-	        copy_config "$FDIR/SERVER-etc-rc.d-rc.inet1.conf" /etc/rc.d/rc.inet1.conf
+	        copy_config "${BDIR}/${FDIR}/SERVER-etc-rc.d-rc.inet1.conf" /etc/rc.d/rc.inet1.conf
 	    else
 	        echo "Already configured, just restarting services ..."
 	    fi
@@ -106,7 +106,7 @@ function config_network {
     else # CLIENT
 	    echo "# Creating Network Manager hook"
 	    if [ ! -f "/etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh" ] || [ $FORCE -eq 1 ]; then
-	        cp $FDIR/CLIENT-90networkmanagerhook.sh /etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh
+	        cp ${BDIR}/${FDIR}/CLIENT-90networkmanagerhook.sh /etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh
 	        chmod +x /etc/rc.d/rc.networkmanager
 	        bash /etc/rc.d/rc.networkmanager restart
 	        /etc/rc.d/rc.inet2 restart
@@ -131,7 +131,7 @@ function config_ntp {
             echo "STATUS -> $(pattern_not_present "$SERVERIP" "/etc/ntp.conf")"
 	        bfile=/etc/ntp.conf
 	        backup_file $bfile
-	        cp -f $FDIR/CLIENT-ntp-client.conf $bfile
+	        cp -f ${BDIR}/${FDIR}/CLIENT-ntp-client.conf $bfile
 	    else
 	        echo "#    -> already configured"
 	    fi
@@ -161,22 +161,22 @@ function config_dnsmasq {
 	    TFILE="/etc/dnsmasq.conf"
 	    if [ x"" = x"$(grep salafisnis $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ]; then
             echo "Copying general config file "
-	        copy_config "$FDIR/SERVER-etc-dnsmasq.conf" "$TFILE"
+	        copy_config "${BDIR}/${FDIR}/SERVER-etc-dnsmasq.conf" "$TFILE"
         fi
 	    TFILE="/etc/dnsmasq-hosts.conf"
 	    if [ ! -f $TFILE ] || [ $FORCE -eq 1 ]; then
             echo "Copying dnsmasq-hosts file "
-	        copy_config "$FDIR/SERVER-etc-dnsmasq-hosts.conf" "$TFILE"
+	        copy_config "${BDIR}/${FDIR}/SERVER-etc-dnsmasq-hosts.conf" "$TFILE"
         fi
         TFILE="/etc/hosts"
 	    if [ x"" = x"$(grep salafis $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ]; then
             echo "Copying hosts file "
-	    	copy_config "$FDIR/SERVER-etc-hosts" "$TFILE"
+	    	copy_config "${BDIR}/${FDIR}/SERVER-etc-hosts" "$TFILE"
         fi
         TFILE="/etc/rc.d/rc.dnsmasq"
 	    if [ x"" = x"$(grep dnsmasq.log $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ]; then
             echo "Copying rc.dnsmasq file "
-	    	copy_config "$FDIR/SERVER-etc-rcd-rcdnsmasq" "$TFILE"
+	    	copy_config "${BDIR}/${FDIR}/SERVER-etc-rcd-rcdnsmasq" "$TFILE"
         fi
         echo "Restarting services ..."
 	    chmod +x /etc/rc.d/rc.dnsmasq
@@ -212,7 +212,7 @@ function config_firewall {
         fi
         echo "Configuring ..."
 	    ln -svf /etc/rc.d/rc.arno-iptables-firewall /etc/rc.d/rc.firewall
-	    copy_config "$FDIR/SERVER-firewall.conf" "/etc/arno-iptables-firewall/firewall.conf"
+	    copy_config "${BDIR}/${FDIR}/SERVER-firewall.conf" "/etc/arno-iptables-firewall/firewall.conf"
 	    chmod o-rwx /etc/arno-iptables-firewall/firewall.conf
 	    chmod +x /etc/rc.d/rc.arno-iptables-firewall
 	    /etc/rc.d/rc.firewall restart
@@ -233,13 +233,13 @@ function config_nfs {
     if [ "$TARGET" = "SERVER" ]; then
 	    #if [ $(pattern_not_present "$BASE_SERVERIP" "/etc/hosts.allow") ]; then
 	    if [ x"" = x"$(grep $BASE_SERVERIP /etc/hosts.allow 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-	        copy_config "$FDIR/SERVER-etc-hosts.allow" "/etc/hosts.allow"
+	        copy_config "${BDIR}/${FDIR}/SERVER-etc-hosts.allow" "/etc/hosts.allow"
 	    else
             echo "hosts allow already configured"
 	    fi
 	    #if [ $(pattern_not_present "$SERVERIP" "/etc/exports") ]; then
 	    if [ x"" = x"$(grep $BASE_SERVERIP /etc/exports 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-	        copy_config "$FDIR/SERVER-etc-exports" "/etc/exports"
+	        copy_config "${BDIR}/${FDIR}/SERVER-etc-exports" "/etc/exports"
 	    else
 	        echo "Exports already configured. Restarting services ..."
 	    fi
@@ -294,21 +294,21 @@ function config_nis {
     chmod +x /etc/rc.d/rc.yp
     if [ "$TARGET" = "SERVER" ]; then
 	    if [ x"" = x"$(grep $BASE_SERVERIP /etc/hosts.allow  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-	        copy_config "$FDIR/SERVER-etc-hosts.allow" "/etc/hosts.allow"
+	        copy_config "${BDIR}/${FDIR}/SERVER-etc-hosts.allow" "/etc/hosts.allow"
 	    else
             echo "hosts allow already configured"
 	    fi
 
         #if [ $(pattern_not_present "${NISDOMAIN}" "/etc/defaultdomain") ] ; then
 	    if [ x"" = x"$(grep $NISDOMAIN /etc/defaultdomain  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-            copy_config "$FDIR/SERVER-etc-defaultdomain" "/etc/defaultdomain"
+            copy_config "${BDIR}/${FDIR}/SERVER-etc-defaultdomain" "/etc/defaultdomain"
         else
             echo "Already configured default nis domain"
         fi
         #if [ $(pattern_not_present "${NISDOMAIN}" "/etc/yp.conf") ] ; then
 	    if [ x"" = x"$(grep $NISDOMAIN /etc/yp.conf  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-            copy_config "$FDIR/SERVER-etc-yp.conf" "/etc/yp.conf"
-            copy_config "$FDIR/SERVER-var-yp-Makefile" "/var/yp/Makefile"
+            copy_config "${BDIR}/${FDIR}/SERVER-etc-yp.conf" "/etc/yp.conf"
+            copy_config "${BDIR}/${FDIR}/SERVER-var-yp-Makefile" "/var/yp/Makefile"
         else
             echo "Already configured yp"
         fi
@@ -339,7 +339,7 @@ function config_nis {
             echo "ypserver ${SERVERIP}" > $bfile
             bfile=/etc/nsswitch.conf
             backup_file $bfile
-            cp -f $FDIR/CLIENT-nsswitch.conf $bfile
+            cp -f ${BDIR}/${FDIR}/CLIENT-nsswitch.conf $bfile
             bfile="/etc/passwd"
             backup_file $bfile
             echo +:::::: >> $bfile
@@ -374,7 +374,7 @@ function config_shutdown_perms {
     if [ ! -f /etc/polkit-1/rules.d/$fname ] || [ $FORCE -eq 1 ]; then
 	chmod o-x /sbin/shutdown 
 	chmod o-x /sbin/halt
-	cp $FDIR/$fname /etc/polkit-1/rules.d/
+	cp ${BDIR}/${FDIR}/$fname /etc/polkit-1/rules.d/
     else
 	echo "#    -> polkit rules already configured"
     fi
@@ -382,7 +382,7 @@ function config_shutdown_perms {
     tfname=/etc/acpi/acpi_handler.sh
     #if [ $(pattern_not_present "emoves" "$tfname") ]; then
     if [ x"" = x"$(grep emoves ${tfname}  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-	copy_config $FDIR/etc-acpi-acpi_handler.sh $tfname
+	copy_config ${BDIR}/${FDIR}/etc-acpi-acpi_handler.sh $tfname
     else
 	echo "#   -> Acpi handler already configured"
     fi
@@ -401,20 +401,20 @@ function config_crontab {
     if [ "$TARGET" = "SERVER" ]; then
 	    if [ x"" = x"$(grep minute_maintenance.sh /tmp/crontab  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
             echo "Configuring miniute maintenance ..."
-	        crontab $FDIR/SERVER-crontab -u root
+	        crontab ${BDIR}/${FDIR}/SERVER-crontab -u root
 	    else
 	        echo "#    -> Already configured (per minute)"
 	    fi
 	    TNAME="/etc/cron.daily/daily_maintenance.sh"
 	    if [ ! -f $TNAME ] || [ $FORCE -eq 1 ]; then
             echo "Copying daily maintenance ..."
-            copy_config $FDIR/SERVER-cron/daily_maintenance.sh "$TNAME"
+            copy_config ${BDIR}/${FDIR}/SERVER-cron/daily_maintenance.sh "$TNAME"
 	    else
             echo "#    -> Already configured (daily)"
 	    fi
     else # CLIENT
 	    if [ x"" = x"$(grep check_status.sh /tmp/crontab  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-	        crontab $FDIR/CLIENT-crontab -u root
+	        crontab ${BDIR}/${FDIR}/CLIENT-crontab -u root
 	    else
 	        echo "#    -> Already configured"
 	    fi
@@ -494,8 +494,8 @@ function config_monit {
         echo '# Run monit in standard runlevels' >> /etc/inittab
         echo 'mo:2345:respawn:/usr/bin/monit -Ic /etc/monitrc' >> /etc/inittab
     fi
-	cp "$FDIR/common-monitrc" "/etc/monit.d/00-common-monitrc"
-	cp "$FDIR/${TARGET}-monitrc" "/etc/monit.d/01-${TARGET}-monitrc"
+	cp "${BDIR}/${FDIR}/common-monitrc" "/etc/monit.d/00-common-monitrc"
+	cp "${BDIR}/${FDIR}/${TARGET}-monitrc" "/etc/monit.d/01-${TARGET}-monitrc"
 	/etc/rc.d/rc.monit restart
     end_msg "$MSG"
 }
@@ -523,7 +523,7 @@ function config_cntlm {
 	    chmod +x /etc/rc.d/rc.cntlm
         if [ x"" = x"$(grep $BASE_SERVERIP /etc/cntlm.conf 2>/dev/null)" ]; then
 	        backup_file /etc/cntlm.conf
-	        copy_config "$FDIR/SERVER-etc-cntlm.conf" "/etc/cntlm.conf"
+	        copy_config "${BDIR}/${FDIR}/SERVER-etc-cntlm.conf" "/etc/cntlm.conf"
 	        echo "Please write the password for the account to be used with cntlm"
 	        cntlm -H > /tmp/cntlm-hashed
 	        cat /tmp/cntlm-hashed >> /etc/cntlm.conf
@@ -558,13 +558,13 @@ function config_clustershell {
             mkdir -p /etc/clustershell
         fi
         if [ ! -f /etc/clustershell/clush.conf ]; then
-	        copy_config "$FDIR/SERVER-etc-clustershell-clush.conf" "/etc/clustershell/clush.conf"
+	        copy_config "${BDIR}/${FDIR}/SERVER-etc-clustershell-clush.conf" "/etc/clustershell/clush.conf"
         else
             echo "clush.conf already existing."
         fi
         if [ ! -f /etc/clustershell/groups.d/salafis.yaml ]; then
             mkdir -p /etc/clustershell/groups.d/
-	        copy_config "$FDIR/SERVER-etc-clustershell-groupsd-salafis.yaml" "/etc/clustershell/groups.d/salafis.yaml"
+	        copy_config "${BDIR}/${FDIR}/SERVER-etc-clustershell-groupsd-salafis.yaml" "/etc/clustershell/groups.d/salafis.yaml"
         else
             echo "group salafis.yaml already existing".
         fi
@@ -671,7 +671,7 @@ function config_ganglia {
 
     echo "Configuring gmond on both server and client ... "
     if [ x"" == x"$(grep clustersalafis /etc/ganglia/gmond.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-        copy_config "$FDIR/gmond.conf" "/etc/ganglia/gmond.conf"
+        copy_config "${BDIR}/${FDIR}/gmond.conf" "/etc/ganglia/gmond.conf"
     else
         echo "→ Already configured"
     fi
@@ -679,7 +679,7 @@ function config_ganglia {
     if [ "$TARGET" = "SERVER" ]; then
         echo "Configuring gmetad (ganglia monitor) on SERVER ..."
         if [ x"" == x"$(grep clustersalafis /etc/ganglia/gmetad.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-            copy_config "$FDIR/SERVER-gmetad.conf" "/etc/ganglia/gmetad.conf"
+            copy_config "${BDIR}/${FDIR}/SERVER-gmetad.conf" "/etc/ganglia/gmetad.conf"
         else
             echo "-> Already configured."
         fi
@@ -695,7 +695,7 @@ function config_ganglia {
         echo "Copying extra ganglia config on SERVER ..."
         TFILE="/etc/httpd/extra/ganglia.conf"
         if [ ! -f "$TFILE" ]; then
-            copy_config "$FDIR/SERVER-etc-httpd-extra-ganglia.conf" "$TFILE"
+            copy_config "${BDIR}/${FDIR}/SERVER-etc-httpd-extra-ganglia.conf" "$TFILE"
         fi
         chmod +x /etc/rc.d/rc.httpd
         chmod +x /etc/rc.d/rc.gmetad
@@ -924,7 +924,7 @@ function config_netdata {
         wget https://github.com/netdata/netdata/archive/v1.29.3/netdata-1.29.3.tar.gz &&
         tar xf netdata.tar.gz &&
         mv netdata/netdata.SlackBuild{,-orig} &&
-        cp $FDIR/netdata.SlackBuild netdata/ &&
+        cp ${BDIR}/${FDIR}/netdata.SlackBuild netdata/ &&
         chmod +x netdata/netdata.SlackBuild &&
         tar czf netdata.tar.gz netdata &&
         slpkg -a netdata.tar.gz netdata-1.29.3.tar.gz &&
@@ -933,7 +933,7 @@ function config_netdata {
 
     echo "Configuring proxy on both server and client ... "
     if [ x"" == x"$(grep 192.168.10.1 /etc/netdata/netdata.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-        copy_config "$FDIR/etc-netdata-netdata.conf" "/etc/netdata/netdata.conf"
+        copy_config "${BDIR}/${FDIR}/etc-netdata-netdata.conf" "/etc/netdata/netdata.conf"
     else
         echo "-> Already configured"
     fi
@@ -1179,7 +1179,7 @@ function config_publicid_sshpassword {
 	mkdir -p /root/.ssh &>/dev/null
 	#if [ $(pattern_not_present "${SERVER_DOMAINNAME}" "/root/.ssh/authorized_keys") ]; then
 	if [ x"" == x"$(grep $SERVER_DOMAINNAME /root/.ssh/authorized_keys  2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-	    cat $FDIR/CLIENT-server_id_rsa.pub >> /root/.ssh/authorized_keys
+	    cat ${BDIR}/${FDIR}/CLIENT-server_id_rsa.pub >> /root/.ssh/authorized_keys
 	    chmod 700 /root/.ssh
 	    chmod 640 /root/.ssh/authorized_keys
 	else
