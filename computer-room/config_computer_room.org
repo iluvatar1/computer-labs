@@ -471,6 +471,7 @@ running. TODO: configure essential services on server and clients.
 function config_monit {
     MSG="Configuring monit on server "
     start_msg "$MSG"
+    cd "$BDIR"
 	if $(command_exists monit) && [[ $FORCE -eq 0 ]]; then
 	    echo "#    -> already installed"
 	else
@@ -509,6 +510,7 @@ without much hassle.
 function config_cntlm {
     MSG="Configuring cntlm on server "
     start_msg "$MSG"
+    cd "$BDIR"
     if [ "$TARGET" = "SERVER" ]; then
 	    if $(command_exists cntlm) && [ $FORCE -eq 0 ]; then
 	        echo "#    -> already installed"
@@ -518,7 +520,7 @@ function config_cntlm {
 	        slpkg -s sbo cntlm
         fi
         echo "Configuring ..."
-	    chmod +x /etc/rc.d/rc.cntlm 
+	    chmod +x /etc/rc.d/rc.cntlm
         if [ x"" = x"$(grep $BASE_SERVERIP /etc/cntlm.conf 2>/dev/null)" ]; then
 	        backup_file /etc/cntlm.conf
 	        copy_config "$FDIR/SERVER-etc-cntlm.conf" "/etc/cntlm.conf"
@@ -527,7 +529,7 @@ function config_cntlm {
 	        cat /tmp/cntlm-hashed >> /etc/cntlm.conf
 	        rm -f /tmp/cntlm-hashed
 	    fi
-        /etc/rc.d/rc.cntlm restart      
+        /etc/rc.d/rc.cntlm restart
     else
 	    echo "Not configuring on client."
     fi
@@ -542,6 +544,7 @@ https://www.2daygeek.com/clustershell-clush-run-commands-on-cluster-nodes-remote
 function config_clustershell {
     MSG="Installing and configuring clustershell on server... "
     start_msg "$MSG"
+    cd "$BDIR"
     if [ "$TARGET" = "SERVER" ]; then
         echo "Installing ..."
 	    if $(command_exists clush) && [ $FORCE -eq 0 ]; then
@@ -656,7 +659,7 @@ https://blog.42mate.com/monitoring-your-servers-like-a-boss/
 function config_ganglia {
     MSG="Installing and configuring ganglia "
     start_msg "$MSG"
-
+    cd "$BDIR"
     echo "Installing with slpkg ..."
     source ~/.bashrc
     slpkg -s sbo rrdtool
@@ -906,7 +909,7 @@ cd $PKG
 function config_netdata {
     MSG="Installing and configuring netdata "
     start_msg "$MSG"
-
+    cd "$BDIR"
     echo "Installation"
     if $(command_exists netdata); then
         echo "-> Already installed"
@@ -925,9 +928,9 @@ function config_netdata {
         chmod +x netdata/netdata.SlackBuild &&
         tar czf netdata.tar.gz netdata &&
         slpkg -a netdata.tar.gz netdata-1.29.3.tar.gz &&
-        chmod +x /etc/rc.d/rc.netdata 
+        chmod +x /etc/rc.d/rc.netdata
     fi
-    
+
     echo "Configuring proxy on both server and client ... "
     if [ x"" == x"$(grep 192.168.10.1 /etc/netdata/netdata.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
         copy_config "$FDIR/etc-netdata-netdata.conf" "/etc/netdata/netdata.conf"
