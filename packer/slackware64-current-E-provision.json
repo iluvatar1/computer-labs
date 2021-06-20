@@ -1,4 +1,8 @@
 {
+  "variables":
+  {
+    "run_command":"PACKER_LOG=1 packer build -var-file VARSFILE slackware-current-E-provision.json"
+  },
   "builders":
   [
     {
@@ -38,6 +42,10 @@
       "script": "{{user `provision_script`}}",
       "type": "shell",
       "valid_exit_codes":[0,2]
+    },
+    {
+      "type": "shell",
+      "inline": ["echo root:{{user `root_password`}} | chpasswd"]
     }
   ]
 }

@@ -1,5 +1,6 @@
 {
     "provision_script":"../configurations/config_client.sh",
     "snapshot_name": "Client configured",
-    "output_dir": "{{env `HOME`}}/Downloads/box_client"
+    "output_dir": "{{env `HOME`}}/Downloads/box_client",
+    "root_password": "ROOT_PASSWORD"
 }
