@@ -64,9 +64,9 @@ function config_proxy {
     start_msg "$MSG"
     bname="/root/.bashrc"
     if [ x"" = x"$(grep https_proxy ${bname} 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-	touch $bname
-	backup_file $bname
-	cat <<EOF > $bname
+        touch $bname
+        backup_file $bname
+        cat <<EOF > $bname
 export PROXY="$PROXY"
 export http_proxy="http://\$PROXY"
 export https_proxy="http://\$PROXY" 
@@ -74,7 +74,7 @@ export ftp_proxy="ftp://\$PROXY"
 export RSYNC_PROXY="\$PROXY" 
 EOF
     else
-	echo "#    -> already configured."
+        echo "#    -> already configured."
     fi
     #source /root/.bashrc
     end_msg "$MSG"
@@ -88,31 +88,31 @@ function config_network {
     MSG="Configuring network interfaces "
     start_msg "$MSG"
     if [ "$TARGET" = "SERVER" ]; then
-	    #if [ $(pattern_not_present "127.0.0.1" "/etc/resolv.conf.head") ]; then
-	    if [ x"" == x"$(grep 127.0.0.1 /etc/resolv.conf.head 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-	        echo "Setting up resolv.conf.head "
-	        TFILE="/etc/resolv.conf.head"
-	        copy_config "${BDIR}/${FDIR}/SERVER-etc-resolv.conf.head" "$TFILE"
-	    fi	
-	    #if [ $(pattern_not_present "$SERVERIP" "/etc/rc.d/rc.inet1.conf") ]; then 
-	    if [ x"" == x"$(grep $SERVERIP /etc/rc.d/rc.inet1.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-	        bash /etc/rc.d/rc.networkmanager stop
-	        chmod -x /etc/rc.d/rc.networkmanager
-	        copy_config "${BDIR}/${FDIR}/SERVER-etc-rc.d-rc.inet1.conf" /etc/rc.d/rc.inet1.conf
-	    else
-	        echo "Already configured, just restarting services ..."
-	    fi
-	    /etc/rc.d/rc.inet1 restart
+        #if [ $(pattern_not_present "127.0.0.1" "/etc/resolv.conf.head") ]; then
+        if [ x"" == x"$(grep 127.0.0.1 /etc/resolv.conf.head 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+            echo "Setting up resolv.conf.head "
+            TFILE="/etc/resolv.conf.head"
+            copy_config "${BDIR}/${FDIR}/SERVER-etc-resolv.conf.head" "$TFILE"
+        fi	
+        #if [ $(pattern_not_present "$SERVERIP" "/etc/rc.d/rc.inet1.conf") ]; then 
+        if [ x"" == x"$(grep $SERVERIP /etc/rc.d/rc.inet1.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+            bash /etc/rc.d/rc.networkmanager stop
+            chmod -x /etc/rc.d/rc.networkmanager
+            copy_config "${BDIR}/${FDIR}/SERVER-etc-rc.d-rc.inet1.conf" /etc/rc.d/rc.inet1.conf
+        else
+            echo "Already configured, just restarting services ..."
+        fi
+        #/etc/rc.d/rc.inet1 restart
     else # CLIENT
-	    echo "# Creating Network Manager hook"
-	    if [ ! -f "/etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh" ] || [ $FORCE -eq 1 ]; then
-	        cp ${BDIR}/${FDIR}/CLIENT-90networkmanagerhook.sh /etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh
-	        chmod +x /etc/rc.d/rc.networkmanager
-	        #bash /etc/rc.d/rc.networkmanager restart
-	        #/etc/rc.d/rc.inet2 restart
-	    else
-	        echo "#    -> already configured."
-	    fi
+        echo "# Creating Network Manager hook"
+        if [ ! -f "/etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh" ] || [ $FORCE -eq 1 ]; then
+            cp ${BDIR}/${FDIR}/CLIENT-90networkmanagerhook.sh /etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh
+            chmod +x /etc/rc.d/rc.networkmanager
+            #bash /etc/rc.d/rc.networkmanager restart
+            #/etc/rc.d/rc.inet2 restart
+        else
+            echo "#    -> already configured."
+        fi
     fi
     end_msg "DONE: $MSG"
 }
@@ -1071,8 +1071,8 @@ all ()
     config_netdata
     config_firewall
     config_cntlm
-    #config_network
-    #config_proxy
+    config_network
+    config_proxy
 }
 
 ##################################
