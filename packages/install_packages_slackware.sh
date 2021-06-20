@@ -5,7 +5,9 @@ export PATH=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:/usr/ga
 \
 ################################################################################
 COMPILE=${COMPILE:-NO}
-PKG="keepassx sshfs-fuse autossh xfce4-xkb-plugin flashplayer-plugin slim monit fail2ban corkscrew pip parallel wol valgrind openmpi modules cppcheck iotop gperftools xdm-slackware-theme"
+PKG="keepassx sshfs-fuse autossh xfce4-xkb-plugin flashplayer-plugin slim monit \
+    fail2ban corkscrew pip parallel wol valgrind openmpi modules cppcheck iotop gperftools \
+    xdm-slackware-theme"
 
 pm () {
     echo "  -> $1"
@@ -26,8 +28,10 @@ install_binary_packages () {
     BASEURL="http://157.245.132.188/PACKAGES/slackware64-current/"
     cd /tmp || exit
     for ext in tgz txz; do
-        wget -c -nc -r -np -l1 -P ./ -nd "${BASEURL}" -A "*.${ext}"
-        for a in *.${ext}; do upgradepkg --install-new $a; done
+        wget -c -nc -r -np -l1 -P ./ -nd "${BASEURL}" -A ${ext}
+        for a in *.${ext}; do
+            upgradepkg --install-new $a;
+        done
     done
 }
 
