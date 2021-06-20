@@ -99,8 +99,8 @@ install_perf () {
 # MAIN
 
 setup
-# install qt5 from slack
-slpkg -s slack qt5 icu4c
+# install qt5 and other deps from slack
+slpkg -s slack qt5 icu4c lz4
 
 if [ "NO" = "$COMPILE" ]; then
     install_binary_packages

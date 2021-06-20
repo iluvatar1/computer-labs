@@ -74,7 +74,7 @@ build_packages () {
     SLPKG="slpkg -s sbo --rebuild"
 
     PKGS=(blas lapack keepassx sshfs-fuse autossh slim fail2ban corkscrew
-    valgrind modules cppcheck iotop xdm-slackware-theme libuv uuid
+    valgrind modules cppcheck iotop xdm-slackware-theme  uuid
     mongo-c-driver PyYAML arno-iptables-firewall cntlm confuse
     rrdtool numactl vscode-bin wol)
 
@@ -88,6 +88,13 @@ build_packages () {
     wget https://code.x2go.org/releases/source/nx-libs/nx-libs-3.5.99.22-lite.tar.gz -O nx-libs-3.5.99.22-full.tar.gz
     VERSION=3.5.99.22 slpkg -a nx-libs.tar.gz nx-libs-3.5.99.22-full.tar.gz
     # x2go
+    groupadd -g 290 x2gouser
+    useradd -u 290 -g 290 -c "X2Go Remote Desktop" -M -d /var/lib/x2go -s /bin/false x2gouser
+    groupadd -g 291 x2goprint
+    mkdir -p /var/spool/x2goprint &>/dev/null
+    useradd -u 291 -g 291 -c "X2Go Remote Desktop" -m -d /var/spool/x2goprint -s /bin/false x2goprint
+    chown x2goprint:x2goprint /var/spool/x2goprint
+    chmod 0770 /var/spool/x2goprint
     wget https://slackbuilds.org/slackbuilds/14.2/network/x2goserver.tar.gz
     wget http://ponce.cc/slackware/sources/repo/x2goserver-20201227_08aa5e6.tar.xz
     VERSION=20201227_08aa5e6 slpkg -a x2goserver.tar.gz x2goserver-20201227_08aa5e6.tar.xz
@@ -96,23 +103,27 @@ build_packages () {
     #slpkg -s sbo x2goserver
     # tigervnc for vnc
     slackpkg install tigervnc
-    #
+    # ganglia
     export OPT=gmetad
     $SLPKG ganglia ganglia-web
     unset OPT
+    # monit
     export VERSION=5.28.0
     aux_slbuild https://slackbuilds.org/slackbuilds/14.2/system/monit.tar.gz https://mmonit.com/monit/dist/monit-5.28.0.tar.gz
     unset VERSION
+    # octave
     export VERSION=6.1.0
     aux_slbuild https://slackbuilds.org/slackbuilds/14.2/academic/octave.tar.gz  https://mirror.cedia.org.ec/gnu/octave/octave-6.1.0.tar.lz
     unset VERSION
-    # HPC
+    # HPC: munge
     export VERSION=0.5.14
     aux_slbuild https://slackbuilds.org/slackbuilds/14.2/network/munge.tar.gz https://github.com/dun/munge/releases/download/munge-0.5.14/munge-0.5.14.tar.xz
     unset VERSION
+    # HPC: hwloc
     export VERSION=2.3.0
     aux_slbuild https://slackbuilds.org/slackbuilds/14.2/system/hwloc.tar.gz https://download.open-mpi.org/release/hwloc/v2.3/hwloc-2.3.0.tar.bz2
     unset VERSION
+    # HPC: slurm
     groupadd -g 311 slurm
     useradd -u 311 -d /var/lib/slurm -s /bin/false -g slurm slurm
     export VERSION=20.11.2
@@ -120,10 +131,24 @@ build_packages () {
     export RRDTOOL=yes
     aux_slbuild https://slackbuilds.org/slackbuilds/14.2/network/slurm.tar.gz https://download.schedmd.com/slurm/slurm-20.11.2.tar.bz2
     unset VERSION HWLOC RRDTOOL
+    # HPC: openmpi
     export VERSION=4.1.0
     export PMI=yes
     aux_slbuild https://slackbuilds.org/slackbuilds/14.2/system/openmpi.tar.gz https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.0.tar.bz2
     unset VERSION PMI
+    # netdata
+    groupadd -g 338 netdata 2>/dev/null
+    useradd -u 338 -g 338 -c "netdata user" -s /bin/bash netdata 2>/dev/null
+    cd /tmp
+    wget https://slackbuilds.org/slackbuilds/14.2/system/netdata.tar.gz &&
+        wget https://github.com/netdata/netdata/archive/v1.29.3/netdata-1.29.3.tar.gz &&
+        tar xf netdata.tar.gz &&
+        mv netdata/netdata.SlackBuild{,-orig} &&
+        cp $HOME/repos/computer-labs/computer-room/files/netdata.SlackBuild netdata/ &&
+        chmod +x netdata/netdata.SlackBuild &&
+        tar czf netdata.tar.gz netdata &&
+        slpkg -a netdata.tar.gz netdata-1.29.3.tar.gz &&
+        chmod +x /etc/rc.d/rc.netdata
 }
 
 
@@ -138,10 +163,6 @@ rm -f *tgz *txz
 pm "Building packages ..."
 build_packages
 
-# create PACKAGES.txt file
-pm "Getting the built packages list ..."
-ls *tgz *txz > PACKAGES.txt 2> /dev/null
-
 # read auth config: USER, PASSWD, IP. YOU WILL HAVE TO COPY THE PUBLIC KEY
 echo "Do not forget to copy the public id into the server"
 USER=${USER:-oquendo}
@@ -149,6 +170,7 @@ IP=${IP:-localhost}
 
 # upload both packages and PACKAGES.txt
 pm "Sending packages ..."
+cd /tmp
 for a in *tgz *txz PACKAGES.txt; do
     pm "$a ..."
     rsync -e 'ssh -o StrictHostKeyChecking=no' -av $a $USER@$IP:/var/www/html/PACKAGES/slackware64-current/$a
