@@ -46,6 +46,10 @@
     {
       "type": "shell",
       "inline": ["echo root:{{user `root_password`}} | chpasswd"]
+    },
+    {
+      "type": "shell",
+      "inline": ["rm -f /etc/ssh/ssh_host_*"]
     }
   ]
 }
