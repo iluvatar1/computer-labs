@@ -1,4 +1,8 @@
 {
+    "variables":
+  {
+    "run_command":"PACKER_LOG=1 packer build -var-file VARSFILE slackware-current-clonezilla-client.json"
+  },
   "builders": [
     {
       "type": "virtualbox-vm",
