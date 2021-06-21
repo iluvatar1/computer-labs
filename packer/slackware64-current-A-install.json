@@ -132,12 +132,6 @@
         [
           "modifyvm",
           "{{.Name}}",
-          "--audio",
-          "coreaudio"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
           "--audiocontroller",
           "ac97"
         ],
