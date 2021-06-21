@@ -37,9 +37,9 @@
         "<wait>setup<enter><wait2s>",
         "a<enter><wait><enter><wait><enter><wait4s><enter><wait2s>",
         "<enter><wait><enter><wait><enter><wait1s>",
-        "<down><wait><enter><wait><enter><wait><enter><wait3s>/tmp<enter><wait1s>",
-        "<down><down><wait><enter><wait><enter><wait><enter><wait3s>/home<enter><wait1s>",
-        "<down><down><down><wait><enter><wait><enter><wait><enter><wait3s>/opt<enter><wait><enter><wait>",
+        "<down><wait><enter><wait><enter><wait><enter><wait3s>/tmp<wait><enter><wait1s>",
+        "<down><down><wait><enter><wait><enter><wait><enter><wait3s>/home<wait><enter><wait1s>",
+        "<down><down><down><wait><enter><wait><enter><wait><enter><wait3s>/opt<wait><enter><wait><enter><wait>",
         "<wait><enter>",
 
         "<wait>1<enter>a<enter><wait5>",
