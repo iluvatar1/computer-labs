@@ -1,4 +1,8 @@
 {
+  "variables":
+  {
+    "run_command":"PACKER_LOG=1 packer build slackware64-current-B-finish_install.json"
+  }
   "builders": [
     {
       "type": "virtualbox-vm",
