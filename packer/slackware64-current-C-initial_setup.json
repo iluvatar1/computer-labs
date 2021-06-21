@@ -1,4 +1,8 @@
 {
+  "variables":
+  {
+    "run_command": "LOG_PACKER=1 packer build slackware64-current-C-initial_setup.json"
+  },
   "builders":
   [
     {

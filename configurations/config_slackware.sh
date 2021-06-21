@@ -177,8 +177,9 @@ EOF
 	    configured
     fi
     #### PATCH to solve issues between proxy and urllib: use requests #####
-    backup_file /usr/lib64/python3.9/site-packages/slpkg/file_size.py
-    cp -f "$HOME/repos/computer-labs/packages/slpkg/file_size.py" /usr/lib64/python3.9/site-packages/slpkg/file_size.py
+    tfile="/usr/lib64/python3.9/site-packages/slpkg/file_size.py"
+    backup_file "${tfile}"
+    cp -f "$HOME/repos/computer-labs/packages/slpkg/file_size.py" "${tfile}"
     # Update
     pm "Recommended to run : slpkg update"
     slpkg update
@@ -306,6 +307,11 @@ echo " -> Starting configuration for slackware basebox. NOTE: This scripts tries
 echo "##################################################"
 echo
 
+readonly ERR_LOG_FILE="/var/log/config_err.log"
+touch ${ERR_LOG_FILE}
+exec 2>${ERR_LOG_FILE}
+
+clone_or_update_config_repo
 inittab
 services_nfs_ssh
 timezone
@@ -320,6 +326,5 @@ config_latam_kbd
 config_bashrc
 slpkg_install
 slackpkgmirror
-clone_or_update_config_repo
 
 pm "Done."
