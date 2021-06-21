@@ -1,4 +1,8 @@
 {
+  "variables":
+  {
+    "run_command": "PACKER_LOG=1 packer build -var \"ISO_URL=$HOME/Downloads/iso/slackware64-current-install-dvd.iso\" slackware64-current-A-install.json"
+  },
   "builders": [
     {
       "type": "virtualbox-vm",
@@ -22,10 +26,10 @@
 
         "<wait>gdisk /dev/sda<enter><wait>",
         "<wait>n<enter>1<enter><enter>+100M<enter>EF00<enter>",
-        "<wait>n<enter>2<enter><enter>+30G<enter>8300<enter>",
-        "<wait>n<enter>3<enter><enter>+4G<enter>8200<enter>",
-        "<wait>n<enter>4<enter><enter>+10G<enter>8300<enter>",
-        "<wait>n<enter>5<enter><enter>+20G<enter>8300<enter>",
+        "<wait>n<enter>2<enter><enter>+40G<enter>8300<enter>",
+        "<wait>n<enter>3<enter><enter>+8G<enter>8200<enter>",
+        "<wait>n<enter>4<enter><enter>+15G<enter>8300<enter>",
+        "<wait>n<enter>5<enter><enter>+30G<enter>8300<enter>",
         "<wait>n<enter>6<enter><enter><enter>8300<enter>",
         "<wait>w<enter>Y<enter><wait4s>",
         "<wait>mkfs.vfat /dev/sda1<enter><wait2s>",
