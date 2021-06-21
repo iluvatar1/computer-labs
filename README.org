@@ -144,3 +144,18 @@ REFS:
   #+begin_src shell
   xrandr --fb 1280x700
   #+end_src
+
+** Resizing or creating a new partition
+I will use sgdisk to resize the last partition
+#+begin_src shell
+# move backup partition to the end of disk
+sgdisk -e /dev/sda
+# delete and recreate last partition (assumed to be number 6)
+sgdisk -d 6 /dev/sda
+sgdisk -N 6 /dev/sda
+# update partition table, if unsuscessfull, reboot
+partprobe /dev/sda
+# resize partition
+resize2fs /dev/sda6
+#+end_src
+REF: https://superuser.com/questions/660309/live-resize-of-a-gpt-partition-on-linux
