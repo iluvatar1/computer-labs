@@ -116,3 +116,31 @@ structure and usage.
   - https://github.com/bifferos/explodeinstaller
   - https://github.com/akosiaris/packer-slackware/blob/master/slackware64-14.2.json
   - https://github.com/Cyclenerd/postinstall/blob/master/postinstall.sh
+* FIXES
+** tab not working on remote x2go connection with xfce4
+This happens in the console and is due to a changing window shortcut that msut
+be removed. The fis is
+- Open =~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml=
+- Replace ~<property name="&lt;Super&gt;Tab" type="string"
+  value="switch_window_key"/>~ with ~<property name="&lt;Super&gt;Tab"
+  type="empty"/>~
+REFS:
+- https://www.smork.info/blog/2015/06/10/fixing_bash_tab_completion_in_xfce.html
+- https://stackoverflow.com/questions/23418831/command-line-auto-complete-tab-key-not-work-in-terminal-for-ubuntu
+-
+* NOTES
+** Remote x11 connection with opengl hardware acceleration
+- Server config
+  #+begin_src conf
+  edit /etc/X11/Xwrapper.config
+  and add allowed_users = anybody
+  #+end_src
+- Server run
+  #+begin_src shell
+  startx -- :1
+  x11vnc  --display :1
+  #+end_src
+- on client: turbovnc, then maybe change resolution with
+  #+begin_src shell
+  xrandr --fb 1280x700
+  #+end_src
