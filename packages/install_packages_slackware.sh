@@ -100,7 +100,7 @@ install_perf () {
 
 setup
 # install qt5 and other deps from slack
-slpkg -s slack qt5 icu4c lz4
+slpkg -s slack qt5 icu4c lz4 tigervnc
 
 if [ "NO" = "$COMPILE" ]; then
     install_binary_packages

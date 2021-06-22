@@ -73,10 +73,14 @@ build_packages () {
     # Define SLPKG command
     SLPKG="slpkg -s sbo --rebuild"
 
-    PKGS=(blas lapack keepassx sshfs-fuse autossh slim fail2ban corkscrew
+    PKGS=(blas lapack keepassx  autossh slim fail2ban corkscrew
     valgrind modules cppcheck iotop xdm-slackware-theme  uuid
     mongo-c-driver PyYAML arno-iptables-firewall cntlm confuse
-    rrdtool numactl vscode-bin wol)
+    rrdtool numactl vscode-bin wol flashplayer-plugin gperftools
+    keepassxc perl-Capture-Tiny perl-Config-Simple perl-DBD-SQLite
+    perl-File-ReadBackwards perl-File-Which perl-IPC-System-Simple
+    perl-Module-Build perl-PAR-Dist perl-Switch perl-Try-Tiny
+    perl-Unix-Syslog perl-file-basedir pip xfce4-xkb-plugin)
 
     for pkgname in ${PKGS[*]}; do
         echo $pkgname
@@ -102,7 +106,7 @@ build_packages () {
     chmod +x /etc/x2go/xinitrc.d/xfwm4_no_compositing
     #slpkg -s sbo x2goserver
     # tigervnc for vnc
-    slackpkg install tigervnc
+    #slackpkg install tigervnc
     # ganglia
     export OPT=gmetad
     $SLPKG ganglia ganglia-web
@@ -165,13 +169,16 @@ build_packages
 
 # read auth config: USER, PASSWD, IP. YOU WILL HAVE TO COPY THE PUBLIC KEY
 echo "Do not forget to copy the public id into the server"
-USER=${USER:-oquendo}
+LOCALUSER=${LOCALUSER:-oquendo}
 IP=${IP:-localhost}
 
 # upload both packages and PACKAGES.txt
 pm "Sending packages ..."
 cd /tmp
-for a in *tgz *txz PACKAGES.txt; do
+mkdir PACKAGES 2>/dev/null
+mv *tgz PACKAGES/
+cd PACKAGES
+for a in *tgz; do
     pm "$a ..."
-    rsync -e 'ssh -o StrictHostKeyChecking=no' -av $a $USER@$IP:/var/www/html/PACKAGES/slackware64-current/$a
+    rsync -e 'ssh -o StrictHostKeyChecking=no' -av $a $LOCALUSER@$IP:/var/www/html/PACKAGES/slackware64-current/$a
 done
