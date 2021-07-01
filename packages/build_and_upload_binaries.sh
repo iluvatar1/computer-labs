@@ -121,6 +121,7 @@ EOF
     # Download and fix particular versions
     cd /tmp
     TDIR=/var/lib/sbopkg/SBo-git/
+    WGET="wget -c "
     # x2goserver pre
     groupadd -g 290 x2gouser
     useradd -u 290 -g 290 -c "X2Go Remote Desktop" -M -d /var/lib/x2go -s /bin/false x2gouser
@@ -132,37 +133,40 @@ EOF
     # monit
     sed -i.bck 's/ README//' /var/lib/sbopkg/SBo-git/system/monit/monit.SlackBuild
     FNAME=monit-5.28.0.tar.gz
-    wget https://mmonit.com/monit/dist/$FNAME -O $TDIR/system/monit/$FNAME
+    $WGET https://mmonit.com/monit/dist/$FNAME -O $TDIR/system/monit/$FNAME
     # octave
     FNAME=octave-6.2.0.tar.lz
-    wget https://mirror.cedia.org.ec/gnu/octave/$FNAME -O $TDIR/academic/octave/$FNAME
+    $WGET https://mirror.cedia.org.ec/gnu/octave/$FNAME -O $TDIR/academic/octave/$FNAME
     # munge
     FNAME=munge-0.5.14.tar.xz
-    wget https://github.com/dun/munge/releases/download/munge-0.5.14/$FNAME -O $TDIR/network/munge/$FNAME
+    $WGET https://github.com/dun/munge/releases/download/munge-0.5.14/$FNAME -O $TDIR/network/munge/$FNAME
     # hwloc
     FNAME=hwloc-2.3.0.tar.bz2
-    wget https://download.open-mpi.org/release/hwloc/v2.3/$FNAME -O $TDIR/system/hwloc/$FNAME
+    $WGET https://download.open-mpi.org/release/hwloc/v2.3/$FNAME -O $TDIR/system/hwloc/$FNAME
     # slurm
     groupadd -g 311 slurm
     useradd -u 311 -d /var/lib/slurm -s /bin/false -g slurm slurm
     FNAME=slurm-20.11.7.tar.bz2
-    wget https://download.schedmd.com/slurm/$FNAME -O $TDIR/network/slurm/$FNAME
+    $WGET https://download.schedmd.com/slurm/$FNAME -O $TDIR/network/slurm/$FNAME
     cd $TDIR/network/slurm
     VERSION=20.11.7 HWLOC=yes RRDTOOL=yes bash slurm.SlackBuildw
     # TODO Fix slurm since version option is not read
     # openmpi
     FNAME=openmpi-4.1.1.tar.bz2
-    wget https://download.open-mpi.org/release/open-mpi/v4.1/$FNAME -O $TDIR/system/openmpi/$FNAME
+    $WGET https://download.open-mpi.org/release/open-mpi/v4.1/$FNAME -O $TDIR/system/openmpi/$FNAME
     #####################################
     # build and install queue
+    if [ x""=x"$(grep nproc /etc/sbopkg/sbopkg.conf 2>/dev/null)" ]; then
+        echo 'export MAKEOPTS="-j$(nproc)"' >> /etc/sbopkg/sbopkg.conf
+    fi
     sbopkg -B -i custom
     #####################################
     # netdata
     groupadd -g 338 netdata 2>/dev/null
     useradd -u 338 -g 338 -c "netdata user" -s /bin/bash netdata 2>/dev/null
     cd /tmp
-    wget https://slackbuilds.org/slackbuilds/14.2/system/netdata.tar.gz &&
-        wget https://github.com/netdata/netdata/archive/v1.29.3/netdata-1.29.3.tar.gz &&
+    $WGET https://slackbuilds.org/slackbuilds/14.2/system/netdata.tar.gz &&
+        $WGET https://github.com/netdata/netdata/archive/v1.29.3/netdata-1.29.3.tar.gz &&
         tar xf netdata.tar.gz &&
         mv netdata/netdata.SlackBuild{,-orig} &&
         cp $HOME/repos/computer-labs/computer-room/files/netdata.SlackBuild netdata/ &&
