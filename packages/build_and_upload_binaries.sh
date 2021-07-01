@@ -66,6 +66,113 @@ aux_slbuild () {
     unset $VERSION
 }
 
+build_packages_sbo () {
+    # create queue
+    cat <<EOF > /var/lib/sbopkg/queues/custom.sqf
+    blas
+    lapack
+    monit | VERSION=5.28.0
+    autossh
+    slim
+    fail2ban
+    corkscrew
+    valgrind
+    modules
+    cppcheck
+    iotop
+    xdm-slackware-theme
+    uuid
+    mongo-c-driver
+    PyYAML
+    arno-iptables-firewall
+    cntlm
+    rrdtool
+    numactl
+    vscode-bin
+    octave | VERSION=6.2.0
+    wol
+    flashplayer-plugin
+    gperftools
+    keepassxc
+    perl-Switch
+    perl-IPC-System-Simple
+    perl-PAR-Dist
+    perl-Module-Build
+    perl-File-Which
+    perl-file-basedir
+    perl-Unix-Syslog
+    perl-Try-Tiny
+    perl-Capture-Tiny
+    perl-DBD-SQLite
+    perl-File-ReadBackwards
+    perl-Config-Simple
+    nx-libs
+    x2goserver
+    pip
+    xfce4-xkb-plugin
+    confuse
+    ganglia | OPT=gmetad
+    ganglia-web | OPT=gmetad
+    munge | VERSION=0.5.14
+    hwloc | VERSION=2.3.0
+    openmpi | VERSION=4.1.1 PMI=yes
+EOF
+    #####################################
+    # Download and fix particular versions
+    cd /tmp
+    TDIR=/var/lib/sbopkg/SBo-git/
+    # x2goserver pre
+    groupadd -g 290 x2gouser
+    useradd -u 290 -g 290 -c "X2Go Remote Desktop" -M -d /var/lib/x2go -s /bin/false x2gouser
+    groupadd -g 291 x2goprint
+    mkdir -p /var/spool/x2goprint &>/dev/null
+    useradd -u 291 -g 291 -c "X2Go Remote Desktop" -m -d /var/spool/x2goprint -s /bin/false x2goprint
+    chown x2goprint:x2goprint /var/spool/x2goprint
+    chmod 0770 /var/spool/x2goprint
+    # monit
+    sed -i.bck 's/ README//' /var/lib/sbopkg/SBo-git/system/monit/monit.SlackBuild
+    FNAME=monit-5.28.0.tar.gz
+    wget https://mmonit.com/monit/dist/$FNAME -O $TDIR/system/monit/$FNAME
+    # octave
+    FNAME=octave-6.2.0.tar.lz
+    wget https://mirror.cedia.org.ec/gnu/octave/$FNAME -O $TDIR/academic/octave/$FNAME
+    # munge
+    FNAME=munge-0.5.14.tar.xz
+    wget https://github.com/dun/munge/releases/download/munge-0.5.14/$FNAME -O $TDIR/network/munge/$FNAME
+    # hwloc
+    FNAME=hwloc-2.3.0.tar.bz2
+    wget https://download.open-mpi.org/release/hwloc/v2.3/$FNAME -O $TDIR/system/hwloc/$FNAME
+    # slurm
+    groupadd -g 311 slurm
+    useradd -u 311 -d /var/lib/slurm -s /bin/false -g slurm slurm
+    FNAME=slurm-20.11.7.tar.bz2
+    wget https://download.schedmd.com/slurm/$FNAME -O $TDIR/network/slurm/$FNAME
+    cd $TDIR/network/slurm
+    VERSION=20.11.7 HWLOC=yes RRDTOOL=yes bash slurm.SlackBuildw
+    # TODO Fix slurm since version option is not read
+    # openmpi
+    FNAME=openmpi-4.1.1.tar.bz2
+    wget https://download.open-mpi.org/release/open-mpi/v4.1/$FNAME -O $TDIR/system/openmpi/$FNAME
+    #####################################
+    # build and install queue
+    sbopkg -B -i custom
+    #####################################
+    # netdata
+    groupadd -g 338 netdata 2>/dev/null
+    useradd -u 338 -g 338 -c "netdata user" -s /bin/bash netdata 2>/dev/null
+    cd /tmp
+    wget https://slackbuilds.org/slackbuilds/14.2/system/netdata.tar.gz &&
+        wget https://github.com/netdata/netdata/archive/v1.29.3/netdata-1.29.3.tar.gz &&
+        tar xf netdata.tar.gz &&
+        mv netdata/netdata.SlackBuild{,-orig} &&
+        cp $HOME/repos/computer-labs/computer-room/files/netdata.SlackBuild netdata/ &&
+        chmod +x netdata/netdata.SlackBuild &&
+        tar czf netdata.tar.gz netdata &&
+        slpkg -a netdata.tar.gz netdata-1.29.3.tar.gz &&
+        chmod +x /etc/rc.d/rc.netdata
+
+}
+
 build_packages () {
     # fix slpkg downgrade checking with no installed version. Fixes authossh and nx-libs
     sed -i.bck 's/ins_ver = "0"/return False/' /usr/lib64/python3.9/site-packages/slpkg/sbo/slackbuild.py
@@ -165,7 +272,8 @@ rm -f *tgz *txz
 
 # build packages
 pm "Building packages ..."
-build_packages
+#build_packages
+build_packages_sbo
 
 # read auth config: USER, PASSWD, IP. YOU WILL HAVE TO COPY THE PUBLIC KEY
 echo "Do not forget to copy the public id into the server"

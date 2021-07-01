@@ -186,6 +186,33 @@ EOF
     pm "DONE: $MSG"
 }
 
+sbopkg_install () {
+    MSG="Installing sbopkg"
+    pm "$MSG"
+    ##### installation #####
+    echo "Checking installation ..."
+    if hash sbopkg 2>/dev/null ; then
+        pm "#    -> already installed"
+    else
+        wget https://sbopkg.org/test/sbopkg-0.38.2-noarch-1_wsr.tgz
+        upgradepkg --install-new  sbopkg-0.38.2-noarch-1_wsr.tgz
+    fi
+    #### configuration ####
+    fname=/etc/sbopkg/sbopkg.conf
+    if [ x"" = x"$(grep 'current' $fname | grep -v grep)" ]; then
+        backup_file ${fname}
+        sed -i.bck 's/-15.0/-current/; s/-SBo/-SBo-git/' ${fname}
+        mkdir -p /var/lib/sbopkg/SBo/{14.2,15.0} 2>/dev/null
+        mkdir -p /var/log/sbopkg 2>/dev/null
+        mkdir -p /var/lib/sbopkg/queues 2>/dev/null
+        mkdir -p /var/cache/sbopkg 2>/dev/null
+        mkdir -p /tmp/SBo 2>/dev/null
+    fi
+    sbopkg -r
+    pm "DONE: $MSG"
+}
+
+
 dhcpcd_clientid () {
     # This is useful for some dhpc servers that don understand the ipv6 stuff
     MSG="Configuring dhcpcd to send the mac to the dhcp server"
@@ -325,6 +352,7 @@ config_xinitrc
 config_latam_kbd
 config_bashrc
 slpkg_install
+sbopkg_install
 slackpkgmirror
 
 pm "Done."
