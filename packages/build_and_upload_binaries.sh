@@ -91,7 +91,6 @@ build_packages_sbo () {
     vscode-bin
     octave | VERSION=6.2.0
     wol
-    flashplayer-plugin
     gperftools
     keepassxc
     perl-Switch
@@ -108,7 +107,6 @@ build_packages_sbo () {
     perl-Config-Simple
     nx-libs
     x2goserver
-    pip
     xfce4-xkb-plugin
     confuse
     ganglia | OPT=gmetad
