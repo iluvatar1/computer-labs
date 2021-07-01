@@ -128,6 +128,12 @@ REFS:
 - https://www.smork.info/blog/2015/06/10/fixing_bash_tab_completion_in_xfce.html
 - https://stackoverflow.com/questions/23418831/command-line-auto-complete-tab-key-not-work-in-terminal-for-ubuntu
 -
+** virtualbox gui dying with glib error
+Run
+#+begin_src shell
+VBoxManage setextradata global GUI/UpdateDate never
+#+end_src
+REF: https://www.linuxquestions.org/questions/slackware-14/cannot-register-existing-type-%27nmagentmanagererror%27-4175690823/
 * NOTES
 ** Remote x11 connection with opengl hardware acceleration
 - Server config
