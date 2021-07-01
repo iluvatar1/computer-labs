@@ -18,6 +18,8 @@
       "format": "ovf",
       "boot_wait": "10s",
       "force_delete_snapshot": true,
+      "boot_keygroup_interval": "1s",
+      "headless": false,
       "boot_command":
       [
         "<wait>s<enter>",
@@ -62,11 +64,6 @@
         "echo PermitRootLogin yes >> /etc/ssh/sshd_config<enter>",
         "/etc/rc.d/rc.sshd restart<enter>",
         "liloconfig<wait><enter><down><wait><enter><wait><enter><wait><enter><wait><enter><wait><enter><wait8s>"
-      ],
-      "vboxmanage":
-      [
-        [ "modifyvm", "{{.Name}}", "--recording", "on"],
-        [ "modifyvm", "{{.Name}}", "--recordingfile", "./videocap.webm"]
       ]
     }
   ]

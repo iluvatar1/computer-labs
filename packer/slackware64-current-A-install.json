@@ -1,7 +1,7 @@
 {
   "variables":
   {
-    "run_command": "PACKER_LOG=1 packer build -var \"ISO_URL=$HOME/Downloads/iso/slackware64-current-install-dvd.iso\" slackware64-current-A-install.json"
+    "run_command": "PACKER_LOG=1 packer build -var \"ISO_URL=$HOME/Downloads/iso/slackware64-current-install-dvd.iso\" -var CPUS=2 slackware64-current-A-install.json"
   },
   "builders": [
     {
@@ -17,6 +17,8 @@
       "force_delete_snapshot": true,
       "communicator": "none",
       "ssh_username": "root",
+      "boot_keygroup_interval": "1s",
+      "headless": false,
       "boot_command": [
         "<wait><enter><wait25s>",
         "<wait>1<enter>",
@@ -51,114 +53,25 @@
         "<wait>"
       ],
       "vboxmanage": [
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--memory",
-          2000
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--cpus",
-          2
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--vram",
-          128
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--firmware",
-          "efi"
-        ],
-        [
-          "storageattach",
-          "{{.Name}}",
-          "--storagectl", "IDE Controller", "--port", "0", "--device", "1",
-          "--type", "dvddrive", "--medium", "{{user `ISO_URL`}}"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--cpuhotplug",
-          "on"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--hwvirtex",
-          "on"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--accelerate3d",
-          "on"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--rtcuseutc",
-          "on"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--graphicscontroller",
-          "vmsvga"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--nic1",
-          "nat"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--clipboard-mode",
-          "bidirectional"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--draganddrop",
-          "bidirectional"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--audiocontroller",
-          "ac97"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--audioout",
-          "on"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--usbohci",
-          "on"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--usbehci",
-          "off"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--usbxhci",
-          "off"
-        ]
+        [ "modifyvm", "{{.Name}}", "--memory", 2000],
+        [ "modifyvm", "{{.Name}}", "--cpus",  "{{user `CPUS`}}"],
+        [ "modifyvm", "{{.Name}}", "--vram", 128 ],
+        [ "modifyvm", "{{.Name}}", "--firmware", "efi"],
+        [ "storageattach", "{{.Name}}", "--storagectl", "IDE Controller", "--port", "0",
+          "--device", "1", "--type", "dvddrive", "--medium", "{{user `ISO_URL`}}" ],
+        [ "modifyvm", "{{.Name}}", "--cpuhotplug", "on"],
+        [ "modifyvm", "{{.Name}}", "--hwvirtex", "on"],
+        [ "modifyvm", "{{.Name}}", "--accelerate3d", "on"],
+        [ "modifyvm", "{{.Name}}", "--rtcuseutc", "on"],
+        [ "modifyvm", "{{.Name}}", "--graphicscontroller", "vmsvga"],
+        [ "modifyvm", "{{.Name}}", "--nic1", "nat"],
+        [ "modifyvm", "{{.Name}}", "--clipboard-mode", "bidirectional"],
+        [ "modifyvm", "{{.Name}}", "--draganddrop", "bidirectional"],
+        [ "modifyvm", "{{.Name}}", "--audiocontroller", "ac97"],
+        [ "modifyvm", "{{.Name}}", "--audioout", "on"],
+        [ "modifyvm", "{{.Name}}", "--usbohci", "on"],
+        [ "modifyvm", "{{.Name}}", "--usbehci", "off"],
+        [ "modifyvm", "{{.Name}}", "--usbxhci", "off"]
       ],
       "vboxmanage_post":
       [
