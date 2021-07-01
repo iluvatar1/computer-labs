@@ -1,0 +1,2 @@
+VBoxManage controlvm base_slack_machine poweroff
+VBoxManage unregistervm --delete base_slack_machine
