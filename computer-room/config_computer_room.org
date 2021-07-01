@@ -960,6 +960,25 @@ function config_netdata {
 
 #+RESULTS: netdata
 
+** Wake on lan
+#+NAME: wol_config
+#+BEGIN_SRC bash :exports code
+# wol
+function config_wol {
+    MSG="Configuring wake on lan"
+    start_msg "$MSG"
+    if [ x"" = x"$(grep -e 'wol' /etc/rc.d/rc.local 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+        cat<<EOF>> /etc/rc.d/rc.local
+echo "Setting Wake-on-LAN to Enabled"
+/usr/sbin/ethtool -s eth0 wol g 
+EOF
+    else
+        echo "  -> Already configured in rc.local"
+    fi    
+    end_msg "$MSG"
+}
+   #+END_SRC
+**
 ** Write final script
 #+BEGIN_SRC bash :exports code :noweb yes :tangle scripts/bootstrap_slackware_computer_room.sh :tangle-mode (identity #o444)
 #!/bin/bash
@@ -1069,6 +1088,8 @@ echo "###############################################"
 
 <<netdata>>
 
+<<wol_config>>
+
 # Call all functions
 all ()
 {
@@ -1090,6 +1111,7 @@ all ()
     config_cntlm
     config_network
     config_proxy
+    config_wol
 }
 
 ##################################
@@ -1114,6 +1136,7 @@ if [[ ($MONIT == 1) ]]; then ColorCyan 'Configuring monit'; config_monit; fi
 if [[ ($SKEL == 1) ]]; then ColorCyan 'Configuring skel'; config_skel; fi
 if [[ ($GANGLIA == 1) ]]; then ColorCyan 'Configuring ganglia'; config_ganglia; fi
 if [[ ($NETDATA == 1) ]]; then ColorCyan 'Configuring netdata'; config_netdata; fi
+if [[ ($WOL == 1) ]]; then ColorCyan 'Configuring wake on lan'; config_wol; fi
 
 ##################################
 # use an interactive menu
@@ -1139,7 +1162,8 @@ if [[ ($NETDATA == 1) ]]; then ColorCyan 'Configuring netdata'; config_netdata; 
 # $(ColorLGreen '16)') /etc/skel
 # $(ColorLGreen '17)') ganglia
 # $(ColorLGreen '18)') netdata
-# $(ColorLGreen '19)') Configure ALL
+# $(ColorLGreen '19)') wol
+# $(ColorLGreen '20)') Configure ALL
 # $(ColorYellow '0)') Exit
 # $(ColorCyan 'Choose an option:') "
 #         read a
@@ -1162,7 +1186,8 @@ if [[ ($NETDATA == 1) ]]; then ColorCyan 'Configuring netdata'; config_netdata; 
 # 	        16) config_skel ; menu ;;
 # 	        17) config_ganglia ; menu ;;
 # 	        18) config_netdata ; menu ;;
-# 	        19) all ; menu ;;
+# 	        19) config_wol ; menu ;;
+# 	        20) all ; menu ;;
 # 		0) exit 0 ;;
 # 		*) echo -e $lred"Wrong option: $a"$clear; exit 1;;
 #         esac
