@@ -154,9 +154,11 @@ EOF
     $WGET https://download.open-mpi.org/release/open-mpi/v4.1/$FNAME -O $TDIR/system/openmpi/$FNAME
     #####################################
     # build and install queue
-    if [ x""=x"$(grep nproc /etc/sbopkg/sbopkg.conf 2>/dev/null)" ]; then
+    if ! grep -q nproc /etc/sbopkg/sbopkg.conf; then
         echo 'export MAKEOPTS="-j$(nproc)"' >> /etc/sbopkg/sbopkg.conf
+        echo 'export MAKEFLAGS="-j$(nproc)"' >> /etc/sbopkg/sbopkg.conf
     fi
+    export MAKEFLAGS="-j$(nproc)"
     sbopkg -B -i custom
     #####################################
     # netdata
