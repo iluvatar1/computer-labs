@@ -8,6 +8,7 @@ CHECK NETWORK eth0 with INTERFACE eth0
       start program = "/etc/rc.d/rc.inet1 eth0_restart"
       stop program = "/etc/rc.d/rc.inet1 eth0_stop"
       if failed link then restart
+      if 5 restarts within 5 cycles then exec "/sbin/telinit 6"
 
 check filesystem rootfs with path /
     if space usage > 90% then alert
@@ -38,6 +39,4 @@ check system $HOST
       if cpu usage > 95% for 10 cycles then alert
       if memory usage > 75% then alert
       if swap usage > 25% then alert
-      if loadavg (1min) per core > 0.80 for 3 cycles then exec "/sbin/reboot -f "
-      if loadavg (5min) per core > 0.80 for 5 cycles then exec "/sbin/reboot -f "
-      if memory usage > 97% for 3 cycles then exec "/sbin/reboot -f "
+      if memory usage > 97% for 5 cycles then exec "/sbin/telinit 6"

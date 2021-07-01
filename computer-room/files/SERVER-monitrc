@@ -2,6 +2,13 @@ CHECK NETWORK eth1 with INTERFACE eth1
       start program = "/etc/rc.d/rc.inet1 eth1_restart"
       stop program = "/etc/rc.d/rc.inet1 eth1_stop"
       if failed link then restart
+      if 5 restarts within 5 cycles then exec "/sbin/telinit 6"
+
+CHECK NETWORK extif with ADDRESS 168.176.35.111
+      start program = "/etc/rc.d/rc.inet1 eth0_restart"
+      stop program = "/etc/rc.d/rc.inet1 eth0_stop"
+      if failed link then restart
+      if 5 restarts within 5 cycles then exec "/sbin/telinit 6"
 
 CHECK process cntlm with pidfile /var/run/cntlm.pid
       #matching "cntlm"
@@ -18,7 +25,7 @@ check process sshd with pidfile /var/run/sshd.pid
       start program "/etc/rc.d/rc.sshd start"
       stop program "/etc/rc.d/rc.sshd stop"
       if failed port 443 protocol ssh then restart
-      if 5 restarts within 10 cycles then exec "/sbin/reboot -f"
+      if 5 restarts within 10 cycles then exec "/sbin/telinit 6"
 
 check filesystem homefs with path /home
     if space usage > 90% then alert
@@ -40,8 +47,13 @@ check system $HOST
       if cpu usage > 95% for 10 cycles then alert
       if memory usage > 75% then alert
       if swap usage > 25% then alert
+      if loadavg (1min) per core > 0.80 for 10 cycles then exec "/sbin/telinit 6"
+      if loadavg (5min) per core > 0.80 for 10 cycles then exec "/sbin/telinit 6"
 
 CHECK process gmetad matching gmetad
       #with pidfile /var/run/gmond.pid
       start program = "/etc/rc.d/rc.gmetad start"
       stop program = "/etc/rc.d/rc.gmetad stop"
+
+CHECK host www.google.com with address www.google.com
+      if failed ping count 1 with timeout 5 seconds for 10 cycles then exec "/sbin/telinit 6"
