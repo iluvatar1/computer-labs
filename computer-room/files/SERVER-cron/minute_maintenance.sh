@@ -32,9 +32,12 @@ fi
 
 # wake on lan
 echo "Wakeonlan"
-if [ -f /root/MACS ] ; then 
-    wol -i 192.168.10.255 -f /root/MACS
+if [ -f /root/MACS ] ; then
+    #wol -i 192.168.10.255 -f /root/MACS
     #wol -f /root/MACS
+    for a in $(cat /root/MACS); do
+        wol -i 192.168.10.255  -p 9 -v $a;
+    done
 else
     echo "File does not exists: /root/MACS"
 fi

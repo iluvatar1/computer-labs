@@ -1687,5 +1687,11 @@ http_port 10000
 acl port10000 myport 10000
 cache_peer_access 168.176.239.30 allow port10000
   #+end_src
-* Todo [0/1]
+* Todo [0/2]
 - [ ] ldap for auth: link with unal server
+- [ ] Check for possible VPN, maybe using wireguard, so to be able to browse
+  internal clients
+  - https://github.com/gsliepen/tinc/tree/1.1
+  - https://tailscale.com/
+  - https://github.com/slackhq/nebula
+  - https://github.com/wiretrustee/wiretrustee
