@@ -58,7 +58,7 @@
         "<wait3s>e<wait3s><enter><wait3s><enter>",
         "<wait3s>n",
 
-        "reboot<enter><wait60s>",
+        "reboot<enter><wait80s>",
         "root<enter>",
         "<wait>vagrant<enter>",
         "echo PermitRootLogin yes >> /etc/ssh/sshd_config<enter>",
