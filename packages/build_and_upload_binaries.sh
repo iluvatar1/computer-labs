@@ -89,7 +89,7 @@ build_packages_sbo () {
     rrdtool
     numactl
     vscode-bin
-    octave | VERSION=6.2.0
+    #octave | VERSION=6.2.0
     wol
     gperftools
     keepassxc
@@ -153,29 +153,32 @@ EOF
         echo 'export MAKEOPTS="-j$(nproc)"' >> /etc/sbopkg/sbopkg.conf
         echo 'export MAKEFLAGS="-j$(nproc)"' >> /etc/sbopkg/sbopkg.conf
     fi
-    MAKEFLAGS="-j$(nproc)" sbopkg -B -i custom
+    MAKEFLAGS="-j$(nproc)" sbopkg -B -k -i custom
     # ganglia: fixes old rpc with new libtirpc
-    printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -i ganglia:OPT=gmetad
-    printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -i ganglia-web:OPT=gmetad
+    printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -k -i ganglia:OPT=gmetad
+    printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -k -i ganglia-web:OPT=gmetad
     # slurm
     # TODO Fix slurm since version option is not read
-    cd $TDIR/network/slurm
-    VERSION=20.11.7 HWLOC=yes RRDTOOL=yes bash slurm.SlackBuild
+    if ! hash slpkg 2>/dev/null; then
+	cd $TDIR/network/slurm
+	MAKEFLAGS="-j$(nproc)" VERSION=20.11.7 HWLOC=yes RRDTOOL=yes bash slurm.SlackBuild
+    fi
     #####################################
     # netdata
-    groupadd -g 338 netdata 2>/dev/null
-    useradd -u 338 -g 338 -c "netdata user" -s /bin/bash netdata 2>/dev/null
-    cd /tmp
-    $WGET https://slackbuilds.org/slackbuilds/14.2/system/netdata.tar.gz &&
-        $WGET https://github.com/netdata/netdata/archive/v1.29.3/netdata-1.29.3.tar.gz &&
-        tar xf netdata.tar.gz &&
-        mv netdata/netdata.SlackBuild{,-orig} &&
-        cp $HOME/repos/computer-labs/computer-room/files/netdata.SlackBuild netdata/ &&
-        chmod +x netdata/netdata.SlackBuild &&
-        tar czf netdata.tar.gz netdata &&
-        slpkg -a netdata.tar.gz netdata-1.29.3.tar.gz &&
-        chmod +x /etc/rc.d/rc.netdata
-
+    if ! hash netdata 2>/dev/null; then
+	groupadd -g 338 netdata 2>/dev/null
+	useradd -u 338 -g 338 -c "netdata user" -s /bin/bash netdata 2>/dev/null
+	cd /tmp
+	$WGET https://slackbuilds.org/slackbuilds/14.2/system/netdata.tar.gz &&
+            $WGET https://github.com/netdata/netdata/archive/v1.29.3/netdata-1.29.3.tar.gz &&
+            tar xf netdata.tar.gz &&
+            mv netdata/netdata.SlackBuild{,-orig} &&
+            cp $HOME/repos/computer-labs/computer-room/files/netdata.SlackBuild netdata/ &&
+            chmod +x netdata/netdata.SlackBuild &&
+            tar czf netdata.tar.gz netdata &&
+            slpkg -a netdata.tar.gz netdata-1.29.3.tar.gz &&
+            chmod +x /etc/rc.d/rc.netdata
+    fi
 }
 
 build_packages () {
