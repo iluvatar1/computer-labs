@@ -109,8 +109,6 @@ build_packages_sbo () {
     x2goserver
     xfce4-xkb-plugin
     confuse
-    ganglia | OPT=gmetad
-    ganglia-web | OPT=gmetad
     munge | VERSION=0.5.14
     hwloc | VERSION=2.3.0
     openmpi | VERSION=4.1.1 PMI=yes
@@ -120,7 +118,7 @@ EOF
     cd /tmp
     TDIR=/var/lib/sbopkg/SBo-git/
     WGET="wget -c "
-    # x2goserver pre
+    # x2goserver prerequisites
     groupadd -g 290 x2gouser
     useradd -u 290 -g 290 -c "X2Go Remote Desktop" -M -d /var/lib/x2go -s /bin/false x2gouser
     groupadd -g 291 x2goprint
@@ -146,9 +144,6 @@ EOF
     useradd -u 311 -d /var/lib/slurm -s /bin/false -g slurm slurm
     FNAME=slurm-20.11.7.tar.bz2
     $WGET https://download.schedmd.com/slurm/$FNAME -O $TDIR/network/slurm/$FNAME
-    cd $TDIR/network/slurm
-    VERSION=20.11.7 HWLOC=yes RRDTOOL=yes bash slurm.SlackBuildw
-    # TODO Fix slurm since version option is not read
     # openmpi
     FNAME=openmpi-4.1.1.tar.bz2
     $WGET https://download.open-mpi.org/release/open-mpi/v4.1/$FNAME -O $TDIR/system/openmpi/$FNAME
@@ -158,8 +153,14 @@ EOF
         echo 'export MAKEOPTS="-j$(nproc)"' >> /etc/sbopkg/sbopkg.conf
         echo 'export MAKEFLAGS="-j$(nproc)"' >> /etc/sbopkg/sbopkg.conf
     fi
-    export MAKEFLAGS="-j$(nproc)"
-    sbopkg -B -i custom
+    MAKEFLAGS="-j$(nproc)" sbopkg -B -i custom
+    # ganglia: fixes old rpc with new libtirpc
+    printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -i ganglia:OPT=gmetad
+    printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -i ganglia-web:OPT=gmetad
+    # slurm
+    # TODO Fix slurm since version option is not read
+    cd $TDIR/network/slurm
+    VERSION=20.11.7 HWLOC=yes RRDTOOL=yes bash slurm.SlackBuild
     #####################################
     # netdata
     groupadd -g 338 netdata 2>/dev/null
