@@ -159,7 +159,7 @@ EOF
     printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -k -i ganglia-web:OPT=gmetad
     # slurm
     # TODO Fix slurm since version option is not read
-    if ! hash slpkg 2>/dev/null; then
+    if ! hash slurmd 2>/dev/null; then
 	cd $TDIR/network/slurm
 	MAKEFLAGS="-j$(nproc)" VERSION=20.11.7 HWLOC=yes RRDTOOL=yes bash slurm.SlackBuild
     fi
