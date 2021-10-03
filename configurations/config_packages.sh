@@ -10,4 +10,5 @@ rm -f /var/log/log-packages.txt 2>/dev/null
     clone_or_update_config_repo
     cd "$BDIR/packages"
     COMPILE=NO bash install_packages_slackware.sh
-} &>> /var/log/log-packages.txt
+}
+2>&1 | tee /var/log/log-packages.txt
