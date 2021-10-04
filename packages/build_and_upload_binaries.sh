@@ -88,6 +88,8 @@ build_packages_sbo () {
     cntlm
     rrdtool
     numactl
+    udpcast
+    iperf3
     vscode-bin
     #octave | VERSION=6.2.0
     wol
@@ -195,7 +197,7 @@ build_packages () {
     keepassxc perl-Capture-Tiny perl-Config-Simple perl-DBD-SQLite
     perl-File-ReadBackwards perl-File-Which perl-IPC-System-Simple
     perl-Module-Build perl-PAR-Dist perl-Switch perl-Try-Tiny
-    perl-Unix-Syslog perl-file-basedir pip xfce4-xkb-plugin)
+    perl-Unix-Syslog perl-file-basedir xfce4-xkb-plugin)
 
     for pkgname in ${PKGS[*]}; do
         echo $pkgname
