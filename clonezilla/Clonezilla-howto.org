@@ -46,7 +46,10 @@ Based on Clonezilla live (not the server)
 
 * Cloning an image to several computers using clonezilla server
 Currently there is a packer config to automate this, inside packer/ directory.
-Use it
+Use it as
+#+begin_src bash
+packer build -var-file clonezilla_vars-server.json slackware64-current-clonezilla-server.json
+#+end_src
 ** lite server (manual)
 *** Direct command  (-sc0? maybe is checking image, remove it)
 1. Mount the remote/external partimag into /home/partimag
