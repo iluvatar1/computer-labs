@@ -1,7 +1,7 @@
 {
   "variables":
   {
-    "run_command":"PACKER_LOG=1 packer build -var-file VARSFILE slackware-current-E-provision.json"
+    "run_command":"PACKER_LOG=1 packer build -var-file VARSFILE slackware64-current-E-provision.json"
   },
   "builders":
   [
@@ -17,7 +17,7 @@
       "target_snapshot": "{{user `snapshot_name`}}",
       "keep_registered": "true",
       "skip_export": "false",
-      "format": "ovf",
+      "format": "ova",
       "boot_wait": "10s",
       "force_delete_snapshot": true,
       "export_opts":
@@ -33,6 +33,9 @@
       "boot_command":
       [
         "<enter><wait40s>"
+      ],
+      "vboxmanage_post": [
+        ["modifyvm", "{{.Name}}", "--firmware", "{{user `FIRMWARE`}}"]
       ]
     }
   ] ,
