@@ -25,10 +25,10 @@
         "<wait>s<enter>",
         "<wait><enter>",
         "<wait><enter>",
-        "<wait><enter><wait5s>",
+        "<wait><enter>",
+        "<wait><enter><wait6s>",
         "<wait><enter>",
 
-        "<wait><enter>",
         "<wait><enter>",
 
         "<wait><enter>",
@@ -46,7 +46,7 @@
         "<wait><enter>",
 
         "<wait>n<enter>",
-        "<wait><pageDown><pageDown><pageDown><pageDown><pageDown><pageDown><pageDown><down><down><down><down><enter>",
+        "<wait><pageDown><pageDown><pageDown><pageDown><pageDown><pageDown><pageDown><down><down><down><down><wait2s><enter>",
 
         "<wait3s>v<enter>",
         "<wait3s><enter>",
@@ -58,13 +58,21 @@
         "<wait3s>e<wait3s><enter><wait3s><enter>",
         "<wait3s>n",
 
-        "reboot<enter><wait80s>",
+        "reboot<enter><wait5s><enter><wait10s><enter><wait80s>",
         "root<enter>",
         "<wait>vagrant<enter>",
         "echo PermitRootLogin yes >> /etc/ssh/sshd_config<enter>",
         "/etc/rc.d/rc.sshd restart<enter>",
         "liloconfig<wait><enter><down><wait><enter><wait><enter><wait><enter><wait><enter><wait><enter><wait8s>"
+      ],
+      "vboxmanage_post":
+      [
+        [
+          "storageattach", "{{.Name}}", "--storagectl", "IDE Controller",
+          "--port", "0", "--device", "1", "--medium", "none"
+        ]
       ]
+
     }
   ]
 }
