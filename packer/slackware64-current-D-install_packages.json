@@ -1,7 +1,7 @@
 {
   "variables":
   {
-    "run_command":"PACKER_LOG=1 packer build   slackware64-current-D_install_packages.json"
+    "run_command":"PACKER_LOG=1 packer build   slackware64-current-D-install_packages.json"
   },
   "builders":
   [
