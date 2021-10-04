@@ -56,7 +56,6 @@
         [ "modifyvm", "{{.Name}}", "--memory", 2000],
         [ "modifyvm", "{{.Name}}", "--cpus",  "{{user `CPUS`}}"],
         [ "modifyvm", "{{.Name}}", "--vram", 128 ],
-        [ "modifyvm", "{{.Name}}", "--firmware", "efi"],
         [ "storageattach", "{{.Name}}", "--storagectl", "IDE Controller", "--port", "0",
           "--device", "1", "--type", "dvddrive", "--medium", "{{user `ISO_URL`}}" ],
         [ "modifyvm", "{{.Name}}", "--cpuhotplug", "on"],

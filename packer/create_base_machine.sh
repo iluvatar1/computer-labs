@@ -6,6 +6,7 @@ set -euo pipefail
 MACHINENAME=${1:-base_slack_machine}
 BASEFOLDER=${BASEFOLDER:-"$HOME/VirtualBox VMs/"}
 DISKPATH="${BASEFOLDER}/${MACHINENAME}/${MACHINENAME}_DISK.vdi"
+FIRMWARE=${FIRMWARE:-efi}
 
 # Download debian.iso
 #if [ ! -f ./debian.iso ]; then
@@ -26,6 +27,7 @@ VBoxManage storageattach $MACHINENAME --storagectl "SATA Controller" --port 0 --
 VBoxManage storagectl $MACHINENAME --name "IDE Controller" --add ide --controller PIIX4
 #VBoxManage storageattach $MACHINENAME --storagectl "IDE Controller" --port 1 --device 0 --type dvddrive --medium `pwd`/debian.iso
 #VBoxManage modifyvm $MACHINENAME --boot1 dvd --boot2 disk --boot3 none --boot4 none
+VBoxManage modifyvm $MACHINENAME --firmware $FIRMWARE
 
 #Enable RDP
 #VBoxManage modifyvm $MACHINENAME --vrde on
