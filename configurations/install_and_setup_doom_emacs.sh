@@ -29,8 +29,7 @@ FNAME=~/.doom.d/packages.el
 echo "-> ${FNAME}"
 backup "${FNAME}"
 cat <<EOF > "${FNAME}"
-(package! modus-vivendi-theme)
-(package! modus-operandi-theme)
+(package! modus-themes)
 (package! try)
 (package! eglot)
 (package! spacemacs-theme)
