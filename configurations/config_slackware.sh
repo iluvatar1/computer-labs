@@ -90,6 +90,7 @@ slackpkgmirror () {
     else
 	    configured "mirror"
     fi
+    printf "Y\n" | slackpkg update
 }
 
 dhcp_eth1 () {
