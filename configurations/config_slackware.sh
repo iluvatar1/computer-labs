@@ -325,6 +325,13 @@ clone_or_update_config_repo () {
 
 }
 
+config_fonts() {
+    # this is needed for xlsfonts to find all fonts and then ddd shows better fonts
+    mkfontscale /usr/share/fonts/100dpi
+    mkfontdir /usr/share/fonts/100dpi
+    xset +fp /usr/share/fonts/100dpi
+    xset fp rehash
+}
 
 #####################################################
 # MAIN
@@ -355,5 +362,5 @@ config_bashrc
 slpkg_install
 sbopkg_install
 slackpkgmirror
-
+config_fonts
 pm "Done."
