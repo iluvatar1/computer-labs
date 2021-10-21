@@ -14,4 +14,8 @@ rm -f /var/log/log-teaching.txt 2>/dev/null
     config_shell_prompt
     #sudo -u live bash fix_tz_xfce4.sh
     install_spack
+    # shared directory
+    if [[ x"" ==  x"$(grep vboxsf /etc/rc.d/rc.local 2>/dev/null)" ]]; then
+        echo "mount -t vboxsf -o rw,uid=1000,gid=1000 shared /media/hd" >> /etc/rc.d/rc.local
+    fi
 } &>> /var/log/log-teaching.txt
