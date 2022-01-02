@@ -1,7 +1,7 @@
 {
   "variables":
   {
-    "run_command":"PACKER_LOG=1 packer build   slackware64-current-D-install_packages.json"
+    "run_command":"PACKER_LOG=1 packer build  -var PROXY=\"http://192.168.10.1\" slackware64-current-D-install_packages.json"
   },
   "builders":
   [
@@ -39,7 +39,8 @@
     {
       "script": "../configurations/config_packages.sh",
       "type": "shell",
-      "valid_exit_codes":[0,2]
+      "valid_exit_codes":[0,2],
+      "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]
     }
   ]
 }
