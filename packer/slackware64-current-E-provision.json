@@ -1,7 +1,7 @@
 {
   "variables":
   {
-    "run_command":"PACKER_LOG=1 packer build -var-file VARSFILE slackware64-current-E-provision.json"
+    "run_command":"PACKER_LOG=1 packer build -var-file VARSFILE -var PROXY=\"http://192.168.10.1\" slackware64-current-E-provision.json"
   },
   "builders":
   [
@@ -44,7 +44,8 @@
     {
       "script": "{{user `provision_script`}}",
       "type": "shell",
-      "valid_exit_codes":[0,2]
+      "valid_exit_codes":[0,2],
+      "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]
     },
     {
       "type": "shell",
