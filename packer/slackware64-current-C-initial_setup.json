@@ -1,7 +1,7 @@
 {
   "variables":
   {
-    "run_command": "LOG_PACKER=1 packer build slackware64-current-C-initial_setup.json"
+    "run_command": "LOG_PACKER=1 packer build -var PROXY=\"http://192.168.10.1\" slackware64-current-C-initial_setup.json"
   },
   "builders":
   [
