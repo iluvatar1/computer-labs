@@ -18,7 +18,7 @@
       "communicator": "none",
       "ssh_username": "root",
       "boot_keygroup_interval": "1s",
-      "headless": false,
+      "headless": true,
       "boot_command": [
         "<wait><enter><wait25s>",
         "<wait>1<enter>",

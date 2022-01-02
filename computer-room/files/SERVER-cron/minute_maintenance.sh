@@ -1,34 +1,35 @@
 #!/bin/bash
 
-echo "Testing network interfaces ..."
-date +%c
-stat=$(/sbin/ifconfig | grep 168.176.35.111);
-if [ "" == "$stat" ]; then
-    echo "Restarting eth0 ..."
-    #    /sbin/ifup eth1
-    #/sbin/ifconfig eth0 down
-    #/sbin/ifconfig eth0 up
-    #/etc/rc.d/rc.inet1 eth0_restart
+# date +%c
 
-    # sometimes is usefull to flush the cache, but it takes around 10 secs
-    # ip addr flush dev eth0
-    dhcpcd -k
-    pkill dhclient
-    sleep 1
-    /etc/rc.d/rc.inet1 eth0_restart
-    #/sbin/dhclient eth0
-fi
-stat=$(/sbin/ifconfig | grep 192.168.10.1);
-if [ x"" == x"$stat" ]; then
-    echo "Restarting eth1 ..."
-    #/sbin/ifconfig eth1 down
-    #/sbin/ifconfig eth1 up
-    /etc/rc.d/rc.inet1 eth1_restart
-#    /sbin/ifdown eth1
-#    /sbin/ifup eth1
-#    /etc/init.d/networking stop
-#    /etc/init.d/networking start
-fi
+# echo "Testing network interfaces ..."
+# stat=$(/sbin/ifconfig | grep 168.176.35.111);
+# if [ "" == "$stat" ]; then
+#     echo "Restarting eth0 ..."
+#     #    /sbin/ifup eth1
+#     #/sbin/ifconfig eth0 down
+#     #/sbin/ifconfig eth0 up
+#     #/etc/rc.d/rc.inet1 eth0_restart
+
+#     # sometimes is usefull to flush the cache, but it takes around 10 secs
+#     # ip addr flush dev eth0
+#     dhcpcd -k
+#     pkill dhclient
+#     sleep 1
+#     /etc/rc.d/rc.inet1 eth0_restart
+#     #/sbin/dhclient eth0
+# fi
+# stat=$(/sbin/ifconfig | grep 192.168.10.1);
+# if [ x"" == x"$stat" ]; then
+#     echo "Restarting eth1 ..."
+#     #/sbin/ifconfig eth1 down
+#     #/sbin/ifconfig eth1 up
+#     /etc/rc.d/rc.inet1 eth1_restart
+# #    /sbin/ifdown eth1
+# #    /sbin/ifup eth1
+# #    /etc/init.d/networking stop
+# #    /etc/init.d/networking start
+# fi
 
 # wake on lan
 echo "Wakeonlan"
