@@ -32,7 +32,8 @@ config_shell_prompt () {
     echo "Configuring bashit"
     if [ ! -d /home/live/.bash_it ]; then
         cd /home/live || exit
-        sudo -u live git clone --depth=1 https://github.com/Bash-it/bash-it.git /home/live/.bash_it
+        git clone --depth=1 https://github.com/Bash-it/bash-it.git /home/live/.bash_it
+        chown -R live.users /home/live/.bash_it
         sudo -u live /home/live/.bash_it/install.sh --silent
     else
         echo "Already configured"
