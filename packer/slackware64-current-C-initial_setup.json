@@ -39,12 +39,14 @@
     {
       "script": "../configurations/vbox_guest_additions.sh",
       "type": "shell",
-      "valid_exit_codes":[0,2]
+      "valid_exit_codes":[0,2],
+      "environment_vars":["https_proxy={{user `PROXY`}}"]
     },
     {
       "script": "../configurations/config_slackware.sh",
       "type": "shell",
-      "valid_exit_codes":[0,2]
+      "valid_exit_codes":[0,2],
+      "environment_vars":["https_proxy={{user `PROXY`}}"]
     }
   ]
 }
