@@ -1,2 +1,3 @@
-VBoxManage controlvm base_slack_machine poweroff
-VBoxManage unregistervm --delete base_slack_machine
+MACHINENAME=${MACHINENAME:-base_slack_machine}
+VBoxManage controlvm $MACHINENAME poweroff
+VBoxManage unregistervm --delete $MACHINENAME

@@ -1,7 +1,7 @@
 {
   "variables":
   {
-    "run_command": "LOG_PACKER=1 packer build -var PROXY=\"http://192.168.10.1\" slackware64-current-C-initial_setup.json"
+    "run_command": "LOG_PACKER=1 packer build -var PROXY=\"http://192.168.10.1\" -var \"MACHINENAME=base_slack_machine\" slackware64-current-C-initial_setup.json"
   },
   "builders":
   [
@@ -11,7 +11,7 @@
       "ssh_password": "vagrant",
       "ssh_pty": true,
       "ssh_username": "root",
-      "vm_name": "base_slack_machine",
+      "vm_name": "{{user `MACHINENAME`}}",
       "attach_snapshot": "After finished install",
       "target_snapshot": "After initial config",
       "keep_registered": "true",

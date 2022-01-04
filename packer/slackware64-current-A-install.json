@@ -1,7 +1,7 @@
 {
   "variables":
   {
-    "run_command": "PACKER_LOG=1 packer build -var \"ISO_URL=$HOME/Downloads/iso/slackware64-current-install-dvd.iso\" -var CPUS=2 slackware64-current-A-install.json"
+    "run_command": "PACKER_LOG=1 packer build -var \"ISO_URL=$HOME/Downloads/iso/slackware64-current-install-dvd.iso\" -var \"MACHINENAME=base_slack_machine\" -var CPUS=2 slackware64-current-A-install.json"
   },
   "builders": [
     {
@@ -9,7 +9,7 @@
       "disable_shutdown": false,
       "shutdown_command": "",
       "shutdown_timeout": "5s",
-      "vm_name": "base_slack_machine",
+      "vm_name": "{{user `MACHINENAME`}}",
       "keep_registered": true,
       "skip_export": true,
       "guest_additions_mode": "disable",

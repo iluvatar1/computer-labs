@@ -1,7 +1,7 @@
 {
   "variables":
   {
-    "run_command":"PACKER_LOG=1 packer build slackware64-current-B-finish_install.json"
+    "run_command":"PACKER_LOG=1 packer build -var \"MACHINENAME=base_slack_machine\" slackware64-current-B-finish_install.json"
   },
   "builders": [
     {
@@ -10,7 +10,7 @@
       "ssh_password": "vagrant",
       "ssh_pty": true,
       "ssh_username": "root",
-      "vm_name": "base_slack_machine",
+      "vm_name": "{{user `MACHINENAME`}}",
       "attach_snapshot": "After slackware package install",
       "target_snapshot": "After finished install",
       "keep_registered": "true",
