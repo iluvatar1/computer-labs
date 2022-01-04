@@ -285,10 +285,12 @@ pm "Building packages ..."
 #build_packages
 build_packages_sbo
 
-# read auth config: USER, PASSWD, IP. YOU WILL HAVE TO COPY THE PUBLIC KEY
+# read auth config: USER, PASSWD, IP. YOU WILL HAVE TO COPY THE PUBLIC KEY for passwordless
 echo "Do not forget to copy the public id into the server"
-LOCALUSER=${LOCALUSER:-oquendo}
-IP=${IP:-localhost}
+USERNAME=${USERNAME:-oquendo}
+IP=${IP:-127.0.0.1}
+PASSWORD=${PASSWORD:-NULL}
+PORT=${PORT:-22}
 
 # upload both packages and PACKAGES.txt
 pm "Sending packages ..."
@@ -298,5 +300,5 @@ mv *tgz PACKAGES/
 cd PACKAGES
 for a in *tgz; do
     pm "$a ..."
-    rsync -e 'ssh -o StrictHostKeyChecking=no' -av $a $LOCALUSER@$IP:/var/www/html/PACKAGES/slackware64-current/$a
+    rsync -e 'ssh -o StrictHostKeyChecking=no -p '$PORT' ' -av $a $USERNAME:$PASSWORD@$IP:/var/www/html/PACKAGES/slackware64-current/$a
 done
