@@ -2,7 +2,6 @@ CHECK NETWORK eth1 with INTERFACE eth1
       start program = "/etc/rc.d/rc.inet1 eth1_restart"
       stop program = "/etc/rc.d/rc.inet1 eth1_stop"
       if failed link then restart
-      if 5 restarts within 5 cycles then exec "/sbin/telinit 6"
 
 CHECK NETWORK extif with ADDRESS 168.176.35.111
       start program = "/etc/rc.d/rc.inet1 eth0_restart"
@@ -36,6 +35,11 @@ check process ypserv with pidfile /var/run/ypserv.pid
       start program = "/etc/rc.d/rc.yp start"
       stop program = "/etc/rc.d/rc.yp stop"
 
+CHECK process gmetad matching gmetad
+      #with pidfile /var/run/gmond.pid
+      start program = "/etc/rc.d/rc.gmetad start"
+      stop program = "/etc/rc.d/rc.gmetad"
+
 # Monit NFS Server Monitoring
 check process NFS with pidfile /var/run/rpc.statd.pid
       start program = "/etc/rc.d/rc.nfsd start"
@@ -47,13 +51,8 @@ check system $HOST
       if cpu usage > 95% for 10 cycles then alert
       if memory usage > 75% then alert
       if swap usage > 25% then alert
-      if loadavg (1min) per core > 0.80 for 10 cycles then exec "/sbin/telinit 6"
-      if loadavg (5min) per core > 0.80 for 10 cycles then exec "/sbin/telinit 6"
-
-CHECK process gmetad matching gmetad
-      #with pidfile /var/run/gmond.pid
-      start program = "/etc/rc.d/rc.gmetad start"
-      stop program = "/etc/rc.d/rc.gmetad stop"
+      #if loadavg (1min) per core > 0.80 for 10 cycles then exec "/sbin/telinit 6"
+      #if loadavg (5min) per core > 0.80 for 10 cycles then exec "/sbin/telinit 6"
 
 CHECK host www.google.com with address www.google.com
-      if failed ping count 1 with timeout 5 seconds for 10 cycles then exec "/sbin/telinit 6"
+      if failed ping count 1 with timeout 5 seconds for 10 cycles then exec "/etc/rc/d/rc/inet1 eth0_restart"
