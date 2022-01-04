@@ -94,6 +94,8 @@ build_packages_sbo () {
     #octave | VERSION=6.2.0
     wol
     gperftools
+    kitty
+    bat
     keepassxc
     perl-Switch
     perl-IPC-System-Simple
