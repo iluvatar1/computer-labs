@@ -1,0 +1,47 @@
+{
+  "variables":
+  {
+    "run_command":"PACKER_LOG=1 packer build -var \"MACHINENAME=base_slack_machine\"  -var PROXY=\"http://192.168.10.1\" slackware64-current-D-build_packages.json"
+  },
+  "builders":
+  [
+    {
+      "type": "virtualbox-vm",
+      "shutdown_command": "shutdown -h now",
+      "ssh_password": "vagrant",
+      "ssh_pty": true,
+      "ssh_username": "root",
+      "vm_name": "{{user `MACHINENAME`}}",
+      "attach_snapshot": "After initial config",
+      "target_snapshot": "{{user `TSNAPSHOT`}}",
+      "keep_registered": "true",
+      "skip_export": "true",
+      "boot_wait": "10s",
+      "force_delete_snapshot": true,
+      "export_opts":
+      [
+        "--manifest",
+        "--vsys",
+        "0",
+        "--description",
+        "Slackware64 current with extra packages",
+        "--version",
+        "0.1.0"
+      ],
+      "boot_command":
+      [
+        "<enter><wait40s>"
+      ]
+    }
+  ] ,
+  "provisioners":
+  [
+    {
+      "script": "../../packages/build_and_upload_binaries.sh",
+      "type": "shell",
+      "valid_exit_codes":[0,2],
+      "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}", "USERNAME={{user `USERNAME`}}",
+                          "PASSWORD={{user `PASSWORD`}}", "IP={{user `IP`}}", "PORT={{user `PORT`}}"]
+    }
+  ]
+}
