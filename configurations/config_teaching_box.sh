@@ -3,7 +3,7 @@
 ###############################################################################
 # Main 
 ###############################################################################
-rm -f /var/log/log-teaching.txt 2>/dev/null
+rm -f /tmp/log-teaching.txt 2>/dev/null
 {
     BDIR="$HOME/repos/computer-labs/"
     source $BDIR/configurations/config_functions.sh
@@ -18,4 +18,4 @@ rm -f /var/log/log-teaching.txt 2>/dev/null
     if [[ x"" ==  x"$(grep vboxsf /etc/rc.d/rc.local 2>/dev/null)" ]]; then
         echo "mount -t vboxsf -o rw,uid=1000,gid=1000 shared /media/hd 2>/dev/null" >> /etc/rc.d/rc.local
     fi
-} 2>&1 | tee /var/log/log-teaching.txt
+} 2>&1 | tee /tmp/log-teaching.txt

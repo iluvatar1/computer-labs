@@ -3,7 +3,7 @@
 ###############################################################################
 # Main 
 ###############################################################################
-rm -f /var/log/log-client.txt 2>/dev/null
+rm -f /tmp/log-client.txt 2>/dev/null
 {
     BDIR="$HOME/repos/computer-labs/"
     source $BDIR/configurations/config_functions.sh
@@ -15,4 +15,4 @@ rm -f /var/log/log-client.txt 2>/dev/null
     # run the config script
     cd scripts
     ALL=1 bash bootstrap_slackware_computer_room.sh ../files CLIENT
-} &>> /var/log/log-client.txt
+} 2>&1 | tee /tmp/log-client.txt
