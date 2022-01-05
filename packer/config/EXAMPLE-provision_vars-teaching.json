@@ -1,5 +1,5 @@
 {
-    "provision_script":"../configurations/config_teaching_box.sh",
+    "provision_script":"{{env `HOME`}}/repos/computer-labs/configurations/config_teaching_box.sh",
     "snapshot_name": "Teaching box configured",
     "output_dir": "{{env `HOME`}}/Downloads/box_teaching",
     "root_password": "ROOT_PASSWORD",
