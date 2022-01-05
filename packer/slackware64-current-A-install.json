@@ -58,7 +58,7 @@
         [ "modifyvm", "{{.Name}}", "--vram", 128 ],
         [ "storageattach", "{{.Name}}", "--storagectl", "IDE Controller", "--port", "0",
           "--device", "1", "--type", "dvddrive", "--medium", "{{user `ISO_URL`}}" ],
-        [ "modifyvm", "{{.Name}}", "--cpuhotplug", "on"],
+        [ "modifyvm", "{{.Name}}", "--cpuhotplug", "off"],
         [ "modifyvm", "{{.Name}}", "--hwvirtex", "on"],
         [ "modifyvm", "{{.Name}}", "--accelerate3d", "on"],
         [ "modifyvm", "{{.Name}}", "--rtcuseutc", "on"],
