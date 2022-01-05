@@ -1,7 +1,8 @@
 {
   "variables":
   {
-    "run_command":"PACKER_LOG=1 packer build -var-file VARSFILE -var \"MACHINENAME=base_slack_machine\" -var PROXY=\"http://192.168.10.1\" slackware64-current-E-provision.json"
+      "run_command":"PACKER_LOG=1 packer build -var-file VARSFILE -var \"MACHINENAME=base_slack_machine\" -var PROXY=\"http://192.168.10.1\" slackware64-current-E-provision.json",
+       "home": "{{env `HOME`}}"
   },
   "builders":
   [
