@@ -1,7 +1,8 @@
 {
   "variables":
   {
-    "run_command": "LOG_PACKER=1 packer build -var PROXY=\"http://192.168.10.1\" -var \"MACHINENAME=base_slack_machine\" slackware64-current-C-initial_setup.json"
+      "run_command": "LOG_PACKER=1 packer build -var PROXY=\"http://192.168.10.1\" -var \"MACHINENAME=base_slack_machine\" slackware64-current-C-initial_setup.json",
+      "home": "{{env `HOME`}}" 
   },
   "builders":
   [
@@ -37,13 +38,13 @@
   "provisioners":
   [
     {
-      "script": "../configurations/vbox_guest_additions.sh",
+      "script": "{{user `home`}}/repos/computer-labs/configurations/vbox_guest_additions.sh",
       "type": "shell",
       "valid_exit_codes":[0,2],
       "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]
     },
     {
-      "script": "../configurations/config_slackware.sh",
+      "script": "{{user `home`}}/repos/computer-labs/configurations/config_slackware.sh",
       "type": "shell",
       "valid_exit_codes":[0,2],
       "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]

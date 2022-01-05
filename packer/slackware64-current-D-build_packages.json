@@ -1,7 +1,8 @@
 {
   "variables":
   {
-    "run_command":"PACKER_LOG=1 packer build -var \"MACHINENAME=base_slack_machine\"  -var PROXY=\"http://192.168.10.1\" -var CUPS=4 slackware64-current-D-build_packages.json"
+      "run_command":"PACKER_LOG=1 packer build -var \"MACHINENAME=base_slack_machine\"  -var PROXY=\"http://192.168.10.1\" -var CUPS=4 slackware64-current-D-build_packages.json",
+       "home": "{{env `HOME`}}"
   },
   "builders":
   [
@@ -42,7 +43,7 @@
   "provisioners":
   [
     {
-      "script": "../../packages/build_and_upload_binaries.sh",
+      "script": "{{user `home`}}/repos/computer-labs/packages/build_and_upload_binaries.sh",
       "type": "shell",
       "valid_exit_codes":[0,2],
       "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}", "USERNAME={{user `USERNAME`}}",
