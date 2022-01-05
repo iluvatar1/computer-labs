@@ -111,13 +111,16 @@ EOF
     sed -i.bck 's/ README//' /var/lib/sbopkg/SBo-git/system/monit/monit.SlackBuild
     FNAME=monit-5.29.0.tar.gz
     $WGET https://mmonit.com/monit/dist/$FNAME -O $TDIR/system/monit/$FNAME
+    # netdata
+    groupadd -g 338 netdata 2>/dev/null
+    useradd -u 338 -g 338 -c "netdata user" -s /bin/bash netdata 2>/dev/null
     #####################################
     # build and install queue
     if ! grep -q nproc /etc/sbopkg/sbopkg.conf; then
         echo 'export MAKEOPTS="-j$(nproc)"' >> /etc/sbopkg/sbopkg.conf
         echo 'export MAKEFLAGS="-j$(nproc)"' >> /etc/sbopkg/sbopkg.conf
     fi
-    printf "Q\nQ\nQ\n" | MAKEFLAGS="-j$(nproc)" sbopkg -B -k -i custom # WARNING: Add Q\n for each package with options
+    printf "Q\nQ\nQ\n" | MAKEFLAGS="-j$(nproc)" sbopkg -e continue -B -k -i custom # WARNING: Add Q\n for each package with options
     # ganglia: fixes old rpc with new libtirpc
     #printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -k -i ganglia:OPT=gmetad
     #printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -k -i ganglia-web:OPT=gmetad
