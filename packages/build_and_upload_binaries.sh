@@ -45,55 +45,27 @@ pm () {
     ColorCyan "$1"
 }
 
-setup () {
-    if hash slpkg &> /dev/null; then
-        pm "Updating slpkg ..."
-        source /root/.bashrc
-        slpkg upgrade
-    else
-        pm "ERROR: slpkg not installed. Exiting"
-        exit 1
-    fi
-}
-
-aux_slbuild () {
-    cd /tmp
-    wget "$1"
-    wget "$2"
-    slname="$(basename $1)"
-    pkgname="$(basename $2)"
-    slpkg -a "$slname" "$pkgname"
-    unset $VERSION
-}
-
 build_packages_sbo () {
     # create queue
     cat <<EOF > /var/lib/sbopkg/queues/custom.sqf
     blas
     lapack
-    monit | VERSION=5.28.0
+    monit | VERSION=5.29.0
     autossh
     slim
     fail2ban
     corkscrew
-    valgrind
-    modules
-    cppcheck
+    sshpass
     iotop
     xdm-slackware-theme
     uuid
     mongo-c-driver
-    PyYAML
     arno-iptables-firewall
     cntlm
     rrdtool
-    numactl
     udpcast
-    iperf3
     vscode-bin
-    #octave | VERSION=6.2.0
     wol
-    gperftools
     kitty
     bat
     keepassxc
@@ -112,10 +84,15 @@ build_packages_sbo () {
     nx-libs
     x2goserver
     xfce4-xkb-plugin
+    netdata
+    munge 
     confuse
-    munge | VERSION=0.5.14
-    hwloc | VERSION=2.3.0
-    openmpi | VERSION=4.1.1 PMI=yes
+    ganglia | OPT=gmetad
+    ganglia-web | OPT=gmetad    
+    hwloc
+    numactl
+    rrdtool
+    #slurm | VERSION=20.11.8 HWLOC=yes RRDTOOL=yes NUMA=yes
 EOF
     #####################################
     # Download and fix particular versions
@@ -132,159 +109,55 @@ EOF
     chmod 0770 /var/spool/x2goprint
     # monit
     sed -i.bck 's/ README//' /var/lib/sbopkg/SBo-git/system/monit/monit.SlackBuild
-    FNAME=monit-5.28.0.tar.gz
+    FNAME=monit-5.29.0.tar.gz
     $WGET https://mmonit.com/monit/dist/$FNAME -O $TDIR/system/monit/$FNAME
-    # octave
-    FNAME=octave-6.2.0.tar.lz
-    $WGET https://mirror.cedia.org.ec/gnu/octave/$FNAME -O $TDIR/academic/octave/$FNAME
-    # munge
-    FNAME=munge-0.5.14.tar.xz
-    $WGET https://github.com/dun/munge/releases/download/munge-0.5.14/$FNAME -O $TDIR/network/munge/$FNAME
-    # hwloc
-    FNAME=hwloc-2.3.0.tar.bz2
-    $WGET https://download.open-mpi.org/release/hwloc/v2.3/$FNAME -O $TDIR/system/hwloc/$FNAME
-    # slurm
-    groupadd -g 311 slurm
-    useradd -u 311 -d /var/lib/slurm -s /bin/false -g slurm slurm
-    FNAME=slurm-20.11.7.tar.bz2
-    $WGET https://download.schedmd.com/slurm/$FNAME -O $TDIR/network/slurm/$FNAME
-    # openmpi
-    FNAME=openmpi-4.1.1.tar.bz2
-    $WGET https://download.open-mpi.org/release/open-mpi/v4.1/$FNAME -O $TDIR/system/openmpi/$FNAME
     #####################################
     # build and install queue
     if ! grep -q nproc /etc/sbopkg/sbopkg.conf; then
         echo 'export MAKEOPTS="-j$(nproc)"' >> /etc/sbopkg/sbopkg.conf
         echo 'export MAKEFLAGS="-j$(nproc)"' >> /etc/sbopkg/sbopkg.conf
     fi
-    MAKEFLAGS="-j$(nproc)" sbopkg -B -k -i custom
+    printf "Q\nQ\nQ\n" | MAKEFLAGS="-j$(nproc)" sbopkg -B -k -i custom # WARNING: Add Q\n for each package with options
     # ganglia: fixes old rpc with new libtirpc
-    printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -k -i ganglia:OPT=gmetad
-    printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -k -i ganglia-web:OPT=gmetad
+    #printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -k -i ganglia:OPT=gmetad
+    #printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -k -i ganglia-web:OPT=gmetad
     # slurm
     # TODO Fix slurm since version option is not read
     if ! hash slurmd 2>/dev/null; then
-	cd $TDIR/network/slurm
-	MAKEFLAGS="-j$(nproc)" VERSION=20.11.7 HWLOC=yes RRDTOOL=yes bash slurm.SlackBuild
+	groupadd -g 311 slurm
+	useradd -u 311 -d /var/lib/slurm -s /bin/false -g slurm slurm
+	FNAME=slurm-20.11.8.tar.bz2
+	$WGET https://download.schedmd.com/slurm/$FNAME -O $TDIR/network/slurm/$FNAME
+    	cd $TDIR/network/slurm
+      	MAKEFLAGS="-j$(nproc)" VERSION=20.11.8 HWLOC=yes RRDTOOL=yes bash slurm.SlackBuild
+	installpkg /tmp/slurm-20.11.8-x86_64-1_SBo.tgz
     fi
     #####################################
     # netdata
-    if ! hash netdata 2>/dev/null; then
-	groupadd -g 338 netdata 2>/dev/null
-	useradd -u 338 -g 338 -c "netdata user" -s /bin/bash netdata 2>/dev/null
-	cd /tmp
-	$WGET https://slackbuilds.org/slackbuilds/14.2/system/netdata.tar.gz &&
-            $WGET https://github.com/netdata/netdata/archive/v1.29.3/netdata-1.29.3.tar.gz &&
-            tar xf netdata.tar.gz &&
-            mv netdata/netdata.SlackBuild{,-orig} &&
-            cp $HOME/repos/computer-labs/computer-room/files/netdata.SlackBuild netdata/ &&
-            chmod +x netdata/netdata.SlackBuild &&
-            tar czf netdata.tar.gz netdata &&
-            slpkg -a netdata.tar.gz netdata-1.29.3.tar.gz &&
-            chmod +x /etc/rc.d/rc.netdata
-    fi
+    # if ! hash netdata 2>/dev/null; then
+    # 	groupadd -g 338 netdata 2>/dev/null
+    # 	useradd -u 338 -g 338 -c "netdata user" -s /bin/bash netdata 2>/dev/null
+    # 	cd /tmp
+    # 	$WGET https://slackbuilds.org/slackbuilds/14.2/system/netdata.tar.gz &&
+    #         $WGET https://github.com/netdata/netdata/archive/v1.29.3/netdata-1.29.3.tar.gz &&
+    #         tar xf netdata.tar.gz &&
+    #         mv netdata/netdata.SlackBuild{,-orig} &&
+    #         cp $HOME/repos/computer-labs/computer-room/files/netdata.SlackBuild netdata/ &&
+    #         chmod +x netdata/netdata.SlackBuild &&
+    #         tar czf netdata.tar.gz netdata &&
+    #         slpkg -a netdata.tar.gz netdata-1.29.3.tar.gz &&
+    #         chmod +x /etc/rc.d/rc.netdata
+    # fi
 }
-
-build_packages () {
-    # fix slpkg downgrade checking with no installed version. Fixes authossh and nx-libs
-    sed -i.bck 's/ins_ver = "0"/return False/' /usr/lib64/python3.9/site-packages/slpkg/sbo/slackbuild.py
-
-    # Define SLPKG command
-    SLPKG="slpkg -s sbo --rebuild"
-
-    PKGS=(blas lapack keepassx  autossh slim fail2ban corkscrew
-    valgrind modules cppcheck iotop xdm-slackware-theme  uuid
-    mongo-c-driver PyYAML arno-iptables-firewall cntlm confuse
-    rrdtool numactl vscode-bin wol flashplayer-plugin gperftools
-    keepassxc perl-Capture-Tiny perl-Config-Simple perl-DBD-SQLite
-    perl-File-ReadBackwards perl-File-Which perl-IPC-System-Simple
-    perl-Module-Build perl-PAR-Dist perl-Switch perl-Try-Tiny
-    perl-Unix-Syslog perl-file-basedir xfce4-xkb-plugin)
-
-    for pkgname in ${PKGS[*]}; do
-        echo $pkgname
-        $SLPKG $pkgname
-    done
-    # Particular builds
-    # nx-libs lite
-    wget https://slackbuilds.org/slackbuilds/14.2/libraries/nx-libs.tar.gz
-    wget https://code.x2go.org/releases/source/nx-libs/nx-libs-3.5.99.22-lite.tar.gz -O nx-libs-3.5.99.22-full.tar.gz
-    VERSION=3.5.99.22 slpkg -a nx-libs.tar.gz nx-libs-3.5.99.22-full.tar.gz
-    # x2go
-    groupadd -g 290 x2gouser
-    useradd -u 290 -g 290 -c "X2Go Remote Desktop" -M -d /var/lib/x2go -s /bin/false x2gouser
-    groupadd -g 291 x2goprint
-    mkdir -p /var/spool/x2goprint &>/dev/null
-    useradd -u 291 -g 291 -c "X2Go Remote Desktop" -m -d /var/spool/x2goprint -s /bin/false x2goprint
-    chown x2goprint:x2goprint /var/spool/x2goprint
-    chmod 0770 /var/spool/x2goprint
-    wget https://slackbuilds.org/slackbuilds/14.2/network/x2goserver.tar.gz
-    wget http://ponce.cc/slackware/sources/repo/x2goserver-20201227_08aa5e6.tar.xz
-    VERSION=20201227_08aa5e6 slpkg -a x2goserver.tar.gz x2goserver-20201227_08aa5e6.tar.xz
-    echo "/usr/bin/xfconf-query -c xfwm4 -p /general/use_compositing -s false" > /etc/x2go/xinitrc.d/xfwm4_no_compositing
-    chmod +x /etc/x2go/xinitrc.d/xfwm4_no_compositing
-    #slpkg -s sbo x2goserver
-    # tigervnc for vnc
-    #slackpkg install tigervnc
-    # ganglia
-    export OPT=gmetad
-    $SLPKG ganglia ganglia-web
-    unset OPT
-    # monit
-    export VERSION=5.28.0
-    aux_slbuild https://slackbuilds.org/slackbuilds/14.2/system/monit.tar.gz https://mmonit.com/monit/dist/monit-5.28.0.tar.gz
-    unset VERSION
-    # octave
-    export VERSION=6.1.0
-    aux_slbuild https://slackbuilds.org/slackbuilds/14.2/academic/octave.tar.gz  https://mirror.cedia.org.ec/gnu/octave/octave-6.1.0.tar.lz
-    unset VERSION
-    # HPC: munge
-    export VERSION=0.5.14
-    aux_slbuild https://slackbuilds.org/slackbuilds/14.2/network/munge.tar.gz https://github.com/dun/munge/releases/download/munge-0.5.14/munge-0.5.14.tar.xz
-    unset VERSION
-    # HPC: hwloc
-    export VERSION=2.3.0
-    aux_slbuild https://slackbuilds.org/slackbuilds/14.2/system/hwloc.tar.gz https://download.open-mpi.org/release/hwloc/v2.3/hwloc-2.3.0.tar.bz2
-    unset VERSION
-    # HPC: slurm
-    groupadd -g 311 slurm
-    useradd -u 311 -d /var/lib/slurm -s /bin/false -g slurm slurm
-    export VERSION=20.11.2
-    export HWLOC=yes
-    export RRDTOOL=yes
-    aux_slbuild https://slackbuilds.org/slackbuilds/14.2/network/slurm.tar.gz https://download.schedmd.com/slurm/slurm-20.11.2.tar.bz2
-    unset VERSION HWLOC RRDTOOL
-    # HPC: openmpi
-    export VERSION=4.1.0
-    export PMI=yes
-    aux_slbuild https://slackbuilds.org/slackbuilds/14.2/system/openmpi.tar.gz https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.0.tar.bz2
-    unset VERSION PMI
-    # netdata
-    groupadd -g 338 netdata 2>/dev/null
-    useradd -u 338 -g 338 -c "netdata user" -s /bin/bash netdata 2>/dev/null
-    cd /tmp
-    wget https://slackbuilds.org/slackbuilds/14.2/system/netdata.tar.gz &&
-        wget https://github.com/netdata/netdata/archive/v1.29.3/netdata-1.29.3.tar.gz &&
-        tar xf netdata.tar.gz &&
-        mv netdata/netdata.SlackBuild{,-orig} &&
-        cp $HOME/repos/computer-labs/computer-room/files/netdata.SlackBuild netdata/ &&
-        chmod +x netdata/netdata.SlackBuild &&
-        tar czf netdata.tar.gz netdata &&
-        slpkg -a netdata.tar.gz netdata-1.29.3.tar.gz &&
-        chmod +x /etc/rc.d/rc.netdata
-}
-
-
 
 ##############################
 # MAIN
 #############################
 cd /tmp
-rm -f *tgz *txz
+#rm -f *tgz *txz
 
 # build packages
 pm "Building packages ..."
-#build_packages
 build_packages_sbo
 
 # read auth config: USER, PASSWD, IP. YOU WILL HAVE TO COPY THE PUBLIC KEY for passwordless
@@ -294,13 +167,49 @@ IP=${IP:-127.0.0.1}
 PASSWORD=${PASSWORD:-NULL}
 PORT=${PORT:-22}
 
-# upload both packages and PACKAGES.txt
+######################
+# echo "Generating key ..."
+# ssh-keygen -t rsa -f /root/.ssh/id_rsa -q -N ""
+# echo "Copying the id using sshpass and ssh-copy-id ..."
+# sshpass -f $TMPFNAME ssh-copy-id -p $PORT -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USERNAME@$IP
+
+pm "Installing needed packages to setup ssh ..."
+sbopkg -k -i corkscrew
+sbopkg -k -i sshpass
+pm "Saving password in temp file ..."
+TMPFNAME=$(mktemp)
+echo $PASSWORD > $TMPFNAME
+pm "Setting up proxy if needed ..."
+if [ ! -z https_proxy ]; then
+    FULLPROXY=$(echo $https_proxy | tr -d '/')
+    FULLPROXY=${FULLPROXY#http:}
+    PROXY=${FULLPROXY%:*}
+    PROXYPORT=${FULLPROXY#*:}
+    echo "ProxyCommand /usr/bin/corkscrew $PROXY $PROXYPORT %h %p" > $HOME/.ssh/config
+fi
 pm "Sending packages ..."
 cd /tmp
 mkdir PACKAGES 2>/dev/null
-mv *tgz PACKAGES/
-cd PACKAGES
-for a in *tgz; do
-    pm "$a ..."
-    rsync -e 'ssh -o StrictHostKeyChecking=no -p '$PORT' ' -av $a $USERNAME:$PASSWORD@$IP:/var/www/html/PACKAGES/slackware64-current/$a
-done
+mv *tgz PACKAGES/ 2>/dev/null
+rsync --delete -e 'sshpass -f '$TMPFNAME' ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p '$PORT' ' -av PACKAGES/ $USERNAME@$IP:/var/www/html/PACKAGES/slackware64-current/
+pm "Removing password file ..."
+rm -f $TMPFNAME
+
+pm "DONE."
+######################## PACKAGES FOR SPACK
+# valgrind
+# lmod
+# cppcheck
+# numactl
+# iperf3
+# gperftools
+# keepassxc
+# kitty
+# bat
+# libconfuse
+# munge
+# hwloc
+# openmpi
+# slurm
+# netdata
+# ganglia
