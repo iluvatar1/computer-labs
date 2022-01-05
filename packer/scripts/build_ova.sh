@@ -17,7 +17,7 @@ echo "Setting up machine with smaller lilo time etc" && \
 PACKER_LOG=1 packer build -var MACHINENAME=${MNAME} "${BDIR}/../"slackware64-current-C-initial_setup.json &> /tmp/log-C-$LOGNAME.txt && \
 echo "Installing packages " && \
 PACKER_LOG=1 packer build -var MACHINENAME=${MNAME} "${BDIR}/../"slackware64-current-D-install_packages.json &> /tmp/log-D-$LOGNAME.txt && \
-echo "Provisioning and exporting teaching machine" && \
+echo "Provisioning and exporting $LOGNAME machine" && \
 PACKER_LOG=1 packer build -var-file ${PROVFILE} -var MACHINENAME=${MNAME} "${BDIR}/../"slackware64-current-E-provision.json &> /tmp/log-E-$LOGNAME.txt && \
 echo "Finished."
 
