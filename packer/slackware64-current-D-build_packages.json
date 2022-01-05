@@ -1,7 +1,7 @@
 {
   "variables":
   {
-    "run_command":"PACKER_LOG=1 packer build -var \"MACHINENAME=base_slack_machine\"  -var PROXY=\"http://192.168.10.1\" slackware64-current-D-build_packages.json"
+    "run_command":"PACKER_LOG=1 packer build -var \"MACHINENAME=base_slack_machine\"  -var PROXY=\"http://192.168.10.1\" -var CUPS=4 slackware64-current-D-build_packages.json"
   },
   "builders":
   [
@@ -31,7 +31,12 @@
       "boot_command":
       [
         "<enter><wait40s>"
-      ]
+      ],
+      "vboxmanage": [
+       [ "modifyvm", "{{.Name}}", "--memory", 4000],
+       [ "modifyvm", "{{.Name}}", "--cpuhotplug",  "off"],
+       [ "modifyvm", "{{.Name}}", "--cpus",  "{{user `CPUS`}}"]
+      ]	  
     }
   ] ,
   "provisioners":
