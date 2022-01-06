@@ -7,18 +7,19 @@
 -----
 
 This document presents a basic procedure to configure a computer room
-in slackware. This generates a script, called
-=bootsrap_slackware_computer_room.sh= that uses a bunch of config files to setup
-either a client or a server. The script will read a configuration file, like
-=computer_room.conf=, to set some environment vars.  At the end
-you just run the mentioned script and hopefully everything will work
-as expected. 
+in slackware. This generates a script,
+=scripts/bootsrap_slackware_computer_room.sh= that uses a bunch of
+config files to setup either a client or a server. The script will
+read a configuration file, like =computer_room.conf=, to set some
+environment vars.  At the end you just run the mentioned script and
+hopefully everything will work as expected.
 
 - Check https://www.redhat.com/sysadmin/my-survival-kit
 
 * Description
-  - The system to be installed is slackware 14.2-current 64bits, although some script
-    might help to keep it updated with security patches
+  - The system to be installed is slackware 14.2-current 64bits,
+    although some script might help to keep it updated with security
+    patches
   - Services to be configured:
     - DHCP + DNS + MASQUERADING : Using dnsmasq
     - NAT : Through arno iptables firewall
@@ -43,42 +44,42 @@ install into each computer.
 * Configuration of client and server for a computer room
 ** CONFIG: Parameters to configure bootstrap script
 #+begin_src sh :exports code :tangle scripts/computer_room.conf
-BASE_SERVERIP=192.168 
-SERVERIP=${BASE_SERVERIP}.10.1
-NISDOMAIN=salafisnis
-SERVER_DOMAINNAME=serversalafis
-FORCE=0 # Force rewrite of all config even if it is already configured
+  BASE_SERVERIP=192.168 
+  SERVERIP=${BASE_SERVERIP}.10.1
+  NISDOMAIN=salafisnis
+  SERVER_DOMAINNAME=serversalafis
+  FORCE=0 # Force rewrite of all config even if it is already configured
 
-## Proxy stuff : removed auth info since I will be using a cntlm config on the server
-# UNAL
-#PROXY=fisicasop_fcbog:PASSWD@proxyapp.unal.edu.co:8080
-# local cntlm config running on server
-PROXY=${SERVERIP}:3128
+  ## Proxy stuff : removed auth info since I will be using a cntlm config on the server
+  # UNAL
+  #PROXY=fisicasop_fcbog:PASSWD@proxyapp.unal.edu.co:8080
+  # local cntlm config running on server
+  PROXY=${SERVERIP}:3128
 #+end_src
 ** PROXY: Configuring root internet behind proxy unal
    #+NAME: proxy_config
    #+BEGIN_SRC bash :exports code 
-# Configure root internet access
-function config_proxy {
-    MSG="Configuring proxy for root"
-    start_msg "$MSG"
-    bname="/root/.bashrc"
-    if [ x"" = x"$(grep https_proxy ${bname} 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-        touch $bname
-        backup_file $bname
-        cat <<EOF > $bname
-export PROXY="$PROXY"
-export http_proxy="http://\$PROXY"
-export https_proxy="http://\$PROXY" 
-export ftp_proxy="ftp://\$PROXY"
-export RSYNC_PROXY="\$PROXY" 
-EOF
-    else
-        echo "#    -> already configured."
-    fi
-    #source /root/.bashrc
-    end_msg "$MSG"
-}
+     # Configure root internet access
+     function config_proxy {
+	 MSG="Configuring proxy for root"
+	 start_msg "$MSG"
+	 bname="/root/.bashrc"
+	 if [ x"" = x"$(grep https_proxy ${bname} 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	     touch $bname
+	     backup_file $bname
+	     cat <<EOF > $bname
+     export PROXY="$PROXY"
+     export http_proxy="http://\$PROXY"
+     export https_proxy="http://\$PROXY" 
+     export ftp_proxy="ftp://\$PROXY"
+     export RSYNC_PROXY="\$PROXY" 
+     EOF
+	 else
+	     echo "#    -> already configured."
+	 fi
+	 #source /root/.bashrc
+	 end_msg "$MSG"
+     }
    #+END_SRC
 ** NETWORK INTERFACES: Configure Network interfaces
    #+name: nic_config
@@ -149,43 +150,43 @@ The macs file is actually encrypted with the following command:
 #+begin_src
 openssl enc -aes-256-cbc -iter 10 -salt -in SERVER-etc-dnsmasq-hosts.conf -out SERVER-etc-dnsmasq-hosts.conf.enc
 #+end_src
-The password is stored in other place. Please decrypt befire using it.
+The password is stored in other place. Please decrypt before using it.
    #+name: dnsmasq_config
    #+BEGIN_SRC bash :exports code 
-# dnsmasq
-function config_dnsmasq {
-    MSG="Configuring dnsmasq. Please decrypt the dnsmasq-hosts.conf.enc file "
-    start_msg "$MSG"
-    echo "To decrypt, use : openssl enc -d -aes-256-cbc -iter 10 -in file.enc -out file.txt"
-    if [ "$TARGET" = "SERVER" ]; then
-	    TFILE="/etc/dnsmasq.conf"
-	    if [ x"" = x"$(grep salafisnis $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ]; then
-            echo "Copying general config file "
-	        copy_config "${BDIR}/${FDIR}/SERVER-etc-dnsmasq.conf" "$TFILE"
-        fi
-	    TFILE="/etc/dnsmasq-hosts.conf"
-	    if [ ! -f $TFILE ] || [ $FORCE -eq 1 ]; then
-            echo "Copying dnsmasq-hosts file "
-	        copy_config "${BDIR}/${FDIR}/SERVER-etc-dnsmasq-hosts.conf" "$TFILE"
-        fi
-        TFILE="/etc/hosts"
-	    if [ x"" = x"$(grep salafis $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ]; then
-            echo "Copying hosts file "
-	    	copy_config "${BDIR}/${FDIR}/SERVER-etc-hosts" "$TFILE"
-        fi
-        TFILE="/etc/rc.d/rc.dnsmasq"
-	    if [ x"" = x"$(grep dnsmasq.log $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ]; then
-            echo "Copying rc.dnsmasq file "
-	    	copy_config "${BDIR}/${FDIR}/SERVER-etc-rcd-rcdnsmasq" "$TFILE"
-        fi
-        echo "Restarting services ..."
-	    chmod +x /etc/rc.d/rc.dnsmasq
-	    /etc/rc.d/rc.dnsmasq restart
-    else
-        echo "Not configuring on client"
-    fi
-    end_msg "$MSG"
-}
+     # dnsmasq
+     function config_dnsmasq {
+	 MSG="Configuring dnsmasq. Please decrypt the dnsmasq-hosts.conf.enc file "
+	 start_msg "$MSG"
+	 echo "To decrypt, use : openssl enc -d -aes-256-cbc -iter 10 -in file.enc -out file.txt"
+	 if [ "$TARGET" = "SERVER" ]; then
+	     TFILE="/etc/dnsmasq.conf"
+	     if [ x"" = x"$(grep salafisnis $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ]; then
+		 echo "Copying general config file "
+		 copy_config "${BDIR}/${FDIR}/SERVER-etc-dnsmasq.conf" "$TFILE"
+	     fi
+	     TFILE="/etc/dnsmasq-hosts.conf"
+	     if [ ! -f $TFILE ] || [ $FORCE -eq 1 ]; then
+		 echo "Copying dnsmasq-hosts file "
+		 copy_config "${BDIR}/${FDIR}/SERVER-etc-dnsmasq-hosts.conf" "$TFILE"
+	     fi
+	     TFILE="/etc/hosts"
+	     if [ x"" = x"$(grep salafis $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ]; then
+		 echo "Copying hosts file "
+		 copy_config "${BDIR}/${FDIR}/SERVER-etc-hosts" "$TFILE"
+	     fi
+	     TFILE="/etc/rc.d/rc.dnsmasq"
+	     if [ x"" = x"$(grep dnsmasq.log $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ]; then
+		 echo "Copying rc.dnsmasq file "
+		 copy_config "${BDIR}/${FDIR}/SERVER-etc-rc.d-rc.dnsmasq" "$TFILE"
+	     fi
+	     echo "Restarting services ..."
+	     chmod +x /etc/rc.d/rc.dnsmasq
+	     /etc/rc.d/rc.dnsmasq restart
+	 else
+	     echo "Not configuring on client"
+	 fi
+	 end_msg "$MSG"
+     }
    #+END_SRC
 
 ** FIREWALL: ( also for NAT) : Arno iptables firewall.
@@ -982,225 +983,225 @@ EOF
 **
 ** Write final script
 #+BEGIN_SRC bash :exports code :noweb yes :tangle scripts/bootstrap_slackware_computer_room.sh :tangle-mode (identity #o444)
-#!/bin/bash
+  #!/bin/bash
 
-# NOTE: The original base file is in the config_computer_room.org file
-# Color stuff based on: https://devdojo.com/bobbyiliev/how-to-create-an-interactive-menu-in-bash#testing-the-script
+  # NOTE: The original base file is in the config_computer_room.org file
+  # Color stuff based on: https://devdojo.com/bobbyiliev/how-to-create-an-interactive-menu-in-bash#testing-the-script
 
-SCRIPTS_DIR=$HOME/repos/computer-labs/computer-room/scripts
-CONFIG=${CONFIG:-computer_room.conf}
+  SCRIPTS_DIR=$HOME/repos/computer-labs/computer-room/scripts
+  CONFIG=${CONFIG:-computer_room.conf}
 
-if [ ! -f $CONFIG ]; then
-    echo "ERROR: Config file not found -> $CONFIG"
-    exit 1
-fi
-source $CONFIG
-source $SCRIPTS_DIR/util_functions.sh
+  if [ ! -f $CONFIG ]; then
+      echo "ERROR: Config file not found -> $CONFIG"
+      exit 1
+  fi
+  source $CONFIG
+  source $SCRIPTS_DIR/util_functions.sh
 
-# check args
-if [ "$#" -ne "2" ]; then usage; exit 1 ; fi
-if [ ! -d "$1" ]; then echo "Dir does not exist : $1"; usage; exit 1 ; fi
-if [  "$2" != "SERVER" ] && [ "$2" != "CLIENT" ]; then usage; exit 1 ; fi
+  # check args
+  if [ "$#" -ne "2" ]; then usage; exit 1 ; fi
+  if [ ! -d "$1" ]; then echo "Dir does not exist : $1"; usage; exit 1 ; fi
+  if [  "$2" != "SERVER" ] && [ "$2" != "CLIENT" ]; then usage; exit 1 ; fi
 
-TARGET="$2"
-# global vars
-BDIR=$PWD
-FDIR=$1
-LINUX="SLACKWARE"
+  TARGET="$2"
+  # global vars
+  BDIR=$PWD
+  FDIR=$1
+  LINUX="SLACKWARE"
 
-##
-# Color  Variables
-##
-red='\e[31m'
-green='\e[32m'
-yellow='\e[33m'
-blue='\e[34m'
-magenta='\e[35m'
-cyan='\e[36m'
-lred='\e[91m'
-lgreen='\e[92m'
-lyellow='\e[93m'
-lblue='\e[94m'
-lmagenta='\e[95m'
-lcyan='\e[96m'
-white='\e[97m'
-clear='\e[0m'
+  ##
+  # Color  Variables
+  ##
+  red='\e[31m'
+  green='\e[32m'
+  yellow='\e[33m'
+  blue='\e[34m'
+  magenta='\e[35m'
+  cyan='\e[36m'
+  lred='\e[91m'
+  lgreen='\e[92m'
+  lyellow='\e[93m'
+  lblue='\e[94m'
+  lmagenta='\e[95m'
+  lcyan='\e[96m'
+  white='\e[97m'
+  clear='\e[0m'
 
-##
-# Color Functions
-##
+  ##
+  # Color Functions
+  ##
 
-ColorGreen(){
-	echo -ne $green$1$clear
-}
-ColorLGreen(){
-	echo -ne $lgreen$1$clear
-}
-ColorBlue(){
-	echo -ne $blue$1$clear
-}
-ColorCyan(){
-	echo -ne $cyan$1$clear
-}
-ColorYellow(){
-	echo -ne $yellow$1$clear
-}
+  ColorGreen(){
+	  echo -ne $green$1$clear
+  }
+  ColorLGreen(){
+	  echo -ne $lgreen$1$clear
+  }
+  ColorBlue(){
+	  echo -ne $blue$1$clear
+  }
+  ColorCyan(){
+	  echo -ne $cyan$1$clear
+  }
+  ColorYellow(){
+	  echo -ne $yellow$1$clear
+  }
 
-echo "###############################################"
-echo "# Configuring $TARGET ..."
-if [[ $FORCE -eq 1 ]]; then
-    echo "# Forcing configuration ...";
-fi
-echo "###############################################"
+  echo "###############################################"
+  echo "# Configuring $TARGET ..."
+  if [[ $FORCE -eq 1 ]]; then
+      echo "# Forcing configuration ...";
+  fi
+  echo "###############################################"
 
-<<proxy_config>>
+  <<proxy_config>>
 
-<<nic_config>>
+  <<nic_config>>
 
-<<ntp_config>>
+  <<ntp_config>>
 
-<<dnsmasq_config>>
+  <<dnsmasq_config>>
 
-<<firewall_config>>
+  <<firewall_config>>
 
-<<nfs_config>>
+  <<nfs_config>>
 
-<<nis_config>>
+  <<nis_config>>
 
-<<monit_config>>
+  <<monit_config>>
 
-<<shutdown_config>>
+  <<shutdown_config>>
 
-<<crontab_config>>
+  <<crontab_config>>
 
-<<packages_config>>
+  <<packages_config>>
 
-<<sshd_config>>
+  <<sshd_config>>
 
-<<cntlm_config>>
+  <<cntlm_config>>
 
-<<x2go>>
+  <<x2go>>
 
-<<clustershell>>
+  <<clustershell>>
 
-<<skel>>
+  <<skel>>
 
-<<ganglia>>
+  <<ganglia>>
 
-<<netdata>>
+  <<netdata>>
 
-<<wol_config>>
+  <<wol_config>>
 
-# Call all functions
-all ()
-{
-    config_ntp
-    config_dnsmasq
-    config_nfs
-    config_nis
-    config_shutdown_perms
-    config_crontab
-    config_packages
-    config_sshd
-    config_x2go
-    config_clustershell
-    config_monit
-    config_skel
-    config_ganglia
-    config_netdata
-    config_firewall
-    config_cntlm
-    config_network
-    config_proxy
-    config_wol
-}
+  # Call all functions
+  all ()
+  {
+      config_ntp
+      config_dnsmasq
+      config_nfs
+      config_nis
+      config_shutdown_perms
+      config_crontab
+      config_packages
+      config_sshd
+      config_x2go
+      config_clustershell
+      config_monit
+      config_skel
+      config_ganglia
+      config_netdata
+      config_firewall
+      config_cntlm
+      config_network
+      config_proxy
+      config_wol
+  }
 
-##################################
-# check env vars and configure accordingly
-##################################
-if [[ ($ALL == 1) ]]; then ColorCyan 'Configuring ALL'; all; fi
-if [[ ($PROXY == 1) ]]; then ColorCyan 'Configuring Proxy'; config_proxy; fi
-if [[ ($NETWORK == 1) ]]; then ColorCyan 'Configuring Network'; config_network; fi
-if [[ ($NTP == 1) ]]; then ColorCyan 'Configuring ntp'; config_ntp; fi
-if [[ ($DNSMASQ == 1) ]]; then ColorCyan 'Configuring dnsmasq'; config_dnsmasq; fi
-if [[ ($FIREWALL == 1) ]]; then ColorCyan 'Configuring firewall'; config_firewall; fi
-if [[ ($NFS == 1) ]]; then ColorCyan 'Configuring nfs'; config_nfs; fi
-if [[ ($NIS == 1) ]]; then ColorCyan 'Configuring nis'; config_nis; fi
-if [[ ($SHUTDOWN_PERMS == 1) ]]; then ColorCyan 'Configuring shutdown perms'; config_shutdown_perms; fi
-if [[ ($CRONTAB == 1) ]]; then ColorCyan 'Configuring crontab'; config_crontab; fi
-if [[ ($PACKAGES == 1) ]]; then ColorCyan 'Configuring packages'; config_packages; fi
-if [[ ($CNTLM == 1) ]]; then ColorCyan 'Configuring cntlm'; config_cntlm; fi
-if [[ ($SSHD == 1) ]]; then ColorCyan 'Configuring sshd'; config_sshd; fi
-if [[ ($X2GO == 1) ]]; then ColorCyan 'Configuring x2go'; config_x2go; fi
-if [[ ($CLUSTERSHELL == 1) ]]; then ColorCyan 'Configuring clustershell'; config_clustershell; fi
-if [[ ($MONIT == 1) ]]; then ColorCyan 'Configuring monit'; config_monit; fi
-if [[ ($SKEL == 1) ]]; then ColorCyan 'Configuring skel'; config_skel; fi
-if [[ ($GANGLIA == 1) ]]; then ColorCyan 'Configuring ganglia'; config_ganglia; fi
-if [[ ($NETDATA == 1) ]]; then ColorCyan 'Configuring netdata'; config_netdata; fi
-if [[ ($WOL == 1) ]]; then ColorCyan 'Configuring wake on lan'; config_wol; fi
+  ##################################
+  # check env vars and configure accordingly
+  ##################################
+  if [[ ($ALL == 1) ]]; then ColorCyan 'Configuring ALL'; all; fi
+  if [[ ($PROXY == 1) ]]; then ColorCyan 'Configuring Proxy'; config_proxy; fi
+  if [[ ($NETWORK == 1) ]]; then ColorCyan 'Configuring Network'; config_network; fi
+  if [[ ($NTP == 1) ]]; then ColorCyan 'Configuring ntp'; config_ntp; fi
+  if [[ ($DNSMASQ == 1) ]]; then ColorCyan 'Configuring dnsmasq'; config_dnsmasq; fi
+  if [[ ($FIREWALL == 1) ]]; then ColorCyan 'Configuring firewall'; config_firewall; fi
+  if [[ ($NFS == 1) ]]; then ColorCyan 'Configuring nfs'; config_nfs; fi
+  if [[ ($NIS == 1) ]]; then ColorCyan 'Configuring nis'; config_nis; fi
+  if [[ ($SHUTDOWN_PERMS == 1) ]]; then ColorCyan 'Configuring shutdown perms'; config_shutdown_perms; fi
+  if [[ ($CRONTAB == 1) ]]; then ColorCyan 'Configuring crontab'; config_crontab; fi
+  if [[ ($PACKAGES == 1) ]]; then ColorCyan 'Configuring packages'; config_packages; fi
+  if [[ ($CNTLM == 1) ]]; then ColorCyan 'Configuring cntlm'; config_cntlm; fi
+  if [[ ($SSHD == 1) ]]; then ColorCyan 'Configuring sshd'; config_sshd; fi
+  if [[ ($X2GO == 1) ]]; then ColorCyan 'Configuring x2go'; config_x2go; fi
+  if [[ ($CLUSTERSHELL == 1) ]]; then ColorCyan 'Configuring clustershell'; config_clustershell; fi
+  if [[ ($MONIT == 1) ]]; then ColorCyan 'Configuring monit'; config_monit; fi
+  if [[ ($SKEL == 1) ]]; then ColorCyan 'Configuring skel'; config_skel; fi
+  if [[ ($GANGLIA == 1) ]]; then ColorCyan 'Configuring ganglia'; config_ganglia; fi
+  if [[ ($NETDATA == 1) ]]; then ColorCyan 'Configuring netdata'; config_netdata; fi
+  if [[ ($WOL == 1) ]]; then ColorCyan 'Configuring wake on lan'; config_wol; fi
 
-##################################
-# use an interactive menu
-##################################
-#menu(){
-#echo -ne "
-#Services to configure on: $TARGET
-# $(ColorGreen '1)') proxy
-# $(ColorGreen '2)') network (rc.inet1.conf)
-# $(ColorGreen '3)') ntp
-# $(ColorGreen '4)') dnsmasq
-# $(ColorGreen '5)') firewall
-# $(ColorGreen '6)') nfs
-# $(ColorGreen '7)') nis
-# $(ColorGreen '8)') clustershell
-# $(ColorGreen '9)') x2go
-# $(ColorGreen '10)') shutdown perms
-# $(ColorGreen '11)') crontab
-# $(ColorGreen '12)') packages
-# $(ColorGreen '13)') cntlm
-# $(ColorGreen '14)') sshd
-# $(ColorGreen '15)') monit (depends on already configured cntlm, x2g0, sshd)
-# $(ColorLGreen '16)') /etc/skel
-# $(ColorLGreen '17)') ganglia
-# $(ColorLGreen '18)') netdata
-# $(ColorLGreen '19)') wol
-# $(ColorLGreen '20)') Configure ALL
-# $(ColorYellow '0)') Exit
-# $(ColorCyan 'Choose an option:') "
-#         read a
-#         case $a in
-# 	        1) config_proxy ; menu ;;
-# 	        2) config_network ; menu ;;
-# 	        3) config_ntp ; menu ;;
-# 	        4) config_dnsmasq ; menu ;;
-# 	        5) config_firewall ; menu ;;
-# 	        6) config_nfs ; menu ;;
-# 	        7) config_nis ; menu ;;
-# 	        8) config_clustershell ; menu ;;
-# 	        9) config_x2go ; menu ;;
-# 	        10) config_shutdown_perms ; menu ;;
-# 	        11) config_crontab ; menu ;;
-# 	        12) config_packages ; menu ;;
-# 	        13) config_cntlm ; menu ;;
-# 	        14) config_sshd ; menu ;;
-# 	        15) config_monit ; menu ;;
-# 	        16) config_skel ; menu ;;
-# 	        17) config_ganglia ; menu ;;
-# 	        18) config_netdata ; menu ;;
-# 	        19) config_wol ; menu ;;
-# 	        20) all ; menu ;;
-# 		0) exit 0 ;;
-# 		*) echo -e $lred"Wrong option: $a"$clear; exit 1;;
-#         esac
-# }
-# menu
+  ##################################
+  # use an interactive menu
+  ##################################
+  #menu(){
+  #echo -ne "
+  #Services to configure on: $TARGET
+  # $(ColorGreen '1)') proxy
+  # $(ColorGreen '2)') network (rc.inet1.conf)
+  # $(ColorGreen '3)') ntp
+  # $(ColorGreen '4)') dnsmasq
+  # $(ColorGreen '5)') firewall
+  # $(ColorGreen '6)') nfs
+  # $(ColorGreen '7)') nis
+  # $(ColorGreen '8)') clustershell
+  # $(ColorGreen '9)') x2go
+  # $(ColorGreen '10)') shutdown perms
+  # $(ColorGreen '11)') crontab
+  # $(ColorGreen '12)') packages
+  # $(ColorGreen '13)') cntlm
+  # $(ColorGreen '14)') sshd
+  # $(ColorGreen '15)') monit (depends on already configured cntlm, x2g0, sshd)
+  # $(ColorLGreen '16)') /etc/skel
+  # $(ColorLGreen '17)') ganglia
+  # $(ColorLGreen '18)') netdata
+  # $(ColorLGreen '19)') wol
+  # $(ColorLGreen '20)') Configure ALL
+  # $(ColorYellow '0)') Exit
+  # $(ColorCyan 'Choose an option:') "
+  #         read a
+  #         case $a in
+  # 	        1) config_proxy ; menu ;;
+  # 	        2) config_network ; menu ;;
+  # 	        3) config_ntp ; menu ;;
+  # 	        4) config_dnsmasq ; menu ;;
+  # 	        5) config_firewall ; menu ;;
+  # 	        6) config_nfs ; menu ;;
+  # 	        7) config_nis ; menu ;;
+  # 	        8) config_clustershell ; menu ;;
+  # 	        9) config_x2go ; menu ;;
+  # 	        10) config_shutdown_perms ; menu ;;
+  # 	        11) config_crontab ; menu ;;
+  # 	        12) config_packages ; menu ;;
+  # 	        13) config_cntlm ; menu ;;
+  # 	        14) config_sshd ; menu ;;
+  # 	        15) config_monit ; menu ;;
+  # 	        16) config_skel ; menu ;;
+  # 	        17) config_ganglia ; menu ;;
+  # 	        18) config_netdata ; menu ;;
+  # 	        19) config_wol ; menu ;;
+  # 	        20) all ; menu ;;
+  # 		0) exit 0 ;;
+  # 		*) echo -e $lred"Wrong option: $a"$clear; exit 1;;
+  #         esac
+  # }
+  # menu
 
-# run services (better done on script that keeps the system up, when the client is on the network)
-#/etc/rc.d/rc.nfsd restart
-#mount -a
-#/etc/rc.d/rc.yp restart
-#/etc/rc.d/rc.inet2 restart
-#rpcinfo -p localhost
+  # run services (better done on script that keeps the system up, when the client is on the network)
+  #/etc/rc.d/rc.nfsd restart
+  #mount -a
+  #/etc/rc.d/rc.yp restart
+  #/etc/rc.d/rc.inet2 restart
+  #rpcinfo -p localhost
 
 
 #+END_SRC

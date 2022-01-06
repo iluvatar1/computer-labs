@@ -24,16 +24,19 @@ Linux 4.19.84.
                                                                                                                        
 
 Puede acceder (por ssh) a cualquiera de los siguientes nodos: [1;32m
-|-----------+----------------------------------|
-| Capacidad | ip                               |
-|-----------+----------------------------------|
-| 8 threads | 192.168.10.[9,16,19-20,23,32-34] |
-| 6 threads | 192.168.10.21                    |
-| 4 threads | 192.168.10.[3-4,10,12,24-26,28]  |
-| 2 threads | 192.168.10.[5-7,14-15,22,30]     |
-|-----------+----------------------------------|
+|------------+----------------------------------|
+| Capacidad  | ip                               |
+|------------+----------------------------------|
+| 12 threads | 192.168.10.[36-39]               |
+| 8 threads  | 192.168.10.[9,18-20,23,31-34]    |
+| 6 threads  | 192.168.10.[21,41]               |
+| 4 threads  | 192.168.10.[3-4,10,24-28]        |
+| 2 threads  | 192.168.10.[15,30]               |
+|------------+----------------------------------|
 [1;0m
 
 [1;31m *NOTA*: [1;36m No ejecute tareas en este computador. Cualquier proceso 
 que tome mas de 50% de cpu por mas de 30 segundos sera eliminado [1;0m 
-
+[1;32m Si desea volver a ver este mensaje, ejecute
+cat /etc/motd
+[1;0m

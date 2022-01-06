@@ -5,3 +5,5 @@
 /home 192.168.10.0/24(fsid=0,rw,sync,no_root_squash,no_subtree_check) 
 /home 10.88.55.0/24(fsid=0,rw,sync,no_root_squash,no_subtree_check)
 
+/home/CERN-DATA/data 192.168.10.0/24(rw,sync,no_root_squash,no_subtree_check) 
+

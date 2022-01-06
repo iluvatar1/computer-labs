@@ -8,5 +8,5 @@
 # Author:	Fred N. van Kempen, <waltje@uwalt.nl.mugnet.org
 #
 #
-portmap ypserv ypbind yppasswd: 127.0.0.1, 192.168.10.0/24
+portmap ypserv ypbind yppasswd : 127.0.0.1, 192.168.10.0/24
 # End of hosts.allow.
