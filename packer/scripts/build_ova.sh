@@ -3,9 +3,11 @@ set -euo pipefail
 
 # Example run:
 # TYPE=CLIENT PROVFILE=../config/provision_vars-computer_room.json bash build_ova_computer_room.sh
-# NOTE: Packages assumed to be already installed after creation ofteaching box
+# NOTE: Packages assumed to be already installed 
+# TYPE can be CLIENT SERVER or TEACHING
 
 PROVFILE=${PROVFILE:-provision_vars-computer_room.json} # can use other provision files
+#PROVFILE=${PROVFILE:-provision_vars-teachiing.json} # can use other provision files
 if [[ ! -f $PROVFILE ]]; then
     echo "Error. File not found -> $PROVFILE"
     exit 1
