@@ -2,23 +2,17 @@
 set -euo pipefail
 
 # Example run:
-# LOGBNAME=client PROVFILE=../config/provision_vars-client.json PROXY=http://192.168.10.1:3128 bash build_ova_client.sh
+# TYPE=CLIENT PROVFILE=../config/provision_vars-computer_room.json bash build_ova_computer_room.sh
+# NOTE: Packages assumed to be already installed after creation ofteaching box
 
-MNAME=${MNAME:-base_slack_machine}
-LOGBNAME=${LOGBNAME:-client} # or server
-PROVFILE=${PROVFILE:-provision_vars-client.json} # can use other provision files
-#PROXY=${PROXY:-}
-
+PROVFILE=${PROVFILE:-provision_vars-computer_room.json} # can use other provision files
+if [[ ! -f $PROVFILE ]]; then
+    echo "Error. File not found -> $PROVFILE"
+    exit 1
+fi
 BDIR=$(dirname $(realpath $0))
 
-# NOTE: Pacages assumed to be already installed 
-#echo "Installing packages " && \
-    #PACKER_LOG=1 packer build -var MACHINENAME=${MNAME} -var PROXY="$PROXY" "${BDIR}/../"slackware64-current-D-install_packages.json &> /tmp/log-D-$LOGBNAME.txt && \
-
-
-echo "Provisioning and exporting $LOGBNAME machine" && \
-PACKER_LOG=1 packer build -var-file ${PROVFILE} -var MACHINENAME=${MNAME} "${BDIR}/../"slackware64-current-E-provision.json &> /tmp/log-E-$LOGBNAME.txt && \
+echo "Provisioning and exporting machine" && \
+PACKER_LOG=1 packer build -var-file ${PROVFILE} "${BDIR}/../"slackware64-current-E-provision.json &> /tmp/log-E.txt && \
 echo "Finished."
 
-#        [ "modifyvm", "{{.Name}}", "--firmware", "efi"],
-#/usr/local/bin/VBoxManage modifyvm base_slack_machine --firmware bios #&& \

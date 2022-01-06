@@ -2,7 +2,5 @@
 computer-room/scripts/
 packer_cache
 *.txt
-/packer/clonezilla_vars-client.json
-/packer/clonezilla_vars-server.json
-/packer/provision_vars-client.json
-/packer/provision_vars-teaching.json
+*~
+*-OLD
