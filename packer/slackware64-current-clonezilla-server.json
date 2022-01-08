@@ -1,7 +1,7 @@
 {
   "variables":
   {
-    "run_command": "packer build -var-file clonezilla_vars-server.json slackware64-current-clonezilla---server.json"
+    "run_command": "packer build -var-file clonezilla_vars-server.json slackware64-current-clonezilla-server.json"
   },
   "builders": [
     {
@@ -13,7 +13,7 @@
         "<wait3s><down><down><down><down><wait3s><enter>",
         "<wait><enter><wait>",
         "<wait><enter>",
-        "<wait><enter><wait>", HERE
+        "<wait><enter><wait>", 
         "<wait>Y<enter><wait10s>",
         "<wait><down><wait><enter><wait2s>",
         "<wait><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><wait>{{user `SSH_SERVER_IP`}}<wait><enter>",
