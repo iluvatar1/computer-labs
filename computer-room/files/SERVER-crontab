@@ -23,3 +23,6 @@
 
 # every 1 min
 */1 * * * * /bin/bash /root/repos/computer-labs/computer-room/files/SERVER-cron/minute_maintenance.sh &>/var/log/minute_maintenance.log
+
+# every 1 min
+*/1 * * * * /bin/bash /root/repos/computer-labs/computer-room/files/SERVER-cron/update_motd.sh &>/var/log/update_motd.log
