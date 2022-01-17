@@ -92,6 +92,7 @@ build_packages_sbo () {
     hwloc
     numactl
     rrdtool
+    openmpi
     #slurm | VERSION=20.11.8 HWLOC=yes RRDTOOL=yes NUMA=yes
 EOF
     #####################################
