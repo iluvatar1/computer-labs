@@ -1,6 +1,10 @@
 {
-    "IP": "IP",
-    "PORT": "PORT",
-    "USERNAME": "USERNAME",
-    "PASSWORD": "PASSWORD",
+    "IP": "SERVERIP",
+    "PORT": "SERVERPORT",
+    "USERNAME": "SERVERUSERNAME",
+    "PASSWORD": "SERVERPASSWORD",
+    "CPUS" : "Number of Cpus to use in this build server",
+    "MACHINENAME": "MachineToUse",
+    "TSNAPSHOT" : "After package build and upload",
+    "PROXY": "ProxyServerIfNeeded"
 }

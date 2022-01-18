@@ -68,6 +68,7 @@ build_packages_sbo () {
     wol
     kitty
     bat
+    ncdu
     keepassxc
     perl-Switch
     perl-IPC-System-Simple
@@ -184,11 +185,12 @@ pm "Saving password in temp file ..."
 TMPFNAME=$(mktemp)
 echo $PASSWORD > $TMPFNAME
 pm "Setting up proxy if needed ..."
-if [ ! -z https_proxy ]; then
+if [ -n "$https_proxy" ]; then
     FULLPROXY=$(echo $https_proxy | tr -d '/')
     FULLPROXY=${FULLPROXY#http:}
     PROXY=${FULLPROXY%:*}
     PROXYPORT=${FULLPROXY#*:}
+    mkdir -p $HOME/.ssh 2>/dev/null
     echo "ProxyCommand /usr/bin/corkscrew $PROXY $PROXYPORT %h %p" > $HOME/.ssh/config
 fi
 pm "Sending packages ..."
