@@ -33,8 +33,9 @@
         "<wait><down><enter>",
         "<wait><enter>",
         "<wait><enter>",
-        "<wait><down><down><enter>",
-        "<wait><bs>{{user `NUM_CLIENTS`}}<enter><wait5s>",
+        "<wait><enter>",
+        "<wait><bs><bs>{{user `NUM_CLIENTS`}}<enter><wait5s>",
+        "<wait><bs><bs><bs><bs>120<enter><wait5s>",
         "<wait12h>"
       ],
       "type": "virtualbox-iso",
