@@ -7,7 +7,7 @@ PROXY=${PROXY:-}
 BDIR=$(dirname $(realpath $0))
 
 echo "Creating base machine in virtualbox" && \
-FIRMWARE=bios MACHINENAME=$MNAME bash "${BDIR}/"create_vbox_machine.sh && \
+FIRMWARE=efi MACHINENAME=$MNAME bash "${BDIR}/"create_vbox_machine.sh && \
 echo "Installing slackware system and packages" && \
 PACKER_LOG=1 packer build -var ISO_URL=$HOME/Downloads/iso/slackware64-current-install-dvd.iso -var MACHINENAME=${MNAME} -var CPUS=2 "${BDIR}/../"slackware64-current-A-install.json &> /tmp/log-A.txt && \
 echo "Finishing slackware install and configuration" && \
