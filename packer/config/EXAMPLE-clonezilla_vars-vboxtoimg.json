@@ -1,9 +1,0 @@
-{
-    "clonezilla_iso": "{{env `HOME`}}/Downloads/Clonezilla/clonezilla-live-2.8.0-12-amd64.iso",
-    "bridge_interface": "en0: Wi-Fi (AirPort)",
-    "SSH_SERVER_IP": "192.168.1.17",
-    "SSH_SERVER_PORT": "443",
-    "SSH_DIR": "TARGETROOTDIR",
-    "SSH_USER": "USER",
-    "SSH_PASSWORD": "PASSWORD"
-}

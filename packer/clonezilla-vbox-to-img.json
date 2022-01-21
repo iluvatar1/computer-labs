@@ -1,8 +1,8 @@
 {
     "variables":
   {
-      "run_command":"PACKER_LOG=1 packer build -var-file VARSFILE slackware-current-clonezilla-client.json",
-      "description":"Running this will import an ova, and create and export a set of clonezilla files to be cloned into clients"
+      "run_command":"PACKER_LOG=1 packer build -var FIRMWARE=efi|bios -var-file config/cfg-clonezilla-vbox-to-img.json clonezilla-vbox-to-img.json",
+      "description":"Running this will attach to a given snapshot, and create and export a set of clonezilla files to be cloned into clients"
   },
   "builders": [
     {
@@ -10,7 +10,7 @@
       "disable_shutdown": false,
       "shutdown_command": "",
       "shutdown_timeout": "5s",
-      "vm_name": "base_slack_machine",
+      "vm_name": "{{user `MACHINENAME`}}",
       "keep_registered": true,
       "skip_export": true,
       "guest_additions_mode": "disable",
@@ -43,7 +43,7 @@
       ],
       "vboxmanage_post": [
         [
-          "modifyvm", "{{.Name}}", "--firmware", "efi"
+          "modifyvm", "{{.Name}}", "--firmware", "{{user `FIRMWARE`}}"
         ],
         [
           "storageattach", "{{.Name}}", "--storagectl", "IDE Controller", "--port", "0", "--device", "1",
@@ -65,23 +65,23 @@
         "<enter><wait3s>",
         "<enter><wait3s>",
         "<down><wait><enter><wait5s>",
-        "<enter><wait3s>",
+        "<enter><wait5s>",
         "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><wait>{{ user `SSH_SERVER_IP` }}<wait><enter><wait>",
         "<bs><bs><bs><bs><wait>{{ user `SSH_SERVER_PORT` }}<wait><enter><wait>",
         "<bs><bs><bs><bs><bs><bs><wait>{{ user `SSH_USER` }}<wait><enter><wait>",
         "<bs><bs><bs><bs><bs><bs><bs><bs><wait>{{ user `SSH_DIR` }}<wait><enter><wait>",
-        "<enter><wait1s>",
+        "<enter><wait3s>",
         "yes<enter><wait3s>",
         "{{ user `SSH_PASSWORD` }}<enter><wait3s>",
         "<enter><wait15s>",
-        "<enter><wait>",
+        "<enter><wait2s>",
         "<enter><wait5s>",
-        "<enter><wait10s>",
-        "<enter><wait3s>",
+	  "{{ user `FIRMWARE` }}<wait>",  
+        "<enter><wait15s>",
+        "<enter><wait4s>",
         "<enter><wait>",
         "<enter><wait>",
-        "<enter><wait>",
-        "<enter><wait>",
+	"<enter><wait5s>",
         "<down><down><down><enter><wait>",
         "<enter><wait25s>",
         "y<enter>",

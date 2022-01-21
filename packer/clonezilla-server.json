@@ -1,7 +1,7 @@
 {
   "variables":
   {
-    "run_command": "packer build -var-file clonezilla_vars-server.json slackware64-current-clonezilla-server.json"
+    "run_command": "packer build -var-file config/cfg-clonezilla-server.json clonezilla-server.json"
   },
   "builders": [
     {
@@ -35,7 +35,8 @@
         "<wait><enter>",
         "<wait><enter>",
         "<wait><bs><bs>{{user `NUM_CLIENTS`}}<enter><wait5s>",
-        "<wait><bs><bs><bs><bs>120<enter><wait5s>",
+        "<wait><bs><bs><bs><bs>{{user `WAIT_TIME`}}<enter><wait5s>",
+	"<wait10s><leftAltOn><right><leftAltOff>sudo su<enter><wait3s>tail -f /var/log/clonezilla/* /var/log/daemon.log | grep -Ev 'blue|Bluetooth|brltty' <enter> " , 
         "<wait12h>"
       ],
       "type": "virtualbox-iso",

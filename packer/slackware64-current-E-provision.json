@@ -1,7 +1,7 @@
 {
   "variables":
   {
-      "run_command":"PACKER_LOG=1 packer build -var-file VARSFILE slackware64-current-E-provision.json",
+      "run_command":"PACKER_LOG=1 packer build -var FIRMWARE=efi|bios -var-file config/cfg-E-provision-XXXXX.json slackware64-current-E-provision.json",
        "home": "{{env `HOME`}}"
   },
   "builders":
@@ -17,7 +17,7 @@
       "attach_snapshot": "After extra packages",
       "target_snapshot": "{{user `snapshot_name`}}",
       "keep_registered": "true",
-      "skip_export": "false",
+      "skip_export": "{{user `SKIP_EXPORT`}}",
       "format": "ova",
       "boot_wait": "10s",
       "force_delete_snapshot": true,
@@ -33,7 +33,7 @@
       ],
       "boot_command":
       [
-        "<enter><wait40s>"
+        "<enter><wait90s>"
       ],
       "vboxmanage_post": [
         ["modifyvm", "{{.Name}}", "--firmware", "{{user `FIRMWARE`}}"]

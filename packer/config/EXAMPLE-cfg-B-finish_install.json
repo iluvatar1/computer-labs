@@ -1,0 +1,3 @@
+{
+    "MACHINENAME" : "base_slack_machine_{{user `FIRMWARE`}}"
+}

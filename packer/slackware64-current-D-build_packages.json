@@ -1,7 +1,7 @@
 {
   "variables":
   {
-      "run_command":"PACKER_LOG=1 packer build -var-file config_file.json slackware64-current-D-build_packages.json",
+      "run_command":"PACKER_LOG=1 packer build -var FIRMWARE=efi|bios -var-file config/cfg-D-build_pkgs.json slackware64-current-D-build_packages.json",
        "home": "{{env `HOME`}}"
   },
   "builders":

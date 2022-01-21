@@ -1,7 +1,7 @@
 {
   "variables":
   {
-    "run_command":"PACKER_LOG=1 packer build -var \"MACHINENAME=base_slack_machine\" slackware64-current-B-finish_install.json"
+    "run_command":"PACKER_LOG=1 packer build -var FIRMWARE=efi|bios -var-file config/cfg-B-finish_install.json slackware64-current-B-finish_install.json"
   },
   "builders": [
     {

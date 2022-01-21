@@ -1,10 +1,11 @@
 {
     "TYPE":"TEACHING",
+    "FIRMWARE" : "bios",
+    "MACHINENAME":"base_slack_machine_{{user `FIRMWARE`}}",
     "PROXY":"http://192.168.10.1:3128",
-    "MACHINENAME":"base_slack_machine",
     "provision_script":"{{env `HOME`}}/repos/computer-labs/configurations/config_teaching_box.sh",
-    "snapshot_name": "{{user `TYPE`}} configured",
+    "snapshot_name": "{{user `TYPE`}} box configured",
     "output_dir": "{{env `HOME`}}/Downloads/box_{{user `TYPE`}}",
-    "root_password": "ROOT_PASSWORD",
-    "FIRMWARE": "bios"
+    "root_password": "ROOTPASSWORDFORMACHINE",
+    "SKIP_EXPORT" : "false"
 }
