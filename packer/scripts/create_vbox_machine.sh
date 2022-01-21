@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Based on: https://www.andreafortuna.org/2019/10/24/how-to-create-a-virtualbox-vm-from-command-line/
 
-FIRMWARE=${FIRMWARE:-efi}
+FIRMWARE=${FIRMWARE:-VALUE}
 MACHINENAME=${MACHINENAME:-base_slack_machine_${FIRMWARE}}
 BASEFOLDER=${BASEFOLDER:-"$HOME/VirtualBox VMs/"}
 DISKPATH="${BASEFOLDER}/${MACHINENAME}/${MACHINENAME}_DISK.vdi"
