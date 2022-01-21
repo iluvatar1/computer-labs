@@ -3,10 +3,10 @@ set -euo pipefail
 
 # Based on: https://www.andreafortuna.org/2019/10/24/how-to-create-a-virtualbox-vm-from-command-line/
 
-MACHINENAME=${MACHINENAME:-base_slack_machine}
+FIRMWARE=${FIRMWARE:-efi}
+MACHINENAME=${MACHINENAME:-base_slack_machine_${FIRMWARE}}
 BASEFOLDER=${BASEFOLDER:-"$HOME/VirtualBox VMs/"}
 DISKPATH="${BASEFOLDER}/${MACHINENAME}/${MACHINENAME}_DISK.vdi"
-FIRMWARE=${FIRMWARE:-efi}
 
 # Download debian.iso
 #if [ ! -f ./debian.iso ]; then
