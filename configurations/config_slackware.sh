@@ -333,6 +333,18 @@ config_fonts() {
     xset fp rehash
 }
 
+config_xwmconfig() {
+    # this will configure xfce as default when kde ins installed 
+    if [[ -f /etc/X11/xinit/xinitrc.kde ]] ; then 
+	# To automate the dialog in curses, tmux is used
+	# REF: https://superuser.com/questions/585398/sending-simulated-keystrokes-in-bash
+	tmux new-session -d -t Test
+	tmux send-keys -t Test: "xwmconfig" "Enter"
+	tmux send-keys -t Test: "Down" "Enter"
+	tmux kill-session -t Test
+    fi
+}
+
 #####################################################
 # MAIN
 #####################################################
@@ -363,4 +375,5 @@ slpkg_install
 sbopkg_install
 slackpkgmirror
 config_fonts
+config_xwmconfig
 pm "Done."
