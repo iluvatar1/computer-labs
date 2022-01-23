@@ -84,6 +84,7 @@ build_packages_sbo () {
     perl-Config-Simple
     nx-libs
     x2goserver
+    jdk
     xfce4-xkb-plugin
     netdata
     munge 
@@ -153,6 +154,15 @@ EOF
     #         slpkg -a netdata.tar.gz netdata-1.29.3.tar.gz &&
     #         chmod +x /etc/rc.d/rc.netdata
     # fi
+    ####################################
+    # turbovnc
+    if [[ ! -d /opt/TurboVNC ]]; then
+	cd ~/Downloads
+	source ~/.bashrc
+	wget https://sonik.dl.sourceforge.net/project/turbovnc/2.2.90%20%283.0%20beta1%29/turbovnc-2.2.90.tar.gz
+	wget http://157.245.132.188/PACKAGES/turbovnc.SlackBuild
+	bash turbovnc.SlackBuild
+    fi
 }
 
 ##############################
