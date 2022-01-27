@@ -19,11 +19,11 @@ BDIR=$(dirname $(realpath $0))
 echo "Creating base machine in virtualbox" && \
 FIRMWARE=$FIRMWARE MACHINENAME=$MACHINENAME bash "${BDIR}/"create_vbox_machine.sh && \
 echo "Installing slackware system and packages" && \
-PACKER_LOG=1 packer build -var FIRMWARE=${FIRMWARE} -var-file config/cfg-A-install.json "${BDIR}/../"slackware64-current-A-install.json &> /tmp/log-A.txt && \
+PACKER_LOG=1 packer build -var FIRMWARE=${FIRMWARE} -var-file config/cfg-A-install.json "${BDIR}/../"slackware64-current-A-install.json &> /tmp/log-A_${FIRMWARE}.txt && \
 echo "Finishing slackware install and configuration" && \
-PACKER_LOG=1 packer build -var FIRMWARE=${FIRMWARE} -var-file config/cfg-B-finish_install.json "${BDIR}/../"slackware64-current-B-finish_install.json &> /tmp/log-B.txt && \
+PACKER_LOG=1 packer build -var FIRMWARE=${FIRMWARE} -var-file config/cfg-B-finish_install.json "${BDIR}/../"slackware64-current-B-finish_install.json &> /tmp/log-B_${FIRMWARE}.txt && \
 echo "Setting up machine with smaller lilo time etc" && \
-PACKER_LOG=1 packer build -var FIRMWARE=${FIRMWARE} -var-file config/cfg-C-initial_setup.json "${BDIR}/../"slackware64-current-C-initial_setup.json &> /tmp/log-C.txt && \
+PACKER_LOG=1 packer build -var FIRMWARE=${FIRMWARE} -var-file config/cfg-C-initial_setup.json "${BDIR}/../"slackware64-current-C-initial_setup.json &> /tmp/log-C_${FIRMWARE}.txt && \
 echo "Finished."
 
 #        [ "modifyvm", "{{.Name}}", "--firmware", "efi"],

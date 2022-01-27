@@ -5,7 +5,7 @@ set -euo pipefail
 
 FIRMWARE=${FIRMWARE:-VALUE}
 MACHINENAME=${MACHINENAME:-base_slack_machine_${FIRMWARE}}
-BASEFOLDER=${BASEFOLDER:-"$HOME/VirtualBox VMs/"}
+BASEFOLDER=${BASEFOLDER:-"/opt/VirtualBox VMs/"}
 DISKPATH="${BASEFOLDER}/${MACHINENAME}/${MACHINENAME}_DISK.vdi"
 
 # Download debian.iso
