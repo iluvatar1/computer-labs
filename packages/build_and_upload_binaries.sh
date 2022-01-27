@@ -185,7 +185,7 @@ EOF
     fi
     ####################################
     pm "-> bpytop"
-    if [[ ! hash bpytop ]]; then
+    if ! hash bpytop 2>/dev/null ; then
 	pip3 install bpytop --upgrade
     fi
 }
