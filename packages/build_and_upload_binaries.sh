@@ -41,7 +41,7 @@ ColorYellow(){
 
 
 pm () {
-    ColorGreen "  -> "
+    ColorGreen "#---- "
     ColorCyan "$1"
 }
 
@@ -61,6 +61,7 @@ build_packages_sbo () {
     xfce4-xkb-plugin
     xfce4-cpugraph-plugin
     xfce4-netload-plugin
+    stress
     uuid
     mongo-c-driver
     arno-iptables-firewall
@@ -73,6 +74,8 @@ build_packages_sbo () {
     bat
     ncdu
     keepassxc
+    bonnie++
+    iperf3
     perl-Switch
     perl-IPC-System-Simple
     perl-PAR-Dist
@@ -85,7 +88,7 @@ build_packages_sbo () {
     perl-DBD-SQLite
     perl-File-ReadBackwards
     perl-Config-Simple
-    nx-libs
+    nx-libs | MAKEFLAGS="-j 1"
     x2goserver
     zulu-openjdk17
     netdata
@@ -135,7 +138,7 @@ EOF
         echo 'export MAKEOPTS="-j$(nproc)"' >> /etc/sbopkg/sbopkg.conf
         echo 'export MAKEFLAGS="-j$(nproc)"' >> /etc/sbopkg/sbopkg.conf
     fi
-    printf "Q\nQ\nQ\n" | MAKEFLAGS="-j$(nproc)" sbopkg -e continue -B -k -i custom # WARNING: Add Q\n for each package with options
+    printf "Q\nQ\nQ\nQ\n" | MAKEFLAGS="-j$(nproc)" sbopkg -e continue -B -k -i custom # WARNING: Add Q\n for each package with options
     # ganglia: fixes old rpc with new libtirpc
     #printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -k -i ganglia:OPT=gmetad
     #printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -k -i ganglia-web:OPT=gmetad
@@ -179,6 +182,11 @@ EOF
 	$WGET http://157.245.132.188/PACKAGES/turbovnc.SlackBuild
 	bash turbovnc.SlackBuild
 	upgradepkg --install-new /tmp/turbovnc*tgz
+    fi
+    ####################################
+    pm "-> bpytop"
+    if [[ ! hash bpytop ]]; then
+	pip3 install bpytop --upgrade
     fi
 }
 
