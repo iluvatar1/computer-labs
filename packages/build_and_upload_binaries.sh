@@ -50,7 +50,7 @@ build_packages_sbo () {
     cat <<EOF > /var/lib/sbopkg/queues/custom.sqf
     blas
     lapack
-    monit | VERSION=5.29.0
+    monit | VERSION=5.30.0
     autossh
     slim
     fail2ban
@@ -84,13 +84,13 @@ build_packages_sbo () {
     perl-Config-Simple
     nx-libs
     x2goserver
-    jdk
+    zulu-openjdk17
     xfce4-xkb-plugin
     netdata
     munge 
     confuse
-    ganglia | OPT=gmetad
-    ganglia-web | OPT=gmetad    
+    ganglia | OPT=gmetad MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc
+    ganglia-web | OPT=gmetad MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc   
     hwloc
     numactl
     rrdtool
@@ -102,7 +102,10 @@ EOF
     cd /tmp
     TDIR=/var/lib/sbopkg/SBo-git/
     WGET="wget -c "
-    # x2goserver prerequisites
+    #####################################
+    pm "Pre-configurations and downloads ..."
+    #####################################
+    pm "-> x2go ..."
     groupadd -g 290 x2gouser
     useradd -u 290 -g 290 -c "X2Go Remote Desktop" -M -d /var/lib/x2go -s /bin/false x2gouser
     groupadd -g 291 x2goprint
@@ -110,15 +113,22 @@ EOF
     useradd -u 291 -g 291 -c "X2Go Remote Desktop" -m -d /var/spool/x2goprint -s /bin/false x2goprint
     chown x2goprint:x2goprint /var/spool/x2goprint
     chmod 0770 /var/spool/x2goprint
-    # monit
-    sed -i.bck 's/ README//' /var/lib/sbopkg/SBo-git/system/monit/monit.SlackBuild
-    FNAME=monit-5.29.0.tar.gz
-    $WGET https://mmonit.com/monit/dist/$FNAME -O $TDIR/system/monit/$FNAME
-    # netdata
+    #####################################
+    pm "-> monit ..."
+    if [[ ! -f $TDIR/system/monit/$FNAME ]] ; then 
+	sed -i.bck 's/ README//' /var/lib/sbopkg/SBo-git/system/monit/monit.SlackBuild
+	FNAME=monit-5.30.0.tar.gz
+	$WGET https://mmonit.com/monit/dist/$FNAME -O $TDIR/system/monit/$FNAME
+    fi
+    #####################################
+    pm "-> netdata"
     groupadd -g 338 netdata 2>/dev/null
     useradd -u 338 -g 338 -c "netdata user" -s /bin/bash netdata 2>/dev/null
     #####################################
-    # build and install queue
+    pm "-> java ..."
+    rm -f /var/cache/sbopkg/*jdk* 2>/dev/null 
+    #####################################
+    pm "Build and install queue ..."
     if ! grep -q nproc /etc/sbopkg/sbopkg.conf; then
         echo 'export MAKEOPTS="-j$(nproc)"' >> /etc/sbopkg/sbopkg.conf
         echo 'export MAKEFLAGS="-j$(nproc)"' >> /etc/sbopkg/sbopkg.conf
@@ -127,8 +137,11 @@ EOF
     # ganglia: fixes old rpc with new libtirpc
     #printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -k -i ganglia:OPT=gmetad
     #printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -k -i ganglia-web:OPT=gmetad
+    #####################################
+    pm "Post-queue installs and configurations ..."
+    #####################################
     # slurm
-    # TODO Fix slurm since version option is not read
+    pm "-> Fix slurm since version option is not read ..."
     if ! hash slurmd 2>/dev/null; then
 	groupadd -g 311 slurm
 	useradd -u 311 -d /var/lib/slurm -s /bin/false -g slurm slurm
@@ -136,10 +149,10 @@ EOF
 	$WGET https://download.schedmd.com/slurm/$FNAME -O $TDIR/network/slurm/$FNAME
     	cd $TDIR/network/slurm
       	MAKEFLAGS="-j$(nproc)" VERSION=20.11.8 HWLOC=yes RRDTOOL=yes bash slurm.SlackBuild
-	installpkg /tmp/slurm-20.11.8-x86_64-1_SBo.tgz
+	upgradepkg --install-new /tmp/slurm-20.11.8-x86_64-1_SBo.tgz
     fi
     #####################################
-    # netdata
+    # pm "-> netdata"
     # if ! hash netdata 2>/dev/null; then
     # 	groupadd -g 338 netdata 2>/dev/null
     # 	useradd -u 338 -g 338 -c "netdata user" -s /bin/bash netdata 2>/dev/null
@@ -155,13 +168,15 @@ EOF
     #         chmod +x /etc/rc.d/rc.netdata
     # fi
     ####################################
-    # turbovnc
+    pm "-> turbovnc"
     if [[ ! -d /opt/TurboVNC ]]; then
 	cd ~/Downloads
 	source ~/.bashrc
-	wget https://sonik.dl.sourceforge.net/project/turbovnc/2.2.90%20%283.0%20beta1%29/turbovnc-2.2.90.tar.gz
-	wget http://157.245.132.188/PACKAGES/turbovnc.SlackBuild
+	source /etc/profile.d/*jdk*.sh
+	$WGET https://sonik.dl.sourceforge.net/project/turbovnc/2.2.90%20%283.0%20beta1%29/turbovnc-2.2.90.tar.gz
+	$WGET http://157.245.132.188/PACKAGES/turbovnc.SlackBuild
 	bash turbovnc.SlackBuild
+	upgradepkg --install-new /tmp/turbovnc*tgz
     fi
 }
 
