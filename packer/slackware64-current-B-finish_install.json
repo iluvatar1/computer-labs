@@ -33,7 +33,7 @@
 
         "<wait><enter>",
         "<wait>localhost<enter>",
-        "<wait>example.org<enter>",
+        "<wait><enter>",
         "<wait><enter>",
         "<wait><enter>",
         "<wait><enter>",
