@@ -6,5 +6,6 @@
     "SSH_SERVER_PORT": "443",
     "SSH_DIR": "partimag",
     "SSH_USER": "root",
-    "SSH_PASSWORD": "ROOTPASSWORD"
+    "SSH_PASSWORD": "ROOTPASSWORD",
+    "HEADLESS": "false"
 }

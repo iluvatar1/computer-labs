@@ -19,6 +19,7 @@
       "ssh_username": "root",
       "attach_snapshot": "CLIENT configured",
       "boot_wait": "15s",
+      "headless" : "{{user `HEADLESS`}}",
       "vboxmanage": [
         [
           "modifyvm", "{{.Name}}", "--firmware", "bios"
@@ -73,11 +74,11 @@
         "<enter><wait3s>",
         "yes<enter><wait3s>",
         "{{ user `SSH_PASSWORD` }}<enter><wait3s>",
-        "<enter><wait15s>",
+        "<enter><wait25s>",
         "<enter><wait2s>",
         "<enter><wait5s>",
-	  "{{ user `FIRMWARE` }}<wait>",  
-        "<enter><wait15s>",
+	  "-{{ user `FIRMWARE` }}<wait>",  
+        "<enter><wait20s>",
         "<enter><wait4s>",
         "<enter><wait>",
         "<enter><wait>",
