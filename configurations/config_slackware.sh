@@ -358,6 +358,10 @@ readonly ERR_LOG_FILE="/var/log/config_err.log"
 touch ${ERR_LOG_FILE}
 exec 2>${ERR_LOG_FILE}
 
+if [[ ! -f /var/log/CONFIGDATE ]]; then
+    echo $(date +%F--%H-%M-%S) > /var/log/CONFIGDATE
+fi
+
 clone_or_update_config_repo
 inittab
 services_nfs_ssh
