@@ -9,7 +9,7 @@ CHECK NETWORK eth0 with INTERFACE eth0
       stop program = "/etc/rc.d/rc.inet1 eth0_stop"
       if failed link then restart
       if link down then restart
-      if 5 restarts within 20 cycles then exec "date > /var/log/restart_monit.txt ; echo 'Restart no link eth0' >> /var/log/restart_monit.txt; /sbin/telinit 6"
+      if 5 restarts within 20 cycles then exec "/usr/bin/date > /var/log/restart_monit.txt ; /usr/bin/echo 'Restart no link eth0' >> /var/log/restart_monit.txt; /sbin/telinit 6"
 
 check filesystem rootfs with path /
     if space usage > 90% then alert
@@ -44,4 +44,4 @@ check system $HOST
       #if loadavg (1min) per core > 0.8 for 10 cycles then exec "/sbin/telinit 6 "
       if loadavg (5min) per core > 0.8 for 10 cycles then alert
       #if loadavg (15min) per core > 0.8 for 10 cycles then exec "/sbin/telinit 6"
-      if memory usage > 97% for 6 cycles then exec "date > /var/log/restart_monit.txt ; echo 'Restart high mem usage' >> /var/log/restart_monit.txt; /sbin/telinit 6"
+      if memory usage > 97% for 6 cycles then exec "/usr/bin/date > /var/log/restart_monit.txt ; /usr/bin/echo 'Restart high mem usage' >> /var/log/restart_monit.txt; /sbin/telinit 6"
