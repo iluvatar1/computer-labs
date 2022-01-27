@@ -584,40 +584,44 @@ function config_clustershell {
 ** X2GOSERVER
 #+name: x2go
 #+begin_src shell :exports code
-function config_x2go {
-    MSG="Installing and configuring x2go server "
-    start_msg "$MSG"
-    if [ "$TARGET" = "SERVER" ]; then
-        echo "Preconfiguring on server only ... "
-        echo "Adding x2gouser user and x2goprint group ..."
-        if [ x"" = x"$(grep x2gouser /etc/passwd 2>/dev/null)" ]; then
-            groupadd -g 290 x2gouser
-            useradd -u 290 -g 290 -c "X2Go Remote Desktop" -M -d /var/lib/x2go -s /bin/false x2gouser
-            groupadd -g 291 x2goprint
-            mkdir -p /var/spool/x2goprint &>/dev/null
-            useradd -u 291 -g 291 -c "X2Go Remote Desktop" -m -d /var/spool/x2goprint -s /bin/false x2goprint
-            chown x2goprint:x2goprint /var/spool/x2goprint
-            chmod 0770 /var/spool/x2goprint
-        else
-            echo "x2gouser already exists. Assuming x2go prerequisites is already configured"
-        fi
-    fi
+  function config_x2go {
+      MSG="Installing and configuring x2go server "
+      start_msg "$MSG"
+      if [ "$TARGET" = "SERVER" ]; then
+	  echo "Preconfiguring on server only ... "
+	  echo "Adding x2gouser user and x2goprint group ..."
+	  if [ x"" = x"$(grep x2gouser /etc/passwd 2>/dev/null)" ]; then
+	      groupadd -g 290 x2gouser
+	      useradd -u 290 -g 290 -c "X2Go Remote Desktop" -M -d /var/lib/x2go -s /bin/false x2gouser
+	      groupadd -g 291 x2goprint
+	      mkdir -p /var/spool/x2goprint &>/dev/null
+	      useradd -u 291 -g 291 -c "X2Go Remote Desktop" -m -d /var/spool/x2goprint -s /bin/false x2goprint
+	      chown x2goprint:x2goprint /var/spool/x2goprint
+	      chmod 0770 /var/spool/x2goprint
+	  else
+	      echo "x2gouser already exists. Assuming x2go prerequisites is already configured"
+	  fi
+      else
+	  if [[ x"" == x"$(grep x2godbadmin /etc/rc.d/rc.local | grep -v grep)" ]]; then
+	      echo 'x2godbadmin --createdb &>/dev/null ' >> /etc/rc.d/rc.local
+	  fi
+      fi
 
-    echo "Installing ..."
-    if $(command_exists x2goversion) && [[ $FORCE -eq 0 ]]; then
-        echo "#    -> already installed"
-    else
-        echo "Error: Package must be already installed. Exiting"
-        exit 1
-        #echo "Installing x2go ..."
-        #source /root/.bashrc
-        #slpkg -s sbo x2goserver
-        #/etc/rc.d/rc.inet2 restart
-    fi
-    x2godbadmin --createdb
-    /etc/rc.d/rc.x2goserver start
-    end_msg "$MSG"
-}
+      echo "Installing ..."
+      if $(command_exists x2goversion) && [[ $FORCE -eq 0 ]]; then
+	  echo "#    -> already installed"
+      else
+	  echo "Error: Package must be already installed. Exiting"
+	  exit 1
+	  #echo "Installing x2go ..."
+	  #source /root/.bashrc
+	  #slpkg -s sbo x2goserver
+	  #/etc/rc.d/rc.inet2 restart
+      fi
+      x2godbadmin --createdb
+      /etc/rc.d/rc.x2goserver start
+      end_msg "$MSG"
+  }
 #+end_src
 ** ETC SKEL
 Here I put some defaults for /etc/skel
