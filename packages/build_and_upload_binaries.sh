@@ -88,7 +88,6 @@ build_packages_sbo () {
     nx-libs
     x2goserver
     zulu-openjdk17
-    xfce4-xkb-plugin
     netdata
     munge 
     confuse
