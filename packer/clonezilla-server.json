@@ -36,7 +36,7 @@
         "<wait><enter>",
         "<wait><bs><bs>{{user `NUM_CLIENTS`}}<enter><wait5s>",
         "<wait><bs><bs><bs><bs>{{user `WAIT_TIME`}}<enter><wait5s>",
-	"<wait10s><leftAltOn><right><leftAltOff>sudo su<enter><wait3s>tail -f /var/log/clonezilla/* /var/log/daemon.log | grep -Ev 'blue|Bluetooth|brltty' <enter> " , 
+	"<wait10s><leftAltOn><right><leftAltOff>sudo su<enter><wait3s>tail -f /var/log/ocs* /var/log/clonezilla/* /var/log/daemon.log | grep -Ev 'blue|Bluetooth|brltty' <enter> " , 
         "<wait12h>"
       ],
       "type": "virtualbox-iso",
@@ -63,6 +63,12 @@
         ],
         [
           "modifyvm", "{{.Name}}", "--nic1", "bridged", "--bridgeadapter1", "eth1"
+        ],
+        [
+          "modifyvm", "{{.Name}}", "--recording", "on"
+        ],
+        [
+          "modifyvm", "{{.Name}}", "--recordingfile", "/opt/clonezillaservervideo"
         ],
         [
           "modifyvm", "{{.Name}}", "--macaddress1", "080027D4CA13"
