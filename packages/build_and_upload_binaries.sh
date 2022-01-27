@@ -58,6 +58,9 @@ build_packages_sbo () {
     sshpass
     iotop
     xdm-slackware-theme
+    xfce4-xkb-plugin
+    xfce4-cpugraph-plugin
+    xfce4-netload-plugin
     uuid
     mongo-c-driver
     arno-iptables-firewall
