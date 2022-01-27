@@ -94,8 +94,13 @@ slackpkgmirror () {
 }
 
 dhcp_eth1 () {
-    pm "Adding dhcp for eth1"
+    pm "Adding dhcp for both eth0 and eth1"
     fname=/etc/rc.d/rc.inet1.conf
+    if [ x"" = x"$(grep USE_DHCP\\[0\\]=\"yes\" $fname  | grep -v grep )" ]; then  
+        sed -i.bck 's/USE_DHCP\[0\]=""/USE_DHCP\[0\]="yes"/' $fname
+    else
+	    configured
+    fi
     if [ x"" = x"$(grep USE_DHCP\\[1\\]=\"yes\" $fname  | grep -v grep )" ]; then  
         sed -i.bck 's/USE_DHCP\[1\]=""/USE_DHCP\[1\]="yes"/' $fname
     else
