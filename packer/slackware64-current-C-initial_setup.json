@@ -19,6 +19,7 @@
       "skip_export": "true",
       "boot_wait": "10s",
       "force_delete_snapshot": true,
+	"headless": "{{user `HEADLESS`}}",
       "export_opts":
       [
         "--manifest",

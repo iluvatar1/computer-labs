@@ -6,5 +6,6 @@
     "snapshot_name": "{{user `TYPE`}} configured",
     "output_dir": "{{env `HOME`}}/Downloads/box_{{user `TYPE`}}_{{user `FIRMWARE`}}",
     "root_password": "ROOTPASSWORD",
-    "SKIP_EXPORT" : "true"
+    "SKIP_EXPORT" : "true",
+    "HEADLESS" : "false"
 }

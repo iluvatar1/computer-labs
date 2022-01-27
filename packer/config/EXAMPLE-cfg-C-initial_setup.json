@@ -1,4 +1,5 @@
 {
     "MACHINENAME" : "base_slack_machine_{{user `FIRMWARE`}}",
-    "PROXY" : "http://192.168.10.1:3128"
+    "PROXY" : "http://192.168.10.1:3128",
+    "HEADLESS" : false
 }
