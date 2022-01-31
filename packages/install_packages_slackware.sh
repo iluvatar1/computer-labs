@@ -5,6 +5,7 @@ export PATH=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:/usr/ga
 \
 ################################################################################
 COMPILE=${COMPILE:-NO}
+MIRROR_ONLY=${MIRROR_ONLY:-NO}
 PKG="keepassx sshfs-fuse autossh xfce4-xkb-plugin flashplayer-plugin slim monit \
     fail2ban corkscrew pip parallel wol valgrind openmpi modules cppcheck iotop gperftools \
     xdm-slackware-theme"
@@ -98,22 +99,24 @@ install_perf () {
 ################################################################################
 # MAIN
 
-setup
-# install qt5 and other deps from slack
-slpkg -s slack qt5 icu4c lz4 tigervnc
+# install other packages not from mirror
+if [ "NO" = "$MIRROR_ONLY" ]; then  
+    setup
+    # install qt5 and other deps from slack
+    slpkg -s slack qt5 icu4c lz4 tigervnc
+
+    pip install clustershell
+    #install_latest_firefox
+    #install_perf
+    # install some big packages already compiled by alien
+    slpkg -s alien libreoffice inkscape vlc poppler-compat
+fi
 
 if [ "NO" = "$COMPILE" ]; then
     install_binary_packages
 else
     install_with_slpkg_compile
 fi
-
-pip install clustershell
-
-#install_latest_firefox
-#install_perf
-# install some big packages already compiled by alien
-slpkg -s alien libreoffice inkscape vlc poppler-compat
 
 # Configure x2go to avoid using compositing with xfce4
 TNAME=/etc/x2go/xinitrc.d/xfwm4_no_compositing
