@@ -111,7 +111,7 @@ fi
 pip install clustershell
 
 #install_latest_firefox
-install_perf
+#install_perf
 # install some big packages already compiled by alien
 slpkg -s alien libreoffice inkscape vlc poppler-compat
 
