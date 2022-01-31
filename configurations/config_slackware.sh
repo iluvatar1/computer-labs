@@ -359,6 +359,7 @@ config_hostname() {
     pm "Configuring xdm as first option in runlevel 4 ..."
     if [ x"" = x"$(grep 'xdm' /etc/rc.d/rc.4.local 2>/dev/null | grep -v grep)" ]; then
 	echo "if [ -x /usr/bin/xdm ]; then exec /usr/bin/xdm -nodaemon; elif [ -x /usr/X11R6/bin/xdm ]; then exec /usr/X11R6/bin/xdm -nodaemon; fi" > /etc/rc.d/rc.4.local
+	chmod +x /etc/rc.d/rc.4.local
     else
 	    configured 'xdm as first option'
     fi
