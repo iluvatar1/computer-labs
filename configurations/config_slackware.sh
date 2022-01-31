@@ -350,6 +350,11 @@ config_xwmconfig() {
     fi
 }
 
+config_hostname() {
+    backup_file /etc/HOSTNAME
+    echo localhost > /etc/HOSTNAME
+}
+
 #####################################################
 # MAIN
 #####################################################
@@ -385,4 +390,5 @@ sbopkg_install
 slackpkgmirror
 config_fonts
 config_xwmconfig
+config_hostname
 pm "Done."
