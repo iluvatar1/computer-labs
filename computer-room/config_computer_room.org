@@ -930,48 +930,49 @@ cd $PKG
 *** Install and Configuration Scripts
 #+name: netdata
 #+begin_src shell :exports code
-function config_netdata {
-    MSG="Installing and configuring netdata "
-    start_msg "$MSG"
-    cd "$BDIR"
-    echo "Installation"
-    if $(command_exists netdata); then
-        echo "-> Already installed"
-    else
-        echo "Package must be already installed. Exiting"
-        exit 1
-        # source ~/.bashrc
-        # echo "Installing deps ..."
-        # slpkg -s sbo libuv uuid mongo-c-driver PyYAML
-        # slpkg -s slack lz4
-        # echo "Installing netdata with modified slackbuild ..."
-        # cd /tmp
-        # wget https://slackbuilds.org/slackbuilds/14.2/system/netdata.tar.gz &&
-        # wget https://github.com/netdata/netdata/archive/v1.29.3/netdata-1.29.3.tar.gz &&
-        # tar xf netdata.tar.gz &&
-        # mv netdata/netdata.SlackBuild{,-orig} &&
-        # cp ${BDIR}/${FDIR}/netdata.SlackBuild netdata/ &&
-        # chmod +x netdata/netdata.SlackBuild &&
-        # tar czf netdata.tar.gz netdata &&
-        # slpkg -a netdata.tar.gz netdata-1.29.3.tar.gz &&
-        # chmod +x /etc/rc.d/rc.netdata
-    fi
-    if [ "$TARGET" = "SERVER" ]; then
-        groupadd -g 338 netdata 2>/dev/null
-        useradd -u 338 -g 338 -c "netdata user" -s /bin/bash netdata 2>/dev/null
-    fi
+  function config_netdata {
+      MSG="Installing and configuring netdata "
+      start_msg "$MSG"
+      cd "$BDIR"
+      echo "Installation"
+      if $(command_exists netdata); then
+	  echo "-> Already installed"
+      else
+	  echo "Package must be already installed. Exiting"
+	  exit 1
+	  # source ~/.bashrc
+	  # echo "Installing deps ..."
+	  # slpkg -s sbo libuv uuid mongo-c-driver PyYAML
+	  # slpkg -s slack lz4
+	  # echo "Installing netdata with modified slackbuild ..."
+	  # cd /tmp
+	  # wget https://slackbuilds.org/slackbuilds/14.2/system/netdata.tar.gz &&
+	  # wget https://github.com/netdata/netdata/archive/v1.29.3/netdata-1.29.3.tar.gz &&
+	  # tar xf netdata.tar.gz &&
+	  # mv netdata/netdata.SlackBuild{,-orig} &&
+	  # cp ${BDIR}/${FDIR}/netdata.SlackBuild netdata/ &&
+	  # chmod +x netdata/netdata.SlackBuild &&
+	  # tar czf netdata.tar.gz netdata &&
+	  # slpkg -a netdata.tar.gz netdata-1.29.3.tar.gz &&
+	  # chmod +x /etc/rc.d/rc.netdata
+      fi
+      if [ "$TARGET" = "SERVER" ]; then
+	  groupadd -g 338 netdata 2>/dev/null
+	  useradd -u 338 -g 338 -c "netdata user" -s /bin/bash netdata 2>/dev/null
+      fi
 
-    echo "Configuring proxy on both server and client ... "
-    if [ x"" == x"$(grep 192.168.10.1 /etc/netdata/netdata.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-        copy_config "${BDIR}/${FDIR}/etc-netdata-netdata.conf" "/etc/netdata/netdata.conf"
-    else
-        echo "-> Already configured"
-    fi
+      echo "Configuring proxy on both server and client ... "
+      if [ x"" == x"$(grep 192.168.10.1 /etc/netdata/netdata.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	  copy_config "${BDIR}/${FDIR}/etc-netdata-netdata.conf" "/etc/netdata/netdata.conf"
+      else
+	  echo "-> Already configured"
+      fi
 
-    /etc/rc.d/rc.netdata restart
-    echo "Done"
-    end_msg "$MSG"
-}
+      chmod +x /etc/rc.d/rc.netdata
+      /etc/rc.d/rc.netdata restart
+      echo "Done"
+      end_msg "$MSG"
+  }
 #+end_src
 
 #+RESULTS: netdata
