@@ -25,7 +25,7 @@
         "<wait>s<enter>",
         "<wait><enter>",
         "<wait><enter>",
-        "<wait><enter>",
+        "<wait><enter><wait3s>",
         "<wait><enter><wait10s>",
 
         "<wait><enter>",
@@ -33,7 +33,7 @@
 
         "<wait><enter>",
         "<wait>localhost<enter>",
-        "<wait><enter>",
+        "<wait>example.org<enter>",
         "<wait><enter>",
         "<wait><enter>",
         "<wait><enter>",
