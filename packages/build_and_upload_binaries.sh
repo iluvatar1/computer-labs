@@ -121,9 +121,16 @@ EOF
     #####################################
     pm "-> monit ..."
     if [[ ! -f $TDIR/system/monit/$FNAME ]] ; then 
-	sed -i.bck 's/ README//' /var/lib/sbopkg/SBo-git/system/monit/monit.SlackBuild
+	sed -i.bck 's/ README//' $TDIR/system/monit/monit.SlackBuild
 	FNAME=monit-5.30.0.tar.gz
 	$WGET https://mmonit.com/monit/dist/$FNAME -O $TDIR/system/monit/$FNAME
+    fi
+    #####################################
+    pm "-> hwloc ..."
+    if [[ ! -f $TDIR/system/hwloc/$FNAME ]] ; then 
+	sed -i.bck 's/--disable-debug /--disable-debug --disable-opencl /' $TDIR/system/hwloc/hwloc.SlackBuild
+	FNAME=hwloc-2.7.0.tar.gz
+	$WGET https://download.open-mpi.org/release/hwloc/v2.7/$FNAME -O $TDIR/system/hwloc/$FNAME
     fi
     #####################################
     pm "-> netdata"
