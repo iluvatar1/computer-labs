@@ -7,14 +7,14 @@ check process sshd with pidfile /var/run/sshd.pid
       start program "/etc/rc.d/rc.sshd start"
       stop program "/etc/rc.d/rc.sshd stop"
       if failed port 22 protocol ssh then restart
-      if 5 restarts within 10 cycles then exec "/usr/bin/date>/var/log/monit_restart.txt; /usr/bin/echo 'no sshd'>>/var/log/monit_restart.txt; /sbin/telinit 6"
+      if 5 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No sshd'"
 
 check process ypbind with pidfile /var/run/ypbind.pid
       start program = "/etc/rc.d/rc.yp start"
       stop program = "/etc/rc.d/rc.yp stop"
-      if 5 restarts within 10 cycles then exec "/usr/bin/date>/var/log/monit_restart.txt; /usr/bin/echo 'no yp'>>/var/log/monit_restart.txt; /sbin/telinit 6"
+      if 5 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no ypbind'"
 
 check filesystem homefs with path /home
       start program  = "/sbin/mount /home"
       stop program  = "/sbin/umount /home"
-      if 5 restarts within 10 cycles then exec "/usr/bin/date>/var/log/monit_restart.txt; /usr/bin/echo 'no home'>>/var/log/monit_restart.txt; /sbin/telinit 6"
+      if 5 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'home mounted'"

@@ -471,39 +471,49 @@ redundancy (besides the scripts in crontab) to keep services
 running. TODO: configure essential services on server and clients.
    #+name:monit_config
    #+begin_src sh :exports code
-function config_monit {
-    MSG="Configuring monit on server "
-    start_msg "$MSG"
-    cd "$BDIR"
-    if $(command_exists monit) && [[ $FORCE -eq 0 ]]; then
-        echo "#    -> already installed"
-    else
-        echo "ERROR: monit must be already installed. Exiting"
-        exit 1
-        # echo "Installing monit ..."
-        # source /root/.bashrc
-        # slpkg -s sbo monit
-    fi
-    echo "Configuring monit ..."
-    if [ x"" = x"$(grep -e '^include' /etc/monitrc  2>/dev/null)" ]; then
-        backup_file /etc/monitrc
-        echo 'include /etc/monit.d/*' >> /etc/monitrc
-    fi
-    chmod 0700 /etc/monitrc
-    if [ ! -d /etc/monit.d ]; then
-        mkdir /etc/monit.d
-    fi
-    if [ x"" = x"$(grep -e 'monit' /etc/inittab  2>/dev/null)" ]; then
-        backup_file /etc/inittab
-        echo '# Run monit in standard runlevels' >> /etc/inittab
-        echo 'mo:2345:respawn:/usr/bin/monit -Ic /etc/monitrc' >> /etc/inittab
-    fi
-    cp "${BDIR}/${FDIR}/common-monitrc" "/etc/monit.d/00-common-monitrc"
-    cp "${BDIR}/${FDIR}/${TARGET}-monitrc" "/etc/monit.d/01-${TARGET}-monitrc"
-    chmod +x /etc/rc.d/rc.monit
-    /etc/rc.d/rc.monit restart
-    end_msg "$MSG"
-}
+     function config_monit {
+	 MSG="Configuring monit on server "
+	 start_msg "$MSG"
+	 cd "$BDIR"
+	 if $(command_exists monit) && [[ $FORCE -eq 0 ]]; then
+	     echo "#    -> already installed"
+	 else
+	     echo "ERROR: monit must be already installed. Exiting"
+	     exit 1
+	     # echo "Installing monit ..."
+	     # source /root/.bashrc
+	     # slpkg -s sbo monit
+	 fi
+	 echo "Configuring monit ..."
+	 if [ x"" = x"$(grep -e '^include' /etc/monitrc  2>/dev/null)" ]; then
+	     backup_file /etc/monitrc
+	     echo 'include /etc/monit.d/*' >> /etc/monitrc
+	 fi
+	 chmod 0700 /etc/monitrc
+	 if [ ! -d /etc/monit.d ]; then
+	     mkdir /etc/monit.d
+	 fi
+	 if [ ! -f /usr/local/bin/monit_restart.sh ]; then
+	     cat <<EOF>/usr/local/bin/monit_restart.sh
+     #!/bin/env bash
+     /usr/bin/date >> /var/log/restart_monit.txt
+     /usr/bin/echo "$1" >> /var/log/restart_monit.txt
+     /usr/bin/echo "+-------------------+" >> /var/log/restart_monit.txt
+     /sbin/telinit 6
+     EOF
+	 fi
+	 chmod +x /usr/local/bin/monit_restart.sh
+	 if [ x"" = x"$(grep -e 'monit' /etc/inittab  2>/dev/null)" ]; then
+	     backup_file /etc/inittab
+	     echo '# Run monit in standard runlevels' >> /etc/inittab
+	     echo 'mo:2345:respawn:/usr/bin/monit -Ic /etc/monitrc' >> /etc/inittab
+	 fi
+	 cp "${BDIR}/${FDIR}/common-monitrc" "/etc/monit.d/00-common-monitrc"
+	 cp "${BDIR}/${FDIR}/${TARGET}-monitrc" "/etc/monit.d/01-${TARGET}-monitrc"
+	 chmod +x /etc/rc.d/rc.monit
+	 /etc/rc.d/rc.monit restart
+	 end_msg "$MSG"
+     }
    #+end_src
 ** CNTLM: Local proxy
 This allows to create a bypassing proxy that handles all auth and

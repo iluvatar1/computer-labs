@@ -9,7 +9,7 @@ CHECK NETWORK extif with ADDRESS 168.176.35.111
       stop program = "/etc/rc.d/rc.inet1 eth0_stop"
       if failed link then restart
       if link down then restart
-      if 5 restarts within 20 cycles then exec "/usr/bin/date>/var/log/monit_restart.txt; /usr/bin/echo 'no link extif'>>/var/log/monit_restart.txt; /sbin/telinit 6"
+      if 5 restarts within 20 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No external ip '"
 
 CHECK process cntlm with pidfile /var/run/cntlm.pid
       #matching "cntlm"
@@ -26,7 +26,7 @@ check process sshd with pidfile /var/run/sshd.pid
       start program "/etc/rc.d/rc.sshd start"
       stop program "/etc/rc.d/rc.sshd stop"
       if failed port 443 protocol ssh then restart
-      if 5 restarts within 10 cycles then exec "/usr/bin/date>/var/log/monit_restart.txt; /usr/bin/echo 'no sshd working'>>/var/log/monit_restart.txt; /sbin/telinit 6"
+      if 5 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No sshd working in port 443'"
 
 check filesystem homefs with path /home
     if space usage > 90% then alert
