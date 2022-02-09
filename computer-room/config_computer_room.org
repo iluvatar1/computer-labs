@@ -678,61 +678,61 @@ client. I will put both here. For config see here:
 https://blog.42mate.com/monitoring-your-servers-like-a-boss/
 #+name: ganglia
 #+begin_src shell :exports code
-function config_ganglia {
-    MSG="Installing and configuring ganglia "
-    start_msg "$MSG"
-    cd "$BDIR"
-    echo "Package must be already installed."
-    # echo "Installing with slpkg ..."
-    # source ~/.bashrc
-    # slpkg -s sbo rrdtool
-    # slpkg -s sbo confuse
-    # export OPT=gmetad
-    # slpkg -s sbo ganglia
-    # slpkg -s sbo ganglia-web # installs the server on /var/www/htdocs/ganglia
-    # unset OPT
+  function config_ganglia {
+      MSG="Installing and configuring ganglia "
+      start_msg "$MSG"
+      cd "$BDIR"
+      echo "Package must be already installed."
+      # echo "Installing with slpkg ..."
+      # source ~/.bashrc
+      # slpkg -s sbo rrdtool
+      # slpkg -s sbo confuse
+      # export OPT=gmetad
+      # slpkg -s sbo ganglia
+      # slpkg -s sbo ganglia-web # installs the server on /var/www/htdocs/ganglia
+      # unset OPT
 
-    echo "Configuring gmond on both server and client ... "
-    if [ x"" == x"$(grep clustersalafis /etc/ganglia/gmond.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-        copy_config "${BDIR}/${FDIR}/gmond.conf" "/etc/ganglia/gmond.conf"
-        ln -s "/etc/ganglia/gmond.conf" "/etc/gmond.conf"
-    else
-        echo "→ Already configured"
-    fi
+      echo "Configuring gmond on both server and client ... "
+      if [ x"" == x"$(grep clustersalafis /etc/ganglia/gmond.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	  copy_config "${BDIR}/${FDIR}/gmond.conf" "/etc/ganglia/gmond.conf"
+	  ln -s "/etc/ganglia/gmond.conf" "/etc/gmond.conf"
+      else
+	  echo "→ Already configured"
+      fi
 
-    if [ "$TARGET" = "SERVER" ]; then
-        echo "Configuring gmetad (ganglia monitor) on SERVER ..."
-        if [ x"" == x"$(grep clustersalafis /etc/ganglia/gmetad.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-            copy_config "${BDIR}/${FDIR}/SERVER-gmetad.conf" "/etc/ganglia/gmetad.conf"
-        else
-            echo "-> Already configured."
-        fi
-        echo "Adding extra ganglia config to http/apache on SERVER ..."
-        TFILE="/etc/httpd/httpd.conf"
-        if [ x"" == x"$(grep ganglia.conf $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-            backup_file "$TFILE"
-            sed -i 's/#Include \/etc\/httpd\/mod_php.conf/Include \/etc\/httpd\/mod_php.conf/' "$TFILE"
-            echo "Include /etc/httpd/extra/ganglia.conf" >> "$TFILE"
-        else
-            echo "-> Already configured."
-        fi
-        echo "Copying extra ganglia config on SERVER ..."
-        TFILE="/etc/httpd/extra/ganglia.conf"
-        if [ ! -f "$TFILE" ]; then
-            copy_config "${BDIR}/${FDIR}/SERVER-etc-httpd-extra-ganglia.conf" "$TFILE"
-        fi
-        chmod +x /etc/rc.d/rc.httpd
-        chmod +x /etc/rc.d/rc.gmetad
-        /etc/rc.d/rc.httpd restart
-        /etc/rc.d/rc.gmetad restart
-        ln -sf /etc/ganglia/gmetad.conf /etc/
-    fi
-    ln -sf /etc/ganglia/gmond.conf /etc/
-    chmod +x /etc/rc.d/rc.gmond
-    /etc/rc.d/rc.gmond restart
-    echo "Done"
-    end_msg "$MSG"
-}
+      if [ "$TARGET" = "SERVER" ]; then
+	  echo "Configuring gmetad (ganglia monitor) on SERVER ..."
+	  if [ x"" == x"$(grep clustersalafis /etc/ganglia/gmetad.conf 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	      copy_config "${BDIR}/${FDIR}/SERVER-gmetad.conf" "/etc/ganglia/gmetad.conf"
+	  else
+	      echo "-> Already configured."
+	  fi
+	  echo "Adding extra ganglia config to http/apache on SERVER ..."
+	  TFILE="/etc/httpd/httpd.conf"
+	  if [ x"" == x"$(grep ganglia.conf $TFILE 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	      backup_file "$TFILE"
+	      sed -i 's/#Include \/etc\/httpd\/mod_php.conf/Include \/etc\/httpd\/mod_php.conf/' "$TFILE"
+	      echo "Include /etc/httpd/extra/ganglia.conf" >> "$TFILE"
+	  else
+	      echo "-> Already configured."
+	  fi
+	  echo "Copying extra ganglia config on SERVER ..."
+	  TFILE="/etc/httpd/extra/ganglia.conf"
+	  if [ ! -f "$TFILE" ]; then
+	      copy_config "${BDIR}/${FDIR}/SERVER-etc-httpd-extra-ganglia.conf" "$TFILE"
+	  fi
+	  chmod +x /etc/rc.d/rc.httpd
+	  chmod +x /etc/rc.d/rc.gmetad
+	  /etc/rc.d/rc.httpd restart
+	  /etc/rc.d/rc.gmetad restart
+	  ln -sf /etc/ganglia/gmetad.conf /etc/
+      fi
+      ln -sf /etc/ganglia/gmond.conf /etc/
+      chmod +x /etc/rc.d/rc.gmond
+      /etc/rc.d/rc.gmond restart
+      echo "Done"
+      end_msg "$MSG"
+  }
 #+end_src
 ** TODO NETDATA (needs testing)
 NETDATA is an alternative to ganglia and is very simple to configure and gets a
@@ -976,6 +976,20 @@ cd $PKG
 #+end_src
 
 #+RESULTS: netdata
+
+TODO TODO TODO
+This is the modern way to install it. Maybe install it when configuring the client/server, and claim it when they are already running
+#+begin_src shell :tangle install_netdata.sh
+   # install in opt: needs new config to be monitored by monit (using procmath)
+   wget -O ./kickstart.sh https://my-netdata.io/kickstart.sh && sh ./kickstart.sh --non-interactive --require-cloud
+   cp "/root/repos/computer-labs/computer-room/files/etc-netdata-netdata.conf" "/opt/netdata//etc/netdata/netdata.conf"
+#+end_src
+
+#+begin_src shell
+  # claim node
+wget -O ./kickstart.sh https://my-netdata.io/kickstart.sh && sh ./kickstart.sh --claim-token TOKEN --claim-rooms ROOMID --claim-url https://app.netdata.cloud
+#+end_src
+
 
 ** Wake on lan
 #+NAME: wol_config
