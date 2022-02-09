@@ -43,7 +43,13 @@
   ] ,
   "provisioners":
   [
-    {
+      {
+      "inline": ["cd {{user `home`}}/repos/computer-labs/", "git pull"],
+      "type": "shell",
+      "valid_exit_codes":[0,2],
+       "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]
+      },
+      {
       "script": "{{user `provision_script`}}",
       "type": "shell",
       "valid_exit_codes":[0,2],
