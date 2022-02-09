@@ -99,9 +99,7 @@ build_packages_sbo () {
     hwloc
     numactl
     rrdtool
-    openmpi
     munge
-    #slurm | VERSION=20.11.8 HWLOC=yes RRDTOOL=yes NUMA=yes
 EOF
     #####################################
     # Download and fix particular versions
@@ -127,7 +125,7 @@ EOF
 	$WGET https://mmonit.com/monit/dist/$FNAME -O $TDIR/system/monit/$FNAME
     fi
     #####################################
-    pm "-> hwloc ..."
+    pm "-> hwloc (removing opencl) ..."
     if [[ ! -f $TDIR/system/hwloc/$FNAME ]] ; then 
 	sed -i.bck 's/--disable-debug /--disable-debug --disable-opencl /' $TDIR/system/hwloc/hwloc.SlackBuild
 	FNAME=hwloc-2.7.0.tar.gz
@@ -140,6 +138,8 @@ EOF
     #####################################
     pm "-> java ..."
     rm -f /var/cache/sbopkg/*jdk* 2>/dev/null 
+
+    #####################################
     #####################################
     pm "Build and install queue ..."
     if ! grep -q nproc /etc/sbopkg/sbopkg.conf; then
@@ -150,19 +150,41 @@ EOF
     # ganglia: fixes old rpc with new libtirpc
     #printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -k -i ganglia:OPT=gmetad
     #printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -k -i ganglia-web:OPT=gmetad
+
+    #####################################
     #####################################
     pm "Post-queue installs and configurations ..."
     #####################################
+    # pmix prereq for slurm
+    pm "-> openmpix (version 3.2.3, larger versions are not supported by slurm as of 2022-02-08)"
+    if ! hash pmix_info 2>/dev/null; then
+	cd ~/Downloads
+	source ~/.bashrc
+	$WGET http://157.245.132.188/PACKAGES/openpmix.SlackBuild
+	bash openpmix.SlackBuild
+	upgradepkg --install-new /tmp/openpmix*tgz
+    fi    
+    #####################################
     # slurm
-    pm "-> Fix slurm since version option is not read ..."
+    pm "-> Fix slurm since version option is not read ( pmix support detected automatically) ..."
     if ! hash slurmd 2>/dev/null; then
-	groupadd -g 311 slurm
-	useradd -u 311 -d /var/lib/slurm -s /bin/false -g slurm slurm
+	export SLURMUSER=992
+	groupadd -g $SLURMUSER slurm
+	useradd  -m -c "SLURM workload manager" -d /var/lib/slurm -u $SLURMUSER -g slurm  -s /bin/bash slurm
 	FNAME=slurm-20.11.8.tar.bz2
 	$WGET https://download.schedmd.com/slurm/$FNAME -O $TDIR/network/slurm/$FNAME
     	cd $TDIR/network/slurm
       	MAKEFLAGS="-j$(nproc)" VERSION=20.11.8 HWLOC=yes RRDTOOL=yes bash slurm.SlackBuild
-	upgradepkg --install-new /tmp/slurm-20.11.8-x86_64-1_SBo.tgz
+	upgradepkg --install-new /tmp/slurm*.tgz
+    fi
+    #####################################
+    # openmpi
+    if ! hash mpirun 2>/dev/null; then
+	FNAME=openmpi-4.1.2.tar.bz2
+	$WGET https://download.open-mpi.org/release/open-mpi/v4.1/$FNAME -O $TDIR/system/openmpi/$FNAME
+	cd $TDIR/system/openmpi
+      	MAKEFLAGS="-j$(nproc)" VERSION=4.1.2 PMI=yes bash openmpi.SlackBuild
+	upgradepkg --install-new /tmp/openmpi*tgz	
     fi
     #####################################
     # pm "-> netdata"
