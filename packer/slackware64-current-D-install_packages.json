@@ -38,11 +38,17 @@
   ] ,
   "provisioners":
   [
-    {
-      "script": "{{user `home`}}/repos/computer-labs/configurations/config_packages.sh",
+      {
+      "inline": ["cd {{user `home`}}/repos/computer-labs/", "git pull"],
       "type": "shell",
       "valid_exit_codes":[0,2],
-      "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]
+       "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]
+      },
+      {
+      "script": "{{user `home`}}/repos/computer-labs/packages/install_packages_slackware.sh",
+      "type": "shell",
+      "valid_exit_codes":[0,2],
+      "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}", "PKGSERVER={{user `PKGSERVER`}}", "COMPILE={{user `COMPILE`}}"]
     }
   ]
 }

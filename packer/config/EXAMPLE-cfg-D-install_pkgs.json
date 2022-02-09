@@ -1,5 +1,8 @@
 {
     "MACHINENAME" : "base_slack_machine_{{user `FIRMWARE`}}",
     "PROXY" : "http://192.168.10.1:3128",
+    "PKGSERVER": "192.168.10.1",
+    "COMPILE": "NO",
+    "MIRROR_ONLY" "NO",
     "HEADLESS" : "false"
 }

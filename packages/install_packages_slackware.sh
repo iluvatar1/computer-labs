@@ -6,6 +6,9 @@ export PATH=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:/usr/ga
 ################################################################################
 COMPILE=${COMPILE:-NO}
 MIRROR_ONLY=${MIRROR_ONLY:-NO}
+PKGSERVER=${PKGSERVER:-192.168.10.1}
+BASEURL="$PKGSERVER/PACKAGES/slackware64-current/"
+
 PKG="keepassx sshfs-fuse autossh xfce4-xkb-plugin flashplayer-plugin slim monit \
     fail2ban corkscrew pip parallel wol valgrind openmpi modules cppcheck iotop gperftools \
     xdm-slackware-theme"
@@ -26,7 +29,6 @@ setup () {
 }
 
 install_binary_packages () {
-    BASEURL="http://157.245.132.188/PACKAGES/slackware64-current/"
     cd /tmp || exit
     for ext in tgz txz; do
         wget -c -nc -r -np -l1 -P ./ -nd "${BASEURL}" -A ${ext}
