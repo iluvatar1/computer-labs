@@ -162,7 +162,7 @@ EOF
 	source ~/.bashrc
 	$WGET http://157.245.132.188/PACKAGES/openpmix.SlackBuild
 	bash openpmix.SlackBuild
-	upgradepkg --install-new /tmp/openpmix*tgz
+	upgradepkg --install-new --reinstall /tmp/*pmix*tgz
     fi    
     #####################################
     # slurm
@@ -175,7 +175,7 @@ EOF
 	$WGET https://download.schedmd.com/slurm/$FNAME -O $TDIR/network/slurm/$FNAME
     	cd $TDIR/network/slurm
       	MAKEFLAGS="-j$(nproc)" VERSION=20.11.8 HWLOC=yes RRDTOOL=yes bash slurm.SlackBuild
-	upgradepkg --install-new /tmp/slurm*.tgz
+	upgradepkg --install-new --reinstall /tmp/slurm*.tgz
     fi
     #####################################
     # openmpi
@@ -184,7 +184,7 @@ EOF
 	$WGET https://download.open-mpi.org/release/open-mpi/v4.1/$FNAME -O $TDIR/system/openmpi/$FNAME
 	cd $TDIR/system/openmpi
       	MAKEFLAGS="-j$(nproc)" VERSION=4.1.2 PMI=yes bash openmpi.SlackBuild
-	upgradepkg --install-new /tmp/openmpi*tgz	
+	upgradepkg --install-new --reinstall /tmp/openmpi*tgz	
     fi
     #####################################
     # pm "-> netdata"
