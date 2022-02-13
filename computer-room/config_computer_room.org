@@ -1740,3 +1740,10 @@ udp-receiver --file rand.bin
 
   NOTE: For one client, bandwidth is maximized to 1000, for two or more, is
   inmediatly droped to 10.
+
+  Checking with iperf3
+  #+begin_src shell
+Servidor: iperf3 -s
+Cliente (tcp): iperf3 -c ${IPSERVER} -f m -i 1 -t 5
+Cliente (udp): iperf3 --udp -b 0 -c ${IPSERVER} -f m -i 1 -t 5
+  #+end_src
