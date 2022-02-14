@@ -15,7 +15,8 @@ environment vars.  At the end you just run the mentioned script and
 hopefully everything will work as expected.
 
 - Check https://www.redhat.com/sysadmin/my-survival-kit
-
+- Check addresses at: https://warewulf.org/docs/enchiridion/setup
+  
 * Description
   - The system to be installed is slackware 14.2-current 64bits,
     although some script might help to keep it updated with security
@@ -510,6 +511,7 @@ running. TODO: configure essential services on server and clients.
 	 fi
 	 cp "${BDIR}/${FDIR}/common-monitrc" "/etc/monit.d/00-common-monitrc"
 	 cp "${BDIR}/${FDIR}/${TARGET}-monitrc" "/etc/monit.d/01-${TARGET}-monitrc"
+	 cp "${BDIR}/${FDIR}/HPC-monitrc" "/etc/monit.d/02-HPC-monitrc"
 	 chmod +x /etc/rc.d/rc.monit
 	 /etc/rc.d/rc.monit restart
 	 end_msg "$MSG"
@@ -1718,15 +1720,15 @@ http_port 10000
 acl port10000 myport 10000
 cache_peer_access 168.176.239.30 allow port10000
   #+end_src
-* Todo [0/3]
-- [ ] ldap for auth: link with unal server
-- [ ] Check for possible VPN, maybe using wireguard, so to be able to browse
+* Todo [0/4]
+  - [ ] ldap for auth: link with unal server
+  - [ ] Check for possible VPN, maybe using wireguard, so to be able to browse
   internal clients
   - https://github.com/gsliepen/tinc/tree/1.1
   - https://tailscale.com/
   - https://github.com/slackhq/nebula
   - https://github.com/wiretrustee/wiretrustee
-- [ ] Check bandwidth for udpcast
+  - [ ] Check bandwidth for udpcast
   https://sandilands.info/sgordon/using-multicast-on-a-lan-in-linux
   Server
   #+begin_src
@@ -1747,3 +1749,11 @@ Servidor: iperf3 -s
 Cliente (tcp): iperf3 -c ${IPSERVER} -f m -i 1 -t 5
 Cliente (udp): iperf3 --udp -b 0 -c ${IPSERVER} -f m -i 1 -t 5
   #+end_src
+  - [ ] Nvidia on server and clients
+    Nvidia card on server salafis
+    https://docs.slackware.com/howtos:hardware:proprietary_graphics_drivers
+    https://forums.developer.nvidia.com/t/gpu-cooler-running-on-high-speed-all-the-time/48733
+    nvidia-settings -q all | grep -i fan
+    #nvidia-settings -a 'GPUTargetFanSpeed=50'
+    https://en.altlinux.org/How_to_keep_the_GPU_(and_CPU)_cooler
+
