@@ -116,6 +116,19 @@
     echo "-> -------------- DONE"
     #+end_src
 
+* Spack / modules
+  spack install intel-tbb target=x86_64
+  https://github.com/TACC/Lmod
+  https://wiki.archlinux.org/title/zsh
+  https://spack-tutorial.readthedocs.io/en/latest/tutorial_modules.html
+  https://github.com/spack/spack
+
+  Spack to share software
+./spack install slurm+hwloc+pmix+readline target=x86_64
+./spack install openmpi+pmi+legacylaunchers schedulers=slurm target=x86_64
+for pkg in  catch2 ganglia gperftools keepassxc lapack netdata octave rrdtool uuid valgrind; do spack install $pkg target=x86_64; done
+put in profile the source of spack from home
+
 * Glusterfs (To create parallel storage)
 - https://docs.gluster.org/en/latest/Quick-Start-Guide/Quickstart/
 - https://www.howtoforge.com/tutorial/high-availability-storage-with-glusterfs-on-ubuntu-1804/#step-configure-glusterfs-servers
@@ -166,5 +179,5 @@ done
         https://docs.gluster.org/en/latest/Administrator%20Guide/Managing%20Volumes/#expanding-volumes)
 
 * To check
-- Node health check: https://github.com/mej/nhc
-- Install all with spack
+  - Node health check: https://github.com/mej/nhc
+  - Install all with spack
