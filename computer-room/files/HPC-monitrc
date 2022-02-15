@@ -2,13 +2,13 @@
 #    if space usage > 90% then alert
 
 CHECK process munge matching munged
-      with pidfile /var/run/munge/munged.pid
+      #with pidfile /var/run/munge/munged.pid
       start program = "/etc/rc.d/rc.munge start"
       stop program = "/etc/rc.d/rc.munge stop"
 
 
 CHECK process slurm matching slurmd
-      with pidfile /var/run/slurmd.pid
+      #with pidfile /var/run/slurmd.pid
       start program = "/etc/rc.d/rc.slurm start"
       stop program = "/etc/rc.d/rc.slurm stop"
 
