@@ -69,6 +69,7 @@ build_packages_sbo () {
     rrdtool
     udpcast
     vscode-bin
+    modules
     wol
     kitty
     bat
