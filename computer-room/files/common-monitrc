@@ -9,7 +9,7 @@ CHECK NETWORK eth0 with INTERFACE eth0
       stop program = "/etc/rc.d/rc.inet1 eth0_stop"
       if failed link then restart
       if link down then restart
-      if 5 restarts within 20 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No network in eth0'"
+      #if 5 restarts within 20 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No network in eth0'"
 
 check filesystem rootfs with path /
     if space usage > 90% then alert
