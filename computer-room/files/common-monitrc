@@ -31,8 +31,10 @@ CHECK process gmond matching gmond
       stop program = "/etc/rc.d/rc.gmond stop"
 
 check process netdata with pidfile /var/run/netdata.pid
-      start program = "/etc/rc.d/rc.netdata start"
-      stop  program = "/etc/rc.d/rc.netdata stop"
+#      start program = "/etc/rc.d/rc.netdata start"
+#      stop  program = "/etc/rc.d/rc.netdata stop"
+check process netdata matching netdata
+      start program = "/opt/netdata/bin/srv/netdata"
 
 check system $HOST
       if loadavg (1min) > 4 then alert
@@ -45,3 +47,4 @@ check system $HOST
       if loadavg (5min) per core > 0.8 for 10 cycles then alert
       #if loadavg (15min) per core > 0.8 for 10 cycles then exec "/sbin/telinit 6"
       if memory usage > 97% for 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'High mem usage'"
+      
