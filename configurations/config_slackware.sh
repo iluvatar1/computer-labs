@@ -365,6 +365,16 @@ config_hostname() {
     fi
 }
 
+fix_efi() {
+    pm "Fixing efi path"
+    if [[ -d /boot/efi ]]; then # this is an efi system
+	if [[ ! -d /boot/efi/EFI/boot ]]; then
+	    cp -a /boot/efi/EFI/{Slackware,boot}
+	    mv /boot/efi/EFI/boot/{elilo,bootx64}.efi
+	fi
+    fi
+}
+
 #####################################################
 # MAIN
 #####################################################
@@ -378,9 +388,7 @@ readonly ERR_LOG_FILE="/var/log/config_err.log"
 touch ${ERR_LOG_FILE}
 exec 2>${ERR_LOG_FILE}
 
-if [[ ! -f /var/log/CONFIGDATE ]]; then
-    echo $(date +%F--%H-%M-%S) > /var/log/CONFIGDATE
-fi
+echo $(date +%F--%H-%M-%S) >> /var/log/CONFIGDATE
 
 clone_or_update_config_repo
 inittab
@@ -402,4 +410,5 @@ config_fonts
 config_xwmconfig
 config_hostname
 config_xdm
+fix_efi
 pm "Done."
