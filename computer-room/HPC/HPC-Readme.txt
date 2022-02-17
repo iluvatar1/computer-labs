@@ -83,11 +83,11 @@
     echo "-> [S] Extract nodes info and add to slurm config "
     if [ ! -f /etc/slurm.conf ]; then
 	echo "# Node info "
-	clush -N -P -b -w @roles:nodes 'slurmd -C | grep -v UpTime' >> /etc/slurm/slurm.conf
+	clush -N -P -b -w @roles:nodes 'slurmd -C | grep -v UpTime' >> /etc/slurm.conf
     fi
 
     echo "-> [S/C] Propagate slurm config to nodes"
-    clush -P -b -w @roles:nodes -c /etc/slurm/slurm.conf  2>/dev/null
+    clush -P -b -w @roles:nodes -c /etc/slurm.conf  2>/dev/null
 
     echo "-> [S] Specify partitions (update as needed - 2022-02-08)"
     if [ ! -f /etc/slurm.conf ]; then
@@ -129,6 +129,60 @@
 for pkg in  catch2 ganglia gperftools keepassxc lapack netdata octave rrdtool uuid valgrind; do spack install $pkg target=x86_64; done
 put in profile the source of spack from home
 
+  2022-02-15
+  https://ashki23.github.io/spack.html
+  - Package server
+    #+begin_src shell :tangle spack_setup.sh
+      SPACKFLAGS="target=x86_64 platform=linux os=slackware15"
+      SPACKVERSION=releases/v0.17.1
+      PKGDIR=/opt/PACKAGES
+
+      echo "Creating packages directory at $PKGDIR"
+      if [[ ! -d $PKGDIR ]]; then mkdir -p $PKGDIR; fi
+      cd $PKGDIR
+      echo "Installing/updating spack"
+      if [[ ! -d spack ]]; then 
+	  git clone -c feature.manyFiles=true https://github.com/spack/spack.git
+      fi
+      cd spack; git pull; # git checkout $SPACKVERSION
+      echo "TODO TODO Add local ssl"
+      SSL_VERSION=$(openssl version | cut -f 2 -d" ")
+      if [[ ! -f $PKGDIR/spack/etc/spack/packages.yaml ]]; then
+	  cat <<EOF> $PKGDIR/spack/etc/spack/packages.yaml
+      packages:
+	  openssl:
+	      externals:
+	      - spec: openssl@$SSL_VERSION
+		prefix: /usr
+	      buildable: False
+      EOF
+      fi
+      echo "Installing lmod"
+      source share/spack/setup-env.sh
+      spack install lmod $SPACKFLAGS
+    #+end_src
+    
+  - Export the spack directory with NFS
+  - And all clients and server:  setup bash env
+    #+begin_src shell :tangle spack_env_setup.sh
+      PKGDIR=/opt/PACKAGES
+      unset MODULEPATH
+      unset MODULESHOME
+      source $($PKGDIR/spack/bin/spack location -i lmod)/lmod/lmod/init/bash
+      source $PKGDIR/spack/share/spack/setup-env.sh
+    #+end_src
+  - Install spack on the package server
+  - Install lmod
+    
+* Containers for compiling and something else
+  https://docs.slackware.com/howtos:misc:lxc
+  https://linuxcontainers.org/lxc/getting-started/ Slack instructions
+  need syntax update. Check the config files to update the neowrk
+  brigde. This looks like a great way to build packages.
+* Ansible
+  https://github.com/lightbulbjim/slackible
+  https://github.com/kuntoaji/kaksible
+  https://github.com/buzzbombnc/slackpkgplus
 * Glusterfs (To create parallel storage)
 - https://docs.gluster.org/en/latest/Quick-Start-Guide/Quickstart/
 - https://www.howtoforge.com/tutorial/high-availability-storage-with-glusterfs-on-ubuntu-1804/#step-configure-glusterfs-servers
