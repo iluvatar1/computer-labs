@@ -18,9 +18,8 @@ hopefully everything will work as expected.
 - Check addresses at: https://warewulf.org/docs/enchiridion/setup
   
 * Description
-  - The system to be installed is slackware 14.2-current 64bits,
-    although some script might help to keep it updated with security
-    patches
+  - The system to be installed is slackware64-current, although some
+    script might help to keep it updated with security patches
   - Services to be configured:
     - DHCP + DNS + MASQUERADING : Using dnsmasq
     - NAT : Through arno iptables firewall
@@ -1278,6 +1277,14 @@ function config_publicid_sshpassword {
 }
    #+end_src
 * Auxiliary scripts
+** Update slackware patches/packages on clients
+   Notice that =slackpkg upgrade patches= only works on stable, for
+   current you need =upgrade-all=. 
+   #+begin_src shell
+     clush -P -b -w @roles:nodes "source .bashrc; printf 'YES\n' | slackpkg update gpg"
+     clush -P -b -w @roles:nodes "source .bashrc; printf 'Y\n' | slackpkg update"
+     clush -P -b -w @soles:nodes "source .bashrc; slackpkg -batch=on -default_answer=y upgradea-all"
+   #+end_src
 ** Create an user
   #+BEGIN_SRC sh :exports code :mkdirp yes :tangle scripts/create_user.sh 
 #!/bin/bash                                                                                                               
