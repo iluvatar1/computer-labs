@@ -20,7 +20,7 @@ check filesystem tmpfs with path /tmp
 check filesystem optfs with path /opt
     if space usage > 90% then alert
 
-check process ntpd with pidfile /var/run/ntpd.pid
+check process ntpd with pidfile /run/ntpd.pid
       start program = "/etc/rc.d/rc.ntpd start"
       stop  program = "/etc/rc.d/rc.ntpd stop"
       if failed host 127.0.0.1 port 123 type udp then alert
