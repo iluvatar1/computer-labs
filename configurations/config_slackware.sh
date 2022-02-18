@@ -81,16 +81,34 @@ activate_wakeonlan () {
     /usr/sbin/ethtool -s eth0 wol g
 }
 
-slackpkgmirror () {
-    pm "Configuring slackpkg mirror"
+slackpkg_config () {
+    pm "Configuring slackpkg"
+    pm "Mirror: "
     bfile=/etc/slackpkg/mirrors
     if [ x"1" != x"$(wc -l $bfile | awk '{print $1}')" ]; then 
         backup_file /etc/slackpkg/mirrors
-	    echo "http://mirrors.slackware.com/slackware/slackware64-current/" > /etc/slackpkg/mirrors
+	echo "http://mirrors.slackware.com/slackware/slackware64-current/" > /etc/slackpkg/mirrors
     else
-	    configured "mirror"
+	configured "mirror"
     fi
-    printf "Y\n" | slackpkg update
+    pm "Blacklist kernel and sbo and alien..."
+    if ! grep -q '^kernel-generi'; then 
+	cat <<EOF >> /etc/slackpkg/blacklist
+kernel-generic.*
+kernel-huge.*
+kernel-modules.*
+kernel-source
+[0-9]+_SBo
+[0-9]+alien
+EOF
+    else
+	echo "Blacklist already configured"
+    fi
+    slackpkg blacklist
+    pm "Update gpg and slackpkg ..."
+    slackpkg -batch=on -default_answer=y update gpg
+    slackpkg -batch=on -default_answer=y update
+    pm "Done"
 }
 
 dhcp_eth1 () {
@@ -405,7 +423,7 @@ config_latam_kbd
 config_bashrc
 slpkg_install
 sbopkg_install
-slackpkgmirror
+slackpkg_config
 config_fonts
 config_xwmconfig
 config_hostname
