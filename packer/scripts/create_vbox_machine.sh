@@ -3,7 +3,12 @@ set -euo pipefail
 
 # Based on: https://www.andreafortuna.org/2019/10/24/how-to-create-a-virtualbox-vm-from-command-line/
 
-FIRMWARE=${FIRMWARE:-VALUE}
+if [[ "$FIRMWARE" != "bios" ]] && [[ "$FIRMWARE" != "efi" ]]; then
+    echo "Error. Usage:"
+    echo "FIRMARE=bios|efi $0"
+    exit 1
+fi
+
 MACHINENAME=${MACHINENAME:-base_slack_machine_${FIRMWARE}}
 BASEFOLDER=${BASEFOLDER:-"/opt/VirtualBox VMs/"}
 DISKPATH="${BASEFOLDER}/${MACHINENAME}/${MACHINENAME}_DISK.vdi"
