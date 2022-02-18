@@ -70,13 +70,16 @@ ntp () {
 
 activate_wakeonlan () {
     # see: https://docs.slackware.com/howtos:network_services:wol
+    # The following command allows to see wakeonlan traffic
+    # tcpdump -UlnXi eth0 ether proto 0x0842 or udp port 9 2>/dev/null | sed -nE 's/^.*20:  (ffff|.... ....) (..)(..) (..)(..) (..)(..).*$/\2:\3:\4:\5:\6:\7/p'
     pm "Activating wakeonlan on rc.local"
     if [ x"" = x"$(grep wol /etc/rc.d/rc.local | grep -v grep)" ]; then
         backup_file /etc/rc.d/rc.local
-	    echo 'echo \"Setting Wake-on-LAN to Enabled\"' >> /etc/rc.d/rc.local
-	    echo '/usr/sbin/ethtool -s eth0 wol g' >> /etc/rc.d/rc.local
+	echo 'echo \"Setting Wake-on-LAN to Enabled\"' >> /etc/rc.d/rc.local
+	MODES=$(ethtool eth0 | grep "Supports Wake" | cut -f 3 -d" ")
+	echo "/usr/sbin/ethtool -s eth0 wol ${MODES}" >> /etc/rc.d/rc.local
     else
-	    configured
+	configured
     fi
     /usr/sbin/ethtool -s eth0 wol g
 }
