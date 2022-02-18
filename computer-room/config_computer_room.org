@@ -991,7 +991,6 @@ This is the modern way to install it. Maybe install it when configuring the clie
 wget -O ./kickstart.sh https://my-netdata.io/kickstart.sh && sh ./kickstart.sh --claim-token TOKEN --claim-rooms ROOMID --claim-url https://app.netdata.cloud
 #+end_src
 
-
 ** Wake on lan
 #+NAME: wol_config
 #+BEGIN_SRC bash :exports code
@@ -1002,13 +1001,25 @@ function config_wol {
     if [ x"" = x"$(grep -e 'wol' /etc/rc.d/rc.local 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
         cat<<EOF>> /etc/rc.d/rc.local
 echo "Setting Wake-on-LAN to Enabled"
-/usr/sbin/ethtool -s eth0 wol g 
+/usr/sbin/ethtool -s eth0 wol pubmg || /usr/sbin/ethtool -s eth0 wol g 
 EOF
     else
         echo "  -> Already configured in rc.local"
     fi    
     end_msg "$MSG"
 }
+   #+END_SRC
+**
+** RPC bind
+#+NAME: rpcbind_config
+#+BEGIN_SRC bash :exports code
+  # rpcbind
+  function config_rpcbind {
+      MSG="Configuring rpcbind to reduce logging noise"
+      start_msg "$MSG"
+      sed -i.bck 's/rpcbind -l/rpcbind/' /etc/rc.d/rc.rpc
+      end_msg "$MSG"
+  }
    #+END_SRC
 **
 ** Write final script
@@ -1121,6 +1132,8 @@ EOF
   <<netdata>>
 
   <<wol_config>>
+	
+  <<rpcbind_config>>
 
   # Call all functions
   all ()
@@ -1144,6 +1157,7 @@ EOF
       config_network
       config_proxy
       config_wol
+      config_rpcbind
   }
 
   ##################################
@@ -1169,6 +1183,7 @@ EOF
   if [[ ($GANGLIA == 1) ]]; then ColorCyan 'Configuring ganglia'; config_ganglia; fi
   if [[ ($NETDATA == 1) ]]; then ColorCyan 'Configuring netdata'; config_netdata; fi
   if [[ ($WOL == 1) ]]; then ColorCyan 'Configuring wake on lan'; config_wol; fi
+  if [[ ($RPCBIND == 1) ]]; then ColorCyan 'Configuring rpcbind'; config_rpcbind; fi
 
   ##################################
   # use an interactive menu
