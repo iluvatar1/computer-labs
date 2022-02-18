@@ -1513,6 +1513,34 @@ psshn "source /root/.bashrc; slpkg -s slack '' --patches"
 
 
 #+end_src
+** Hardware sala
+   #+begin_src
+#clush -P -b -w @roles:TEST 'free -h --giga | grep Mem | tr -s " " | cut -d " " -f 2'
+#clush -P -b -w @roles:TEST 'cat /proc/cpuinfo | grep "model name" | head -n 1 | sed "s/Intel(R) Core(TM)/Intel/" | sed "s/ CPU @//"'
+#clush -P -b -w @roles:TEST 'df -h -l --total | grep total | tr -s " " | cut -f 2 -d " "'
+#clush -P -b -w @roles:TEST '/sbin/ifconfig | grep ether | tr -s " " | cut -f 3 -d " "'
+
+#clush -P -b -w @roles:TEST 'free -h --giga | grep Mem | tr -s " " | cut -d " " -f 2; cat /proc/cpuinfo | grep "model name" | head -n 1 | sed "s/Intel(R) Core(TM)/Intel/" | sed "s/ CPU @//";df -h -l --total | grep total | tr -s " " | cut -f 2 -d " "; /sbin/ifconfig | grep ether | tr -s " " | cut -f 3 -d " "'
+
+clush -P -b -w @roles:TEST 'cat /proc/cpuinfo | grep "model name" | head -n 1 | cut -d ":" -f2 | sed "s/(R)//;s/Core(TM) //;s/CPU @ //;s/Core(TM)2//;s/ Duo CPU //"; free -h --giga | grep Mem | tr -s " " | cut -d " " -f 2; df -h -l --total | grep total | tr -s " " | cut -f 2 -d " "; /sbin/ifconfig | grep ether | tr -s " " | cut -f 3 -d " "'
+   #+end_src
+** Fix virtualbox gui
+   #+begin_src shell
+VBoxManage setextradata global GUI/UpdateDate never
+   #+end_src shell
+** Clush example
+   #+begin_src shell
+clush -P -b  -w @roles:8thr 'date' 
+   #+end_src
+** Check virtualization
+   #+begin_src shell
+     echo "Checking if AMD-V / VT-X is enabled in the BIOS/UEFI: "
+     if systool -m kvm_amd -v &> /dev/null || systool -m kvm_intel -v &> /dev/null ; then
+	 echo "TRUE";
+     else
+	 echo "FALSE";
+     fi
+   #+end_src
 * Problems and solutions [11/11]
 ** DONE Solving problems with xinit and xfce for all and new users
 CLOSED: [2020-02-29 Sat 19:27]
@@ -1764,3 +1792,8 @@ Cliente (udp): iperf3 --udp -b 0 -c ${IPSERVER} -f m -i 1 -t 5
     #nvidia-settings -a 'GPUTargetFanSpeed=50'
     https://en.altlinux.org/How_to_keep_the_GPU_(and_CPU)_cooler
 
+- check
+  # https://www.reddit.com/r/linuxadmin/comments/nml66p/tools_you_use_on_a_daily_basis/
+iostat -dxk
+ncdu
+bashtop 
