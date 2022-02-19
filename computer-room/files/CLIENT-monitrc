@@ -3,11 +3,16 @@ CHECK process x2goserver matching x2go
       start program = "/etc/rc.d/rc.x2goserver start"
       stop program = "/etc/rc.d/rc.x2goserver stop"
 
-check process sshd with pidfile /var/run/sshd.pid
+check process sshd-process with pidfile /var/run/sshd.pid
       start program "/etc/rc.d/rc.sshd start"
       stop program "/etc/rc.d/rc.sshd stop"
-      if failed port 22 protocol ssh then restart
       if 5 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No sshd'"
+
+check process sshd-connection with pidfile /var/run/sshd.pid
+      start program "/etc/rc.d/rc.sshd start"
+      stop program "/etc/rc.d/rc.sshd stop"
+      every 10 cycles
+      if failed port 22 protocol ssh then restart
 
 check process ypbind with pidfile /var/run/ypbind.pid
       start program = "/etc/rc.d/rc.yp start"
