@@ -1,0 +1,60 @@
+---
+- name: Ensure rquotad is allowed for all internal hosts
+  lineinfile:
+    path: /etc/hosts.allow
+    regexp: '^rquotad'
+    line: 'rquotad : 192.168.10.0/255.255.255.0 : allow'
+    backup: yes
+    insertbefore: '^# End of hosts.allow'
+
+- name: Make sure quota files exists
+  file:
+    path: /home/aquota.user
+    owner: root
+    mode: '600'
+    state: touch
+    modification_time: preserve
+    access_time: preserve
+  register: aquota
+
+- name: Adding quota options to fstab
+  lineinfile:
+    path: /etc/fstab
+    regexp: '(/.*) *(/home) *(\w*\d) *(\w*)[,usrjquota\=aquota.user,jqfmt\=vfsv1]{0} *([0-9]) *([0-9])'
+    line: '\1 \2 \3 \4,usrjquota=aquota.user,jqfmt=vfsv1 \5 \6'
+    backrefs: yes
+    backup: yes
+  register: quotaopts
+
+- name: Remounting file system to reload with quota if mount options changed
+  shell:
+    cmd: mount -o remount /dev/sdb2 /home
+  when: quotaopts.changed == True
+- name: Deactivating quota if quota file created
+  shell:
+    cmd: quotaoff -avu
+  when: aquota.changed == True
+- name: Checking quota if quota file created
+  shell:
+    cmd: quotacheck -avum 
+  when: aquota.changed == True
+- name: Activating quota if quota file created
+  shell:
+    cmd: quotaon -avu
+  when: aquota.changed == True
+
+- name: Adding quotacheck to rc.local
+  blockinfile:
+    path: /etc/rc.d/rc.local
+    backup: yes
+    marker: "# {mark} Adding quotacheck at each system start ..."
+    block: |
+      echo "Checking quota ..."
+      /usr/sbin/quotacheck -vug /home &
+
+- name: Printing useful info
+  debug:
+    msg:
+    - "Make sure that all nfs clients mount the filesystem as : ${SERVERIP}:/home     /home   nfs     rw,hard,intr,usrquota  0   0"
+    - "Useful command: repquota /home"
+    - "YOU STILL NEED TO SET THE QUOTA FOR EACH USER, using the helper script in config_computer_room"
