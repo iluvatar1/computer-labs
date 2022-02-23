@@ -1,0 +1,31 @@
+---
+- name: Checking if package installed
+  stat:
+    path: /usr/sbin/cntlm
+  register: cntlm
+
+- name: Installing if not installed
+  shell:
+    cmd: source /root/.bashrc; sbopkg -B -k -i cntlm
+  register: cntlminstall
+  when: cntlm.stat.exists == False
+
+- name: Making sure service is enabled
+  file:
+    path: /etc/rc.d/rc.cntlm
+    mode: +x
+  register: service
+
+- name: Copying config
+  template:
+    src: 'etc/cntlm.conf.j2'
+    dest: '/etc/cntlm.conf'
+    mode: 0640
+    backup: yes
+  register: config
+
+- name: Restart service if there is any config change
+  shell:
+    cmd: /etc/rc.d/rc.cntlm restart
+  when:
+    config.changed or cntlminstall.changed or service.changed

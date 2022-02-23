@@ -1,13 +1,10 @@
-# dnsmasq
-DNSMASQHOSTPASSWORD: putpasswordhere
+# PUT ALL PASSWORDS in the file passwords.yml in the main playbook dir
 
 # nis
 NISDOMAIN: 'salafisnis'
 
 # sshd
-# ROOTLOGIN could be either yes (af first install) or prohibit-password when the
+# ROOTLOGIN could be either yes or prohibit-password when the
 # public key has been copied
 ROOTLOGIN: 'prohibit-password'
 
-# cntlm: password for proxy
-CNTLMPASSWORD: putpasswordhere
