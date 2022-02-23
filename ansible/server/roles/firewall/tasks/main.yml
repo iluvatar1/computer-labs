@@ -1,0 +1,33 @@
+---
+- name: Check if firewall command is available
+  stat:
+    path: /usr/sbin/arno-iptables-firewall
+  register: arno
+
+- name: Installing arno iptables if not installed
+  shell:
+    cmd: source /root/.bashrc; sbopkg -B -k -i arno-iptables-firewall
+  when:
+    arno.stat.exists == False
+
+- name: Copying firewall config
+  copy:
+    src: firewall.conf
+    dest: /etc/arno-iptables-firewall/firewall.conf
+    chmod: o-rwx
+
+- name: linking startup script
+  shell:
+    cmd: ln -svf /etc/rc.d/rc.arno-iptables-firewall /etc/rc.d/rc.firewall
+    creates: /etc/rc.d/rc.firewall
+
+- name: Making arno startup script executable
+  file:
+    path: /etc/rc.d/rc.arno-iptables-firewall
+    mode: +x
+  register: arnoexec
+
+- name: Starting firewall if just made executable
+  shell: /etc/rc.d/rc.firewall restart
+  when: arnoexec.changed == True
+  
