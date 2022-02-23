@@ -1,0 +1,7 @@
+---
+- name: Adding wake on lan command to rc.local
+  blockinfile:
+    path: /etc/rc.d/rc.local
+    block: |
+      echo "Setting Wake-on-LAN to Enabled"
+      /usr/sbin/ethtool -s eth0 wol pubmg || /usr/sbin/ethtool -s eth0 wol g
