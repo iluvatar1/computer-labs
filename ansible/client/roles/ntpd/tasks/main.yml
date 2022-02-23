@@ -1,0 +1,13 @@
+---
+- name: Activating ntpd service
+  file:
+    path: /etc/rc.d/rc.ntpd
+    mode: +x
+  register: ntpd
+
+- name: Starting service if permissions changed
+  shell:
+    cmd: /etc/rc.d/rc.ntpd restart
+  when:
+    ntpd.changed
+    
