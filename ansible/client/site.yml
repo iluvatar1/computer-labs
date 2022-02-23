@@ -6,8 +6,11 @@
     - vars/main.yml
     - passwords.yml
   roles:
-    - ../common/roles/proxy
-    - ../common/roles/shutdownperms
-    - ../common/roles/wakeonlan
-    - network
-    
+    # - ../common/roles/proxy
+    # - ../common/roles/shutdownperms
+    # - ../common/roles/wakeonlan
+    # - network
+    # - ntpd
+    # - nfs
+    # - nis
+    - crontab
