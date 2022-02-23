@@ -9,4 +9,5 @@
     - ../common/roles/proxy
     - ../common/roles/shutdownperms
     - ../common/roles/wakeonlan
+    - network
     

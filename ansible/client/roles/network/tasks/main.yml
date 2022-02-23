@@ -1,10 +1,10 @@
 ---
-- name: Copying networkmanager hook to use first our dns server
+- name: Copying networkmanager hook (NEEDED??)
   copy:
     src: '{{item}}'
     dest: '/{{item}}'
   loop:
-    - etc/NetworkManager/dispatcher.d/90networkhook.sh
+    - etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh
   register: hook
 
 - name: Activating network manager service
