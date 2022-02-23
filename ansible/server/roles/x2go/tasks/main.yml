@@ -1,0 +1,45 @@
+---
+- name: Adding basic group
+  group:
+    name: x2gouser
+    gid: 290
+
+- name: Adding user
+  user: 
+    name: x2gouser
+    uid: 290
+    group: x2gouser
+    create_home: yes
+    comment: "X2GO Remote Desktop"
+    home: /var/lib/x2go
+    shell: /bin/false
+
+- name: Adding print group
+  group:
+    name: x2goprint
+    gid: 291
+
+- name: Adding print user
+  user: 
+    name: x2goprint
+    uid: 291
+    group: x2goprint
+    create_home: yes
+    comment: "X2GO Remote Desktop Print"
+    home: /var/spool/x2goprint
+    shell: /bin/false
+
+- name: Adding aux directory
+  file:
+    path: /var/spool/x2goprint
+    state: directory
+    owner: x2goprint
+    group: x2goprint
+    mode: 0770
+
+- name: Removing x2goserver service on server
+  file:
+    path: /etc/rc.d/rc.x2goserver
+    mode: -x
+  register: service
+
