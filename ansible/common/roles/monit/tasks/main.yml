@@ -1,0 +1,69 @@
+---
+- name: Check if monit is installed
+  stat:
+    path: /usr/bin/monit
+  register: monit
+
+- name: Installing monit if not installed
+  shell:
+    cmd: source /root/.bashrc; sbopkg -B -k -i monit
+  when:
+    monit.stat.exists == False
+  register: install
+  
+- name: Adding option to read files in monit.d
+  lineinfile:
+    path: /etc/monitrc
+    regexp: '^{{item}}'
+    line: '{{item}}/*'
+  loop:
+    - 'include /etc/monit.d'
+  register: monitd
+
+- name: Make sure monitrc exists and has right permissions
+  file:
+    path: /etc/monitrc
+    mode: 0600
+
+- name: Make sure /etc/monit.d exists
+  file:
+    path: /etc/monit.d
+    state: directory
+
+- name: Copying auxiliary restart script
+  copy:
+    src: "{{item}}"
+    dest: "/{{item}}"
+  loop:
+    - usr/local/bin/monit_restart.sh
+  
+- name: Adding monit to inittab to make it run always
+  lineinfile:
+    path: /etc/inittab
+    search_string: '{{item}}'
+    line: '{{item}}'
+  loop:
+    - 'mo:2345:respawn:/usr/bin/monit -Ic /etc/monitrc'
+  register: monitinittab
+  
+- name: Copy config files
+  copy:
+    src: "{{item}}"
+    dest: "/{{item}}"
+    follow: yes
+  loop:
+    - etc/monit.d/common-monitrc
+    - etc/monit.d/HPC-monitrc
+  register: monitfiles
+
+- name: Activate monit service
+  file:
+    path: /etc/rc.d/rc.monit
+    mode: +x
+  register: monitservice
+  
+- name: Restart monit if any changed detected
+  command:
+    cmd: /etc/rc.d/rc.monit restart
+  when:
+    install.changed or monitd.changed or monitinittab.changed or monitfiles.changed or monitservice.changed

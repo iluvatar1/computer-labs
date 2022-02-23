@@ -1,0 +1,30 @@
+CHECK process x2goserver matching x2go
+      #with pidfile /var/run/s2goserver.pid
+      start program = "/etc/rc.d/rc.x2goserver start"
+      stop program = "/etc/rc.d/rc.x2goserver stop"
+
+check process sshd-process with pidfile /var/run/sshd.pid
+      start program "/etc/rc.d/rc.sshd start"
+      stop program "/etc/rc.d/rc.sshd stop"
+      if 5 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No sshd'"
+
+check process sshd-connection with pidfile /var/run/sshd.pid
+      start program "/etc/rc.d/rc.sshd start"
+      stop program "/etc/rc.d/rc.sshd stop"
+      every 10 cycles
+      if failed port 22 protocol ssh then restart
+
+check process ypbind with pidfile /var/run/ypbind.pid
+      start program = "/etc/rc.d/rc.yp start"
+      stop program = "/etc/rc.d/rc.yp stop"
+      if 5 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no ypbind'"
+
+check filesystem homefs with path /home
+      start program  = "/sbin/mount /home"
+      stop program  = "/sbin/umount /home"
+      if 5 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'home mounted'"
+
+check host serversalafis with address 192.168.10.1
+      start program = "/etc/rc.d/rc.inet1 start"
+      stop program = "/etc/rc.d/rc.inet1 stop"
+      if failed ping then restart

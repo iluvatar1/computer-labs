@@ -13,4 +13,6 @@
     # - ntpd
     # - nfs
     # - nis
-    - crontab
+    # - crontab
+    - ../common/roles/monit
+    - monit

@@ -1,11 +1,10 @@
----
 - name: Copy config files
   copy:
     src: "{{item}}"
     dest: "/{{item}}"
     follow: yes
   loop:
-    - etc/monit.d/SERVER-monitrc
+    - etc/monit.d/CLIENT-monitrc
   register: monitfiles
 
 - name: Activate monit service
@@ -13,7 +12,7 @@
     path: /etc/rc.d/rc.monit
     mode: +x
   register: monitservice
-  
+
 - name: Restart monit if any changed detected
   command:
     cmd: /etc/rc.d/rc.monit restart
