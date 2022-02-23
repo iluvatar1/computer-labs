@@ -9,3 +9,5 @@ NISDOMAIN: 'salafisnis'
 # public key has been copied
 ROOTLOGIN: 'prohibit-password'
 
+# cntlm: password for proxy
+CNTLMPASSWORD: putpasswordhere
