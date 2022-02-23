@@ -8,3 +8,5 @@ NISDOMAIN: 'salafisnis'
 # public key has been copied
 ROOTLOGIN: 'prohibit-password'
 
+# Local proxy
+PROXY: '192.168.10.1:3128'

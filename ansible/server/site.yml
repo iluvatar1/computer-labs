@@ -3,7 +3,8 @@
   vars:
     network_available: true
   vars_files:
-    - vars/main.yml    
+    - vars/main.yml
+    - passwords.yml
   roles:
 #    - quota
 #    - network
@@ -11,4 +12,13 @@
 #    - firewall
 #    - nfs
 #    - sshd
-    - nis
+#    - nis
+#    - shutdownperms
+#    - crontab
+#    - monit
+#    - cntlm
+#    - clustershell    
+#    - x2go
+#    - etcskel
+#    - ../common/roles/proxy
+    - ../common/roles/shutdownperms
