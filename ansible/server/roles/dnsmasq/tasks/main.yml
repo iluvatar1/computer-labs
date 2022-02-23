@@ -1,0 +1,38 @@
+---
+- name: Decrypt hosts file
+  shell:
+    cmd: 'echo {{PASSWORD}} | openssl enc -d -aes-256-cbc -iter 10 -salt -in {{ item }}.enc -out {{ item }} -pass stdin'
+    creates: "{{ item }}"
+    chdir: "{{ playbook_dir }}/roles/dnsmasq/files/" 
+  loop:
+    - etc/dnsmasq-hosts.conf
+
+- name: Copy dnsmasq config files
+  copy:
+    src: etc/{{ item }}
+    dest: /etc/{{ item }}
+    owner: root
+    group: root
+    backup: yes 
+  loop:
+    - dnsmasq.conf
+    - dnsmasq-hosts.conf
+    - hosts
+
+- name: Copy dnsmasq startup rc file with exec mode
+  copy:
+    src: etc/{{ item }}
+    dest: /etc/{{ item }}
+    owner: root
+    group: root
+    mode: a+x
+    backup: yes 
+  loop:
+    - rc.d/rc.dnsmasq
+  register: dnsmasq
+
+- name: Start dnsmasq if the rc file has been copied
+  command:
+    /etc/rc.d/rc.dnsmasq restart
+  when:
+    dnsmasq.changed == True
