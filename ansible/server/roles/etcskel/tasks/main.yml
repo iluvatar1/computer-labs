@@ -1,0 +1,20 @@
+---
+- name: Creating Xauthority
+  file:
+    path: /etc/skel/.Xauthority
+
+- name: Copying .bashrc with proxy setup
+  template:
+    src: 'etc/skel/bashrc.j2'
+    dest: '/etc/skel/.bashrc'
+    backup: yes
+
+- name: Creating bash_profile from bashrc
+  copy:
+    src: /etc/skel/.bashrc
+    dest: /etc/skel/.bash_profile
+
+- name: Creating xinitrc for xfce 
+  copy:
+    src: /etc/X11/xinit/xinitrc.xfce
+    dest: /etc/skel/.xinitrc
