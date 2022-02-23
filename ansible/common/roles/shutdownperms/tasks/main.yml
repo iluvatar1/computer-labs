@@ -1,0 +1,17 @@
+---
+- name: Removing permissions to shudown or halt system
+  file:
+    dest: "{{item}}"
+    mode: o-x
+  loop:
+    - /sbin/shutdown
+    - /sbin/halt
+
+- name: Copying polkit rules and acpi handler
+  copy: 
+    src: "{{item}}"
+    dest: "/{{item}}"
+    backup: yes
+  loop:
+    - etc/polkit-1/rules.d/disallow-power-options.rules
+    - etc/acpi/acpi_handler.sh

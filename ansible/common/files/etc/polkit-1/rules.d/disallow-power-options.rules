@@ -1,0 +1,36 @@
+polkit.addRule(function(action, subject) {
+  if (action.id == "org.freedesktop.upower.suspend" &&
+      subject.isInGroup("wheel")) {
+    return polkit.Result.YES;
+    } else {
+      return polkit.Result.NO;
+  }
+});
+
+polkit.addRule(function(action, subject) {
+  if (action.id == "org.freedesktop.upower.hibernate" &&
+      subject.isInGroup("wheel")) {
+    return polkit.Result.YES;
+    } else {
+      return polkit.Result.NO;
+  }
+});
+
+
+polkit.addRule(function(action, subject) {
+  if (action.id.indexOf("org.freedesktop.consolekit.system.stop") == 0 &&
+      subject.isInGroup("wheel")) {
+      return polkit.Result.YES;
+    } else {
+      return polkit.Result.NO;
+  }
+});
+
+polkit.addRule(function(action, subject) {
+  if (action.id.indexOf("org.freedesktop.consolekit.system.reboot") == 0 &&
+      subject.isInGroup("wheel")) {
+      return polkit.Result.YES;
+    } else {
+      return polkit.Result.NO;
+  }
+});
