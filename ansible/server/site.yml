@@ -4,6 +4,9 @@
     network_available: true
   roles:
     - quota
+    - network
+    - dnsmasq
+    - firewall
 #    - services2
 #    - time
 #    - users

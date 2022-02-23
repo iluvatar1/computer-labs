@@ -1,0 +1,24 @@
+---
+- name: Copy network config files
+  copy:
+    src: etc/{{ item }}
+    dest: /etc/{{ item }}
+    owner: root
+    group: root
+    mode: '0644'
+    backup: yes 
+  loop:
+    - resolv.conf.head
+    - rc.d/rc.inet1.conf
+
+- name: Adding executable status for network manager (TODO-> Is this really needed?)
+  file:
+    dest: /etc/rc.d/rc.networkmanager
+    mode: a+x
+  register: netmanager
+
+- name: Start network manager if it has been just made executable
+  command:
+    /etc/rc.d/rc.networkmanager restart
+  when:
+    netmanager.changed == True
