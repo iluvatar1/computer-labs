@@ -14,5 +14,8 @@
     # - nfs
     # - nis
     # - crontab
-    - ../common/roles/monit
-    - monit
+    # - ../common/roles/monit
+    # - monit
+    # - x2go
+    - ../common/roles/ganglia
+

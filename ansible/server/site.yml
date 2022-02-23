@@ -16,12 +16,13 @@
     # - sshd
     # - nis
     # - crontab
-    - ../common/roles/monit
-    - monit
+    # - ../common/roles/monit
+    # - monit
     # - cntlm
     # - clustershell    
     # - x2go
     # - etcskel
-    # - ganglia
+    - ../common/roles/ganglia
+    - ganglia
     # - ../common/roles/wakeonlan
 

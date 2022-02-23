@@ -1,0 +1,40 @@
+---
+- name: Verify gmond is installed
+  stat:
+    path: /usr/sbin/gmond
+  register: gmond
+
+- name: Copying config files
+  copy:
+    src: '{{item}}'
+    dest: '/{{item}}'
+    backup: yes
+  loop:
+    - etc/ganglia/gmond.conf
+  register: config
+  when:
+    gmond.stat.exists
+
+- name: Linking gmond conf
+  shell:
+    cmd: ln -s /etc/ganglia/gmond.conf /etc/
+
+- name : Activating services
+  file:
+    path: '/etc/rc.d/rc.{{item}}'
+    mode: +x
+  loop:
+    - gmond
+  register: services
+  when:
+    gmond.stat.exists
+
+- name: Restarting services if needed
+  shell:
+    cmd: '/etc/rc.d/rc.{{item}} restart'
+  loop:
+    - 'gmond'
+  when:
+    config.changed or services.changed
+
+

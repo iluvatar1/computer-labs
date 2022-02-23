@@ -4,18 +4,6 @@
     path: /usr/sbin/gmond
   register: gmond
 
-- name: Copying config files
-  copy:
-    src: '{{item}}'
-    dest: '/{{item}}'
-    backup: yes
-  loop:
-    - etc/ganglia/gmond.conf
-    - etc/ganglia/gmetad.conf
-  register: config
-  when:
-    gmond.stat.exists
-
 - name: Adding ganglia config to httpd server
   lineinfile:
     path: /etc/httpd/httpd.conf
@@ -50,10 +38,6 @@
   when:
     gmond.stat.exists
 
-- name: Linking gmond conf
-  shell:
-    cmd: ln -s /etc/ganglia/gmond.conf /etc/
-
 - name : Activating services
   file:
     path: '/etc/rc.d/rc.{{item}}'
@@ -61,7 +45,6 @@
   loop:
     - httpd
     - gmetad
-    - gmond
   register: services
   when:
     gmond.stat.exists
@@ -72,7 +55,6 @@
   loop:
     - 'httpd'
     - 'gmetad'
-    - 'gmond'
   when:
     config.changed or httpd.changed or httpd2.changed or httpd3.changed  or services.changed      
 
