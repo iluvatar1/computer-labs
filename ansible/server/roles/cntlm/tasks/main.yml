@@ -22,6 +22,7 @@
     dest: '/etc/cntlm.conf'
     mode: 0640
     backup: yes
+    #force: no
   register: config
 
 - name: Restart service if there is any config change
