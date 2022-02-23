@@ -1,0 +1,4 @@
+---
+# ROOTLOGIN could be either yes (af first install) or prohibit-password when the
+# public key has been copied
+ROOTLOGIN: 'prohibit-password'

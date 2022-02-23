@@ -1,0 +1,33 @@
+---
+- name: Removing 22 as listening port
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^Port 22'
+    line: '#Port 22'
+    backup: yes
+  register: sshdport22
+
+- name: Configuring sshd 
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^{{item}}'
+    line: '{{item}}'
+    backup: yes
+  loop:
+    - 'Port 443'
+    - 'PermitRootLogin {{ROOTLOGIN}}'
+    - 'AllowGroups sshgroup root'
+    - 'ClientAliveInterval 120'
+    - 'ClientAliveCountMax 720'
+    - 'MaxSessions 100'
+    - 'X11Forwarding yes'
+    - 'MaxStartups 500'
+    - 'GatewayPorts yes'
+  register: sshd
+
+- name: Restart ssh service in case any config was done
+  command:
+    cmd: /etc/rc.d/rc.sshd restart
+  when:
+    sshd.changed == True or sshdport22.changed == True
+    
