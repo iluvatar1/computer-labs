@@ -1,0 +1,20 @@
+---
+- name: Copying networkmanager hook to use first our dns server
+  copy:
+    src: '{{item}}'
+    dest: '/{{item}}'
+  loop:
+    - etc/NetworkManager/dispatcher.d/90networkhook.sh
+  register: hook
+
+- name: Activating network manager service
+  file:
+    path: /etc/rc.d/rc.networkmanager
+    mode: +x
+  register: service
+
+- name: Restarting services
+  shell:
+    cmd: /etc/rc.d/rc.networkmanager restart
+  when:
+    hook.changed or service.changed

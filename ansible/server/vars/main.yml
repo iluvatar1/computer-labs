@@ -1,5 +1,13 @@
 # PUT ALL PASSWORDS in the file passwords.yml in the main playbook dir
 
+# Server internal ip
+BASE_SERVERIP: '192.168.10'
+SERVERIP: '{{BASE_SERVERIP}}.1'
+SERVER_DOMAINNAME: 'salafis'
+
+# Local proxy
+PROXY: '{{SERVERIP}}:3128'
+
 # nis
 NISDOMAIN: 'salafisnis'
 
@@ -8,5 +16,3 @@ NISDOMAIN: 'salafisnis'
 # public key has been copied
 ROOTLOGIN: 'prohibit-password'
 
-# Local proxy
-PROXY: '192.168.10.1:3128'

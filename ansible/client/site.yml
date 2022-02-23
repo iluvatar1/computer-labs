@@ -8,19 +8,5 @@
   roles:
     - ../common/roles/proxy
     - ../common/roles/shutdownperms
-    - quota
-    - network
-    - dnsmasq
-    - firewall
-    - nfs
-    - sshd
-    - nis
-    - crontab
-    - monit
-    - cntlm
-    - clustershell    
-    - x2go
-    - etcskel
-    - ganglia
     - ../common/roles/wakeonlan
-
+    
