@@ -1,7 +1,7 @@
 ---
 - name: Decrypt hosts file
   shell:
-    cmd: 'echo {{PASSWORD}} | openssl enc -d -aes-256-cbc -iter 10 -salt -in {{ item }}.enc -out {{ item }} -pass stdin'
+    cmd: 'echo {{DNSMASQHOSTPASSWORD}} | openssl enc -d -aes-256-cbc -iter 10 -salt -in {{ item }}.enc -out {{ item }} -pass stdin'
     creates: "{{ item }}"
     chdir: "{{ playbook_dir }}/roles/dnsmasq/files/" 
   loop:
