@@ -3,32 +3,33 @@
   copy:
     src: etc/hosts.allow
     dest: /etc/hosts.allow
-
+  register: hosts
+  
 - name: Copying exports
   copy:
     src: etc/exports
     dest: /etc/exports
+  register: exports
+  
+- name: Reduce rpcbind logging noise
+  replace:
+    dest: /etc/rc.d/rc.rpc
+    regexp: 'rpcbind -l'
+    replace: 'rpcbind'
 
-- name: Make sure nfsd service is enabled
+- name: Make sure related services are enabled
   file:
-    dest: /etc/rc.d/rc.nfsd
+    dest: '/etc/rc.d/rc.{{item}}'
     mode: +x
-  register: nfsd
+  loop:
+    - nfsd
+    - inet2
+    - rpc
+  register: service
 
-- name: Make sure inet2 service is enabled
-  file:
-    dest: /etc/rc.d/rc.inet2
-    mode: +x
-  register: inet2
-
-- name: Restart nfsd if had just been enabled
+- name: Restart services if they were enabled or config changed
   command:
     /etc/rc.d/rc.nfsd restart
   when:
-    nfsd.changed == True
+    service.changed or hosts.changed or exports.changed  
 
-- name: Restart inet2 if had just been enabled
-  command:
-    /etc/rc.d/rc.inet2 restart
-  when:
-    inet2.changed == True
