@@ -1,0 +1,28 @@
+---
+- name: Checking if package installed
+  stat:
+    path: /usr/bin/clush
+  register: clush
+
+- name: Installing if not installed
+  shell:
+    cmd: source /root/.bashrc; pip3 install clustershell
+  when:
+    clush.stat.exists == False
+
+- name: Check if config dirs exist
+  file:
+    path: '{{item}}'
+    state: directory
+  loop:
+    - /etc/clustershell
+    - /etc/clustershell/groups.d
+
+- name: Copying config file
+  copy:
+    src: '{{item}}'
+    dest: '/{{item}}'
+  loop:
+    - etc/clustershell/clush.conf
+    - etc/clustershell/groups.d/salafis.yaml
+
