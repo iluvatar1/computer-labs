@@ -50,6 +50,7 @@
   copy:
     src: "{{item}}"
     dest: "/{{item}}"
+    follow: yes
   loop:
     - etc/monit.d/common-monitrc
     - etc/monit.d/SERVER-monitrc
