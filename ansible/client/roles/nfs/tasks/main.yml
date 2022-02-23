@@ -1,0 +1,17 @@
+---
+- name: Adding nfs home mount
+  lineinfile:
+    dest: /etc/fstab
+    regexp: '^{{SERVERIP}}:/home'
+    line: '^{{SERVERIP}}:/home   /home   nfs   rw,hard,intr,usrquota  0 0'
+    backup: yes
+  register: fstab
+
+- name: Restarting service if needed
+  shell:
+    cmd: '/etc/rc.d/rc.{{item}} restart'
+  loop:
+    - nfsd
+    - inet2
+  when:
+    fstab.changed

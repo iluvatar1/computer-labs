@@ -1,0 +1,109 @@
+---
+- name: Activating needing services
+  file:
+    path: '/etc/rc.d/rc.{{item}}'
+    mode: +x
+  loop:
+    - nfsd
+    - yp
+  register: services
+
+- name: Writing nisdomain to configfile
+  lineinfile:
+    dest: /etc/defaultdomain
+    regexp: '^{{NISDOMAIN}}'
+    line: '{{NISDOMAIN}}'
+    backup: yes
+  register: nisdomain
+
+- name: Adding setting defultdomain at startup
+  lineinfile:
+    dest: /etc/rc.d/rc.local
+    regexp: '^{{item}}'
+    line: '{{item}}'
+    backup: yes
+  loop:
+    - 'nisdomainame -F /etc/defaultdomain'
+  register: defaultdomain
+
+- name: Adding yp server config
+  lineinfile:
+    dest: /etc/yp.conf
+    regexp: '^{{item}}'
+    line: '{{item}}'
+    backup: yes
+  loop:
+    - 'ypserver {{SERVERIP}}'
+  register: ypserverconf
+
+- name: Copying nsswitch config
+  copy:
+    src: '{{item}}'
+    dest: '/{{item}}'
+    backup: yes
+  loop:
+    - etc/nsswitch.conf
+  register: nsswitch
+
+- name: Adding needed pattern to /etc/passwd
+  lineinfile:
+    dest: /etc/passwd
+    regexp: '^{{item}}'
+    line: '{{item}}'
+    backup: yes
+  loop:
+    - '\+::::::'
+  register: passwd
+  
+- name: Adding needed pattern to /etc/shadow
+  lineinfile:
+    dest: /etc/shadow
+    regexp: '^{{item}}'
+    line: '{{item}}'
+    backup: yes
+  loop:
+    - '\+::::::::'
+  register: shadow
+
+- name: Adding needed pattern to /etc/group
+  lineinfile:
+    dest: /etc/group
+    regexp: '^{{item}}'
+    line: '{{item}}'
+    backup: yes
+  loop:
+    - '\+:::'
+  register: group
+
+- name: Disabling yp server
+  replace:
+    dest: /etc/rc.d/rc.yp
+    regexp: '^YP_SERVER_ENABLE=1'
+    replace: '^YP_SERVER_ENABLE=0'
+    backup: yes
+  register: ypserver
+
+- name: Enabling yp client
+  replace:
+    dest: /etc/rc.d/rc.yp
+    regexp: '^YP_CLIENT_ENABLE=0'
+    replace: '^YP_CLIENT_ENABLE=1'
+    backup: yes
+  register: ypclient
+
+- name: Remove broadcast option in yp
+  lineinfile:
+    dest: /etc/default/yp
+    regexp: '{{item}}'
+    line: '{{item}}'
+  loop:
+    - 'YPBIND_OPTS=" "'
+  register: ypopt
+
+- name: Restart services if needed
+  shell:
+    cmd: 'nisdomainname -F /etc/defaultdomain; /etc/rc.d/rc.yp restart; /etc/rc.d/rc.inet2 restart'
+  when:
+    services.changed or nisdomain.changed or defaultdomain.changed or ypserverconf.changed or nsswitch.changed or passwd.changed or shadow.changed or group.changed or ypserver.changed or ypclient.changed or ypopt.changed
+    
+
