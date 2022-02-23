@@ -1,0 +1,13 @@
+---
+- name: Configure proxy for root user
+  blockinfile:
+    path: /root/.bashrc
+    backup: yes
+    marker: "# {mark} Adding setting up local proxy for root ..."
+    block: |
+      export PROXY="{{ PROXY }}"
+      export http_proxy="http://{{ PROXY }}"
+      export https_proxy="http://{{ PROXY }}"
+      export ftp_proxy="ftp://{{ PROXY }}"
+      export RSYNC_PROXY="{{ PROXY }}"  
+
