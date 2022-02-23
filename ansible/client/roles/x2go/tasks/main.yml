@@ -1,0 +1,23 @@
+---
+- name: Verify that x2godbadmin is available
+  stat:
+    path: /usr/sbin/x2godbadmin
+  register: x2godbadmin
+
+- name: Activating server on client
+  file:
+    path: /etc/rc.d/rc.x2goserver
+    mode: +x
+  register: service
+
+- name: restart service
+  shell:
+    cmd: /etc/rc.d/rc.x2goserver restart
+  when:
+    service.changed
+
+- name: Create database
+  shell:
+    cmd: /usr/sbin/x2godbadmin --createdb
+  when:
+    service.changed or x2godbadmin.changed
