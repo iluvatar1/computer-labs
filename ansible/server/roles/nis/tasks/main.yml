@@ -1,0 +1,47 @@
+---
+- name: Copying hosts.allow
+  copy:
+    src: etc/hosts.allow
+    dest: /etc/hosts.allow
+    backup: yes
+  register: hosts
+
+- name: Setting defaultdomain file
+  lineinfile:
+    path: /etc/defaultdomain
+    regexp: '^{{NISDOMAIN}}'
+    line: '{{NISDOMAIN}}'
+  register: defaultdomain
+
+- name: Copying yp.conf config
+  copy:
+    src: "{{item}}"
+    dest: "/{{item}}"
+  loop:
+    - etc/yp.conf
+    - var/yp/Makefile 
+  register: ypconfmake
+
+- name: Enabling yp server
+  replace:
+    dest: /etc/rc.d/rc.yp
+    regexp: '^YP_SERVER_ENABLE=0'
+    replace: '^YP_SERVER_ENABLE=1'
+  register: ypserver
+
+- name: Disabling yp client
+  replace:
+    dest: /etc/rc.d/rc.yp
+    regexp: '^YP_CLIENT_ENABLE=1'
+    replace: '^YP_CLIENT_ENABLE=0'
+  register: ypclient
+
+- name: Starting yp services if config changed
+  command:
+    cmd: "{{item}}"
+  loop:
+    - 'make -BC /var/yp'
+    - '/etc/rc.d/rc.yp restart' 
+  when:
+    hosts.changed or defaultdomain or ypconfmake or ypserver or ypclient
+    
