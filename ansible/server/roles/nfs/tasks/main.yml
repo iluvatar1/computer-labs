@@ -1,0 +1,34 @@
+---
+- name: Copying hosts.allow
+  copy:
+    src: etc/hosts.allow
+    dest: /etc/hosts.allow
+
+- name: Copying exports
+  copy:
+    src: etc/exports
+    dest: /etc/exports
+
+- name: Make sure nfsd service is enabled
+  file:
+    dest: /etc/rc.d/rc.nfsd
+    mode: +x
+  register: nfsd
+
+- name: Make sure inet2 service is enabled
+  file:
+    dest: /etc/rc.d/rc.inet2
+    mode: +x
+  register: inet2
+
+- name: Restart nfsd if had just been enabled
+  command:
+    /etc/rc.d/rc.nfsd restart
+  when:
+    nfsd.changed == True
+
+- name: Restart inet2 if had just been enabled
+  command:
+    /etc/rc.d/rc.inet2 restart
+  when:
+    inet2.changed == True
