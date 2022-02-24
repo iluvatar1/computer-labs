@@ -24,7 +24,7 @@ check filesystem homefs with path /home
       stop program  = "/sbin/umount /home"
       if 5 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'home mounted'"
 
-check host serversalafis with address 192.168.10.1
+check host serversalafis with address {{SERVERIP}}
       start program = "/etc/rc.d/rc.inet1 start"
       stop program = "/etc/rc.d/rc.inet1 stop"
       if failed ping then restart

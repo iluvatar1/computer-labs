@@ -1,8 +1,8 @@
 - name: Copy config files
-  copy:
-    src: "{{item}}"
+  template:
+    src: "{{item}}.j2"
     dest: "/{{item}}"
-    follow: yes
+    backup: yes
   loop:
     - etc/monit.d/CLIENT-monitrc
   register: monitfiles
