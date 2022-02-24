@@ -19,5 +19,6 @@
 - name: Create database
   shell:
     cmd: /usr/sbin/x2godbadmin --createdb
+    creates: /var/lib/x2go/x2go_sessions
   when:
-    service.changed or x2godbadmin.changed
+    service.changed or x2godbadmin.changed or x2godbadmin.stat.exists

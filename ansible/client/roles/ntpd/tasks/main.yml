@@ -5,9 +5,18 @@
     mode: +x
   register: ntpd
 
+- name: Copying ntp config from template
+  template:
+    src: '{{item}}.j2'
+    dest: '/{{item}}'
+    backup: yes
+  loop:
+    - etc/ntp.conf
+  register: config
+
 - name: Starting service if permissions changed
   shell:
     cmd: /etc/rc.d/rc.ntpd restart
   when:
-    ntpd.changed
+    ntpd.changed or config.changed
     
