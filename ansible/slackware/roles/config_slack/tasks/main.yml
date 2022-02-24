@@ -170,7 +170,7 @@
   shell:
     cmd: 'slpkg update'
   when :
-    slpkginstalled.changed or slpkgopts.changed or slpkgrepos.changed or slpkgblcklist.changed or urllib3.changed
+    slpkginstalled.changed or slpkgopts.changed or slpkgrepos.changed or slpkgblacklist.changed or urllib3.changed
 
 
 - name: Checking if sbopkg is installed
