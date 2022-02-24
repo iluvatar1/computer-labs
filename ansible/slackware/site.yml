@@ -20,9 +20,10 @@
       - sshd
 
   - name: Configuring time zone to bogota
-    copy:
+    file:
       src: /usr/share/zoneinfo/America/Bogota
       dest: /etc/localtime
+      state: link
 
   - name: Adding more ntp servers
     blockinfile:
@@ -59,32 +60,32 @@
 
   - name: Configuring slackpkg blacklist
     lineinfile:
-      dest: /etc/slackpkg/blacklist
+      path: /etc/slackpkg/blacklist
       regexp: '^{{item}}'
       line: '{{item}}'
       backup: yes
     loop:
-      - 'kernel-generic\.\*'
-      - 'kernel-huge\.\*'
-      - 'kernel-modules\.\*'
-      - 'kernel-source\.\*'
-      - '[0-9]\+_SBo'
-      - '[0-9]\+alien'
+      - 'kernel-generic.*'
+      - 'kernel-huge.*'
+      - 'kernel-modules.*'
+      - 'kernel-source.*'
+      - '[0-9]+_SBo'
+      - '[0-9]+alien'
     register: blacklist
 
   - name: Updating slackpkg if needed
     shell:
       cmd: '{{item}}'
     loop:
-      - 'slackpkg -batch=on -default_answer=y update gpg'
-      - 'slackpkg -batch=on -default_answer=y update'
+      - 'source $HOME/.bashrc; slackpkg -batch=on -default_answer=y update gpg'
+      - 'cource $HOME/.bashrc; slackpkg -batch=on -default_answer=y update'
     when:
       mirrors.changed or blacklist.changed
 
   - name: Adding dhcp on both eth0 and eth1
     replace:
       dest: /etc/rc.d/rc.inet1.conf
-      regexp: '^USE_DHCP\[{{item}}\]=.*'
+      regexp: '^USE_DHCP\[{{item}}\]="(no)?"'
       replace: '^USE_DHCP\[{{item}}\]="yes"'
     loop:
       - 0
@@ -102,122 +103,136 @@
     when:
       nmservice.changed
 
-  - name: Decreasing lilo time
-    replace:
-      dest: /etc/lilo.conf
-      regexp: '^timeout.*'
-      replace: 'timeout = 50'
+  - name: Configuring lilo
+    block: 
+      - name: Check if lilo.conf exists
+        stat:
+          path: /etc/lilo.conf
+        register: lilo
 
-  - name: Checking if slpkg is installed
-    stat:
-      path: /usr/bin/slpkg
-    register: slpkg
+      - name: Decreasing lilo time
+        replace:
+          dest: /etc/lilo.conf
+          regexp: '^timeout.*'
+          replace: 'timeout = 50'
+        when:
+          lilo.stat.exists
 
-  - name: Installing slpkg if needed
-    shell:
-      cmd: 'source /root/.bashrc; pip3 install urllib3 slpkg'
-    when:
-      slpkg.stat.exists == False
-    register: slpkginstalled
+  - name: Configuring slpkg
+    block:
+      - name: Checking if slpkg is installed
+        stat:
+          path: /usr/bin/slpkg
+        register: slpkg
 
-  - name: Configuring slpkg options
-    replace:
-      dest: /etc/slpkg/slpkg.conf
-      regexp: '^{{item.key}}'
-      replace: '{{item.value}}'
-      backup: yes
-    loop:
-      - { key: "RELEASE=stable", value: "RELEASE=current" }
-      - { key: "DEFAULT_ANSWER=no", value: "DEFAULT_ANSWER=yes" }
-      - { key: "DOWNDER_OPTIONS=.*", value: "DOWNDER_OPTIONS=-c -N --no-check-certificate" }
-      - { key: "NOT_DOWNGRADE=off", value: "NOT_DOWNGRADE=on" }
-    register: slpkgopts
+      - name: Installing slpkg if needed
+        shell:
+          cmd: 'source /root/.bashrc; pip3 install urllib3 slpkg'
+        when:
+          slpkg.stat.exists == False
+        register: slpkginstalled
 
-  - name: Configuring slpkg repos
-    replace:
-      dest: /etc/slpkg/slpkg.conf
-      regexp: '^#{{item}}'
-      replace: '{{item}}'
-      backup: yes
-    loop:
-      - slack
-      - sbo
-      - alien
-    register: slpkgrepos
+      - name: Configuring slpkg options
+        replace:
+          dest: /etc/slpkg/slpkg.conf
+          regexp: '^{{item.key}}'
+          replace: '{{item.value}}'
+          backup: yes
+        loop:
+          - { key: "RELEASE=stable", value: "RELEASE=current" }
+          - { key: "DEFAULT_ANSWER=no", value: "DEFAULT_ANSWER=yes" }
+          - { key: "DOWNDER_OPTIONS=.*", value: "DOWNDER_OPTIONS=-c -N --no-check-certificate" }
+          - { key: "NOT_DOWNGRADE=off", value: "NOT_DOWNGRADE=on" }
+        register: slpkgopts
 
-  - name: Configuring slpkg blacklist
-    blockinfile:
-      dest: /etc/slpkg/blacklist
-      backup: yes
-      block: |
-        kernel-firmware
-        kernel-generic
-        kernel-generic-smp
-        kernel-headers
-        kernel-huge
-        kernel-huge-smp
-        kernel-modules
-        kernel-modules-smp
-        kernel-source
-        # mozilla-firefox
-    register: slpkgblacklist
+      - name: Configuring slpkg repos
+        replace:
+          dest: /etc/slpkg/slpkg.conf
+          regexp: '^#{{item}}'
+          replace: '{{item}}'
+          backup: yes
+        loop:
+          - slack
+          - sbo
+          - alien
+        register: slpkgrepos
 
-  - name: Copy patched file_size using urllib3
-    copy:
-      src: '{{item}}'
-      dest: '/{{item}}'
-      backup: yes
-    loop:
-      - 'usr/lib64/python3.9/site-packages/slpkg/file_size.py'
-    register: urllib3
+      - name: Configuring slpkg blacklist
+        lineinfile:
+          path: /etc/slpkg/blacklist
+          regexp: '^{{item}}$'
+          line: '{{item}}'
+        loop: 
+          - 'kernel-firmware'
+          - 'kernel-generic'
+          - 'kernel-generic-smp'
+          - 'kernel-headers'
+          - 'kernel-huge'
+          - 'kernel-huge-smp'
+          - 'kernel-modules'
+          - 'kernel-modules-smp'
+          - kernel-source
+        register: slpkgblacklist
 
-  - name: Updating slpkg if needed
-    shell:
-      cmd: 'slpkg update'
-    when :
-      slpkginstalled.changed or slpkgopts.changed or slpkgrepos.changed or slpkgblacklist.changed or urllib3.changed
+      - name: Copy patched file_size using urllib3
+        copy:
+          src: '{{item}}'
+          dest: '/{{item}}'
+          backup: yes
+        loop:
+          - 'usr/lib64/python3.9/site-packages/slpkg/file_size.py'
+        register: urllib3
+
+      - name: Updating slpkg if needed
+        shell:
+          cmd: 'source $HOME/.bashrc; slpkg update'
+        when :
+          slpkginstalled.changed or slpkgopts.changed or slpkgrepos.changed or slpkgblacklist.changed or urllib3.changed
 
 
-  - name: Checking if sbopkg is installed
-    stat:
-      path: /usr/sbin/sbopkg
-    register: sbopkg
+  - name: Configuring sbopkg
+    block:
+      - name: Checking if sbopkg is installed
+        stat:
+          path: /usr/sbin/sbopkg
+        register: sbopkg
 
-  - name: Installing sbopkg if not installed
-    shell:
-      cmd: 'wget https://sbopkg.org/test/sbopkg-0.38.2-noarch-1_wsr.tgz; upgradepkg --install-new  sbopkg-0.38.2-noarch-1_wsr.tgz'
-    when:
-      sbopkg.stat.exists == False
-    register: sbopkginstalled
+      - name: Installing sbopkg if not installed
+        shell:
+          cmd: 'wget https://sbopkg.org/test/sbopkg-0.38.2-noarch-1_wsr.tgz; upgradepkg --install-new  sbopkg-0.38.2-noarch-1_wsr.tgz'
+        when:
+          sbopkg.stat.exists == False
+        register: sbopkginstalled
 
-  - name: Configuring sbopkg for slackware current
-    replace:
-      dest: /etc/sbopkg/sbopkg.conf
-      regexp: '{{item.key}}'
-      replace: '{{item.value}}'
-    loop:
-      - {key: "-15.0", value: "-current"}
-      - {key: "-SBo", value: "-SBo-git"}
-    register: sbopkgcurrent
+      - name: Configuring sbopkg for slackware current
+        replace:
+          dest: /etc/sbopkg/sbopkg.conf
+          regexp: '{{item.key}}'
+          replace: '{{item.value}}'
+          backup: yes
+        loop:
+          - {key: "REPO_BRANCH:-15.0", value: "REPO_BRANCH:-current"}
+          - {key: "REPO_NAME:-SBo}", value: "REPO_NAME:-SBo-git}"}
+        register: sbopkgcurrent
 
-  - name: Creating needed directories
-    file:
-      path: '{{item}}'
-      state: directory
-    loop:
-      - /var/lib/sbopkg/SBo/14.2
-      - /var/lib/sbopkg/SBo/15.0
-      - /var/log/sbopkg
-      - /var/lib/sbopkg/queues
-      - /var/cache/sbopkg
-      - /tmp/SBo
-    register: sbopkgdirs  
+      - name: Creating needed directories
+        file:
+          path: '{{item}}'
+          state: directory
+        loop:
+          - /var/lib/sbopkg/SBo/14.2
+          - /var/lib/sbopkg/SBo/15.0
+          - /var/log/sbopkg
+          - /var/lib/sbopkg/queues
+          - /var/cache/sbopkg
+          - /tmp/SBo
+        register: sbopkgdirs  
 
-  - name: Updating sbopkg if needed
-    shell:
-      cmd: sbopkg -r
-    when:
-      sbopkg.stat.exists or sbopkginstalled.changed or sbopkgcurrent.changed or sbopkgdirs.changed
+      - name: Updating sbopkg if needed
+        shell:
+          cmd: 'source $HOME/.bashrc; sbopkg -r -V SBo-git/current'
+        when:
+          sbopkg.stat.exists == False or sbopkginstalled.changed or sbopkgcurrent.changed or sbopkgdirs.changed
 
   - name: Configuring dhcpcd client to use clientid instead of duid
     replace:
@@ -240,7 +255,7 @@
 
   - name: Added loading of /etc/profile to bashrc skeleton
     lineinfile:
-      dest: etc/skel/.bashrc
+      dest: /etc/skel/.bashrc
       regexp: '^{{item}}'
       line: '{{item}}'
       create: yes
@@ -280,20 +295,27 @@
           Option "XkbOptions" "terminate:ctrl_alt_bksp"
         EndSection
 
-  - name: Configure fonts (not idempotent)
+  - name: Configure fonts (TO IMPROVE)
     shell:
-      cmd: '{{item}}'
+      cmd: '{{item.command}}'
+      creates: '{{item.file}}'
     loop:
-      - 'mkfontscale /usr/share/fonts/100dpi'
-      - 'mkfontdir /usr/share/fonts/100dpi'
-      - 'xset +fp /usr/share/fonts/100dpi'
-      - 'xset fp rehash'
+      - {command: 'mkfontscale /usr/share/fonts/100dpi', file: '/usr/share/fonts/100dpi/fonts.scale'}
+      - {command: 'mkfontdir /usr/share/fonts/100dpi', file: '/usr/share/fonts/100dpi/fonts.dir'}
+      # The commands 'xset +fp /usr/share/fonts/100dpi; xset fp rehash' require display
 
   # To automate the dialog in curses, tmux is used
   # REF: https://superuser.com/questions/585398/sending-simulated-keystrokes-in-bas
-  - name: Configuring xwmconfig (Not idempotent) 
+  - name: Check if link to xfce exists
+    stat:
+      path: /etc/X11/xinit/xinitrc
+    register: xinitrclink
+
+  - name: Configuring xwmconfig 
     shell:
       cmd: 'tmux new-session -d -t Test; tmux send-keys -t Test: "xwmconfig" "Enter" ; tmux send-keys -t Test: "Down" "Enter"; tmux kill-session -t Test'
+    when:
+      xinitrclink.stat.lnk_source != '/etc/X11/xinit/xinitrc.xfce'
 
 
   - name: Setting generic hostname to later use the one from dhcpc
