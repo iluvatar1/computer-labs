@@ -1,17 +1,35 @@
 ---
+- name: Copying minute maintenance script
+  template:
+    src: "{{item}}.j2"
+    dest: "/{{item}}"
+    mode: 0755
+  loop:
+    - usr/local/bin/minute_maintenance.sh
+  register: minutescript
+
 - name: Adding minute_maintenance job
   cron:
     name: "Run useful script every minute"
     minute: "*/1"
-    job: "/bin/bash /root/repos/computer-labs/computer-room/files/SERVER-cron/minute_maintenance.sh &>/var/log/minute_maintenance.log"
-  register: minute
+    job: "/bin/bash /usr/local/bin/minute_maintenance.sh &>/var/log/minute_maintenance.log"
+  register: minutejob
 
-- name: Update motd every 10 minutes
+- name: Copying update_motd script
+  copy:
+    src: "{{item}}"
+    dest: "/{{item}}"
+    mode: 0755
+  loop:
+    - usr/local/bin/update_motd.sh
+  register: motdscript
+
+- name: Update motd every 5 minutes
   cron:
     name: "Update motd"
-    minute: "*/10"
-    job: "/bin/bash /root/repos/computer-labs/computer-room/files/SERVER-cron/update_motd.sh &>/var/log/update_motd.log"
-  register: motd
+    minute: "*/5"
+    job: "/bin/bash /usr/local/bin/update_motd.sh &>/var/log/update_motd.log"
+  register: motdjob
 
 - name: Copying daily maintenance script
   copy:
@@ -25,5 +43,5 @@
   command:
     cmd: /etc/rc.d/rc.crond restart
   when:
-    minute.changed or motd.changed or daily.changed
+    minutescript.changed or minutejob.changed or motdscript.changed or motdjob.changed or daily.changed
  
