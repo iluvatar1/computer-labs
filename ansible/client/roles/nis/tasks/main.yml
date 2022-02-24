@@ -48,31 +48,31 @@
 - name: Adding needed pattern to /etc/passwd
   lineinfile:
     dest: /etc/passwd
-    regexp: '^{{item}}'
+    search_string: '{{item}}'
     line: '{{item}}'
     backup: yes
   loop:
-    - '\+::::::'
+    - '+::::::'
   register: passwd
   
 - name: Adding needed pattern to /etc/shadow
   lineinfile:
     dest: /etc/shadow
-    regexp: '^{{item}}'
+    search_string: '{{item}}'
     line: '{{item}}'
     backup: yes
   loop:
-    - '\+::::::::'
+    - '+::::::::'
   register: shadow
 
 - name: Adding needed pattern to /etc/group
   lineinfile:
     dest: /etc/group
-    regexp: '^{{item}}'
+    search_string: '{{item}}'
     line: '{{item}}'
     backup: yes
   loop:
-    - '\+:::'
+    - '+:::'
   register: group
 
 - name: Disabling yp server
