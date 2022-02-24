@@ -1,13 +1,23 @@
 ---
+- name: Copying script to run every minute
+  template:
+    src: '{{item}}.j2'
+    dest: '/{{item}}'
+    mode: 0755
+  loop:
+    - usr/local/bin/check_status.sh
+  register: script
+
 - name: Adding minute_maintenance job
   cron:
     name: "Run useful script every minute"
     minute: "*/1"
-    job: "/bin/bash /root/repos/computer-labs/computer-room/files/CLIENT-cron/check_status.sh &>/var/log/minute_maintenance.log"
+    job: "/bin/bash /usr/local/bin/check_status.sh &>/var/log/minute_maintenance.log"
   register: minute
 
 - name: Restart service in config changed
   command:
     cmd: /etc/rc.d/rc.crond restart
   when:
-    minute.changed 
+    minute.changed or script.changed
+    
