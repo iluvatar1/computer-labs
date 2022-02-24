@@ -11,10 +11,12 @@
     arno.stat.exists == False
 
 - name: Copying firewall config
-  copy:
-    src: firewall.conf
-    dest: /etc/arno-iptables-firewall/firewall.conf
+  template:
+    src: '{{item}}.j2'
+    dest: '/{{item}}'
     chmod: o-rwx
+  loop:
+    - etc/arno-iptables-firewall/firewall.conf
 
 - name: linking startup script
   shell:

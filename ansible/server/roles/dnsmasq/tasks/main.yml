@@ -14,9 +14,18 @@
     group: root
     backup: yes 
   loop:
-    - dnsmasq.conf
     - dnsmasq-hosts.conf
-    - hosts
+
+- name: Copy hosts file 
+  template:
+    src: '{{item}}.j2'
+    dest: '/{{item}}'
+    owner: root
+    group: root
+    backup: yes 
+  loop:
+    - etc/hosts
+    - etc/dnsmasq.conf
 
 - name: Copy dnsmasq startup rc file with exec mode
   copy:

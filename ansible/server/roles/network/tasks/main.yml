@@ -1,15 +1,25 @@
 ---
-- name: Copy network config files
+- name: Copy resolv conf files
   copy:
-    src: etc/{{ item }}
-    dest: /etc/{{ item }}
+    src: '{{item}}'
+    dest: '/{{item}}'
     owner: root
     group: root
     mode: '0644'
     backup: yes 
   loop:
-    - resolv.conf.head
-    - rc.d/rc.inet1.conf
+    - etc/resolv.conf.head
+
+- name: Copy network interfaces config files
+  template:
+    src: '{{item}}.j2'
+    dest: '/{{item}}'
+    owner: root
+    group: root
+    mode: '0644'
+    backup: yes 
+  loop:
+    - etc/rc.d/rc.inet1.conf
 
 - name: Adding executable status for network manager (TODO-> Is this really needed?)
   file:

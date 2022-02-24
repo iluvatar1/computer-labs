@@ -38,6 +38,16 @@
   when:
     gmond.stat.exists
 
+- name: Copying gmetad ganglia config
+  template:
+    src: '{{item}}.j2'
+    dest: '/{{item}}'
+  loop:
+    - etc/ganglia/gmetad.conf
+  register: gmetadconf
+  when:
+    gmond.stat.exists
+
 - name : Activating services
   file:
     path: '/etc/rc.d/rc.{{item}}'
@@ -56,5 +66,5 @@
     - 'httpd'
     - 'gmetad'
   when:
-    config.changed or httpd.changed or httpd2.changed or httpd3.changed  or services.changed      
+    config.changed or httpd.changed or httpd2.changed or httpd3.changed  or services.changed or gmetadconf.changed      
 

@@ -124,7 +124,7 @@ expand-hosts
 #    domain of all systems configured by DHCP
 # 3) Provides the domain part for "expand-hosts"
 #domain=thekelleys.org.uk
-domain=salafis.net,192.168.10.0/24
+domain={{SERVER_DOMAINNAME}}.net,{{BASE_SERVERIP}}.0/24
 
 # Set a different domain for a particular subnet
 #domain=wireless.thekelleys.org.uk,192.168.2.0/24
@@ -138,7 +138,7 @@ domain=salafis.net,192.168.10.0/24
 # repeat this for each network on which you want to supply DHCP
 # service.
 #dhcp-range=192.168.0.50,192.168.0.150,12h
-dhcp-range=192.168.10.2,192.168.10.250,255.255.255.0,24h
+dhcp-range={{BASE_SERVERIP}}.2,{{BASE_SERVERIP}}.250,255.255.255.0,24h
 
 # This is an example of a DHCP range where the netmask is given. This
 # is needed for networks we reach the dnsmasq DHCP server via a relay
@@ -255,9 +255,9 @@ dhcp-hostsfile=/etc/dnsmasq-hosts.conf
 # netmask
 dhcp-option=1,255.255.255.0
 #default router
-dhcp-option=3,192.168.10.1
+dhcp-option=3,{{SERVERIP}}
 # Domain name server
-dhcp-option=6,192.168.10.1
+dhcp-option=6,{{SERVERIP}}
 
 
 #-------------------------
@@ -287,7 +287,7 @@ dhcp-option=6,192.168.10.1
 
 # Set the NTP time server addresses to 192.168.0.4 and 10.10.0.5
 #dhcp-option=option:ntp-server,192.168.0.4,10.10.0.5
-dhcp-option=option:ntp-server,192.168.10.1,10.10.0.5
+dhcp-option=option:ntp-server,{{SERVERIP}},10.10.0.5
 
 # Set the NTP time server address to be the same machine as
 # is running dnsmasq
@@ -297,7 +297,7 @@ dhcp-option=42,0.0.0.0
 # Set the NIS domain name to "welly"
 #dhcp-option=40,welly
 # NIS server
-dhcp-option=41,192.168.10.1
+dhcp-option=41,{{SERVERIP}}
 dhcp-option=40,salafisnis
 
 
@@ -572,103 +572,8 @@ log-queries
 # Log lots of extra information about DHCP transactions.
 log-dhcp
 
-# # Include a another lot of configuration options.
-# #conf-file=/etc/dnsmasq.more.conf
-# #conf-dir=/etc/dnsmasq.d
-# # dhcp-host=*:*:*:*:*:*,ignore
-# # CURRENT : 2018/08/16
-# dhcp-host=00:1a:4b:46:22:c7,sala02,192.168.10.2
-# dhcp-host=18:03:73:D3:E9:E8,sala03,192.168.10.3
-# dhcp-host=18:03:73:D3:F9:C5,sala04,192.168.10.4
-# dhcp-host=00:1a:4b:46:25:e5,sala05,192.168.10.5
-# dhcp-host=00:23:7D:1C:06:CA,sala06,192.168.10.6
-# dhcp-host=00:1A:4B:46:34:16,00:50:da:28:1a:44,sala07,192.168.10.7
-# #dhcp-host=00:10:18:e3:27:41,d4:ae:52:bc:a3:5e,sala08,192.168.10.8
-#dhcp-host=18:03:73:19:29:6A,sala09,192.168.10.9
-# dhcp-host=18:03:73:D3:F2:20,sala10,192.168.10.10
-# dhcp-host=00:16:17:7a:c5:12,sala11,192.168.10.11
-# dhcp-host=18:03:73:D3:EC:BD,sala12,192.168.10.12
-# dhcp-host=00:16:17:79:21:12,sala13,192.168.10.13
-# dhcp-host=00:19:BB:5E:46:61,sala14,192.168.10.14
-# dhcp-host=00:25:64:C0:1E:A4,sala15,192.168.10.15
-# dhcp-host=18:03:73:22:54:64,sala16,192.168.10.16
-# dhcp-host=18:03:73:19:5A:E3,sala17,192.168.10.17
-# dhcp-host=18:03:73:19:12:D3,sala18,192.168.10.18
-# dhcp-host=18:03:73:19:15:E2,sala19,192.168.10.19
-# dhcp-host=18:03:73:1A:ED:9B,sala20,192.168.10.20
-# dhcp-host=D4:AE:52:BC:A3:94,00:10:18:e3:27:51,sala21,192.168.10.21
-# dhcp-host=00:1a:4b:46:34:6a,sala22,192.168.10.22
-# dhcp-host=D4:AE:52:BC:0B:85,00:10:18:cc:9b:ef,sala23,192.168.10.23
-# # new computers
-# dhcp-host=48:4D:7E:9B:E3:86,28:56:5A:7E:E5:65,sala24,192.168.10.24
-# dhcp-host=48:4D:7E:9B:02:D5,28:56:5A:7E:E5:31,sala25,192.168.10.25
-# #dhcp-host=48:4D:7E:AF:87:1C,28:56:5A:7E:05:2D,sala26,192.168.10.26 # dos mac, up to 2017-06-29
-# dhcp-host=48:4D:7E:AF:87:1C,sala26,192.168.10.26
-# dhcp-host=48:4D:7E:9A:FE:57,28:56:5A:7E:E5:5D,sala27,192.168.10.27
-# dhcp-host=48:4D:7E:9B:05:0D,28:56:5A:7E:D9:6F,sala28,192.168.10.28
-# # dhcp-host=B8:CA:3A:FF:80:23,sala29,192.168.10.29  # up to 2017-06-29
-# dhcp-host=48:4D:7E:AF:86:F0,sala29,192.168.10.29
-# dhcp-host=00:25:64:BF:F7:85,sala30,192.168.10.30
-# # non permanent
-# dhcp-host=00:0F:FE:45:9B:AE,sala80-hp-desktop,192.168.10.80
-# dhcp-host=00:1A:73:F3:88:F7,sala81-hp-portatil,192.168.10.81
-# dhcp-host=04:7D:7B:EC:88:5D,sala82-mac-portatil,192.168.10.82
-# dhcp-host=00:1C:C4:C6:1A:4F,sala83-revision-ref,192.168.10.83
-# dhcp-host=B8:E8:56:2D:47:DA,sala84-INVITADO,192.168.10.84
-# # # OLD
-# #dhcp-host=00:16:17:79:e3:c4,sala07,192.168.10.7
-# #dhcp-host=00:16:17:79:1f:51,sala10,192.168.10.10
-# # dhcp-host=00:11:85:17:88:09,sala02,192.168.10.2
-# # dhcp-host=00:11:85:16:20:eb,sala03,192.168.10.3
-# # dhcp-host=00:0f:20:39:e8:07,sala04,192.168.10.4
-# # dhcp-host=00:16:17:7a:78:2e,sala07,192.168.10.7
-# # dhcp-host=00:16:17:7a:77:ff,sala08,192.168.10.8
-# # dhcp-host=00:16:17:7a:78:4c,sala09,192.168.10.9
-# # dhcp-host=00:11:85:16:1f:f3,sala12,192.168.10.12
-# # dhcp-host=00:16:17:7b:97:d8,sala14,192.168.10.14
-# # dhcp-host=00:16:17:79:df:ea,sala15,192.168.10.15
-# # dhcp-host=00:16:17:79:e4:41,sala17,192.168.10.17
-# # dhcp-host=00:25:64:E4:3C:A7,sala21,192.168.10.21
-# # dhcp-host=00:24:E8:1B:C9:8E,sala20,192.168.10.20
-# # dhcp-host=00:50:DA:28:1A:44,sala26,192.168.10.26
-
-# # very old
-# # #dhcp-host=00:11:11:82:EB:26,ssf2,192.168.123.2
-# # #dhcp-host=00:12:3F:A7:28:C3,ssf3,192.168.123.3
-# # #dhcp-host=00:07:E9:F0:C4:C9,ssf4,192.168.123.4
-# # #dhcp-host=00:14:22:3B:24:F3,ssf5,192.168.123.5
-# # dhcp-host=00:1A:A0:E0:A8:85,ssf6,192.168.123.6
-# # dhcp-host=00:1A:A0:E0:A6:B9,ssf7,192.168.123.7
-# # dhcp-host=f0:4d:a2:38:eb:2c,ssf8,192.168.123.8
-# # dhcp-host=b8:ac:6f:3a:8e:b7,ssf9,192.168.123.9
-# # #dhcp-host=00:25:64:C1:21:A1,hvinckdesktop,192.168.123.11
-# # dhcp-host=00:14:38:D4:48:CA,ssfNetPrinter01,192.168.123.32
-# # # invitados
-# # #dhcp-host=00:14:22:8A:42:4A,laptopssf,192.168.123.46
-# # #dhcp-host=00:17:F2:31:3A:43,gavoxlaptop,192.168.123.47
-# # #dhcp-host=00:16:D4:16:59:92,ssfGuessPILAR,192.168.123.48
-# # #dhcp-host=00:1C:23:FF:23:6D,ssfGuestCosta,192.168.123.52
-# # #dhcp-host=00:1D:09:4A:2C:A1,ssfGuestMiguelLaptop,192.168.123.58
-# # dhcp-host=00:26:08:08:84:D2,iluvatarMacbookPro,192.168.123.59
-# # #dhcp-host=00:23:5A:62:D4:86,umarlaptop,192.168.123.60
-# # #dhcp-host=00:16:D3:F9:7F:EF,hvincklaptop,192.168.123.61
-# # dhcp-host=00:26:08:01:29:9E,jdmacbooklaptop,192.168.123.62
-# # #dhcp-host=A4:BA:DB:B7:F2:F8,CEiBA-laptop02-01,192.168.123.63
-# # #dhcp-host=78:E4:00:08:09:7E,CEiBA-laptop02-02,192.168.123.64
-# # #dhcp-host=00:23:8b:c3:42:37,williamumarlaptop,192.168.123.65
-# # #dhcp-host=00:1b:38:ca:77:1d,williamumarlaptop2,192.168.123.66
-# # dhcp-host=3c:4a:92:4d:1b:28,williamumarlaptop3,192.168.123.67
-# # #dhcp-host=00:1e:68:73:58:b0,lauralaptop3,192.168.123.68
-# # dhcp-host=00:24:BE:81:AE:5E,datorresg_laptop,192.168.123.69
-# # dhcp-host=18:03:73:da:2a:bc,datorresg_desktop,192.168.123.70
-# # dhcp-host=00:1F:F3:D1:53:7A,olmos_laptop,192.168.123.71
-# # dhcp-host=30:85:a9:6f:9e:54,ivan_laptop,192.168.123.72
-# # #dhcp-host=00:11:11:82:eb:df,server,192.168.123.73
-# # dhcp-host=40:6C:8F:3C:29:43,juaperezra_laptop,192.168.123.73
-# # dhcp-host=3C:97:0E:40:0D:2B,hans_laptop,192.168.123.74
-
 # PXE
-#dhcp-boot=pxelinux.0,pxeserver,192.168.10.1
+#dhcp-boot=pxelinux.0,pxeserver,{{SERVERIP}}
 #pxe-prompt="Press F8 for menu.", 60
 #pxe-service=x86PC, "Install CentOS 7 from network server 192.168.1.1", pxelinux
 #enable-tftp

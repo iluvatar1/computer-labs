@@ -40,7 +40,7 @@ Proxy		168.176.239.30:8080
 # List addresses you do not want to pass to parent proxies
 # * and ? wildcards can be used
 #
-NoProxy		localhost, 127.0.0.*, 10.*, 192.168.*
+NoProxy		localhost, 127.0.0.*, 10.*, {{BASE_SERVERIP}}.*
 
 # Specify the port cntlm will listen on
 # You can bind cntlm to specific interface by specifying
@@ -48,7 +48,7 @@ NoProxy		localhost, 127.0.0.*, 10.*, 192.168.*
 # Cntlm listens on 127.0.0.1:3128 by default
 #
 Listen		127.0.0.1:3128
-Listen		192.168.10.1:3128
+Listen		{{SERVERIP}}:3128
 
 # If you wish to use the SOCKS5 proxy feature as well, uncomment
 # the following option. It can be used several times

@@ -1,7 +1,7 @@
 ---
 - name: Copying hosts.allow
-  copy:
-    src: etc/hosts.allow
+  template:
+    src: etc/hosts.allow.j2
     dest: /etc/hosts.allow
     backup: yes
   register: hosts
@@ -14,13 +14,22 @@
   register: defaultdomain
 
 - name: Copying yp.conf config
+  template:
+    src: "{{item}}.j2"
+    dest: "/{{item}}"
+    backup: yes
+  loop:
+    - etc/yp.conf
+  register: ypconf
+
+- name: Copying Makefile config
   copy:
     src: "{{item}}"
     dest: "/{{item}}"
+    backup: yes
   loop:
-    - etc/yp.conf
     - var/yp/Makefile 
-  register: ypconfmake
+  register: make
 
 - name: Enabling yp server
   replace:
@@ -43,5 +52,5 @@
     - 'make -BC /var/yp'
     - '/etc/rc.d/rc.yp restart' 
   when:
-    hosts.changed or defaultdomain or ypconfmake or ypserver or ypclient
+    hosts.changed or defaultdomain.changed or ypconf.changed or make.changed or ypserver.changed or ypclient.changed
     

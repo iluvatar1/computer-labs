@@ -1,13 +1,14 @@
 ---
 - name: Copying hosts.allow
-  copy:
-    src: etc/hosts.allow
+  template:
+    src: etc/hosts.allow.j2
     dest: /etc/hosts.allow
+    backup: yes
   register: hosts
   
 - name: Copying exports
-  copy:
-    src: etc/exports
+  template:
+    src: etc/exports.j2
     dest: /etc/exports
   register: exports
   

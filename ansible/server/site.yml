@@ -6,23 +6,23 @@
     - vars/main.yml
     - passwords.yml
   roles:
-    # - ../common/roles/proxy
-    # - ../common/roles/shutdownperms
-    # - quota
-    # - network
-    # - dnsmasq
-    # - firewall
-    # - nfs
-    # - sshd
-    # - nis
-    # - crontab
-    # - ../common/roles/monit
-    # - monit
-    # - cntlm
-    # - clustershell    
-    # - x2go
-    # - etcskel
+    - ../common/roles/proxy
+    - ../common/roles/shutdownperms
+    - quota
+    - network
+    - dnsmasq
+    - firewall
+    - nfs
+    - sshd
+    - nis
+    - crontab
+    - ../common/roles/monit
+    - monit
+    - cntlm
+    - clustershell    
+    - x2go
+    - etcskel
     - ../common/roles/ganglia
     - ganglia
-    # - ../common/roles/wakeonlan
+    - ../common/roles/wakeonlan
 

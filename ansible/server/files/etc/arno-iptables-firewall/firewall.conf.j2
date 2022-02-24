@@ -89,7 +89,7 @@ INT_IF="eth1"
 # multiple subnets here or specify one big subnet for all internal interfaces.
 # Note that this variable is mainly used for antispoofing.
 # -----------------------------------------------------------------------------
-INTERNAL_NET="192.168.10.1/24"
+INTERNAL_NET="{{BASE_SERVERIP}}.1/24"
 
 # Set this variable to 0 to disable antispoof checking for the internal nets
 # (EXPERT SETTING!)
@@ -103,7 +103,7 @@ INTERNAL_NET_ANTISPOOF=1
 # this empty should work fine. Multiple addresses (if you have multiple
 # internal nets) should be space separated.
 # -----------------------------------------------------------------------------
-INT_NET_BCAST_ADDRESS="192.168.10.255"
+INT_NET_BCAST_ADDRESS="{{BASE_SERVERIP}}.255"
 
 
 ###############################################################################
