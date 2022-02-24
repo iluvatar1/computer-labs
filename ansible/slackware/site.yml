@@ -1,0 +1,6 @@
+---
+- hosts: all
+  vars:
+    network_available: true
+  roles:
+    - config_slack
