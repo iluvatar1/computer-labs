@@ -23,6 +23,7 @@
     file:
       src: /usr/share/zoneinfo/America/Bogota
       dest: /etc/localtime
+      force: yes
       state: link
 
   - name: Adding more ntp servers
@@ -338,12 +339,19 @@
 
   - name: Fixing efi boot on some hewlet packard bios -> create needed dir
     copy:
-      src: /boot/efi/EFI/Slackware
-      dest: /boot/efi/EFI/boot
-    when: efi.stat.exists
+      src: /boot/efi/EFI/Slackware/
+      dest: /boot/efi/EFI/boot/
+      directory_mode: yes
+    when: efi.stat.isdir
+
+  - name: Checking if new efi directory was created
+    stat:
+      path: /boot/efi/EFI/boot
+    register: efiboot
 
   - name: Fixing efi boot on some hewlet packard bios -> changing names
     copy:
       src: /boot/efi/EFI/boot/elilo.efi
       dest: /boot/efi/EFI/boot/bootx64.efi
-    when: efi.stat.exists
+    when:
+      efiboot.stat.exists
