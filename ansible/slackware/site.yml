@@ -334,24 +334,26 @@
 
   - name: Checking if system has efi boot files
     stat:
-      path: /boot/efi
+      path: /boot/efi/Slackware
     register: efi
 
   - name: Fixing efi boot on some hewlet packard bios -> create needed dir
     copy:
       src: /boot/efi/EFI/Slackware/
       dest: /boot/efi/EFI/boot/
+      remote_src: yes
       directory_mode: yes
-    when: efi.stat.isdir
+    when: efi.stat.exists
 
   - name: Checking if new efi directory was created
     stat:
-      path: /boot/efi/EFI/boot
+      path: /boot/efi/EFI/boot/
     register: efiboot
 
   - name: Fixing efi boot on some hewlet packard bios -> changing names
     copy:
       src: /boot/efi/EFI/boot/elilo.efi
       dest: /boot/efi/EFI/boot/bootx64.efi
+      remote_src: yes
     when:
       efiboot.stat.exists
