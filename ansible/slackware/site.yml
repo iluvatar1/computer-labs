@@ -334,7 +334,7 @@
 
   - name: Checking if system has efi boot files
     stat:
-      path: /boot/efi/Slackware
+      path: /boot/efi/EFI/Slackware
     register: efi
 
   - name: Fixing efi boot on some hewlet packard bios -> create needed dir
