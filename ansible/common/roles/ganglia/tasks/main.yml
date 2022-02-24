@@ -5,8 +5,8 @@
   register: gmond
 
 - name: Copying config files
-  copy:
-    src: '{{item}}'
+  template:
+    src: '{{item}}.j2'
     dest: '/{{item}}'
     backup: yes
   loop:
@@ -18,6 +18,7 @@
 - name: Linking gmond conf
   shell:
     cmd: ln -s /etc/ganglia/gmond.conf /etc/
+    creates: /etc/gmond.conf
 
 - name : Activating services
   file:

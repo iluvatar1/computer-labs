@@ -48,8 +48,8 @@ udp_send_channel {
                        # interface and the DNS names associated with
                        # those IPs will be used to create the RRDs.
   #mcast_join = 239.2.11.71 #COMMENTED
-  #mcast_join = 192.168.10.1 #COMMENTED
-  host = 192.168.10.1 #CHANGE
+  #mcast_join = {{SERVERIP}} #COMMENTED
+  host = {{SERVERIP}} #CHANGE
   port = 8649
   ttl = 1
 }
@@ -57,9 +57,9 @@ udp_send_channel {
 /* You can specify as many udp_recv_channels as you like as well. */
 udp_recv_channel {
   #mcast_join = 239.2.11.71 #COMMENTED
-  #mcast_join = 192.168.10.1 #COMMENTED
+  #mcast_join = {{SERVERIP}} #COMMENTED
   port = 8649
-  bind = 192.168.10.1 #COMMENTED
+  bind = {{SERVERIP}} #COMMENTED
   #bind = 239.2.11.71 #COMMENTED
   #retry_bind = true #COMMENTEED
   # Size of the UDP buffer. If you are handling lots of metrics you really
