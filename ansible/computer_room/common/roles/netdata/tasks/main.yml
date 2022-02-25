@@ -1,0 +1,62 @@
+---
+- name: Checking if netdata binary is installed in /opt
+  stat:
+    path: /opt/netdata/bin/netdata
+  register: netdata
+
+- name: Downloading netdata if not installed
+  shell:
+    cmd: "source $HOME/.bashrc; wget -c https://github.com/netdata/netdata/releases/download/v1.33.1/netdata-x86_64-latest.gz.run -O /tmp/netdatainstall.sh"
+    creates: /tmp/netdatainstall.sh
+  register: netdatafile
+  when:
+    netdata.stat.exists == false
+  environment:
+    https_proxy: http:{{PROXY}}
+
+- name: Installing netdata if not installed but downloaded
+  shell:
+    cmd: 'echo y | bash /tmp/netdatainstall.sh'
+  when:
+    netdata.stat.exists == false
+  register: install
+
+- name: Checking existence of installation directory 
+  stat:
+    path: /opt/netdata/
+  register: netdatadir
+
+- name: Add proxy to netdata configuration (it seems that is not needed)
+  lineinfile:
+    dest: /opt/netdata/etc/netdata/netdata.conf
+    regexp: '.*proxy = http://{{PROXY}}'
+    line: '        proxy = http://{{PROXY}}'
+    insertafter: '\[cloud\]'
+  when:
+    netdatadir.stat.exists and netdatadir.stat.isdir
+  register: proxy
+
+- name: Link netdata service to correct place
+  file:
+    src: /opt/netdata/system/netdata-init-d
+    dest:  /etc/init.d/netdata-init-d
+    state: link
+  when:
+    netdatadir.stat.exists and netdatadir.stat.isdir
+  register: service
+
+- name: Claim node
+  shell:
+    cmd: '/opt/netdata/bin/netdata-claim.sh -token={{NETDATA_TOKEN}} -rooms={{NETDATA_ROOM}} -url=https://app.netdata.cloud -proxy={{PROXY}}'
+    creates: /opt/netdata/var/lib/netdata/cloud.d/claimed_id
+  when:
+    netdatadir.stat.exists and netdatadir.stat.isdir
+  register: claim
+
+- name: Restart service if needed
+  shell:
+    cmd: /etc/init.d/netdata-init-d restart
+  when:
+    install.changed or netdatadir.changed or proxy.changed or service.changed or claim.changed  
+
+
