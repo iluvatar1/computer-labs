@@ -3,7 +3,7 @@
   lineinfile:
     dest: /etc/fstab
     regexp: '^{{SERVERIP}}:/home'
-    line: '{{SERVERIP}}:/home   /home   nfs   rw,hard,intr,usrquota  0 0'
+    line: '{{SERVERIP}}:/home  /home  nfs  rw,hard,intr,usrquota  0  0'
     backup: yes
   register: fstab
 
