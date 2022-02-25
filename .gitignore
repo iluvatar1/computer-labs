@@ -5,3 +5,10 @@ packer_cache
 *~
 *-OLD
 cfg-*.json
+*main.yml
+*passwords.yml
+dnsmasq-hosts.conf
+*/HPC/*.sh
+*-log
+ansible/*/hosts
+ansible/*/*/hosts
