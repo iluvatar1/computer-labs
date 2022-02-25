@@ -150,7 +150,10 @@ The macs file is actually encrypted with the following command:
 #+begin_src
 openssl enc -aes-256-cbc -iter 10 -salt -in SERVER-etc-dnsmasq-hosts.conf -out SERVER-etc-dnsmasq-hosts.conf.enc
 #+end_src
-The password is stored in other place. Please decrypt before using it.
+The password is stored in other place. Please decrypt before using it. To decrypt use
+#+begin_src
+openssl enc -d -aes-256-cbc -iter 10 -salt -in dnsmasq-hosts.conf.enc  -out dnsmasq-hosts.conf
+#+end_src
    #+name: dnsmasq_config
    #+BEGIN_SRC bash :exports code 
      # dnsmasq
@@ -267,25 +270,25 @@ function config_nfs {
 ** SSHD
 #+NAME: sshd_config
 #+BEGIN_SRC bash :exports code
-# sshd
-function config_sshd {
-    MSG="Configuring sshd on port 443 on server "
-    start_msg "$MSG"
-    if [ "$TARGET" = "SERVER" ]; then
-	    if [ x"" = x"$(grep -e '^Port 443' /etc/ssh/sshd_config 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
-            backup_file /etc/ssh/sshd_config
-            sed -i '/^#Port 22/ i ### NEW ###\nPort 22\nPort 443\nPermitRootLogin yes\nAllowGroups sshgroup root\n### NEW ###\n' /etc/ssh/sshd_config
-            echo "ClientAliveInterval 120" >> /etc/ssh/sshd_config
-            echo "ClientAliveCountMax 30" >> /etc/ssh/sshd_config
-	    else
-            echo "sshd already configured"
-	    fi
-    else # CLIENT
-        echo "Not configuring in client. Using defaults."
-    fi
-	/etc/rc.d/rc.sshd restart
-    end_msg "$MSG"
-}
+  # sshd
+  function config_sshd {
+      MSG="Configuring sshd on port 443 on server "
+      start_msg "$MSG"
+      if [ "$TARGET" = "SERVER" ]; then
+	      if [ x"" = x"$(grep -e '^Port 443' /etc/ssh/sshd_config 2>/dev/null)" ] || [ $FORCE -eq 1 ] ; then
+	      backup_file /etc/ssh/sshd_config
+	      sed -i '/^#Port 22/ i ### NEW ###\nPort 22\nPort 443\nPermitRootLogin yes\nAllowGroups sshgroup root\n### NEW ###\n' /etc/ssh/sshd_config
+	      echo "ClientAliveInterval 120" >> /etc/ssh/sshd_config
+	      echo "ClientAliveCountMax 30" >> /etc/ssh/sshd_config
+	      else
+	      echo "sshd already configured"
+	      fi
+      else # CLIENT
+	  echo "Not configuring in client. Using defaults."
+      fi
+	  /etc/rc.d/rc.sshd restart
+      end_msg "$MSG"
+  }
    #+END_SRC
 ** NIS
    #+NAME: nis_config
@@ -367,7 +370,7 @@ function config_nis {
     end_msg "$MSG"
 }
      #+END_SRC
-** SHUTDOWN PERMS: Remove permissions to halt/shutdown from button and gui (todo)
+** TODO SHUTDOWN PERMS: Remove permissions to halt/shutdown from button and gui 
    #+name:shutdown_config
    #+begin_src sh
 function config_shutdown_perms {
@@ -1022,6 +1025,52 @@ EOF
   }
    #+END_SRC
 **
+** TODO Quota
+   Todo means that this is not included in config yet, but scripts are working
+       #+begin_src shell :tangle setup_quota.sh
+# Refs
+# - https://gehrcke.de/2013/05/setting-up-quotas-on-a-local-linux-file-system/
+# - https://wwwphy.princeton.edu//cluster/admin/tasks/nfs.html
+# - https://wiki.archlinux.org/title/disk_quota
+echo "Check that =/etc/hosts.allow= hast =rquotad= "
+if ! grep -q 'rquotad' /etc/hosts.allow; then
+    echo "'rquotad' : 192.168.10.0/255.255.255.0 : allow" >> /etc/hosts.allow
+else
+    echo "Already done."
+fi      
+
+echo "Create needed files"
+if [[ ! -f /home/aquota.user ]]; then
+    touch /home/aquota.user
+    chmod 600 /home/aquota.*
+else    
+    echo "Already done."
+fi  
+    
+echo "Fix home mount options ..."
+if ! grep -q home /etc/fstab | grep -q usrjquota; then
+    awk '{if ($2=="/home") print $1,$2,$3,$4",usrjquota=aquota.user,jqfmt=vfsv1",$5,$6}' /etc/fstab;
+else
+    echo "Already done."
+fi
+mount -o remount /home
+
+echo "Activating quota"
+quotaon -avug
+
+echo "Adding quotacheck to /etc/rc.d/rc.local"
+if ! grep -q quotachek /etc/rc.d/rc.local; then
+    echo 'echo "Checking quota ..."' >> /etc/rc.d/rc.local
+    echo "/usr/sbin/quotacheck -vug /home &" >> /etc/rc.d/rc.local
+else
+    echo "Already done"
+fi    
+
+echo "Make sure that all nfs clients mount the filesystem as"
+echo "${SERVERIP}:/home     /home   nfs     rw,hard,intr,usrquota  0   0"
+
+echo "Useful command: repquota /home"
+    #+end_src
 ** Write final script
 #+BEGIN_SRC bash :exports code :noweb yes :tangle scripts/bootstrap_slackware_computer_room.sh :tangle-mode (identity #o444)
   #!/bin/bash
@@ -1556,6 +1605,61 @@ clush -P -b  -w @roles:8thr 'date'
 	 echo "FALSE";
      fi
    #+end_src
+** Bandwidth exploring
+   The following mpi program alows to compute the bandwidth between pair of ocmputers
+   #+begin_src cpp :tangle bw.cpp
+     #include "mpi.h"
+     #include <iostream>
+     #include <cstdlib>
+
+     void bandwidth(int reps, int size, int pid, int np);
+
+     int main(int argc, char **argv)
+     {
+       /* MPI Variables */
+       int np, pid;
+
+       /* MPI setup */
+       MPI_Init(&argc, &argv);
+       MPI_Comm_size(MPI_COMM_WORLD, &np);
+       MPI_Comm_rank(MPI_COMM_WORLD, &pid);
+
+       const int REPS = std::atoi(argv[1]);  
+       const int SIZE = std::atoi(argv[2]);  
+       bandwidth(REPS, SIZE, pid, np);
+
+       /* finish */
+       MPI_Finalize();
+
+       return 0;
+     }
+
+     void bandwidth(int reps, int size, int pid, int np)
+     {
+       MPI_Status status;
+       int tag = 0;
+       double * buffer = new double [size]{1};
+       for(int ii = 0; ii < reps; ++ii) {
+	 if (0 == pid) { /* Master */
+	   double tstart = MPI_Wtime();
+	   MPI_Send(&buffer[0], size, MPI_DOUBLE, 1, tag, MPI_COMM_WORLD);
+	   MPI_Recv(&buffer[0], size, MPI_DOUBLE, 1, tag, MPI_COMM_WORLD, &status);
+	   double tend = MPI_Wtime();
+	   double total_time = tend - tstart;
+	   std::cout << size*sizeof(double) << "\t" << total_time << "\t" << size*sizeof(double)/total_time/1.0e6 << std::endl;
+	 }
+	 else { /* slaves only send */
+	   MPI_Recv(&buffer[0], size, MPI_DOUBLE, 0, tag, MPI_COMM_WORLD, &status);
+	   MPI_Send(&buffer[0], size, MPI_DOUBLE, 0, tag, MPI_COMM_WORLD);
+	 }
+       }
+     }
+   #+end_src
+   And, after compiling, you can run it as
+   #+begin_src shell
+     for b in $(seq 2 28); do for a in $(seq 2 28) ; do echo -n "$b $a "  ; mpirun -np 2 --oversubscribe --host sala$b,sala$a ./a.out 2 10000000 | tail -n 1; done; echo ""; done | tee bw.txt
+   #+end_src
+   Final results will be collected in file =bw.txt= . 
 * Problems and solutions [11/11]
 ** DONE Solving problems with xinit and xfce for all and new users
 CLOSED: [2020-02-29 Sat 19:27]
@@ -1770,45 +1874,49 @@ http_port 10000
 acl port10000 myport 10000
 cache_peer_access 168.176.239.30 allow port10000
   #+end_src
-* Todo [0/4]
+* Todo [0/3]
   - [ ] ldap for auth: link with unal server
-  - [ ] Check for possible VPN, maybe using wireguard, so to be able to browse
-  internal clients
-  - https://github.com/gsliepen/tinc/tree/1.1
-  - https://tailscale.com/
-  - https://github.com/slackhq/nebula
-  - https://github.com/wiretrustee/wiretrustee
+  - [ ] Check for possible VPN, maybe using wireguard, so to be able to browse internal clients
+    - https://github.com/gsliepen/tinc/tree/1.1
+    - https://tailscale.com/
+    - https://github.com/slackhq/nebula
+    - https://github.com/wiretrustee/wiretrustee
   - [ ] Check bandwidth for udpcast
-  https://sandilands.info/sgordon/using-multicast-on-a-lan-in-linux
-  Server
-  #+begin_src
-dd if=/dev/urandom of=rand.bin bs=1M count=1000
-udp-sender --interface eth1 --broadcast --file rand.bin
-  #+end_src
-  Clients
-  #+begin_src
-udp-receiver --file rand.bin
-  #+end_src
+    https://sandilands.info/sgordon/using-multicast-on-a-lan-in-linux
+    Server
+    #+begin_src
+  dd if=/dev/urandom of=rand.bin bs=1M count=1000
+  udp-sender --interface eth1 --broadcast --file rand.bin
+    #+end_src
+    Clients
+    #+begin_src
+  udp-receiver --file rand.bin
+    #+end_src
 
-  NOTE: For one client, bandwidth is maximized to 1000, for two or more, is
-  inmediatly droped to 10.
+    NOTE: For one client, bandwidth is maximized to 1000, for two or more, is
+    inmediatly droped to 10.
 
-  Checking with iperf3
-  #+begin_src shell
-Servidor: iperf3 -s
-Cliente (tcp): iperf3 -c ${IPSERVER} -f m -i 1 -t 5
-Cliente (udp): iperf3 --udp -b 0 -c ${IPSERVER} -f m -i 1 -t 5
-  #+end_src
-  - [ ] Nvidia on server and clients
-    Nvidia card on server salafis
-    https://docs.slackware.com/howtos:hardware:proprietary_graphics_drivers
-    https://forums.developer.nvidia.com/t/gpu-cooler-running-on-high-speed-all-the-time/48733
-    nvidia-settings -q all | grep -i fan
-    #nvidia-settings -a 'GPUTargetFanSpeed=50'
-    https://en.altlinux.org/How_to_keep_the_GPU_(and_CPU)_cooler
-
-- check
-  # https://www.reddit.com/r/linuxadmin/comments/nml66p/tools_you_use_on_a_daily_basis/
-iostat -dxk
-ncdu
-bashtop 
+    Checking with iperf3
+    #+begin_src shell
+  Servidor: iperf3 -s
+  Cliente (tcp): iperf3 -c ${IPSERVER} -f m -i 1 -t 5
+  Cliente (udp): iperf3 --udp -b 0 -c ${IPSERVER} -f m -i 1 -t 5
+    #+end_src
+    - [ ] Nvidia on server and clients
+      Nvidia card on server salafis
+      https://docs.slackware.com/howtos:hardware:proprietary_graphics_drivers
+      https://forums.developer.nvidia.com/t/gpu-cooler-running-on-high-speed-all-the-time/48733
+      nvidia-settings -q all | grep -i fan
+      #nvidia-settings -a 'GPUTargetFanSpeed=50'
+      https://en.altlinux.org/How_to_keep_the_GPU_(and_CPU)_cooler
+  - check
+     # https://www.reddit.com/r/linuxadmin/comments/nml66p/tools_you_use_on_a_daily_basis/
+     iostat -dxk
+     ncdu
+     bashtop 
+  - Ansible
+    - https://docs.ansible.com/ansible/latest/collections/ansible/builtin/index.html
+    - https://docs.ansible.com/ansible/latest/collections/index.html#list-of-collections
+    - https://opensource.com/article/20/10/ansible-modules-linux
+    - https://github.com/lightbulbjim/slackible?ref=https://githubhelp.com
+    - https://docs.ansible.com/ansible/latest/collections/community/general/slackpkg_module.html
