@@ -9,6 +9,6 @@
 #
 #
 #portmap ypserv ypbind yppasswd : 127.0.0.1, {{BASE_SERVERIP}}/24
-portmap ypserv ypbind yppasswd : {{BASE_SERVERIP}}/255.255.255.0 : allow
-rquotad : {{BASE_SERVERIP}}/255.255.255.0 : allow
+portmap ypserv ypbind yppasswd : {{BASE_SERVERIP}}.0/255.255.255.0 : allow
+rquotad : {{BASE_SERVERIP}}.0/255.255.255.0 : allow
 # End of hosts.allow.

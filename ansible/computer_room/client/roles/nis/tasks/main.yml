@@ -23,7 +23,7 @@
     line: '{{item}}'
     backup: yes
   loop:
-    - 'nisdomainame -F /etc/defaultdomain'
+    - 'nisdomainname -F /etc/defaultdomain'
   register: defaultdomain
 
 - name: Adding yp server config

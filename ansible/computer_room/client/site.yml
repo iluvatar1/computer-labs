@@ -4,7 +4,6 @@
     network_available: true
   vars_files:
     - vars/main.yml
-    - passwords.yml
   roles:
     - ../common/roles/proxy
     - ../common/roles/shutdownperms
