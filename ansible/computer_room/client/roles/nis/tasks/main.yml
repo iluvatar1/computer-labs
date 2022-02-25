@@ -26,6 +26,15 @@
     - 'nisdomainname -F /etc/defaultdomain'
   register: defaultdomain
 
+- name: Removing typo line with  defultdomain at startup
+  lineinfile:
+    dest: /etc/rc.d/rc.local
+    regexp: '^{{item}}'
+    line: '{{item}}'
+    state: absent
+  loop:
+    - 'nisdomainame -F /etc/defaultdomain'
+
 - name: Adding yp server config
   lineinfile:
     dest: /etc/yp.conf
