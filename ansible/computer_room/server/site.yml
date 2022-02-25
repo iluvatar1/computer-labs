@@ -25,4 +25,5 @@
     - ../common/roles/ganglia
     - ganglia
     - ../common/roles/wakeonlan
+    - ../common/roles/netdata
 
