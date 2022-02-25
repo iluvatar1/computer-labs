@@ -232,6 +232,41 @@ done
         see
         https://docs.gluster.org/en/latest/Administrator%20Guide/Managing%20Volumes/#expanding-volumes)
 
+* Lustre (parallel file system)
+  - https://www.admin-magazine.com/HPC/Articles/Working-with-the-Lustre-Filesystem
+  - https://scicomp.ethz.ch/wiki/Best_practices_on_Lustre_parallel_file_systems
+  - https://hpc.gsi.de/virgo/storage/lustre_best_practice.html
+  - https://wiki.lustre.org/Main_Page
+  - 
+  - 2022-02-25: Does not compile on slackware64 current kernel 5.15
+    - https://jira.whamcloud.com/browse/LU-12511
+    - https://www.reddit.com/r/HPC/comments/t14o3i/lustre_error_and_how_to_submit/hye3apj/?context=3
+  - ./configure --disable-server
+    make
+    Error:
+    #+begin_src
+root/repos/lustre-release/lustre/llite/file.c:5703:27: error: initialization of ‘struct posix_acl * (*)(struct inode *, int,  bool)’ {aka ‘struct posix_acl * (*)(struct inode *, int,  _Bool)’} from incompatible pointer type ‘struct posix_acl * (*)(struct inode *, int)’ [-Werror=inco
+mpatible-pointer-types]                                                
+ 5703 |         .get_acl        = ll_get_acl,                          
+      |                           ^~~~~~~~~~                           
+/root/repos/lustre-release/lustre/llite/file.c:5703:27: note: (near initialization for ‘ll_file_inode_operations.get_acl’)
+
+...
+
+root/repos/lustre-release/lustre/llite/namei.c:2217:27: error: initialization of ‘struct posix_acl * (*)(struct inode *, int,  bool)’ {aka ‘struct posix_acl * (*)(struct inode *, int,  _Bool)’} from incompatible pointer type ‘struct posix_acl * (*)(struct inode *, int)’ [-Werror=inc
+ompatible-pointer-types]                                               
+ 2217 |         .get_acl        = ll_get_acl,                          
+      |                           ^~~~~~~~~~                           
+/root/repos/lustre-release/lustre/llite/namei.c:2217:27: note: (near initialization for ‘ll_dir_inode_operations.get_acl’)                    
+/root/repos/lustre-release/lustre/llite/namei.c:2233:27: error: initialization of ‘struct posix_acl * (*)(struct inode *, int,  bool)’ {aka ‘struct posix_acl * (*)(struct inode *, int,  _Bool)’} from incompatible pointer type ‘struct posix_acl * (*)(struct inode *, int)’ [-Werror=inc
+ompatible-pointer-types]                                               
+ 2233 |         .get_acl        = ll_get_acl,                          
+      |                           ^~~~~~~~~~                           
+/root/repos/lustre-release/lustre/llite/namei.c:2233:27: note: (near initialization for ‘ll_special_inode_operations.get_acl’)                
+  CC [M]  /root/repos/lustre-release/lnet/lnet/net_fault.o             
+    #+end_src
+    
+    
 * To check
   - Node health check: https://github.com/mej/nhc
   - Install all with spack
