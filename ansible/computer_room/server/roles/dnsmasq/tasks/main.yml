@@ -16,7 +16,7 @@
   loop:
     - dnsmasq-hosts.conf
 
-- name: Copy hosts file 
+- name: Copy hosts and config file 
   template:
     src: '{{item}}.j2'
     dest: '/{{item}}'
