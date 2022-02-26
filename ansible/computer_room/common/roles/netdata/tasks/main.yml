@@ -26,7 +26,7 @@
     path: /opt/netdata/
   register: netdatadir
 
-- name: Add proxy to netdata configuration (it seems that is not needed)
+- name: Add proxy to netdata configuration 
   lineinfile:
     dest: /opt/netdata/etc/netdata/netdata.conf
     regexp: '.*proxy = http://{{PROXY}}'
