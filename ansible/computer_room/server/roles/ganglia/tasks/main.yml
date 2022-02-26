@@ -4,6 +4,19 @@
     path: /usr/sbin/gmond
   register: gmond
 
+# - name: Verify bind option is UNCOMMENTED in gmond for receiving traffice (must be commented on client)
+#   lineinfile:
+#     dest: /etc/ganglia/gmond.conf
+#     line: '  bind = {{SERVERIP}}'
+#     insertafter: '.*#bind = SERVERIP.*'
+#     backup: yes
+#   register: gmondconfig
+# - name: Restart gmond service if config changed
+#   shell:
+#     cmd: /etc/rc.d/rc.gmond restart
+#   when:
+#     gmondconfig.changed
+
 - name: Adding ganglia config to httpd server
   lineinfile:
     path: /etc/httpd/httpd.conf
