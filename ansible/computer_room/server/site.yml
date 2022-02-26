@@ -24,6 +24,7 @@
     - etcskel
     - ../common/roles/ganglia
     - ganglia
+    - apache
     - ../common/roles/wakeonlan
     - ../common/roles/netdata
 

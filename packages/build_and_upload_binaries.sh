@@ -92,7 +92,6 @@ build_packages_sbo () {
     nx-libs | MAKEFLAGS="-j 1"
     x2goserver
     zulu-openjdk17
-    netdata
     munge 
     confuse
     ganglia | OPT=gmetad MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc
