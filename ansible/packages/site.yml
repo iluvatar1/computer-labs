@@ -1,0 +1,97 @@
+---
+# REF: http://rnowling.github.io/devops/2015/04/21/ansible-gluster.html
+- name: Configuring package server (exports spack packages)
+  hosts: package_server
+  gather_facts: false
+  vars_files:
+    - vars/main.yml
+  tasks:
+  
+  - name: Creating package dir
+    file:
+      path: /packages
+      state: directory
+
+  - name: Fixing mounting of sda7 from /mnt/tmp to /packages
+    ansible.posix.mount:
+      path: "{{item.path}}"
+      src: /dev/sda7
+      fstype: ext4
+      state: "{{item.action}}" 
+    loop:
+      - { path: /home/tmp, action: unmounted }
+      - { path: /home/tmp, action: absent } # removes from fstab
+      - { path: /packages, action: mounted }
+      - { path: /packages, action: present } # adds to fstab
+    register: mount
+
+  - name: Make sure related services are enabled
+    file:
+      dest: '/etc/rc.d/rc.{{item}}'
+      mode: +x
+    loop:
+      - inet2
+      - rpc
+      - nfsd
+    register: service
+
+  - name: Adding export
+    lineinfile:
+      dest: /etc/exports
+      regexp: '^{{item}}'
+      line: '{{item}}'
+    loop:
+      - '/packages {{BASE_SERVERIP}}.0/24(rw,sync,no_root_squash,no_subtree_check)'
+    register: exports
+
+  - name: Adding line to hosts.allow
+    lineinfile:
+      dest: /etc/hosts.allow
+      regexp: '^{{item}}'
+      line: '{{item}}'
+    loop:
+      - 'portmap : {{BASE_SERVERIP}}.0/255.255.255.0 '
+      - 'lockd : {{BASE_SERVERIP}}.0/255.255.255.0 '
+      - 'mountd : {{BASE_SERVERIP}}.0/255.255.255.0 '
+      - 'rquotd : {{BASE_SERVERIP}}.0/255.255.255.0 '
+      - 'statd : {{BASE_SERVERIP}}.0/255.255.255.0 '
+    register: exports
+
+
+  - name: Restart nfsd and inet2 and rpc if needed
+    shell:
+      cmd: '/etc/rc.d/rc.{{item}} start'
+    loop:
+      - rpc
+      - inet2
+      - nfsd
+    #when:
+    #  service.changed or mount.changed or exports.changed
+
+- name: Mounting /packages on all nodes 
+  hosts: package_clients
+  gather_facts: false
+  vars_files:
+    - vars/main.yml
+  tasks:
+
+  - name: Checking if packages subdir exists
+    stat:
+      path: /packages
+    register: packages
+  - name: Creating packages subdir if needed
+    file:
+      path: /packages
+      state: directory
+    when:
+      packages.stat.exists == False or packages.stat.isdir == False
+
+  - name: Creating mounting info in /etc/fstab
+    ansible.posix.mount:
+      path: /packages
+      src: "{{ groups.package_server | first }}:/packages"
+      fstype: nfs
+      state: "{{item}}" 
+    loop:
+      - present 
+      - mounted
