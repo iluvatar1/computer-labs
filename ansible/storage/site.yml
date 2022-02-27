@@ -1,0 +1,74 @@
+---
+# REF: http://rnowling.github.io/devops/2015/04/21/ansible-gluster.html
+- name: Configuring local and shared storage on glusterservers
+  hosts: gluster_nodes
+  gather_facts: false
+  vars_files:
+    - vars/main.yml
+  tasks:
+  
+  # - name: Fixing gpt issues in case it is needed
+  #   shell:
+  #     cmd: /sbin/sgdisk -e /dev/sda
+
+  - name: Creating a new partition, sda7, with remaining space
+    shell:
+      cmd: "printf 'n\n\n\n\nw\nq\n' | fdisk /dev/sda; /usr/sbin/partprobe /dev/sda;"
+      creates: /sys/block/sda/sda7
+    register: partnew
+
+  - name: Formatting as ext4
+    shell:
+      cmd: 'mkfs.ext4 /dev/sda7'
+    when:
+      partnew.changed
+
+  - name: Creating mounting info in /etc/fstab (mount to /mnt/tmp)
+    ansible.posix.mount:
+      path: /mnt/tmp
+      src: /dev/sda7
+      fstype: ext4
+      state: mounted # state: present will add to fstab
+
+  - name: Creating brick subdir
+    file:
+      path: /mnt/tmp/brick
+      state: directory
+
+  - name: Create gluster volume
+    gluster.gluster.gluster_volume: 
+      name: "{{gluster_volume_name}}"
+      bricks: "{{gluster_brick_dir}}"
+      cluster: "{{groups.gluster_nodes | join(',')}}"
+      # replicas: "{{gluster_replicas}}" # PRODUCES ERRORS
+      state: present # stopped absent started present
+      force: true
+    run_once: true
+
+  - name: start gluster volume
+    gluster.gluster.gluster_volume:
+      name: "{{gluster_volume_name}}"
+      state: started # stopped absent started present
+
+
+- name: Mounting glusterfs /scratch on all nodes 
+  hosts: compute
+  gather_facts: false
+  vars_files:
+    - vars/main.yml
+  tasks:
+
+  - name: Creating scratch subdir
+    file:
+      path: /scratch
+      state: directory
+
+  - name: Creating mounting info in /etc/fstab
+    ansible.posix.mount:
+      path: /scratch
+      src: "{{ groups.gluster_nodes | first }}:/{{ gluster_volume_name }}"
+      fstype: glusterfs
+      state: "{{item}}" #state: present will add to fstab
+    loop:
+      - present
+      - mounted

@@ -1,0 +1,4 @@
+---
+gluster_brick_dir: /mnt/tmp/brick
+gluster_volume_name: gfsdist
+gluster_replicas: 2 # Produces errores

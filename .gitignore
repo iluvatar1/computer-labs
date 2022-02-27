@@ -12,3 +12,4 @@ dnsmasq-hosts.conf
 *-log
 ansible/*/hosts
 ansible/*/*/hosts
+inventory
