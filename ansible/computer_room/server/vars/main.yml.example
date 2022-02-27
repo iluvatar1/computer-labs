@@ -18,3 +18,9 @@ NISDOMAIN: 'salafisnis'
 # public key has been copied
 ROOTLOGIN: 'prohibit-password'
 
+# netdata
+NETDATA_TOKEN: 'TOKEN'
+NETDATA_ROOM: 'ROOMID'
+
+# Package Server: Simply shares a directory with spack and packages
+PACKAGE_SERVER: '{{BASE_SERVERIP}}.2'

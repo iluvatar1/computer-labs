@@ -1,5 +1,4 @@
 ---
-# REF: http://rnowling.github.io/devops/2015/04/21/ansible-gluster.html
 - name: Configuring package server (exports spack packages)
   hosts: package_server
   gather_facts: false
