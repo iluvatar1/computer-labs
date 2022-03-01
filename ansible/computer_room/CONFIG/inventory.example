@@ -1,5 +1,5 @@
-[master]
-192.168.10.1 ansible_connection=local
+[server]
+localhost ansible_connection=local
 
 [clients]
 192.168.10.[2:29]
@@ -10,3 +10,7 @@
 [package_clients]
 192.168.10.[3:29]
 
+[gluster_nodes]
+192.168.10.[3:6]     # 831 Gb each
+192.168.10.[14:15]   # 831 Gb each
+192.168.10.[17:18]   # 831 Gb each

@@ -1,9 +1,10 @@
+# NOTE: Check inventory.yml for hosts definitions that must coincide with the ip used here
 # PUT ALL PASSWORDS in the file passwords.yml in the main playbook dir
 
 # Server internal ip
 BASE_SERVERIP: '192.168.10'
 SERVERIP: '{{BASE_SERVERIP}}.1'
-SERVERIP_EXT: 'PUT_EXTERNAL_IP_HERE'
+SERVERIP_EXT: 'EXTERNALIP'
 SERVER_DOMAINNAME: 'salafis'
 SERVER_NAME: 'server{{SERVER_DOMAINNAME}}'
 
@@ -11,7 +12,7 @@ SERVER_NAME: 'server{{SERVER_DOMAINNAME}}'
 PROXY: '{{SERVERIP}}:3128'
 
 # nis
-NISDOMAIN: 'salafisnis'
+NISDOMAIN: '{{ SERVER_DOMAINNAME }}nis'
 
 # sshd
 # ROOTLOGIN could be either yes or prohibit-password when the
@@ -22,5 +23,9 @@ ROOTLOGIN: 'prohibit-password'
 NETDATA_TOKEN: 'TOKEN'
 NETDATA_ROOM: 'ROOMID'
 
-# Package Server: Simply shares a directory with spack and packages
-PACKAGE_SERVER: '{{BASE_SERVERIP}}.2'
+# gluster
+GLUSTER_BRICK_DIR: /mnt/tmp/brick                                                                                                                                                                                                                                                         
+GLUSTER_VOLUME_NAME: gfsdist                                                                                                                                                                                                                                                              
+#GLUSTER_REPLICAS: 2 # Produces errores
+GLUSTER_MOUNT_DIR: /scratch
+
