@@ -136,7 +136,7 @@
 
       - name: Installing slpkg if needed
         shell:
-          cmd: 'source /root/.bashrc 2>/dev/null; cd /root/Downloads; wget https://gitlab.com/dslackw/slpkg/-/archive/3.9.3/slpkg-3.9.3.tar.gz; tar xf slpkg-3.9.3.tar.gz; cd slpkg-3.9.3; ./install.sh; '
+          cmd: 'source /root/.bashrc 2>/dev/null; cd /tmp; wget https://gitlab.com/dslackw/slpkg/-/archive/3.9.3/slpkg-3.9.3.tar.gz; tar xf slpkg-3.9.3.tar.gz; cd slpkg-3.9.3; ./install.sh; '
         when:
           slpkg.stat.exists == False
         register: slpkginstalled
