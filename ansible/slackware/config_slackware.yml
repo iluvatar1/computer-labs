@@ -130,9 +130,9 @@
         pip:
           name: '{{ item }}'
           executable: pip3
-	loop:
-	  - urllib3
-	  - slpkg
+        loop:
+          - urllib3
+          - slpkg
         register: slpkginstalled
 
       # - name: Installing slpkg if needed
