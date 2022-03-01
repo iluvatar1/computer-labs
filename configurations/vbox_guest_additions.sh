@@ -2,6 +2,9 @@
 install_virtualbox_guest_additions () {
     echo "Installing virtualbox guest additions"
     if ! hash vboxmanage &> /dev/null; then
+	#cd /lib/modules/$(uname -r)/build
+	#make oldconfig
+	#make prepare
         TMPDIR=$(mktemp -d)
         mount -o loop ~/VBoxGuestAdditions.iso ${TMPDIR}
         yes yes | ${TMPDIR}/VBoxLinuxAdditions.run --nox11 --nochown

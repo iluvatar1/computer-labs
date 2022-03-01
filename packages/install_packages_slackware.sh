@@ -18,6 +18,7 @@ pm () {
 }
 
 setup () {
+    echo "Setting up slpkg"
     if hash slpkg &> /dev/null; then
         pm "Updating slpkg ..."
         source /root/.bashrc
@@ -29,10 +30,13 @@ setup () {
 }
 
 install_binary_packages () {
+    echo "Installing binary packages"
     cd /tmp || exit
     for ext in tgz txz; do
-        wget -c -nc -r -np -l1 -P ./ -nd "${BASEURL}" -A ${ext}
+	echo "Processing extension: $ext"
+        wget -v -c -nc -r -np -l1 -P ./ -nd "${BASEURL}" -A ${ext}
         for a in *.${ext}; do
+	    echo "Processing: $a"
             upgradepkg --install-new $a;
         done
     done
@@ -104,13 +108,14 @@ install_perf () {
 # install other packages not from mirror
 if [ "NO" = "$MIRROR_ONLY" ]; then  
     setup
-    # install qt5 and other deps from slack
+    echo "install qt5 and other deps from slack"
     slpkg -s slack qt5 icu4c lz4 tigervnc
 
-    pip install clustershell
+    echo "Install clustershell"
+    pip3 install clustershell
     #install_latest_firefox
     #install_perf
-    # install some big packages already compiled by alien
+    echo "install some big packages already compiled by alien: libreoffice inkscape vlc popplerc-compat"
     slpkg -s alien libreoffice inkscape vlc poppler-compat
 fi
 

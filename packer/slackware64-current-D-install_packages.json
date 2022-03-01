@@ -32,7 +32,7 @@
       ],
       "boot_command":
       [
-        "<enter><wait40s>"
+        "<enter><wait50s>"
       ]
     }
   ] ,

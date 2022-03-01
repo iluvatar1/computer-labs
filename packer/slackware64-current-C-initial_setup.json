@@ -38,14 +38,26 @@
   ] ,
   "provisioners":
   [
-      {
-      "script": "{{user `home`}}/repos/computer-labs/configurations/vbox_guest_additions.sh",
+    {
       "type": "shell",
+      "inline": ["pip3 install ansible"],
       "valid_exit_codes":[0,2],
       "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]
     },
     {
-      "script": "{{user `home`}}/repos/computer-labs/configurations/config_slackware.sh",
+      "type": "shell",
+      "inline": ["cd ; mkdir repos 2>/dev/null; cd repos; git clone https://github.com/iluvatar1/computer-labs"],
+      "valid_exit_codes":[0,2],
+      "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]
+    },
+    {
+      "type": "shell",
+      "inline": ["cd ~/repos/computer-labs/ansible/slackware; ansible-playbook -i inventory.example config_slackware.yml"],
+      "valid_exit_codes":[0,2],
+      "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]
+    },
+    {
+      "script": "{{user `home`}}/repos/computer-labs/configurations/vbox_guest_additions.sh",
       "type": "shell",
       "valid_exit_codes":[0,2],
       "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]

@@ -1,6 +1,7 @@
 ---
 - name: Basic slackware configuration after installation
   hosts: all
+  gather_facts: false
   vars:
     network_available: true
   tasks:
