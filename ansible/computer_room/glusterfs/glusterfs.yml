@@ -37,8 +37,8 @@
 
   - name: Create gluster volume
     gluster.gluster.gluster_volume: 
-      name: "{{gluster_volume_name}}"
-      bricks: "{{gluster_brick_dir}}"
+      name: "{{ GLUSTER_VOLUME_NAME }}"
+      bricks: "{{ GLUSTER_BRICK_DIR }}"
       cluster: "{{groups.gluster_nodes | join(',')}}"
       # replicas: "{{gluster_replicas}}" # PRODUCES ERRORS
       state: present # stopped absent started present
@@ -47,12 +47,12 @@
 
   - name: start gluster volume
     gluster.gluster.gluster_volume:
-      name: "{{gluster_volume_name}}"
+      name: "{{ GLUSTER_VOLUME_NAME }}"
       state: started # stopped absent started present
 
 
 - name: Mounting glusterfs /scratch on all nodes 
-  hosts: compute
+  hosts: clients
   gather_facts: false
   vars_files:
     - vars/main.yml
@@ -60,13 +60,13 @@
 
   - name: Creating scratch subdir
     file:
-      path: /scratch
+      path: '{{ GLUSTER_MOUNT_DIR }}'
       state: directory
 
   - name: Creating mounting info in /etc/fstab
     ansible.posix.mount:
-      path: /scratch
-      src: "{{ groups.gluster_nodes | first }}:/{{ gluster_volume_name }}"
+      path: '{{ GLUSTER_MOUNT_DIR }}'
+      src: "{{ groups.gluster_nodes | first }}:/{{ GLUSTER_VOLUME_NAME }}"
       fstype: glusterfs
       state: "{{item}}" #state: present will add to fstab
     loop:
