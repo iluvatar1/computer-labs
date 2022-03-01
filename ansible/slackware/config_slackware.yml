@@ -121,23 +121,26 @@
 
   - name: Configuring slpkg
     block:
-      - name: Checking if slpkg is installed
-        stat:
-          path: /usr/bin/slpkg
-        register: slpkg
+      # - name: Checking if slpkg is installed
+      #   stat:
+      #     path: /usr/bin/slpkg
+      #   register: slpkg
 
-      - name: Installing urllib3 if needed
+      - name: Installing urllib3 and slpkg if needed
         pip:
-          name: 'urllib3'
+          name: '{{ item }}'
           executable: pip3
-        register: urllib3installed
-
-      - name: Installing slpkg if needed
-        shell:
-          cmd: 'source /root/.bashrc; pip3 install slpkg'
-        when:
-          slpkg.stat.exists == False
+	loop:
+	  - urllib3
+	  - slpkg
         register: slpkginstalled
+
+      # - name: Installing slpkg if needed
+      #   shell:
+      #     cmd: 'source /root/.bashrc; pip3 install slpkg'
+      #   when:
+      #     slpkg.stat.exists == False
+      #   register: slpkginstalled
 
       - name: Configuring slpkg options
         replace:
