@@ -40,7 +40,7 @@
       regexp: '^{{item}}'
       line: '{{item}}'
     loop:
-      - '/packages {{BASE_SERVERIP}}.0/24(rw,sync,no_root_squash,no_subtree_check)'
+      - "/packages {{BASE_SERVERIP}}.0/24(rw,sync,no_root_squash,no_subtree_check)"
     register: exports
 
   - name: Adding line to hosts.allow
