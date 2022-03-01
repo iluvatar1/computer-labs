@@ -94,7 +94,7 @@
   - name: Adding dhcp on both eth0 and eth1
     replace:
       dest: /etc/rc.d/rc.inet1.conf
-      regexp: '^USE_DHCP[{{item}}]="(no)?"'
+      regexp: '^USE_DHCP\[{{item}}\]="(no)?"'
       replace: 'USE_DHCP[{{item}}]="yes"'
     loop:
       - 0
@@ -164,8 +164,8 @@
 
       - name: Configuring slpkg repos
         replace:
-          dest: /etc/slpkg/slpkg.conf
-          regexp: '^#{{item}}'
+          dest: /etc/slpkg/repositories.conf
+          regexp: '^#{{item}}$'
           replace: '{{item}}'
           backup: yes
         loop:
