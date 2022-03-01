@@ -1920,3 +1920,5 @@ cache_peer_access 168.176.239.30 allow port10000
     - https://opensource.com/article/20/10/ansible-modules-linux
     - https://github.com/lightbulbjim/slackible?ref=https://githubhelp.com
     - https://docs.ansible.com/ansible/latest/collections/community/general/slackpkg_module.html
+  - cobbler for distro install
+    - https://cobbler.readthedocs.io/en/latest/quickstart-guide.html
