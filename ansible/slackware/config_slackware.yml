@@ -300,6 +300,7 @@
   - name: Configuring latam keyboard
     blockinfile:
       dest: /etc/X11/xorg.conf.d/90-keyboard-layout.conf
+      create: yes
       block: |
         Section "InputClass"
           Identifier "keyboard defaults"
