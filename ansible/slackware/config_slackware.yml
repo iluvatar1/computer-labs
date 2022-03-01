@@ -8,7 +8,7 @@
     replace:
       dest: /etc/inittab
       regexp: '^id:3:initdefault'
-      replace: '^id:4:initdefault'
+      replace: 'id:4:initdefault'
       backup: yes
 
   - name: Activating nfs and ssh services
@@ -94,7 +94,7 @@
     replace:
       dest: /etc/rc.d/rc.inet1.conf
       regexp: '^USE_DHCP\[{{item}}\]="(no)?"'
-      replace: '^USE_DHCP\[{{item}}\]="yes"'
+      replace: 'USE_DHCP\[{{item}}\]="yes"'
     loop:
       - 0
       - 1
@@ -133,7 +133,7 @@
           path: /usr/bin/slpkg
         register: slpkg
 
-      - name: Installing urllib3 (if used fir slpkg, it does not create /etc/ files)
+      - name: Installing urllib3 (if used for slpkg, it does not create /etc/ files)
         pip:
           name: '{{ item }}'
           executable: pip3
