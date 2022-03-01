@@ -1,7 +1,8 @@
 ---
-- hosts: all
+- hosts: clients
   vars:
     network_available: true
+  gather_facts: false
   vars_files:
     - vars/main.yml
   roles:
