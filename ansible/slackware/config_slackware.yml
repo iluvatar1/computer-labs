@@ -94,8 +94,8 @@
   - name: Adding dhcp on both eth0 and eth1
     replace:
       dest: /etc/rc.d/rc.inet1.conf
-      regexp: '^USE_DHCP\[{{item}}\]="(no)?"'
-      replace: 'USE_DHCP\[{{item}}\]="yes"'
+      regexp: '^USE_DHCP[{{item}}]="(no)?"'
+      replace: 'USE_DHCP[{{item}}]="yes"'
     loop:
       - 0
       - 1
@@ -157,7 +157,7 @@
           backup: yes
         loop:
           - { key: "RELEASE=stable", value: "RELEASE=current" }
-          - { key: "DEFAULT_ANSWER=no", value: "DEFAULT_ANSWER=yes" }
+          - { key: "DEFAULT_ANSWER=n", value: "DEFAULT_ANSWER=y" }
           - { key: "DOWNDER_OPTIONS=.*", value: "DOWNDER_OPTIONS=-c -N --no-check-certificate" }
           - { key: "NOT_DOWNGRADE=off", value: "NOT_DOWNGRADE=on" }
         register: slpkgopts
