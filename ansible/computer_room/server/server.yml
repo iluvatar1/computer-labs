@@ -1,5 +1,6 @@
 ---
-- hosts: all
+- hosts: server
+  gather_facts: false
   vars:
     network_available: true
   vars_files:
