@@ -21,7 +21,7 @@ pm () {
 setup () {
     source /root/.bashrc
     echo "Updating slackpkg"
-    echo YES | slackpkg update gpg
+    printf 'Y\nYES\n' | slackpkg update gpg
     slackpkg update
 
     echo "Setting up slpkg"

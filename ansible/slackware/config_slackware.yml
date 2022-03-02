@@ -72,7 +72,7 @@
           - { key: "DIALOG=on", value: "DIALOG=off" }
           - { key: "BATCH=off", value: "BATCH=on" }
           - { key: "DEFAULT_ANSWER=n", value: "DEFAULT_ANSWER=y" }
-          - { key: "WGETFLAGS=.*", value: "WGETFLAGS=--passive-ftp -N --no-check-certificate" }
+          - { key: "WGETFLAGS=.*", value: "WGETFLAGS=--passive-ftp" }
         register: slackpkgconf
 
       - name: Configure slackpkg mirrors
