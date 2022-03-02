@@ -8,6 +8,7 @@ COMPILE=${COMPILE:-NO}
 MIRROR_ONLY=${MIRROR_ONLY:-NO}
 PKGSERVER=${PKGSERVER:-192.168.10.1}
 BASEURL="$PKGSERVER/PACKAGES/slackware64-current/"
+LOG_FILE=${LOG_FILE:-/tmp/log-packages.txt}
 
 PKG="keepassx sshfs-fuse autossh xfce4-xkb-plugin flashplayer-plugin slim monit \
     fail2ban corkscrew pip parallel wol valgrind openmpi modules cppcheck iotop gperftools \
@@ -34,10 +35,10 @@ install_binary_packages () {
     cd /tmp || exit
     for ext in tgz txz; do
 	echo "Processing extension: $ext"
-        wget -v -c -nc -r -np -l1 -P ./ -nd "${BASEURL}" -A ${ext}
+        wget -v -c -nc -r -np -l1 -P ./ -nd "${BASEURL}" -A ${ext}  | tee -a $LOG_FILE
         for a in *.${ext}; do
 	    echo "Processing: $a"
-            upgradepkg --install-new $a;
+            upgradepkg --install-new $a;  | tee -a $LOG_FILE
         done
     done
 }
@@ -107,17 +108,18 @@ install_perf () {
 
 # install other packages not from mirror
 if [ "NO" = "$MIRROR_ONLY" ]; then  
+    source $HOME/.bashrc
     setup
     echo "install qt5 and other deps from slack"
     #slpkg -s slack qt5 icu4c lz4 tigervnc
-    slpkg -s bash-completion tigervnc xf86-video-nouveau-blacklist
+    slpkg -s bash-completion tigervnc xf86-video-nouveau-blacklist | tee -a $LOG_FILE
 
     echo "Install clustershell"
-    pip3 install clustershell
+    pip3 install clustershell | tee -a $LOG_FILE
     #install_latest_firefox
     #install_perf
     echo "install some big packages already compiled by alien: libreoffice inkscape vlc popplerc-compat"
-    slpkg -s alien libreoffice inkscape vlc poppler-compat
+    slpkg -s alien libreoffice inkscape vlc poppler-compat  | tee -a $LOG_FILE
 fi
 
 if [ "NO" = "$COMPILE" ]; then
