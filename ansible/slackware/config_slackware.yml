@@ -182,7 +182,7 @@
       - name: Configuring slpkg repos
         replace:
           dest: /etc/slpkg/repositories.conf
-          regexp: '^#{{item}}$'
+          regexp: '^# {{item}}$'
           replace: '{{item}}'
           backup: yes
         loop:
