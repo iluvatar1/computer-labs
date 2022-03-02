@@ -1,5 +1,5 @@
 ---
-- hosts: clients
+- hosts: "{{ variable_host | default('clients') }}"
   vars:
     network_available: true
   gather_facts: false
