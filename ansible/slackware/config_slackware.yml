@@ -72,7 +72,7 @@
           - { key: "DIALOG=on", value: "DIALOG=off" }
           - { key: "BATCH=off", value: "BATCH=on" }
           - { key: "DEFAULT_ANSWER=n", value: "DEFAULT_ANSWER=y" }
-          - { key: "WGETFLAGS=.*", value: "WGETFLAGS=--passive-ftp -c -N --no-check-certificate" }
+          - { key: "WGETFLAGS=.*", value: "WGETFLAGS=--passive-ftp -N --no-check-certificate" }
         register: slackpkgconf
 
       - name: Configure slackpkg mirrors
@@ -175,7 +175,7 @@
         loop:
           - { key: "RELEASE=stable", value: "RELEASE=current" }
           - { key: "DEFAULT_ANSWER=n", value: "DEFAULT_ANSWER=y" }
-          - { key: "DOWNDER_OPTIONS=.*", value: "DOWNDER_OPTIONS=-c -N --no-check-certificate" }
+          - { key: "DOWNDER_OPTIONS=.*", value: "DOWNDER_OPTIONS=-N --no-check-certificate" }
           - { key: "NOT_DOWNGRADE=off", value: "NOT_DOWNGRADE=on" }
         register: slpkgopts
 
