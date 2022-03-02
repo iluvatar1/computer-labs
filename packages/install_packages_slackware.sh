@@ -19,6 +19,11 @@ pm () {
 }
 
 setup () {
+    source /root/.bashrc
+    echo "Updating slackpkg"
+    echo YES | slackpkg update gpg
+    slackpkg update
+
     echo "Setting up slpkg"
     if hash slpkg &> /dev/null; then
         pm "Updating slpkg ..."
@@ -106,36 +111,42 @@ install_perf () {
 ################################################################################
 # MAIN
 
-# install other packages not from mirror
-if [ "NO" = "$MIRROR_ONLY" ]; then  
-    source $HOME/.bashrc
-    setup
-    echo "install qt5 and other deps from slack"
-    #slpkg -s slack qt5 icu4c lz4 tigervnc
-    slpkg -s slack bash-completion tigervnc xf86-video-nouveau-blacklist | tee -a $LOG_FILE
+main() {
+    if [ "NO" = "$MIRROR_ONLY" ]; then  
+	echo "Install other packages not from mirror (using slpkg, sbopkg, slackpkg)"
+	source $HOME/.bashrc
+	setup 
+	echo "install qt5 and other deps from slack"
+	#slpkg -s slack qt5 icu4c lz4 tigervnc
+	slpkg -s slack bash-completion tigervnc xf86-video-nouveau-blacklist
 
-    echo "Install clustershell"
-    pip3 install clustershell | tee -a $LOG_FILE
-    #install_latest_firefox
-    #install_perf
-    echo "install some big packages already compiled by alien: libreoffice inkscape vlc popplerc-compat"
-    slpkg -s alien libreoffice inkscape vlc poppler-compat  | tee -a $LOG_FILE
-fi
+	echo "Install clustershell"
+	pip3 install clustershell
+	#install_latest_firefox
+	#install_perf
+	echo "install some big packages already compiled by alien: libreoffice inkscape vlc popplerc-compat"
+	slpkg -s alien libreoffice inkscape vlc poppler-compat boost-compat
+    fi
 
-if [ "NO" = "$COMPILE" ]; then
-    install_binary_packages
-else
-    install_with_slpkg_compile
-fi
+    if [ "NO" = "$COMPILE" ]; then
+	install_binary_packages
+    else
+	install_with_slpkg_compile
+    fi
 
-# Configure x2go to avoid using compositing with xfce4
-TNAME=/etc/x2go/xinitrc.d/xfwm4_no_compositing
-if [ ! -f $TNAME ]; then
-    echo "/usr/bin/xfconf-query -c xfwm4 -p /general/use_compositing -s false" > $TNAME
-fi
-if [ ! -x $TNAME ]; then
-    chmod +x $TNAME
-fi
+    echo "Configure x2go to avoid using compositing with xfce4"
+    TNAME=/etc/x2go/xinitrc.d/xfwm4_no_compositing
+    if [ ! -f $TNAME ]; then
+	echo "/usr/bin/xfconf-query -c xfwm4 -p /general/use_compositing -s false" > $TNAME
+    fi
+    if [ ! -x $TNAME ]; then
+	chmod +x $TNAME
+    fi
 
-# remove already installed packages
-rm -f /tmp/*tgz 2>/dev/null
+    echo "Remove already installed packages"
+    rm -f /tmp/*tgz 2>/dev/null
+
+    echo "Done"
+}
+
+main | tee -a $LOG_FILE
