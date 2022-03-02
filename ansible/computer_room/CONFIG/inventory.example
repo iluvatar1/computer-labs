@@ -1,12 +1,8 @@
-[server]
-localhost ansible_connection=local
-
 [master]
 192.168.10.1 ansible_connection=local
 
 [clients]
-localhost ansible_connection=local
-#192.168.10.[2:29]
+192.168.10.[2:29]
 
 [package_server]
 192.168.10.2
