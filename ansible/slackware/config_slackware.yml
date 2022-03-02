@@ -56,40 +56,57 @@
       modification_time: preserve
       access_time: preserve
 
-# Will ignore wake on lan for now
+  - name: Wake on lan
+    debug:
+      msg: "Ignoring Wake on lan settings for now"
 
-  - name: Configure slackpkg mirrors
-    lineinfile:
-      dest: /etc/slackpkg/mirrors
-      regexp: '^{{item}}'
-      line: '{{item}}'
-    loop:
-      - http://mirrors.slackware.com/slackware/slackware64-current/
-    register: mirrors
+  - name: Configuring slackpkg
+    block:
+      - name: Configuring slackpkg options
+        replace:
+          dest: /etc/slackpkg/slackpkg.conf
+          regexp: '^{{item.key}}'
+          replace: '{{item.value}}'
+          backup: yes
+        loop:
+          - { key: "DIALOG=on", value: "DIALOG=off" }
+          - { key: "BATCH=off", value: "BATCH=on" }
+          - { key: "DEFAULT_ANSWER=n", value: "DEFAULT_ANSWER=y" }
+          - { key: "WGETFLAGS=.*", value: "WGETFLAGS=--passive-ftp -c -N --no-check-certificate" }
+        register: slackpkgconf
 
-  - name: Configuring slackpkg blacklist
-    lineinfile:
-      path: /etc/slackpkg/blacklist
-      regexp: '^{{item}}'
-      line: '{{item}}'
-      backup: yes
-    loop:
-      - 'kernel-generic.*'
-      - 'kernel-huge.*'
-      - 'kernel-modules.*'
-      - 'kernel-source.*'
-      - '[0-9]+_SBo'
-      - '[0-9]+alien'
-    register: blacklist
+    - name: Configure slackpkg mirrors
+        lineinfile:
+          dest: /etc/slackpkg/mirrors
+          regexp: '^{{item}}'
+          line: '{{item}}'
+        loop:
+          - http://mirrors.slackware.com/slackware/slackware64-current/
+        register: mirrors
 
-  - name: Updating slackpkg if needed
-    shell:
-      cmd: '{{item}}'
-    loop:
-      - 'source $HOME/.bashrc; slackpkg -batch=on -default_answer=y update gpg'
-      - 'source $HOME/.bashrc; slackpkg -batch=on -default_answer=y update'
-    when:
-      mirrors.changed or blacklist.changed
+      - name: Configuring slackpkg blacklist
+        lineinfile:
+          path: /etc/slackpkg/blacklist
+          regexp: '^{{item}}'
+          line: '{{item}}'
+          backup: yes
+        loop:
+          - 'kernel-generic.*'
+          - 'kernel-huge.*'
+          - 'kernel-modules.*'
+          - 'kernel-source.*'
+          - '[0-9]+_SBo'
+          - '[0-9]+alien'
+        register: blacklist
+
+      - name: Updating slackpkg if needed
+        shell:
+          cmd: '{{item}}'
+        loop:
+          - 'source $HOME/.bashrc; slackpkg -batch=on -default_answer=y update gpg'
+          - 'source $HOME/.bashrc; slackpkg -batch=on -default_answer=y update'
+        when:
+          mirrors.changed or blacklist.changed or slackpkgconf.changed
 
   - name: Adding dhcp on both eth0 and eth1
     replace:
