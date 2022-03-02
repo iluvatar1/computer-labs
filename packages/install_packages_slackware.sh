@@ -109,7 +109,8 @@ install_perf () {
 if [ "NO" = "$MIRROR_ONLY" ]; then  
     setup
     echo "install qt5 and other deps from slack"
-    slpkg -s slack qt5 icu4c lz4 tigervnc
+    #slpkg -s slack qt5 icu4c lz4 tigervnc
+    slpkg -s bash-completion tigervnc xf86-video-nouveau-blacklist
 
     echo "Install clustershell"
     pip3 install clustershell
