@@ -38,7 +38,7 @@ install_binary_packages () {
         wget -v -c -nc -r -np -l1 -P ./ -nd "${BASEURL}" -A ${ext}  | tee -a $LOG_FILE
         for a in *.${ext}; do
 	    echo "Processing: $a"
-            upgradepkg --install-new $a;  | tee -a $LOG_FILE
+            upgradepkg --install-new $a  | tee -a $LOG_FILE
         done
     done
 }
@@ -112,7 +112,7 @@ if [ "NO" = "$MIRROR_ONLY" ]; then
     setup
     echo "install qt5 and other deps from slack"
     #slpkg -s slack qt5 icu4c lz4 tigervnc
-    slpkg -s bash-completion tigervnc xf86-video-nouveau-blacklist | tee -a $LOG_FILE
+    slpkg -s slack bash-completion tigervnc xf86-video-nouveau-blacklist | tee -a $LOG_FILE
 
     echo "Install clustershell"
     pip3 install clustershell | tee -a $LOG_FILE
