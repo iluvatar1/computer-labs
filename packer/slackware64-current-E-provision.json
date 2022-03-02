@@ -43,21 +43,26 @@
   ] ,
   "provisioners":
   [
-      {
+    {
+      "type": "shell",
       "inline": ["cd {{user `home`}}/repos/computer-labs/", "git pull"],
-      "type": "shell",
       "valid_exit_codes":[0,2],
-       "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]
-      },
-      {
-      "script": "{{user `provision_script`}}",
-      "type": "shell",
-      "valid_exit_codes":[0,2],
-	"environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}", "TYPE={{user `TYPE`}}"]
+      "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]
+    },
+    {
+      "type": "file",
+      "source": "main.yml",
+      "destination": "~/repos/computer-labs/ansible/computer_room/{{ user `TYPE` }}/vars/"
     },
     {
       "type": "shell",
-      "inline": ["echo root:{{user `root_password`}} | chpasswd"]
+      "inline": ["cd ~/repos/computer-labs/ansible/computer_room/{{ user `TYPE` }}; ansible-playbook --connection=local -e variable_host=localhost {{ user `TYPE` }}.yml"],
+      "valid_exit_codes":[0,2],
+      "environment_vars":["https_proxy={{user `PROXY` }}", "http_proxy={{ user `PROXY` }}"]
+    },
+    {
+      "type": "shell",
+      "inline": ["echo root:{{ user `ROOT_PASSWORD` }} | chpasswd"]
     },
     {
       "type": "shell",
