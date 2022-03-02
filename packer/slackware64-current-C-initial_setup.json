@@ -52,7 +52,7 @@
     },
     {
       "type": "shell",
-      "inline": ["cd ~/repos/computer-labs/ansible/slackware; ansible-playbook -i inventory.example config_slackware.yml"],
+      "inline": ["cd ~/repos/computer-labs/ansible/slackware; ansible-playbook -i inventory.example --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 config_slackware.yml"],
       "valid_exit_codes":[0,2],
       "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]
     },

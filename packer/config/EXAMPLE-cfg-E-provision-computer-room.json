@@ -5,7 +5,7 @@
     "provision_script":"{{env `HOME`}}/repos/computer-labs/configurations/config_computer_room_box.sh",
     "snapshot_name": "{{user `TYPE`}} configured",
     "output_dir": "{{env `HOME`}}/Downloads/box_{{user `TYPE`}}_{{user `FIRMWARE`}}",
-    "root_password": "ROOTPASSWORD",
+    "ROOT_PASSWORD": "ROOTPASSWORD",
     "SKIP_EXPORT" : "true",
     "HEADLESS" : "false"
 }
