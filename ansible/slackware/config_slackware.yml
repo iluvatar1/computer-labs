@@ -75,14 +75,14 @@
           - { key: "WGETFLAGS=.*", value: "WGETFLAGS=--passive-ftp -c -N --no-check-certificate" }
         register: slackpkgconf
 
-    - name: Configure slackpkg mirrors
-        lineinfile:
-          dest: /etc/slackpkg/mirrors
-          regexp: '^{{item}}'
-          line: '{{item}}'
-        loop:
-          - http://mirrors.slackware.com/slackware/slackware64-current/
-        register: mirrors
+      - name: Configure slackpkg mirrors
+          lineinfile:
+            dest: /etc/slackpkg/mirrors
+            regexp: '^{{item}}'
+            line: '{{item}}'
+          loop:
+            - http://mirrors.slackware.com/slackware/slackware64-current/
+          register: mirrors
 
       - name: Configuring slackpkg blacklist
         lineinfile:
