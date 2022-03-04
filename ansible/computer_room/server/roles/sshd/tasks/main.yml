@@ -25,9 +25,21 @@
     - 'GatewayPorts yes'
   register: sshd
 
+- name: Configuring sshd for virtualbox clonezilla imaging server connection
+  blockinfile:
+    path: /etc/ssh/sshd_config
+    backup: yes
+    validate: /usr/sbin/sshd -T -f %s
+    marker: "# {mark} ANSIBLE MANAGED BLOCK: imaging virtual clonezilla server"
+    block: |
+      Match Address 192.168.10.53
+          PermitRootLogin yes
+          PasswordAuthentication yes
+  register: sshd_virtualserver
+  
 - name: Restart ssh service in case any config was done
   command:
     cmd: /etc/rc.d/rc.sshd restart
   when:
-    sshd.changed == True or sshdport22.changed == True
+    sshd.changed == True or sshdport22.changed == True or sshd_virtualserver.changed
     
