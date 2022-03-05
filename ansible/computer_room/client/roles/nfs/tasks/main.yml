@@ -7,6 +7,14 @@
     backup: yes
   register: fstab
 
+- name: Puting initial nfs mounting into background since it corresponds to non-essential fs
+  replace:
+    path: /etc/rc.d/rc.inet2
+    backup: yes
+    regexp:  ' /sbin/mount -a -t nfs          # This may be our /usr runtime!'
+    replace: ' /sbin/mount -a -t nfs &         # This may be our /usr runtime!'
+  register: nfsbg
+  
 - name: Restarting service if needed
   shell:
     cmd: '/etc/rc.d/rc.{{item}} restart'
@@ -14,4 +22,5 @@
     - nfsd
     - inet2
   when:
-    fstab.changed
+    fstab.changed or nfsbg.changed
+    
