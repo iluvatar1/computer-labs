@@ -1,6 +1,7 @@
 ---
+# Check real monitoring if nfs file: http://swick.2flub.org/Monitoring_stale_NFS_and_CIFS_shares_with_monit.html
 - name: Configuring package server (exports spack packages)
-  hosts: package_server
+  hosts: "{{ variable_host | default('package_server') }}"
   gather_facts: false
   vars_files:
     - vars/main.yml
@@ -54,7 +55,7 @@
       - 'mountd : {{BASE_SERVERIP}}.0/255.255.255.0 '
       - 'rquotd : {{BASE_SERVERIP}}.0/255.255.255.0 '
       - 'statd : {{BASE_SERVERIP}}.0/255.255.255.0 '
-    register: exports
+    register: hosts
 
 
   - name: Restart nfsd and inet2 and rpc if needed
@@ -64,11 +65,30 @@
       - rpc
       - inet2
       - nfsd
-    #when:
-    #  service.changed or mount.changed or exports.changed
+    when:
+      service.changed or mount.changed or exports.changed or hosts.changed
 
-- name: Mounting /packages on all nodes 
-  hosts: package_clients
+  - name: Add monit file to monitor the nfs package server
+    blockinfile:
+      path: /etc/monit.d/package_server
+      create: yes
+      block: |
+        # Monit NFS Server Monitoring
+        check process NFS_PACKAGES with pidfile /var/run/rpc.statd.pid
+            start program = "/etc/rc.d/rc.nfsd start"
+            stop program  = "/etc/rc.d/rc.nfsd stop"
+    register: monitfile
+
+  - name: Restart monit service if needed
+    shell:
+      cmd: '/etc/rc.d/rc.monit restart'
+    when:
+      monitfile.changed
+
+
+- name: Mounting /packages on all nodes
+  # Check if better done with autofs: https://www.linuxtechi.com/automount-nfs-share-in-linux-using-autofs/, https://www.redhat.com/sysadmin/mount-nfs-filesystems-autofs
+  hosts: "{{ variable_host | default('package_clients') }}"
   gather_facts: false
   vars_files:
     - vars/main.yml
@@ -94,3 +114,21 @@
     loop:
       - present 
       - mounted
+    register: fstabmount
+
+  - name: Adding monit monitoring of package mount
+    blockinfile:
+      path: /etc/monit.d/package_client
+      create: yes
+      block: |
+        check filesystem package_nfs with path /packages
+            start program = "/sbin/mount /packages"
+            stop program  = "/sbin/umount /packages"
+    register: pkg_monit
+
+  - name: Restart monit service if needed
+    shell:
+      cmd: '/etc/rc.d/rc.monit restart'
+    when:
+      pkg_monit.changed
+      
