@@ -1,7 +1,50 @@
 ---
 # REF: http://rnowling.github.io/devops/2015/04/21/ansible-gluster.html
+- name: Configuring common services and checking on all nodes
+  hosts: "{{ variable_client | default('clients','gluster_nodes') }}"
+  gather_facts: true
+  vars_files:
+    - vars/main.yml
+  tasks:
+  - name: Make sure glusterfs service is activated
+    file:
+      path: /etc/rc.d/rc.glusterd
+      mode: +x
+    register: glusternodeservice
+
+  - name: Link service script to sysvinit system
+    file:
+      src: /etc/rc.d/rc.glusterd
+      dest: /etc/init.d/glusterd
+      state: link
+    register: sysvservice
+
+  - name : Check service glusterd is running
+    sysvinit:
+      name: glusterd
+      state: started
+      #enabled: true # Not idempotent with symlink
+    register: glusterdserv
+
+  - name: Add monit config to monitor glusterd process
+    blockinfile:
+      path: /etc/monit.d/glusterfs
+      create: yes
+      block: |
+        check process glusterd with pidfile /run/glusterd.pid
+          start program = "/etc/rc.d/rc.glusterd start"
+          stop program  = "/etc/rc.d/rc.glusterd stop"
+    register: monitfile
+
+  - name: Restart monit if needed
+    shell:
+      cmd: /etc/rc.d/rc.monit restart
+    when: monitfile.changed
+
+
+####### Setting up servers
 - name: Configuring local and shared storage on glusterservers
-  hosts: "{{ variable_host | default('gluster_nodes') }}"
+  hosts: "{{ variable_glusternodes | default('gluster_nodes') }}"
   gather_facts: false
   vars_files:
     - vars/main.yml
@@ -50,9 +93,9 @@
       name: "{{ GLUSTER_VOLUME_NAME }}"
       state: started # stopped absent started present
 
-
-- name: Mounting glusterfs /scratch on all nodes 
-  hosts: clients
+########### Mounting on all nodes
+- name: Mounting glusterfs /scratchX on all nodes 
+  hosts: "{{ variable_clienthost | default('clients') }}"
   gather_facts: false
   vars_files:
     - vars/main.yml
@@ -63,7 +106,7 @@
       path: '{{ GLUSTER_MOUNT_DIR }}'
       state: directory
 
-  - name: Creating mounting info in /etc/fstab
+  - name: Creating mounting info in /etc/fstab and mounting
     ansible.posix.mount:
       path: '{{ GLUSTER_MOUNT_DIR }}'
       src: "{{ groups.gluster_nodes | first }}:/{{ GLUSTER_VOLUME_NAME }}"
