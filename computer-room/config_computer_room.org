@@ -1922,3 +1922,7 @@ cache_peer_access 168.176.239.30 allow port10000
     - https://docs.ansible.com/ansible/latest/collections/community/general/slackpkg_module.html
   - cobbler for distro install
     - https://cobbler.readthedocs.io/en/latest/quickstart-guide.html
+  - Patch to install gluster:
+    https://www.linuxquestions.org/questions/slackware-14/%5Brfc%5D-%5Bglusterfs%5D-patch-set-to-add-glusterfs-4175670852/
+  - Warewulf : Centos
+    https://warewulf.org/docs/
