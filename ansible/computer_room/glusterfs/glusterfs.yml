@@ -2,7 +2,7 @@
 # REF: http://rnowling.github.io/devops/2015/04/21/ansible-gluster.html
 - name: Configuring common services and checking on all nodes
   hosts: "{{ variable_client | default('clients','gluster_nodes') }}"
-  gather_facts: true
+  gather_facts: false
   vars_files:
     - vars/main.yml
   tasks:
@@ -93,6 +93,21 @@
       name: "{{ GLUSTER_VOLUME_NAME }}"
       state: started # stopped absent started present
 
+  - name: Add monit config to monitor glusterfsd process
+    blockinfile:
+      path: /etc/monit.d/glusterfsserver
+      create: yes
+      block: |
+        check process glusterfsd matching glusterfsd
+          start program = "/usr/sbin/gluster volume start {{ GLUSTER_VOLUME_NAME }}"
+          stop program  = "echo y | /usr/sbin/gluster volume stop {{ GLUSTER_VOLUME_NAME }}"
+    register: monitfilevol
+
+  - name: Restart monit if needed
+    shell:
+      cmd: /etc/rc.d/rc.monit restart
+    when: monitfile.changed or monitfilevol.changed
+
 ########### Mounting on all nodes
 - name: Mounting glusterfs /scratchX on all nodes 
   hosts: "{{ variable_clienthost | default('clients') }}"
@@ -115,3 +130,29 @@
     loop:
       - present
       - mounted
+
+  - name: Add monit config to monitor gluster mount 
+    blockinfile:
+      path: /etc/monit.d/glusterfsclient
+      create: yes
+      marker: "# {mark} gluster mount"
+      block: |
+        check filesystem {{ GLUSTER_MOUNT_DIR | replace('/','') }} path {{ GLUSTER_MOUNT_DIR }}
+          start program = "/sbin/mount  {{ GLUSTER_MOUNT_DIR }}"
+          stop program  = "/sbin/umount {{ GLUSTER_MOUNT_DIR }}"
+    register: glustermount
+
+  - name: Add monit config to monitor glusterfs process
+    blockinfile:
+      path: /etc/monit.d/glusterfsclient
+      marker: "# {mark} glusterfs process"
+      block: |
+        check process glusterfs matching glusterfs
+          start program = "/sbin/mount  {{ GLUSTER_MOUNT_DIR }}"
+          stop program  = "/sbin/umount {{ GLUSTER_MOUNT_DIR }}"
+    register: glusterfsproc
+
+  - name: Restart monit if needed
+    shell:
+      cmd: /etc/rc.d/rc.monit restart
+    when: glustermount.changed or glusterfsproc.changed
