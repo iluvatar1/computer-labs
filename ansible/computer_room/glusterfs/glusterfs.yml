@@ -1,7 +1,7 @@
 ---
 # REF: http://rnowling.github.io/devops/2015/04/21/ansible-gluster.html
 - name: Configuring local and shared storage on glusterservers
-  hosts: gluster_nodes
+  hosts: "{{ variable_host | default('gluster_nodes') }}"
   gather_facts: false
   vars_files:
     - vars/main.yml
