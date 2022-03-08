@@ -22,3 +22,15 @@
     creates: /var/lib/x2go/x2go_sessions
   when:
     service.changed or x2godbadmin.changed or x2godbadmin.stat.exists
+
+- name: Fixing x2go compositing by removing it from xfce with x2go
+  lineinfile:
+    path: /etc/x2go/xinitrc.d/xfwm4_no_compositing
+    create: true
+    mode: +x
+    state: present
+    search_string: '{{item}}'
+    line: '{{item}}'
+  loop:
+    - "/usr/bin/xfconf-query -c xfwm4 -p /general/use_compositing -s false"
+    
