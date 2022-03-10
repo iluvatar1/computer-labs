@@ -73,7 +73,7 @@
   - name: Adding option to mount a shared resource onto /media/hd
     lineinfile:
       path: /etc/rc.d/rc.local
-        search_string: '{{ item }}'
-        line: '{{ item }}'
-      loop:
-        - "mount -t vboxsf -o rw,uid=1000,gid=1000 shared /media/hd 2>/dev/null"
+      search_string: '{{ item }}'
+      line: '{{ item }}'
+    loop:
+      - "mount -t vboxsf -o rw,uid=1000,gid=1000 shared /media/hd 2>/dev/null"
