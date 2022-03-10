@@ -1,0 +1,64 @@
+---
+- name: Configuring a virtual box machine for teaching
+  hosts: "{{ variable_teaching | default('localhost') }}"
+  gather_facts: false
+  tasks:
+  - name: Create live user
+    user:
+      name: live
+      password: live
+      groups: audio,cdrom,floppy,plugdev,video
+      comment: "Live user for virtual machine"
+
+  - name: Configure doom emacs distro for live user
+    script:
+      cmd: "bash /root/repos/computer-labs/configurations/install_and_setup_doom_emacs.sh"
+      creates: /home/live/.doom.d
+    become: true
+    become_user: live
+
+  - name : Configure shell prompt with bashit
+    block:
+    become: true
+    become_user: live
+      - name: Clonning bashit
+        git:
+          repo: https://github.com/Bash-it/bash-it.git
+          depth: 1
+          dest: /home/live/.bash_it
+
+      - name: Check if bashit is already installed
+        lineinfile:
+          path: /home/live/.bashrc
+          line: 'source "$BASH_IT"/bash_it.sh'
+          state: present
+        register: bashitpresent
+
+      - name: Installing bashit if not installed
+        shell:
+          cmd: /home/live/.bash_it/install.sh --silent
+        when: bashitpresent.changed
+
+  - name: Installing and configuring spack
+    block:
+    become: true
+    become_user: live
+      - name: Clonning spack
+        git:
+          repo: https://github.com/spack/spack.git
+          dest: /home/live/repos/spack
+      - name: Adding loading spack to bashrc
+        lineinfile:
+          path: /home/live/.bashrc
+          regexp: '^{{ item }}'
+          line: '{{ item }}'
+        loop:
+          - "source /home/live/repos/spack/share/spack/setup-env.sh"
+
+  - name: Adding option to mount a shared resource onto /media/hd
+    lineinfile:
+      path: /etc/rc.d/rc.local
+        regexp: '^{{ item }}'
+        line: '{{ item }}'
+      loop:
+        - "mount -t vboxsf -o rw,uid=1000,gid=1000 shared /media/hd 2>/dev/null"
