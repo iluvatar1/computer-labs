@@ -141,6 +141,7 @@
           dest: /etc/lilo.conf
           regexp: '^timeout.*'
           replace: 'timeout = 50'
+          backup: yes
         when:
           lilo.stat.exists
         register: lilofile
