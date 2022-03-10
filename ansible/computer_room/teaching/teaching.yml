@@ -1,6 +1,6 @@
 ---
 - name: Configuring a virtual box machine for teaching, with a live user and a shared folder, password is live
-  hosts: "{{ host_teaching | default('localhost') }}"
+  hosts: "{{ variable_host | default('localhost') }}"
   gather_facts: false
   tasks:
   - name: Create user live with password live
