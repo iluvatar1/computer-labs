@@ -143,6 +143,13 @@
           replace: 'timeout = 50'
         when:
           lilo.stat.exists
+        register: lilofile
+
+      - name: Running lilo if updated
+        shell:
+          cmd: '/sbin/lilo &>/dev/null'
+        when:
+          lilofile.changed
 
   - name: Configuring slpkg
     block:
