@@ -2,6 +2,9 @@
 - name: Configuring a virtual box machine for teaching, with a live user and a shared folder, password is live
   hosts: "{{ variable_host | default('localhost') }}"
   gather_facts: false
+  environment:
+    https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    http_proxy: "{{ lookup('env', 'http_proxy') }}"
   tasks:
   - name: Create user live with password live
     user:
@@ -33,8 +36,15 @@
 
       - name: Installing bashit if not installed
         shell:
-          cmd: $HOME/.bash_it/install.sh --silent
+          cmd: $HOME/.bash_it/install.sh --silent -f
         when: bashitpresent.changed
+
+      - name: Fi bashit alternate_editor config var not declared
+        lineinfile:
+          path: $HOME/.bashrc
+          regexp: '^{{ item }}'
+          line: '{{ item }}'
+          insertbefore: '^source "$BASH_IT"/bash_it.sh'
     become: true
     become_user: live
 
@@ -54,15 +64,15 @@
     become: true
     become_user: live
 
+  - name: Copy the emacs install domm script
+    copy:
+      src: "{{item}}"
+      dest: "/{{item}}"
+      mode: +x
+    loop:
+      - usr/local/bin/install_and_setup_doom_emacs.sh
   - name: Configuring doom emacs for live user
     block:
-      - name: Copy the emacs install domm script
-        copy:
-          src: "{{item}}"
-          dest: "/{{item}}"
-          mode: +x
-        loop:
-          - usr/local/bin/install_and_setup_doom_emacs.sh
       - name: Run the install doom script
         shell:
           creates: $HOME/.doom.d
