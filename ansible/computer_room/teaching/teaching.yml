@@ -39,12 +39,14 @@
           cmd: $HOME/.bash_it/install.sh --silent -f
         when: bashitpresent.changed
 
-      - name: Fi bashit alternate_editor config var not declared
+      - name: Fix bashit alternate_editor config var not declared
         lineinfile:
           path: $HOME/.bashrc
           regexp: '^{{ item }}'
           line: '{{ item }}'
           insertbefore: '^source "$BASH_IT"/bash_it.sh'
+        loop:
+          - "export ALTERNATE_EDITOR=emacs"
     become: true
     become_user: live
 
