@@ -43,3 +43,10 @@
     mode: -x
   register: service
 
+- name: Remove compositing in xfce4 (problems with x2go)
+  copy:
+    src: '{{ item }}'
+    dest: '/{{ item  }}'
+    follow: yes
+  loop:
+    - etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml

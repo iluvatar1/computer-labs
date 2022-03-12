@@ -16,7 +16,7 @@
   when:
     service.changed
 
-- name: Create database
+- name: Create x2go database
   shell:
     cmd: /usr/sbin/x2godbadmin --createdb
     creates: /var/lib/x2go/x2go_sessions
@@ -24,13 +24,28 @@
     service.changed or x2godbadmin.changed or x2godbadmin.stat.exists
 
 - name: Fixing x2go compositing by removing it from xfce with x2go
-  lineinfile:
-    path: /etc/x2go/xinitrc.d/xfwm4_no_compositing
-    create: true
-    mode: +x
-    state: present
-    search_string: '{{item}}'
-    line: '{{item}}'
-  loop:
-    - "/usr/bin/xfconf-query -c xfwm4 -p /general/use_compositing -s false"
-    
+  block:
+    - name: Adding x2go config file (must be executable). See "https://gitlab.xfce.org/xfce/xfwm4/-/issues/551"
+      lineinfile:
+        path: /etc/x2go/xinitrc.d/xfwm4_no_compositing
+        create: true
+        mode: +x
+        state: present
+        search_string: '{{item}}'
+        line: '{{item}}'
+      loop:
+        - "/usr/bin/xfconf-query -c xfwm4 -p /general/use_compositing -s false"
+
+    - name: Global disabling of xfce compositing . See "https://bugzilla.redhat.com/show_bug.cgi?id=1954754"
+      blockinfile:
+        path: /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
+        create: yes
+        block: |
+          <?xml version="1.0" encoding="UTF-8"?>
+
+          <channel name="xfwm4" version="1.0">
+            <property name="general" type="empty">
+            <property name="use_compositing" type="bool" value="false"/>
+            </property>
+          </channel>
+
