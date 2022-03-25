@@ -20,7 +20,7 @@
     - ../common/roles/monit
     - monit
     - cntlm
-    - clustershell    
+    - clustershell
     - x2go
     - etcskel
     - ../common/roles/ganglia
@@ -28,4 +28,3 @@
     - apache
     - ../common/roles/wakeonlan
     - ../common/roles/netdata
-

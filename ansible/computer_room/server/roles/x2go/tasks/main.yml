@@ -38,10 +38,19 @@
     mode: 0770
 
 - name: Removing x2goserver service on server
-  file:
-    path: /etc/rc.d/rc.x2goserver
-    mode: -x
-  register: service
+  block:
+    - name: Check if service file exists
+      stat:
+        path: /etc/rc.d/rc.x2goserver
+      register: rcx2goserver
+
+    - name: Removing service by removing exec flag if rc file exists
+      file:
+        path: /etc/rc.d/rc.x2goserver
+        mode: -x
+      register: service
+      when: rcx2goserver.stat.exists
+
 
 - name: Remove compositing in xfce4 (problems with x2go)
   copy:

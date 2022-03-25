@@ -14,7 +14,18 @@
     src: /etc/skel/.bashrc
     dest: /etc/skel/.bash_profile
 
-- name: Creating xinitrc for xfce 
+- name: Creating xinitrc and xsession for xfce
   copy:
     src: /etc/X11/xinit/xinitrc.xfce
-    dest: /etc/skel/.xinitrc
+    dest: /etc/skel/{{ item }}
+  loop:
+    - xinitrc
+    - xsession
+
+- name: Remove compositing in xfce4 (problems with x2go - this is duplicated from x2go setup)
+  copy:
+    src: '{{ item }}'
+    dest: '/{{ item  }}'
+    follow: yes
+  loop:
+    - etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml

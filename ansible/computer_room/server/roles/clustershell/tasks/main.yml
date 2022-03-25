@@ -22,6 +22,7 @@
   copy:
     src: '{{item}}'
     dest: '/{{item}}'
+    backup: yes
   loop:
     - etc/clustershell/clush.conf
     - etc/clustershell/groups.d/salafis.yaml
