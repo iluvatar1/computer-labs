@@ -12,7 +12,7 @@ LOG_FILE=${LOG_FILE:-/tmp/log-packages.txt}
 
 PKG="keepassx sshfs-fuse autossh xfce4-xkb-plugin flashplayer-plugin slim monit \
     fail2ban corkscrew pip parallel wol valgrind openmpi modules cppcheck iotop gperftools \
-    xdm-slackware-theme"
+    xdm-slackware-theme glm"
 
 pm () {
     echo "  -> $1"

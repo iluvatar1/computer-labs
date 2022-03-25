@@ -53,6 +53,7 @@ build_packages_sbo () {
     monit | VERSION=5.30.0
     autossh
     slim
+    glm
     fail2ban
     corkscrew
     sshpass
