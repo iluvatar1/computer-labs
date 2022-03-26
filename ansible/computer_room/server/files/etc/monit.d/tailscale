@@ -1,11 +1,15 @@
-#check filesystem rootfs with path /
-#    if space usage > 90% then alert
-
-#CHECK process slurm matching slurmd
-#      #with pidfile /var/run/slurmd.pid
-#      start program = "/etc/rc.d/rc.slurm start"
-#      stop program = "/etc/rc.d/rc.slurm stop"
-
-CHECK process tailscale matching tailscaled
+CHECK process tailscaled matching tailscaled
       #with pidfile /var/run/slurmd.pid
       start program = "/usr/local/bin/tailscaled"
+
+CHECK PROGRAM tailscale with path "/usr/local/bin/tailscale up"
+      start program = "/usr/local/bin/tailscale up"
+      stop program = "/usr/local/bin/tailscale down"
+      if status != 0 then restart
+
+# This does not work, even without ip it does not restart
+#CHECK network tailscale0 with interface tailscale0
+#      start program = "/usr/local/bin/tailscale up"
+#      stop program = "/usr/local/bin/tailscale down"
+#      if link down then restart
+
