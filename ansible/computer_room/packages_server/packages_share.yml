@@ -19,8 +19,8 @@
       fstype: ext4
       state: "{{item.action}}" 
     loop:
-      - { path: /home/tmp, action: unmounted }
-      - { path: /home/tmp, action: absent } # removes from fstab
+      - { path: /mnt/tmp, action: unmounted }
+      - { path: /mnt/tmp, action: absent } # removes from fstab
       - { path: /packages, action: mounted }
       - { path: /packages, action: present } # adds to fstab
     register: mount
@@ -131,4 +131,3 @@
       cmd: '/etc/rc.d/rc.monit restart'
     when:
       pkg_monit.changed
-      
