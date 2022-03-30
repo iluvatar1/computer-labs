@@ -29,7 +29,27 @@
     mode: +x
   register: arnoexec
 
-- name: Starting firewall if just made executable
+- name: Activating ssh brute force protection
+  replace:
+    path: /etc/arno-iptables-firewall/plugins/ssh-brute-force-protection.conf
+    regexp: "^ENABLED=0"
+    replace: "ENABLED=1"
+  register: sshenabled
+
+- name: Adding ports for ssh protection
+  replace:
+    path: /etc/arno-iptables-firewall/plugins/ssh-brute-force-protection.conf
+    regexp: '^SSH_BFP_PORTS=.*'
+    replace: 'SSH_BFP_PORTS="22 443"'
+  register: sshenabledports
+
+- name: Activating adaptative ban
+  replace:
+    path: /etc/arno-iptables-firewall/plugins/adaptive-ban.conf
+    regexp: "^ENABLED=0"
+    replace: "ENABLED=1"
+  register: adaptiveban
+
+- name: Starting firewall if just made executable or added some config
   shell: /etc/rc.d/rc.firewall restart
-  when: arnoexec.changed == True
-  
+  when: arnoexec.changed == True or adaptiveban.changed or sshenabled.changed or sshenabledports.changed
