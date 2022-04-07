@@ -1,6 +1,9 @@
 CHECK process tailscaled matching tailscaled
-      #with pidfile /var/run/slurmd.pid
-      start program = "/usr/local/bin/tailscaled"
+#      #with pidfile /var/run/slurmd.pid
+#      #start program = "/bin/sh -c 'source /root/.bashrc && /usr/local/bin/tailscaled' "
+#      start program = "/bin/bash -c 'source /root/.bashrc ; /usr/local/bin/tailscaled &>/var/log/tailscaled.log'"
+      start program = "/etc/rc.d/rc.tailscaled start"
+      stop program = "/etc/rc.d/rc.tailscaled stop"
 
 CHECK PROGRAM tailscale with path "/usr/local/bin/tailscale up"
       start program = "/usr/local/bin/tailscale up"
