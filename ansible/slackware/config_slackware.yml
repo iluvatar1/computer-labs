@@ -241,7 +241,7 @@
 
       - name: Installing sbopkg if not installed
         shell:
-          cmd: 'wget https://sbopkg.org/test/sbopkg-0.38.2-noarch-1_wsr.tgz; upgradepkg --install-new  sbopkg-0.38.2-noarch-1_wsr.tgz'
+          cmd: 'wget https://github.com/sbopkg/sbopkg/releases/download/0.38.2/sbopkg-0.38.2-noarch-1_wsr.tgz; upgradepkg --install-new  sbopkg-0.38.2-noarch-1_wsr.tgz'
         when:
           sbopkg.stat.exists == False
         register: sbopkginstalled
