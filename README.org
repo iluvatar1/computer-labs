@@ -165,3 +165,8 @@ partprobe /dev/sda
 resize2fs /dev/sda6
 #+end_src
 REF: https://superuser.com/questions/660309/live-resize-of-a-gpt-partition-on-linux
+
+* PACKAGES
+  - https://spack-tutorial.readthedocs.io/en/latest/tutorial_modules.html
+  - https://researchit.las.iastate.edu/spack-based-software-modules
+  - https://spack.readthedocs.io/en/latest/

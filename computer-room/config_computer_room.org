@@ -213,7 +213,7 @@ function config_firewall {
             # #sbopkg -e stop -B -k -i arno-iptables-firewall
             # source /root/.bashrc
             # #slpkg upgrade
-            # #slpkg -s sbo arno-iptables-firewall-2.0.1e-noarch-3_SBo
+            # #slpkg -s sbo arno-iptables-firewall-2.0.1e-noarch-3_SBo # BETTER FROM: https://github.com/sbopkg/sbopkg/releases/download/0.38.2/sbopkg-0.38.2-noarch-1_wsr.tgz
             # slpkg -s sbo arno-iptables-firewall
         fi
         echo "Configuring ..."
@@ -1366,51 +1366,123 @@ fi
   #+END_SRC
    
 ** Create users from csv list with usernames and ids
-This script reads a list of usernames and passwords and creates the
-corresponding users
-#+begin_src sh :exports code :tangle scripts/create_users_from_list.sh :tangle-mode (identity #o444)
-#!/bin/bash
+   This script reads a list of usernames and passwords and creates the
+   corresponding users
+   - Using the whole csv from the dninfoa xlsx
+   #+begin_src sh :exports code :tangle scripts/create_users_from_csv.sh :tangle-mode (identity #o444)
+     #!/bin/bash
 
-# This script creates users according to a list of usernames and passwords
-# The file must be
-# username1 password1 more info
-# username2 password2 more info
+     # This script creates users according to a list of usernames and passwords
+     # The file must be
+     # APELLIDOSYNOMBRE  DOCUMENTO  PLAN OBSERVACION CORREO
 
-# Please review the groups. The sshgroup allows for ssh connections to the server
+     # Please review the groups. The sshgroup allows for ssh connections to the server
 
-FNAME=${1}
-if [ ! -f $FNAME ]; then
-    echo "Error: filename $FNAME does not exists"
-    exit 1
-fi
+     FNAME="${1}"
+     TEACHER="${2}"
 
-while read line
-do
-    username=$(echo $line | awk '{print $1}')
-    password=$(echo $line | awk '{print $2}')
-    echo username=$username
-    echo password=$password
-    # echo "Deleting account $username"
-    # userdel $username
-    echo Creating account $username
-    useradd -d /home/$username -G audio,cdrom,floppy,plugdev,video,netdev,lp,scanner,sshgroup  -m -s /bin/bash $username
-    echo "Changing password for $username to ${password}"
-    echo ${username}:${password} | chpasswd
-    # make the password expire to force changing it on first login
-    chage -d0 ${username}
-    #echo "Recursive chown ... &"
-    #chown -R $username.$username /home/$username &
-done < $FNAME
+     if [ -z "$TEACHER" ]; then
+	 echo "Error: You must specify the associated teacher"
+	 echo "$0 file.csv instructorname"
+	 exit 1
+     fi
 
-#read
+     if [ ! -f "$FNAME" ]; then
+	 echo "Error: filename $FNAME does not exists"
+	 exit 1
+     fi
 
-echo "Updating nis database"
-make -C /var/yp/
-#service portmap restart
-#service ypserv  restart
-/etc/rc.d/rc.inet2 restart
-echo "DONE."
-   #+end_src
+     enable -f /usr/lib64/bash/csv csv
+     ii=0
+     while read -r line
+     do
+	 ii=$((ii++))
+	 echo
+	 echo "$line"
+	 line=$(echo "$line" | tr -d '"')
+	 email=$(echo $line | awk -F ',' '{print $6}')
+	 username=$(echo $email | sed 's/@unal.edu.co//' | xargs)
+	 password=$(echo $line | awk -F ',' '{print $3}' | xargs)
+	 comment=$(echo $line | awk -F ',' '{print "'"$TEACHER"'",$4, $1, $2}')
+	 if [[ -z "$email" ]]; then continue; fi
+	 echo "email=$email"
+	 echo "username=$username"
+	 echo "password=$password"
+	 echo "comment=$comment"
+	 # echo "Deleting account $username"
+	 # userdel $username
+	 echo "Creating account $username"
+	 useradd -d /home/$username -G audio,cdrom,floppy,plugdev,video,netdev,lp,scanner,sshgroup  -m -s /bin/bash $username -c "${comment}"
+	 echo "Changing password to ${password}"
+	 echo ${username}:${password} | chpasswd
+	 echo "make the password expire to force changing it on first login"
+	 chage -d0 ${username}
+	 #echo "Recursive chown ... &"
+	 #chown -R $username.$username /home/$username &
+     done < "$FNAME"
+
+     read
+
+     echo "Updating nis database"
+     make -C /var/yp/
+     #service portmap restart
+     #service ypserv  restart
+     /etc/rc.d/rc.inet2 restart
+     echo "DONE."
+      #+end_src
+   - Using a specific list in specific format
+   #+begin_src sh :exports code :tangle scripts/create_users_from_list.sh :tangle-mode (identity #o444)
+     #!/bin/bash
+
+     # This script creates users according to a list of usernames and passwords
+     # The file must be
+     # username1 password1 more info
+     # username2 password2 more info
+
+     # Please review the groups. The sshgroup allows for ssh connections to the server
+     TEACHER="${2}"
+     FNAME="${1}"
+     if [ ! -f "$FNAME" ]; then
+	 echo "Error: filename $FNAME does not exists"
+	 exit 1
+     fi
+     if [ -z "$TEACHER" ]; then
+	 echo "Error. Usage"
+	 echo "$0 file.csv instructorname"
+	 exit 1
+     fi
+
+     while read line
+     do
+	 email=$(echo $line | awk -F ',' '{print $1}')
+	 username=$(echo $email | sed 's/@unal.edu.co//')
+	 password=$(echo $line | awk -F ',' '{print $2}')
+         #comment=$(echo $line | awk '{print $3, "- '"$TEACHER"'"}')
+         comment="$TEACHER"
+	 echo "username=$username"
+	 echo "password=$password"
+	 echo "comment=$comment"
+	 # echo "Deleting account $username"
+	 # userdel $username
+	 echo "Creating account $username"
+	 useradd -d /home/$username -G audio,cdrom,floppy,plugdev,video,netdev,lp,scanner,sshgroup  -m -s /bin/bash $username -c "$comment"
+	 echo "Changing password for $username to ${password}"
+	 echo ${username}:${password} | chpasswd
+	 # make the password expire to force changing it on first login
+	 chage -d0 ${username}
+	 #echo "Recursive chown ... &"
+	 #chown -R $username.$username /home/$username &
+     done < $FNAME
+
+     read
+
+     echo "Updating nis database"
+     make -C /var/yp/
+     #service portmap restart
+     #service ypserv  restart
+     /etc/rc.d/rc.inet2 restart
+     echo "DONE."
+      #+end_src
 ** Check and delete inactive users
    - Find inactive users
      #+BEGIN_SRC sh :exports code :tangle scripts/get_inactive.sh
