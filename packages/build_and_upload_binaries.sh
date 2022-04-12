@@ -70,6 +70,7 @@ build_packages_sbo () {
     rrdtool
     udpcast
     vscode-bin
+    lmod
     modules
     wol
     kitty
@@ -78,6 +79,7 @@ build_packages_sbo () {
     keepassxc
     bonnie++
     iperf3
+    valgrind
     perl-Switch
     perl-IPC-System-Simple
     perl-PAR-Dist

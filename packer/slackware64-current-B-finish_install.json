@@ -59,7 +59,7 @@
         "<wait2s>R<enter><wait10s>",
 
         "<enter><wait10s><enter><wait60s>",
-        "root<enter>",
+        "root<enter><wait4s>",
         "<wait>vagrant<enter><wait4s>",
         "echo PermitRootLogin yes >> /etc/ssh/sshd_config<enter>",
         "/etc/rc.d/rc.sshd restart<enter>",
