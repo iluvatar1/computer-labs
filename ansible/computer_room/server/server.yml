@@ -28,3 +28,4 @@
     - apache
     - ../common/roles/wakeonlan
     - ../common/roles/netdata
+    - tailscale
