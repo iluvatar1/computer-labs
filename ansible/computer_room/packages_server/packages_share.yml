@@ -1,58 +1,17 @@
 ---
 # Check real monitoring if nfs file: http://swick.2flub.org/Monitoring_stale_NFS_and_CIFS_shares_with_monit.html
-- name: Configuring package server (exports spack packages)
+- name: Configuring package server (exports spack packages and other stuff)
   hosts: "{{ variable_host | default('package_server') }}"
   gather_facts: false
   vars_files:
     - vars/main.yml
   tasks:
   
-  - name: Creating package dir
+  - name: Creating local link for package dir
     file:
-      path: /packages
-      state: directory
-
-  - name: "Read device information /dev/sda"
-    parted:
-      device: "/dev/sda"
-      unit: MiB
-    register: device_info
-
-  - name: "Print info2"
-    debug:
-      msg: "{{ item.num }}"
-    loop: "{{ device_info.partitions }}"
-
-  - name: "Add new partition /dev/sda7"
-    parted:
-      device: "/dev/sda"
-      number: "7"
-      part_type: primary
-      state: present
-      part_end: "100%"
-      part_start: "{{ device_info.partitions[5].end + 0}}MiB"
-      align: undefined
-      fs_type: ext4
-      label: gpt
-      name: packages
-
-  - name: "Format /dev/sda7 with ext4"
-    filesystem:
-      dev: "/dev/sda7"
-      fstype: ext4
-
-  - name: Fixing mounting of sda7 from /mnt/tmp to /packages
-    ansible.posix.mount:
-      path: "{{item.path}}"
-      src: /dev/sda7
-      fstype: ext4
-      state: "{{item.action}}"
-    loop:
-      - { path: /mnt/tmp, action: unmounted }
-      - { path: /mnt/tmp, action: absent } # removes from fstab
-      - { path: /packages, action: mounted }
-      - { path: /packages, action: present } # adds to fstab
-    register: mount
+      src: /mnt/scratch
+      dest: /packages
+      state: link
 
   - name: Make sure related services are enabled
     file:
@@ -64,7 +23,7 @@
       - nfsd
     register: service
 
-  - name: Adding export
+  - name: Adding export of local /packages
     lineinfile:
       dest: /etc/exports
       regexp: '^{{item}}'
@@ -95,7 +54,7 @@
       - inet2
       - nfsd
     when:
-      service.changed or mount.changed or exports.changed or hosts.changed
+      service.changed or exports.changed or hosts.changed
 
   - name: Add monit file to monitor the nfs package server
     blockinfile:

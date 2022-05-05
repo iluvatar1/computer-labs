@@ -3,6 +3,7 @@
   blockinfile:
     path: /root/.proxy
     backup: yes
+    create: yes
     marker: "# {mark} Adding setting up local proxy for root ..."
     block: |
       export PROXY="{{ PROXY }}"

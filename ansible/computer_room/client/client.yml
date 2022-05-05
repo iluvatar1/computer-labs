@@ -19,4 +19,4 @@
     - x2go
     - ../common/roles/ganglia
     - ../common/roles/netdata
-
+    - harddisk
