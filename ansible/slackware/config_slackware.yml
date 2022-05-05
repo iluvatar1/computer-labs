@@ -1,6 +1,6 @@
 ---
 - name: Basic slackware configuration after installation
-  hosts: all
+  hosts: "{{ all | default('clients') }}"
   gather_facts: false
   vars:
     network_available: true
@@ -95,6 +95,7 @@
           - 'kernel-huge.*'
           - 'kernel-modules.*'
           - 'kernel-source.*'
+          - 'kernel-headers.*'
           - '[0-9]+_SBo'
           - '[0-9]+alien'
         register: blacklist
@@ -103,7 +104,7 @@
         shell:
           cmd: '{{item}}'
         loop:
-          - 'source $HOME/.bashrc; slackpkg -batch=on -default_answer=y update gpg'
+          - 'source $HOME/.bashrc; echo YES | slackpkg -batch=on -default_answer=y update gpg'
           - 'source $HOME/.bashrc; slackpkg -batch=on -default_answer=y update'
         when:
           mirrors.changed or blacklist.changed or slackpkgconf.changed
