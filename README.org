@@ -166,6 +166,10 @@ resize2fs /dev/sda6
 #+end_src
 REF: https://superuser.com/questions/660309/live-resize-of-a-gpt-partition-on-linux
 
+** Enabling quota on ext4
+#+begin_src shell
+umount -l /home; tune2fs -O quota /dev/sdb2; tune2fs -Q usrquota /dev/sdb2; mount /home
+#+end_src
 * PACKAGES
   - https://spack-tutorial.readthedocs.io/en/latest/tutorial_modules.html
   - https://researchit.las.iastate.edu/spack-based-software-modules
