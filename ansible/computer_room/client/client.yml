@@ -5,6 +5,7 @@
   gather_facts: false
   vars_files:
     - vars/main.yml
+    - client_passwords.yml
   roles:
     - ../common/roles/proxy
     - ../common/roles/shutdownperms
@@ -20,3 +21,5 @@
     - ../common/roles/ganglia
     - ../common/roles/netdata
     - harddisk
+    - rootpassword
+    - ../common/roles/motd
