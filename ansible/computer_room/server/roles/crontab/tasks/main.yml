@@ -15,21 +15,21 @@
     job: "/bin/bash /usr/local/bin/minute_maintenance.sh &>/var/log/minute_maintenance.log"
   register: minutejob
 
-- name: Copying update_motd script
+- name: Copying script to check client_status
   copy:
     src: "{{item}}"
     dest: "/{{item}}"
     mode: 0755
   loop:
-    - usr/local/bin/update_motd.sh
-  register: motdscript
+    - usr/local/bin/clients_status.sh
+  register: clientstatusscript
 
-- name: Update motd every 5 minutes
+- name: Update client status every 5 minutes
   cron:
-    name: "Update motd"
+    name: "Update clients status"
     minute: "*/5"
-    job: "/bin/bash /usr/local/bin/update_motd.sh &>/var/log/update_motd.log"
-  register: motdjob
+    job: "/bin/bash /usr/local/bin/clients_status.sh &>/var/log/clients_status.log"
+  register: clientstatusjob
 
 - name: Copying daily maintenance script
   copy:
@@ -43,5 +43,4 @@
   command:
     cmd: /etc/rc.d/rc.crond restart
   when:
-    minutescript.changed or minutejob.changed or motdscript.changed or motdjob.changed or daily.changed
- 
+    minutescript.changed or minutejob.changed or clientstatusscript.changed or clientstatusjob.changed or daily.changed
