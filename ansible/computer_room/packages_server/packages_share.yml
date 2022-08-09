@@ -74,7 +74,7 @@
       monitfile.changed
 
 
-- name: Mounting /packages on all nodes
+- name: Mounting /packages on all nodes and setting up spack source
   # Check if better done with autofs: https://www.linuxtechi.com/automount-nfs-share-in-linux-using-autofs/, https://www.redhat.com/sysadmin/mount-nfs-filesystems-autofs
   hosts: "{{ variable_host | default('package_clients') }}"
   gather_facts: false
@@ -119,3 +119,10 @@
       cmd: '/etc/rc.d/rc.monit restart'
     when:
       pkg_monit.changed
+
+  - name: Copying script to load spack everytime
+    ansible.builtin.copy:
+      src: etc/profile.d/spack_setup.sh
+      dest: /etc/profile.d/spack_setup.sh
+      backup: no
+      mode: a+x
