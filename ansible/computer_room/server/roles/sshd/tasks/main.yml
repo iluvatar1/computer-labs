@@ -44,3 +44,5 @@
     cmd: /etc/rc.d/rc.sshd restart
   when:
     sshd.changed == True or sshd_virtualserver.changed
+  register: sshdrestart
+  failed_when: "sshdrestart.rc not in [0, 255]"

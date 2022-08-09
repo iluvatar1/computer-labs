@@ -6,8 +6,8 @@
 #slpkg -s slack "" --patches
 
 # Re-assing quota to all users and then check it
-QUOTA_SOFTLIMIT=5120000
-QUOTA_HARDLIMIT=5632000
+QUOTA_SOFTLIMIT=61200000
+QUOTA_HARDLIMIT=66320000
 for a in $(cat /etc/passwd | awk '{ FS=":";if ($3 > 1000) print $1}'); do
     if [ -d /home/$a ]; then
 	    echo $a

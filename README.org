@@ -167,6 +167,7 @@ resize2fs /dev/sda6
 REF: https://superuser.com/questions/660309/live-resize-of-a-gpt-partition-on-linux
 
 ** Enabling quota on ext4
+REF: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_file_systems/assembly_limiting-storage-space-usage-on-ext4-with-quotas_managing-file-systems
 #+begin_src shell
 umount -l /home; tune2fs -O quota /dev/sdb2; tune2fs -Q usrquota /dev/sdb2; mount /home
 #+end_src
