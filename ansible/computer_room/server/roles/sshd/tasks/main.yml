@@ -11,12 +11,13 @@
 - name: Configuring sshd 
   lineinfile:
     path: /etc/ssh/sshd_config
-    regexp: '^{{item}}'
+    regexp: '^{{item}}$'
     line: '{{item}}'
     backup: yes
   loop:
     - 'Port 22'
     - 'Port 443'
+    - 'Port 2222'
     - 'PermitRootLogin {{ROOTLOGIN}}'
     - 'AllowGroups sshgroup root'
     - 'ClientAliveInterval 120'
