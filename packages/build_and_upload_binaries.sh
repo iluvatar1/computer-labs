@@ -70,6 +70,8 @@ build_packages_sbo () {
     rrdtool
     udpcast
     vscode-bin
+    vscodium
+    rstudio-desktop
     lmod
     modules
     wol
@@ -94,7 +96,7 @@ build_packages_sbo () {
     perl-Config-Simple
     nx-libs | MAKEFLAGS="-j 1"
     x2goserver
-    zulu-openjdk17
+    zulu-openjdk8
     munge 
     confuse
     ganglia | OPT=gmetad MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc
