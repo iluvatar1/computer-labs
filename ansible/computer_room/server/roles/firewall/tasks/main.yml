@@ -40,21 +40,21 @@
   replace:
     path: /etc/arno-iptables-firewall/plugins/ssh-brute-force-protection.conf
     regexp: '^SSH_BFP_PORTS=.*'
-    replace: 'SSH_BFP_PORTS="22 443"'
+    replace: 'SSH_BFP_PORTS="22 443 2222"'
   register: sshenabledports
 
 - name: Setting up rate1 in ssh protection
   replace:
     path: /etc/arno-iptables-firewall/plugins/ssh-brute-force-protection.conf
     regexp: '^SSH_BFP_MAX_RATE1=.*'
-    replace: 'SSH_BFP_MAX_RATE1="12"'
+    replace: 'SSH_BFP_MAX_RATE1="5"'
   register: sshenabledrate1
 
 - name: Setting up rate2 in ssh protection
   replace:
     path: /etc/arno-iptables-firewall/plugins/ssh-brute-force-protection.conf
     regexp: '^SSH_BFP_MAX_RATE2=.*'
-    replace: 'SSH_BFP_MAX_RATE2="20"'
+    replace: 'SSH_BFP_MAX_RATE2="10"'
   register: sshenabledrate2
 
 - name: Activating adaptative ban
