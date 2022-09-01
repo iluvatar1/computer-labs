@@ -1,0 +1,26 @@
+---
+- name: Installing multiple base python packages
+  ansible.builtin.pip:
+    executable: /usr/bin/pip3
+    name:
+      - matplotlib
+      - seaborn
+      - numpy
+      - scipy
+      - plotly
+      - jupyter
+      - notebook
+      - jupyterlab-lsp
+      - python-lsp-server
+      - ipywidgets
+      - jupyter_contrib_nbextensions
+      - jupyter_nbextensions_configurator
+      - pandas
+      - vpython
+      - jupyterlab-vpython
+
+- name: Linking python command to python3
+  ansible.builtin.file:
+    src: /usr/bin/python3
+    dest: /usr/bin/python
+    state: link
