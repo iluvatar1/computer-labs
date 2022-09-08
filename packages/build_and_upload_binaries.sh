@@ -69,7 +69,6 @@ build_packages_sbo () {
     cntlm
     rrdtool
     udpcast
-    vscode-bin
     vscodium
     rstudio-desktop
     lmod
@@ -82,6 +81,8 @@ build_packages_sbo () {
     bonnie++
     iperf3
     valgrind
+    fira-fonts
+    fira-code-fonts
     perl-Switch
     perl-IPC-System-Simple
     perl-PAR-Dist

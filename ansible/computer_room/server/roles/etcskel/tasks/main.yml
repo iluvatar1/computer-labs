@@ -3,11 +3,11 @@
   file:
     path: /etc/skel/.Xauthority
 
-- name: Copying .bashrc with proxy setup
+- name: Copying .bashrc with proxy, starship setup
   template:
     src: 'etc/skel/bashrc.j2'
     dest: '/etc/skel/.bashrc'
-    backup: yes
+    backup: no
 
 - name: Creating bash_profile from bashrc
   copy:
@@ -17,7 +17,7 @@
 - name: Creating xinitrc and xsession for xfce
   copy:
     src: /etc/X11/xinit/xinitrc.xfce
-    dest: /etc/skel/{{ item }}
+    dest: /etc/skel/.{{ item }}
   loop:
     - xinitrc
     - xsession

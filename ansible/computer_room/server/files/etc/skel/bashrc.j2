@@ -5,3 +5,8 @@ export ftp_proxy="ftp://$PROXY"
 export RSYNC_PROXY="$PROXY"
 alias ls="ls --color=auto -FG "
 source /etc/profile
+
+# starship prompt
+if [ -x /usr/local/bin/starship ]; then
+    eval "$(/usr/local/bin/starship init bash)"
+fi
