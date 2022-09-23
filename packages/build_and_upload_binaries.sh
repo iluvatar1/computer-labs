@@ -76,7 +76,20 @@ build_packages_sbo () {
     wol
     kitty
     bat
+    ripgrep
+    dust
+    bottom
+    exa
+    lsd
+    fzf
     ncdu
+    fd
+    tldr
+    hyperfine
+    tig
+    tmate
+    navi
+    httpie
     keepassxc
     bonnie++
     iperf3
