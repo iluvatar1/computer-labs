@@ -18,6 +18,14 @@
   loop:
     - etc/arno-iptables-firewall/firewall.conf
 
+- name: Copying blocked hosts file
+  template:
+    src: '{{item}}'
+    dest: '/{{item}}'
+  loop:
+    - etc/arno-iptables-firewall/blocked-hosts
+  register: blocked_hosts
+
 - name: linking startup script
   shell:
     cmd: ln -svf /etc/rc.d/rc.arno-iptables-firewall /etc/rc.d/rc.firewall
@@ -66,4 +74,4 @@
 
 - name: Starting firewall if just made executable or added some config
   shell: /etc/rc.d/rc.firewall restart
-  when: arnoexec.changed == True or adaptiveban.changed or sshenabled.changed or sshenabledports.changed or sshenabledrate1.changed or sshenabledrate2.changed
+  when: arnoexec.changed == True or adaptiveban.changed or sshenabled.changed or sshenabledports.changed or sshenabledrate1.changed or sshenabledrate2.changed or blocked_hosts.changed
