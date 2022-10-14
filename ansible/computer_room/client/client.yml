@@ -7,7 +7,7 @@
     - vars/main.yml
     - client_passwords.yml
   roles:
-    - ../common/roles/proxy
+    # - ../common/roles/proxy
     - ../common/roles/shutdownperms
     - ../common/roles/wakeonlan
     - network
