@@ -13,3 +13,4 @@ dnsmasq-hosts.conf
 ansible/*/hosts
 ansible/*/*/hosts
 inventory
+secrets.yml
