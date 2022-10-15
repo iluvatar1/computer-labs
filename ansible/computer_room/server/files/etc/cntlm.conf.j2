@@ -5,13 +5,13 @@
 # do not quote. Use 0600 perms if you use plaintext password.
 #
 
-Username	fisica_sop
-Domain		unal.edu.co
+Username	{{CNTLMUSER}}
+Domain		{{CNTLMDOMAIN}}
 Password	{{CNTLMPASSWORD}}
 # generate passwords with cntlm -H and add the data here
 #PassLM          
 #PassNT          
-#PassNTLMv2          # Only for user 'fisica_sop', domain 'unal.edu.co'
+#PassNTLMv2          # Only for user 'USERUNAL', domain 'unal.edu.co'
 
 #Password	
 
@@ -35,7 +35,7 @@ Password	{{CNTLMPASSWORD}}
 #
 #Proxy		10.0.0.41:8080
 #Proxy		10.0.0.42:8080
-Proxy		168.176.239.30:8080
+Proxy		{{CNTLMPROXY}}:{{CNTLMPROXYPORT}}
 
 # List addresses you do not want to pass to parent proxies
 # * and ? wildcards can be used
