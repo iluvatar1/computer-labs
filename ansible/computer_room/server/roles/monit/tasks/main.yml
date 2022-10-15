@@ -6,6 +6,8 @@
     follow: yes
   loop:
     - etc/monit.d/SERVER-monitrc
+    - etc/monit.d/tailscale
+    - etc/monit.d/sshguard
   register: monitfiles
 
 - name: Activate monit service

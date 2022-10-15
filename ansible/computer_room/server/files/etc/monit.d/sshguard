@@ -1,0 +1,3 @@
+CHECK process sshguard matching sshguard
+      start program = "/etc/rc.d/rc.sshguard start"
+      stop program = "/etc/rc.d/rc.sshguard stop"
