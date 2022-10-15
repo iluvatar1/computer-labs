@@ -71,7 +71,7 @@
           "modifyvm", "{{.Name}}", "--recordingfile", "/opt/clonezillaservervideo"
         ],
         [
-          "modifyvm", "{{.Name}}", "--macaddress1", "080027D4CA13"
+          "modifyvm", "{{.Name}}", "--macaddress1", "{{user `CLONEZILLA_SERVER_MAC`}}"
         ]
       ],
       "vm_name": "clonezilla lite server"

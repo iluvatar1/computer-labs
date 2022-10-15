@@ -1,0 +1,10 @@
+{
+    "MACHINENAME": "base_slack_machine_{{user `FIRMWARE`}}",
+    "TSNAPSHOT" : "After package build",
+    "CPUS" : "7",
+    "PROXY": "http://PROXYIP:PROXYPORT",
+    "IP": "SERVERIP",
+    "PORT": "SERVERPORT",
+    "USERNAME": "username",
+    "PASSWORD": "password"
+}

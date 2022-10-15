@@ -78,7 +78,7 @@
         "<enter><wait2s>",
         "<enter><wait5s>",
 	  "-{{ user `FIRMWARE` }}<wait>",  
-        "<enter><wait20s>",
+        "<enter><wait25s>",
         "<enter><wait4s>",
         "<enter><wait>",
         "<enter><wait>",

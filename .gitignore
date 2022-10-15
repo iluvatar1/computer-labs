@@ -14,3 +14,5 @@ ansible/*/hosts
 ansible/*/*/hosts
 inventory
 secrets.yml
+*/config/cfg-D-build_pkgs.json*
+*/config/cfg-D-build_pkgs.json-DROPLET
