@@ -13,5 +13,5 @@ tar xvf ${BNAME}.tar.gz
 cd $BNAME
 wget -c "https://sinalbr.dl.sourceforge.net/project/${BNAME}/${BNAME}/${VERSION}/${TARGZNAME}"
 VERSION=$VERSION bash $BNAME.SlackBuild
-installpkg /tmp/${BNAME}*tgz
+upgradepkg --install-new /tmp/${BNAME}*tgz
 chmod +x /etc/rc.d/rc.${BNAME}
