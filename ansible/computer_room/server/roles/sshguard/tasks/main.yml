@@ -1,0 +1,15 @@
+---
+- name: Copying sshguard config
+  ansible.builtin.copy:
+    src: etc/sshguard.conf
+    dest: /etc/sshguard.conf
+    backup: yes
+  register: sshguardconfig
+
+- name: Restart sshguard service in case any config was done
+  command:
+    cmd: /etc/rc.d/rc.sshguard restart
+  when:
+    sshguardconfig.changed == True
+  register: sshguardrestart
+  failed_when: "sshguardrestart.rc not in [0, 255]"
