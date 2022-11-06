@@ -30,3 +30,4 @@
     - ../common/roles/netdata
     - tailscale
     - ../common/roles/motd
+    - sshguard
