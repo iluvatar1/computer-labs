@@ -21,6 +21,7 @@
       - migflow
       - gmsh
       - mkl
+      - pyvista[all]
 
 - name: Linking python command to python3
   ansible.builtin.file:
