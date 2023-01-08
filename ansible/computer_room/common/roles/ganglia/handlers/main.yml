@@ -1,0 +1,6 @@
+- name: Restart gmond
+  tags: ganglia
+  shell:
+    cmd: '/etc/rc.d/rc.{{item}} restart'
+  loop:
+    - 'gmond'

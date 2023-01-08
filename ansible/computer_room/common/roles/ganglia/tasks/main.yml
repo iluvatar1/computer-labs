@@ -1,41 +1,34 @@
 ---
-- name: Verify gmond is installed
+- name: Checking existence of gmond command
+  tags: ganglia
   stat:
     path: /usr/sbin/gmond
   register: gmond
+  failed_when: not gmond.stat.exists
 
 - name: Copying config files
+  tags: ganglia
   template:
     src: '{{item}}.j2'
     dest: '/{{item}}'
     backup: yes
   loop:
     - etc/ganglia/gmond.conf
-  register: config
-  when:
-    gmond.stat.exists
+  notify:
+    - Restart gmond
 
 - name: Linking gmond conf
+  tags: ganglia
   shell:
     cmd: ln -s /etc/ganglia/gmond.conf /etc/
     creates: /etc/gmond.conf
 
 - name : Activating services
+  tags: ganglia
   file:
     path: '/etc/rc.d/rc.{{item}}'
     mode: +x
   loop:
     - gmond
-  register: services
-  when:
-    gmond.stat.exists
-
-- name: Restarting services if needed
-  shell:
-    cmd: '/etc/rc.d/rc.{{item}} restart'
-  loop:
-    - 'gmond'
-  when:
-    config.changed or services.changed
-
-
+  notify:
+    - Restart gmond
