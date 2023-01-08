@@ -1,0 +1,3 @@
+- name: Restart crontab
+  command:
+    cmd: /etc/rc.d/rc.crond restart
