@@ -1,20 +1,18 @@
 - name: Copy config files
+  tags: monit
   template:
     src: "{{item}}.j2"
     dest: "/{{item}}"
     backup: yes
   loop:
     - etc/monit.d/CLIENT-monitrc
-  register: monitfiles
+  notify:
+    - Restart monit
 
 - name: Activate monit service
+  tags: monit
   file:
     path: /etc/rc.d/rc.monit
     mode: +x
-  register: monitservice
-
-- name: Restart monit if any changed detected
-  command:
-    cmd: /etc/rc.d/rc.monit restart
-  when:
-    monitfiles.changed or monitservice.changed
+  notify:
+    - Restart monit
