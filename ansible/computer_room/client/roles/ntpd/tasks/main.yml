@@ -1,9 +1,10 @@
 ---
 - name: Activating ntpd service
+  tags: ntp
   file:
     path: /etc/rc.d/rc.ntpd
     mode: +x
-  register: ntpd
+  notify: Restart ntpd
 
 # - name: Copying ntp config from template
 #   template:
@@ -12,8 +13,10 @@
 #     backup: yes
 #   loop:
 #     - etc/ntp.conf
-#   register: config
+#   notify: Restart ntpd
+
 - name: Adding ntp config , line by line
+  tags: ntp
   lineinfile:
     dest: /etc/ntp.conf
     search_string: '^{{item}}'
@@ -34,11 +37,4 @@
     - 'broadcastclient'
     - '# this is the pid file that monit will check'
     - 'pidfile /var/run/ntpd.pid'
-  register: config
-
-- name: Starting service if permissions changed
-  shell:
-    cmd: /etc/rc.d/rc.ntpd restart
-  when:
-    ntpd.changed or config.changed
-    
+  notify: Restart ntpd
