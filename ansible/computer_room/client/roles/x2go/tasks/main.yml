@@ -1,29 +1,31 @@
 ---
 - name: Verify that x2godbadmin is available
+  tags: x2go
   stat:
     path: /usr/sbin/x2godbadmin
   register: x2godbadmin
 
 - name: Activating server on client
+  tags: x2go
   file:
     path: /etc/rc.d/rc.x2goserver
     mode: +x
   register: service
-
-- name: restart service
-  shell:
-    cmd: /etc/rc.d/rc.x2goserver restart
-  when:
-    service.changed
+  notify:
+    - Restart x2goserver
 
 - name: Create x2go database
+  tags: x2go
   shell:
     cmd: /usr/sbin/x2godbadmin --createdb
     creates: /var/lib/x2go/x2go_sessions
   when:
     service.changed or x2godbadmin.changed or x2godbadmin.stat.exists
+  notify:
+    - Restart x2goserver
 
 - name: Fixing x2go compositing by removing it from xfce with x2go
+  tags: x2go
   block:
     - name: Adding x2go config file (must be executable). See "https://gitlab.xfce.org/xfce/xfwm4/-/issues/551"
       lineinfile:

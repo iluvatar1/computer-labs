@@ -1,0 +1,4 @@
+- name: Restart x2goserver
+  tags: x2go
+  shell:
+    cmd: /etc/rc.d/rc.x2goserver restart
