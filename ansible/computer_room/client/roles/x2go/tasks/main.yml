@@ -4,6 +4,7 @@
   stat:
     path: /usr/sbin/x2godbadmin
   register: x2godbadmin
+  failed_when: not x2godbadmin.stat.exists
 
 - name: Activating server on client
   tags: x2go
