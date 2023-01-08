@@ -50,7 +50,7 @@ build_packages_sbo () {
     cat <<EOF > /var/lib/sbopkg/queues/custom.sqf
     blas
     lapack
-    monit | VERSION=5.30.0
+    monit | VERSION=5.32.0
     autossh
     slim
     glm
@@ -140,7 +140,7 @@ EOF
     pm "-> monit ..."
     if [[ ! -f $TDIR/system/monit/$FNAME ]] ; then 
 	sed -i.bck 's/ README//' $TDIR/system/monit/monit.SlackBuild
-	FNAME=monit-5.30.0.tar.gz
+	FNAME=monit-5.32.0.tar.gz
 	$WGET https://mmonit.com/monit/dist/$FNAME -O $TDIR/system/monit/$FNAME
     fi
     #####################################
