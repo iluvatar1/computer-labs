@@ -1,0 +1,7 @@
+---
+- name: Changing root password
+  tags: root_password
+  ansible.builtin.user:
+    name: root
+    state: present
+    password: "{{ ROOTPASSWORD | password_hash('sha512', 'somesalt') }}"
