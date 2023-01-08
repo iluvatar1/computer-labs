@@ -1,0 +1,6 @@
+- name: Restart monit
+  tags: monit, common
+  command:
+    cmd: /etc/rc.d/rc.monit restart
+  when:
+    install.changed or monitd.changed or monitinittab.changed or monitfiles.changed or monitservice.changed
