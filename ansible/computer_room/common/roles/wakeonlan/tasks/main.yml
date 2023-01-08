@@ -1,5 +1,6 @@
 ---
 - name: Adding wake on lan command to rc.local
+  tags: wakeonlan
   blockinfile:
     path: /etc/rc.d/rc.local
     block: |

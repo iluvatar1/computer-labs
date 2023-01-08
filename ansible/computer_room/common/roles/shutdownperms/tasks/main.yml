@@ -1,5 +1,6 @@
 ---
 - name: Removing permissions to shudown or halt system
+  tags: shutdownperms
   file:
     dest: "{{item}}"
     mode: o-x
@@ -8,6 +9,7 @@
     - /sbin/halt
 
 - name: Copying polkit rules and acpi handler
+  tags: shutdownperms
   copy: 
     src: "{{item}}"
     dest: "/{{item}}"
