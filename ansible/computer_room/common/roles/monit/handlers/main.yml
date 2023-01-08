@@ -1,5 +1,5 @@
 - name: Restart monit
-  tags: monit, common
+  tags: server,client,monit, common
   command:
     cmd: /etc/rc.d/rc.monit restart
   when:

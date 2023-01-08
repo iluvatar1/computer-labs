@@ -1,5 +1,5 @@
 - name: Restart nfs
-  tags: nfs
+  tags: client,nfs
   shell:
     cmd: '/etc/rc.d/rc.{{item}} restart'
   loop:

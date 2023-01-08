@@ -1,5 +1,6 @@
 ---
 - name: Copy resolv conf files
+  tags: server,network
   copy:
     src: '{{item}}'
     dest: '/{{item}}'
@@ -11,6 +12,7 @@
     - etc/resolv.conf.head
 
 - name: Copy network interfaces config files
+  tags: server,network
   template:
     src: '{{item}}.j2'
     dest: '/{{item}}'
@@ -22,12 +24,14 @@
     - etc/rc.d/rc.inet1.conf
 
 - name: Adding executable status for network manager (TODO-> Is this really needed?)
+  tags: server,network
   file:
     dest: /etc/rc.d/rc.networkmanager
     mode: a+x
   register: netmanager
 
 - name: Start network manager if it has been just made executable
+  tags: server,network
   command:
     /etc/rc.d/rc.networkmanager restart
   when:

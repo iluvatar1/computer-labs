@@ -1,5 +1,5 @@
 - name: Restart gmond
-  tags: ganglia
+  tags: server,client,ganglia
   shell:
     cmd: '/etc/rc.d/rc.{{item}} restart'
   loop:

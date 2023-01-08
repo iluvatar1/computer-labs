@@ -1,0 +1,4 @@
+- name: Restart apache
+  tags: apache, server
+  shell:
+    cmd: '/etc/rc.d/rc.httpd restart'

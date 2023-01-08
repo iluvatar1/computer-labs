@@ -1,5 +1,5 @@
 - name: Restart netdata
-  tags: netdata
+  tags: server,client,netdata
   shell:
     cmd: /etc/init.d/netdata-init-d restart
   when:

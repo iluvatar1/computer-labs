@@ -1,6 +1,6 @@
 ---
 - name: Adding nfs home mount
-  tags: nfs
+  tags: client,nfs
   lineinfile:
     dest: /etc/fstab
     regexp: '^{{SERVERIP}}:/home'
@@ -9,7 +9,7 @@
   notify: Restart nfs
 
 - name: Puting initial nfs mounting into background since it corresponds to non-essential fs
-  tags: nfs
+  tags: client,nfs
   replace:
     path: /etc/rc.d/rc.inet2
     backup: yes

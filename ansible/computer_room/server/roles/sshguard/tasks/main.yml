@@ -1,5 +1,6 @@
 ---
 - name: Copying sshguard config
+  tags: server,sshguard
   ansible.builtin.copy:
     src: etc/sshguard.conf
     dest: /etc/sshguard.conf
@@ -7,6 +8,7 @@
   register: sshguardconfig
 
 - name: Restart sshguard service in case any config was done
+  tags: server,sshguard
   command:
     cmd: /etc/rc.d/rc.sshguard restart
   when:

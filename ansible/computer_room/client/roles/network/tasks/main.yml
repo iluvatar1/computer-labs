@@ -1,6 +1,6 @@
 ---
 - name: Copying networkmanager hook (NEEDED??)
-  tags: network
+  tags: client,network
   copy:
     src: '{{item}}'
     dest: '/{{item}}'
@@ -9,7 +9,7 @@
   notify: Restart networkmanager
 
 - name: Activating network manager service
-  tags: network
+  tags: client,network
   file:
     path: /etc/rc.d/rc.networkmanager
     mode: +x

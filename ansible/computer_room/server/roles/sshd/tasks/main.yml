@@ -9,15 +9,15 @@
 #
 
 - name: Configuring sshd 
+  tags: server,sshd
   lineinfile:
     path: /etc/ssh/sshd_config
     regexp: '^{{item}}$'
     line: '{{item}}'
     backup: yes
   loop:
-    - 'Port 22'
     - 'Port 443'
-    - 'Port 2222'
+    - 'Port 20022'
     - 'PermitRootLogin {{ROOTLOGIN}}'
     - 'AllowGroups sshgroup root'
     - 'ClientAliveInterval 120'
@@ -29,6 +29,7 @@
   register: sshd
 
 - name: Configuring sshd for virtualbox clonezilla imaging server connection
+  tags: server,sshd
   blockinfile:
     path: /etc/ssh/sshd_config
     backup: yes
@@ -41,6 +42,7 @@
   register: sshd_virtualserver
   
 - name: Restart ssh service in case any config was done
+  tags: server,sshd
   command:
     cmd: /etc/rc.d/rc.sshd restart
   when:

@@ -1,11 +1,11 @@
 - name: Creating local scratch dir
-  tags: harddisk
+  tags: client,harddisk
   file:
     path: /mnt/scratch
     state: directory
 
 - name: "Reading device information: /dev/sda"
-  tags: harddisk
+  tags: client,harddisk
   parted:
     device: "/dev/sda"
     unit: MiB
@@ -17,7 +17,7 @@
 # #   loop: "{{ device_info.partitions }}"
 
 - name: "Adding new partition /dev/sda7"
-  tags: harddisk
+  tags: client,harddisk
   parted:
     device: "/dev/sda"
     number: "7"
@@ -30,13 +30,13 @@
     label: gpt
 
 - name: "Format /dev/sda7 with ext4"
-  tags: harddisk
+  tags: client,harddisk
   filesystem:
     dev: "/dev/sda7"
     fstype: ext4
 
 - name: Mounting /dev/sda7 onto /mnt/scratch
-  tags: harddisk
+  tags: client,harddisk
   ansible.posix.mount:
     path: "{{item.path}}"
     src: /dev/sda7

@@ -1,10 +1,12 @@
 ---
 - name: Adding basic group
+  tags: server, x2go
   group:
     name: x2gouser
     gid: 290
 
 - name: Adding user
+  tags: server, x2go
   user: 
     name: x2gouser
     uid: 290
@@ -15,11 +17,13 @@
     shell: /bin/false
 
 - name: Adding print group
+  tags: server, x2go
   group:
     name: x2goprint
     gid: 291
 
 - name: Adding print user
+  tags: server, x2go
   user: 
     name: x2goprint
     uid: 291
@@ -30,6 +34,7 @@
     shell: /bin/false
 
 - name: Adding aux directory
+  tags: server, x2go
   file:
     path: /var/spool/x2goprint
     state: directory
@@ -38,6 +43,7 @@
     mode: 0770
 
 - name: Removing x2goserver service on server
+  tags: server, x2go
   block:
     - name: Check if service file exists
       stat:
@@ -53,6 +59,7 @@
 
 
 - name: Remove compositing in xfce4 (problems with x2go)
+  tags: server, x2go
   copy:
     src: '{{ item }}'
     dest: '/{{ item  }}'

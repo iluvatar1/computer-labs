@@ -1,5 +1,6 @@
 ---
 - name: Copying hosts.allow
+  tags: server, nfs
   template:
     src: etc/hosts.allow.j2
     dest: /etc/hosts.allow
@@ -7,18 +8,21 @@
   register: hosts
   
 - name: Copying exports
+  tags: server, nfs
   template:
     src: etc/exports.j2
     dest: /etc/exports
   register: exports
   
 - name: Reduce rpcbind logging noise
+  tags: server, nfs
   replace:
     dest: /etc/rc.d/rc.rpc
     regexp: 'rpcbind -l'
     replace: 'rpcbind'
 
 - name: Make sure related services are enabled
+  tags: server, nfs
   file:
     dest: '/etc/rc.d/rc.{{item}}'
     mode: +x
@@ -29,6 +33,7 @@
   register: service
 
 - name: Restart services if they were enabled or config changed
+  tags: server, nfs
   command:
     /etc/rc.d/rc.nfsd restart
   when:

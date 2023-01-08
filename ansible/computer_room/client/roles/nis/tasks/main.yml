@@ -1,6 +1,6 @@
 ---
 - name: Activating needing services
-  tags: nis
+  tags: client,nis
   file:
     path: '/etc/rc.d/rc.{{item}}'
     mode: +x
@@ -10,7 +10,7 @@
   notify: Restart nis
 
 - name: Writing nisdomain to configfile
-  tags: nis
+  tags: client,nis
   lineinfile:
     dest: /etc/defaultdomain
     regexp: '^{{NISDOMAIN}}'
@@ -20,7 +20,7 @@
   notify: Restart nis
 
 - name: Adding setting defultdomain at startup
-  tags: nis
+  tags: client,nis
   lineinfile:
     dest: /etc/rc.d/rc.local
     regexp: '^{{item}}'
@@ -31,7 +31,7 @@
   notify: Restart nis
 
 - name: Removing typo line with  defultdomain at startup
-  tags: nis
+  tags: client,nis
   lineinfile:
     dest: /etc/rc.d/rc.local
     regexp: '^{{item}}'
@@ -41,7 +41,7 @@
     - 'nisdomainame -F /etc/defaultdomain'
 
 - name: Adding yp server config
-  tags: nis
+  tags: client,nis
   lineinfile:
     dest: /etc/yp.conf
     regexp: '^{{item}}'
@@ -52,7 +52,7 @@
   notify: Restart nis
 
 - name: Copying nsswitch config
-  tags: nis
+  tags: client,nis
   copy:
     src: '{{item}}'
     dest: '/{{item}}'
@@ -62,7 +62,7 @@
   notify: Restart nis
 
 - name: Adding needed pattern to /etc/passwd
-  tags: nis
+  tags: client,nis
   lineinfile:
     dest: /etc/passwd
     search_string: '{{item}}'
@@ -73,7 +73,7 @@
   notify: Restart nis
   
 - name: Adding needed pattern to /etc/shadow
-  tags: nis
+  tags: client,nis
   lineinfile:
     dest: /etc/shadow
     search_string: '{{item}}'
@@ -84,7 +84,7 @@
   notify: Restart nis
 
 - name: Adding needed pattern to /etc/group
-  tags: nis
+  tags: client,nis
   lineinfile:
     dest: /etc/group
     search_string: '{{item}}'
@@ -95,7 +95,7 @@
   notify: Restart nis
 
 - name: Disabling yp server
-  tags: nis
+  tags: client,nis
   replace:
     dest: /etc/rc.d/rc.yp
     regexp: '^YP_SERVER_ENABLE=1'
@@ -104,7 +104,7 @@
   notify: Restart nis
 
 - name: Enabling yp client
-  tags: nis
+  tags: client,nis
   replace:
     dest: /etc/rc.d/rc.yp
     regexp: '^YP_CLIENT_ENABLE=0'
@@ -113,7 +113,7 @@
   notify: Restart nis
 
 - name: Remove broadcast option in yp
-  tags: nis
+  tags: client,nis
   lineinfile:
     dest: /etc/default/yp
     regexp: '{{item}}'

@@ -1,4 +1,4 @@
 - name: Restart ntpd
-  tags: ntp
+  tags: client,ntp
   shell:
     cmd: /etc/rc.d/rc.ntpd restart

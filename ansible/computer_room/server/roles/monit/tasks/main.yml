@@ -1,5 +1,6 @@
 ---
 - name: Copy config files
+  tags: server,monit
   copy:
     src: "{{item}}"
     dest: "/{{item}}"
@@ -11,12 +12,14 @@
   register: monitfiles
 
 - name: Activate monit service
+  tags: server,monit
   file:
     path: /etc/rc.d/rc.monit
     mode: +x
   register: monitservice
   
 - name: Restart monit if any changed detected
+  tags: server,monit
   command:
     cmd: /etc/rc.d/rc.monit restart
   when:

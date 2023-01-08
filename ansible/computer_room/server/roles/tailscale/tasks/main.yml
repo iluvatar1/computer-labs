@@ -1,0 +1,40 @@
+---
+- name: Copying rc.tailscaled file
+  tags: server,tailscale
+  copy:
+    src: '{{ item }}'
+    dest: '/{{ item }}'
+    mode: +x
+  loop:
+    - etc/rc.d/rc.tailscaled
+  register: rcfile
+
+# - name: Linking proxy info to default service
+#   tags: server,tailscale
+#   file:
+#     src: '/root/.proxy'
+#     dest: '/etc/default/tailscaled'
+#     state: link
+#   register: defaultfile
+
+- name: Restart tailscaled if any change was made
+  tags: server,tailscale
+  command:
+    cmd: /etc/rc.d/rc.tailscaled restart
+  when: rcfile.changed
+
+- name: Copying monit files
+  tags: server,tailscale
+  copy:
+    src: "{{item}}"
+    dest: "/{{item}}"
+    follow: yes
+  loop:
+    - etc/monit.d/tailscale
+  register: monitfile
+
+- name: Restart monit if the file was copied
+  tags: server,tailscale
+  command:
+    cmd: /etc/rc.d/rc.monit restart
+  when: monitfile.changed

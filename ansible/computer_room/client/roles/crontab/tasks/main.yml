@@ -1,6 +1,6 @@
 ---
 - name: Copying script to run every minute
-  tags: crontab
+  tags: client,crontab
   template:
     src: '{{item}}.j2'
     dest: '/{{item}}'
@@ -11,7 +11,7 @@
     - Restart crontab
 
 - name: Adding minute_maintenance job
-  tags: crontab
+  tags: client,crontab
   cron:
     name: "Run useful script every minute"
     minute: "*/1"

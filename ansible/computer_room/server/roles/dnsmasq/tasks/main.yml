@@ -1,5 +1,6 @@
 ---
 - name: Decrypt hosts file
+  tags: dnsmasq,server
   shell:
     cmd: 'cd {{playbook_dir}}/files/etc; echo {{DNSMASQHOSTPASSWORD}} | openssl enc -d -aes-256-cbc -iter 10 -salt -in {{ item }}.enc -out {{ item }} -pass stdin'
     creates: "files/etc/{{ item }}"
@@ -7,6 +8,7 @@
     - dnsmasq-hosts.conf
 
 - name: Copy dnsmasq config files
+  tags: dnsmasq,server
   copy:
     src: etc/{{ item }}
     dest: /etc/{{ item }}
@@ -17,6 +19,7 @@
     - dnsmasq-hosts.conf
 
 - name: Copy hosts and config file 
+  tags: dnsmasq,server
   template:
     src: '{{item}}.j2'
     dest: '/{{item}}'
@@ -28,6 +31,7 @@
     - etc/dnsmasq.conf
 
 - name: Copy dnsmasq startup rc file with exec mode
+  tags: dnsmasq,server
   copy:
     src: etc/{{ item }}
     dest: /etc/{{ item }}
@@ -40,6 +44,7 @@
   register: dnsmasq
 
 - name: Start dnsmasq if the rc file has been copied
+  tags: dnsmasq,server
   command:
     /etc/rc.d/rc.dnsmasq restart
   when:

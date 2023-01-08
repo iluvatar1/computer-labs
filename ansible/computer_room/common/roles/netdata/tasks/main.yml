@@ -1,13 +1,13 @@
 ---
 - name: Checking existence of installation directory
-  tags: netdata
+  tags: server,client,netdata
   stat:
     path: /opt/netdata/
   register: netdatadir
   failed_when: not netdatadir.stat.isdir
 
 - name: Checking if netdata binary is installed in /opt
-  tags: netdata
+  tags: server,client,netdata
   stat:
     path: /opt/netdata/bin/netdata
   register: netdata
@@ -43,7 +43,7 @@
 #   register: proxy
 
 - name: Link netdata service to correct place
-  tags: netdata
+  tags: server,client,netdata
   file:
     src: /opt/netdata/system/netdata-init-d
     dest:  /etc/init.d/netdata-init-d
@@ -51,7 +51,7 @@
   notify: Restart netdata
 
 - name: Claim node
-  tags: netdata
+  tags: server,client,netdata
   shell:
     cmd: '/opt/netdata/bin/netdata-claim.sh -token={{NETDATA_TOKEN}} -rooms={{NETDATA_ROOM}} -url=https://app.netdata.cloud -proxy={{PROXY}}'
     creates: /opt/netdata/var/lib/netdata/cloud.d/claimed_id

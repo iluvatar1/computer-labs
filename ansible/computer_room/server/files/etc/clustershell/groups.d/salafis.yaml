@@ -20,18 +20,18 @@
 # Group source roles:
 # define groups @roles:adm, @roles:io, etc.
 roles:
-    adm: '192.168.10.1:443'
-    2thr: '192.168.10.[28,29]'
+    admin: '192.168.10.1:443'
+    # 2thr: '192.168.10.[28,29]'
     4thr: '192.168.10.[19-27]'
     6thr: '192.168.10.[16-18]'    
     8thr: '192.168.10.[7-15]'
     12thr: '192.168.10.[3-6]'
     16thr: '192.168.10.[2]'
-    nodes: '@2thr,@4thr,@6thr,@8thr,@12thr,@16thr'
+    nodes: '@4thr,@6thr,@8thr,@12thr,@16thr'
     efi: '192.168.10.[2-6,16-18]'
     bios: '192.168.10.[7-15,19-29]'
     TEST: '192.168.10.[2-100]'
-    all: '@adm,@nodes'
+    all: '@admin,@nodes'
 
     # adm: 'example0'
     # io: '@racks:rack2,example2'

@@ -1,4 +1,4 @@
 - name: Restart nis
-  tags: nis
+  tags: client,nis
   shell:
     cmd: 'nisdomainname -F /etc/defaultdomain; /etc/rc.d/rc.yp restart; /etc/rc.d/rc.inet2 restart'

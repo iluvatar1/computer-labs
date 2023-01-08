@@ -1,20 +1,24 @@
 ---
 - name: Creating Xauthority
+  tags: server,etcskel
   file:
     path: /etc/skel/.Xauthority
 
 - name: Copying .bashrc with proxy, starship setup
+  tags: server,etcskel
   template:
     src: 'etc/skel/bashrc.j2'
     dest: '/etc/skel/.bashrc'
     backup: no
 
 - name: Creating bash_profile from bashrc
+  tags: server,etcskel
   copy:
     src: /etc/skel/.bashrc
     dest: /etc/skel/.bash_profile
 
 - name: Creating xinitrc and xsession for xfce
+  tags: server,etcskel
   copy:
     src: /etc/X11/xinit/xinitrc.xfce
     dest: /etc/skel/.{{ item }}
@@ -23,6 +27,7 @@
     - xsession
 
 - name: Remove compositing in xfce4 (problems with x2go - this is duplicated from x2go setup)
+  tags: server,etcskel
   copy:
     src: '{{ item }}'
     dest: '/{{ item  }}'

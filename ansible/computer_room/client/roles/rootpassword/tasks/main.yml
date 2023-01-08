@@ -1,6 +1,6 @@
 ---
 - name: Changing root password
-  tags: root_password
+  tags: client,root_password
   ansible.builtin.user:
     name: root
     state: present

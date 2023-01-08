@@ -1,16 +1,19 @@
 ---
 - name: Checking if package installed
+  tags: clustershell, server
   stat:
     path: /usr/bin/clush
   register: clush
 
 - name: Installing if not installed
+  tags: clustershell, server
   shell:
     cmd: source /root/.bashrc; pip3 install clustershell
   when:
     clush.stat.exists == False
 
 - name: Check if config dirs exist
+  tags: clustershell, server
   file:
     path: '{{item}}'
     state: directory
@@ -19,6 +22,7 @@
     - /etc/clustershell/groups.d
 
 - name: Copying config file
+  tags: clustershell, server
   copy:
     src: '{{item}}'
     dest: '/{{item}}'

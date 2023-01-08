@@ -1,6 +1,6 @@
 ---
 - name: Check if monit is installed
-  tags: monit, common
+  tags: server,client,monit, common
   stat:
     path: /usr/bin/monit
   register: monit
@@ -15,7 +15,7 @@
 #   notify: Restart monit
 
 - name: Adding option to read files in monit.d
-  tags: monit, common
+  tags: server,client,monit, common
   lineinfile:
     path: /etc/monitrc
     regexp: '^{{item}}'
@@ -25,19 +25,19 @@
   notify: Restart monit
 
 - name: Make sure monitrc exists and has right permissions
-  tags: monit, common
+  tags: server,client,monit, common
   file:
     path: /etc/monitrc
     mode: 0600
 
 - name: Make sure /etc/monit.d exists
-  tags: monit, common
+  tags: server,client,monit, common
   file:
     path: /etc/monit.d
     state: directory
 
 - name: Copying auxiliary restart script
-  tags: monit, common
+  tags: server,client,monit, common
   copy:
     src: "{{item}}"
     dest: "/{{item}}"
@@ -46,7 +46,7 @@
     - usr/local/bin/monit_restart.sh
   
 - name: Adding monit to inittab to make it run always
-  tags: monit, common
+  tags: server,client,monit, common
   lineinfile:
     path: /etc/inittab
     search_string: '{{item}}'
@@ -56,7 +56,7 @@
   notify: Restart monit
   
 - name: Copy config files
-  tags: monit, common
+  tags: server,client,monit, common
   copy:
     src: "{{item}}"
     dest: "/{{item}}"
@@ -67,7 +67,7 @@
   notify: Restart monit
 
 - name: Activate monit service
-  tags: monit, common
+  tags: server,client,monit, common
   file:
     path: /etc/rc.d/rc.monit
     mode: +x

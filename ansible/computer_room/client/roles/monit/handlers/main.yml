@@ -1,4 +1,4 @@
 - name: Restart monit
-  tags: monit
+  tags: client,monit
   command:
     cmd: /etc/rc.d/rc.monit restart

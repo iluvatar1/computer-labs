@@ -1,0 +1,8 @@
+---
+- name: Allowing apache to listen to extra port 8082
+  tags: apache, server
+  lineinfile:
+    path: /etc/httpd/httpd.conf
+    line: 'Listen 8082'
+    insertafter: 'Listen 80'
+  notify: Restart apache

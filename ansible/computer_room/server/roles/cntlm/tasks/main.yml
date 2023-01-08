@@ -1,22 +1,26 @@
 ---
 - name: Checking if package installed
+  tags: cntlm,server
   stat:
     path: /usr/sbin/cntlm
   register: cntlm
 
 - name: Installing if not installed
+  tags: cntlm,server
   shell:
     cmd: source /root/.bashrc; sbopkg -B -k -i cntlm
   register: cntlminstall
   when: cntlm.stat.exists == False
 
 - name: Making sure service is enabled
+  tags: cntlm,server
   file:
     path: /etc/rc.d/rc.cntlm
     mode: +x
   register: service
 
 - name: Copying config
+  tags: cntlm,server
   template:
     src: 'etc/cntlm.conf.j2'
     dest: '/etc/cntlm.conf'
@@ -26,6 +30,7 @@
   register: config
 
 - name: Restart service if there is any config change
+  tags: cntlm,server
   shell:
     cmd: /etc/rc.d/rc.cntlm restart
   when:

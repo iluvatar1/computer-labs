@@ -1,5 +1,6 @@
 ---
 - name: Copying hosts.allow
+  tags: server,nis
   template:
     src: etc/hosts.allow.j2
     dest: /etc/hosts.allow
@@ -7,6 +8,7 @@
   register: hosts
 
 - name: Setting defaultdomain file
+  tags: server,nis
   lineinfile:
     path: /etc/defaultdomain
     regexp: '^{{NISDOMAIN}}'
@@ -14,6 +16,7 @@
   register: defaultdomain
 
 - name: Copying yp.conf config
+  tags: server,nis
   template:
     src: "{{item}}.j2"
     dest: "/{{item}}"
@@ -23,6 +26,7 @@
   register: ypconf
 
 - name: Copying Makefile config
+  tags: server,nis
   copy:
     src: "{{item}}"
     dest: "/{{item}}"
@@ -32,6 +36,7 @@
   register: make
 
 - name: Enabling yp server
+  tags: server,nis
   replace:
     dest: /etc/rc.d/rc.yp
     regexp: '^YP_SERVER_ENABLE=0'
@@ -39,6 +44,7 @@
   register: ypserver
 
 - name: Disabling yp client
+  tags: server,nis
   replace:
     dest: /etc/rc.d/rc.yp
     regexp: '^YP_CLIENT_ENABLE=1'
@@ -46,6 +52,7 @@
   register: ypclient
 
 - name: Starting yp services if config changed
+  tags: server,nis
   command:
     cmd: "{{item}}"
   loop:
@@ -53,4 +60,3 @@
     - '/etc/rc.d/rc.yp restart' 
   when:
     hosts.changed or defaultdomain.changed or ypconf.changed or make.changed or ypserver.changed or ypclient.changed
-    

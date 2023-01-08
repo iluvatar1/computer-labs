@@ -1,6 +1,6 @@
 ---
 - name: Removing permissions to shudown or halt system
-  tags: shutdownperms
+  tags: server,client,shutdownperms
   file:
     dest: "{{item}}"
     mode: o-x
@@ -9,7 +9,7 @@
     - /sbin/halt
 
 - name: Copying polkit rules and acpi handler
-  tags: shutdownperms
+  tags: server,client,shutdownperms
   copy: 
     src: "{{item}}"
     dest: "/{{item}}"

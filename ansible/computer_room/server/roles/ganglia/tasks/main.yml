@@ -1,8 +1,10 @@
 ---
 - name: Verify gmond is installed
+  tags: server, ganglia
   stat:
     path: /usr/sbin/gmond
   register: gmond
+  failed_when: not gmond.stat.exists
 
 # - name: Verify bind option is UNCOMMENTED in gmond for receiving traffice (must be commented on client)
 #   lineinfile:
@@ -18,6 +20,7 @@
 #     gmondconfig.changed
 
 - name: Adding ganglia config to httpd server
+  tags: server, ganglia
   lineinfile:
     path: /etc/httpd/httpd.conf
     regexp: '^{{item}}'
@@ -26,10 +29,9 @@
   loop:
     - 'Include /etc/httpd/extra/ganglia.conf'
   register: httpd
-  when:
-    gmond.stat.exists
 
 - name: Activate mod_conf in httpd
+  tags: server, ganglia
   replace:
     dest: /etc/httpd/httpd.conf
     regexp: '^#{{item}}'
@@ -38,30 +40,27 @@
   loop:
     - 'Include /etc/httpd/mod_php.conf'
   register: httpd2
-  when:
-    gmond.stat.exists
 
 - name: Copying http ganglia config
+  tags: server, ganglia
   copy:
     src: '{{item}}'
     dest: '/{{item}}'
   loop:
     - etc/httpd/extra/ganglia.conf
   register: httpd3
-  when:
-    gmond.stat.exists
 
 - name: Copying gmetad ganglia config
+  tags: server, ganglia
   template:
     src: '{{item}}.j2'
     dest: '/{{item}}'
   loop:
     - etc/ganglia/gmetad.conf
   register: gmetadconf
-  when:
-    gmond.stat.exists
 
 - name : Activating services
+  tags: server, ganglia
   file:
     path: '/etc/rc.d/rc.{{item}}'
     mode: +x
@@ -69,15 +68,13 @@
     - httpd
     - gmetad
   register: services
-  when:
-    gmond.stat.exists
 
 - name: Restarting services if needed
+  tags: server, ganglia
   shell:
     cmd: '/etc/rc.d/rc.{{item}} restart'
   loop:
     - 'httpd'
     - 'gmetad'
   when:
-    config.changed or httpd.changed or httpd2.changed or httpd3.changed  or services.changed or gmetadconf.changed      
-
+    httpd.changed or httpd2.changed or httpd3.changed  or services.changed or gmetadconf.changed

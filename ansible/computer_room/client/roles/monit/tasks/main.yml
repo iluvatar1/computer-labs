@@ -1,5 +1,5 @@
 - name: Copy config files
-  tags: monit
+  tags: client,monit
   template:
     src: "{{item}}.j2"
     dest: "/{{item}}"
@@ -10,7 +10,7 @@
     - Restart monit
 
 - name: Activate monit service
-  tags: monit
+  tags: client,monit
   file:
     path: /etc/rc.d/rc.monit
     mode: +x

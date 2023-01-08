@@ -1,6 +1,6 @@
 ---
 - name: Activating ntpd service
-  tags: ntp
+  tags: client,ntp
   file:
     path: /etc/rc.d/rc.ntpd
     mode: +x
@@ -16,7 +16,7 @@
 #   notify: Restart ntpd
 
 - name: Adding ntp config , line by line
-  tags: ntp
+  tags: client,ntp
   lineinfile:
     dest: /etc/ntp.conf
     search_string: '^{{item}}'

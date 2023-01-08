@@ -1,5 +1,6 @@
 ---
 - name: Ensure rquotad is allowed for all internal hosts
+  tags: server,quota
   lineinfile:
     path: /etc/hosts.allow
     regexp: '^rquotad'
@@ -8,6 +9,7 @@
     insertbefore: '^# End of hosts.allow'
 
 - name: Make sure quota files exists
+  tags: server,quota
   file:
     path: /home/aquota.user
     owner: root
@@ -18,6 +20,7 @@
   register: aquota
 
 - name: Adding quota options to fstab
+  tags: server,quota
   lineinfile:
     path: /etc/fstab
     regexp: '(/.*) *(/home) *(\w*\d) *(\w*)[,usrjquota\=aquota.user,jqfmt\=vfsv1]{0} *([0-9]) *([0-9])'
@@ -27,23 +30,31 @@
   register: quotaopts
 
 - name: Remounting file system to reload with quota if mount options changed
+  tags: server,quota
   shell:
     cmd: mount -o remount /dev/sdb2 /home
   when: quotaopts.changed == True
+
 - name: Deactivating quota if quota file created
+  tags: server,quota
   shell:
     cmd: quotaoff -avu
   when: aquota.changed == True
+
 - name: Checking quota if quota file created
+  tags: server,quota
   shell:
     cmd: quotacheck -avum 
   when: aquota.changed == True
+
 - name: Activating quota if quota file created
+  tags: server,quota
   shell:
     cmd: quotaon -avu
   when: aquota.changed == True
 
 - name: Adding quotacheck to rc.local
+  tags: server,quota
   blockinfile:
     path: /etc/rc.d/rc.local
     backup: yes
@@ -53,6 +64,7 @@
       /usr/sbin/quotacheck -vug /home &
 
 - name: Printing useful info
+  tags: server,quota
   debug:
     msg:
     - "Make sure that all nfs clients mount the filesystem as : ${SERVERIP}:/home     /home   nfs     rw,hard,intr,usrquota  0   0"
