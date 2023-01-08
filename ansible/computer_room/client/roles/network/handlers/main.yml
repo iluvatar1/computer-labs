@@ -1,0 +1,4 @@
+- name: Restart networkmanager
+  tags: network
+  shell:
+    cmd: /etc/rc.d/rc.networkmanager restart
