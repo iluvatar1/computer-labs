@@ -1,0 +1,7 @@
+- name: Restart nfs
+  tags: nfs
+  shell:
+    cmd: '/etc/rc.d/rc.{{item}} restart'
+  loop:
+    - nfsd
+    - inet2
