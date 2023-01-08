@@ -1,23 +1,26 @@
 ---
 - name: Activating needing services
+  tags: nis
   file:
     path: '/etc/rc.d/rc.{{item}}'
     mode: +x
   loop:
     - nfsd
     - yp
-  register: services
+  notify: Restart nis
 
 - name: Writing nisdomain to configfile
+  tags: nis
   lineinfile:
     dest: /etc/defaultdomain
     regexp: '^{{NISDOMAIN}}'
     line: '{{NISDOMAIN}}'
     backup: yes
     create: yes
-  register: nisdomain
+  notify: Restart nis
 
 - name: Adding setting defultdomain at startup
+  tags: nis
   lineinfile:
     dest: /etc/rc.d/rc.local
     regexp: '^{{item}}'
@@ -25,9 +28,10 @@
     backup: yes
   loop:
     - 'nisdomainname -F /etc/defaultdomain'
-  register: defaultdomain
+  notify: Restart nis
 
 - name: Removing typo line with  defultdomain at startup
+  tags: nis
   lineinfile:
     dest: /etc/rc.d/rc.local
     regexp: '^{{item}}'
@@ -37,6 +41,7 @@
     - 'nisdomainame -F /etc/defaultdomain'
 
 - name: Adding yp server config
+  tags: nis
   lineinfile:
     dest: /etc/yp.conf
     regexp: '^{{item}}'
@@ -44,18 +49,20 @@
     backup: yes
   loop:
     - 'ypserver {{SERVERIP}}'
-  register: ypserverconf
+  notify: Restart nis
 
 - name: Copying nsswitch config
+  tags: nis
   copy:
     src: '{{item}}'
     dest: '/{{item}}'
     backup: yes
   loop:
     - etc/nsswitch.conf
-  register: nsswitch
+  notify: Restart nis
 
 - name: Adding needed pattern to /etc/passwd
+  tags: nis
   lineinfile:
     dest: /etc/passwd
     search_string: '{{item}}'
@@ -63,9 +70,10 @@
     backup: yes
   loop:
     - '+::::::'
-  register: passwd
+  notify: Restart nis
   
 - name: Adding needed pattern to /etc/shadow
+  tags: nis
   lineinfile:
     dest: /etc/shadow
     search_string: '{{item}}'
@@ -73,9 +81,10 @@
     backup: yes
   loop:
     - '+::::::::'
-  register: shadow
+  notify: Restart nis
 
 - name: Adding needed pattern to /etc/group
+  tags: nis
   lineinfile:
     dest: /etc/group
     search_string: '{{item}}'
@@ -83,37 +92,32 @@
     backup: yes
   loop:
     - '+:::'
-  register: group
+  notify: Restart nis
 
 - name: Disabling yp server
+  tags: nis
   replace:
     dest: /etc/rc.d/rc.yp
     regexp: '^YP_SERVER_ENABLE=1'
     replace: '^YP_SERVER_ENABLE=0'
     backup: yes
-  register: ypserver
+  notify: Restart nis
 
 - name: Enabling yp client
+  tags: nis
   replace:
     dest: /etc/rc.d/rc.yp
     regexp: '^YP_CLIENT_ENABLE=0'
     replace: '^YP_CLIENT_ENABLE=1'
     backup: yes
-  register: ypclient
+  notify: Restart nis
 
 - name: Remove broadcast option in yp
+  tags: nis
   lineinfile:
     dest: /etc/default/yp
     regexp: '{{item}}'
     line: '{{item}}'
   loop:
     - 'YPBIND_OPTS=" "'
-  register: ypopt
-
-- name: Restart services if needed
-  shell:
-    cmd: 'nisdomainname -F /etc/defaultdomain; /etc/rc.d/rc.yp restart; /etc/rc.d/rc.inet2 restart'
-  when:
-    services.changed or nisdomain.changed or defaultdomain.changed or ypserverconf.changed or nsswitch.changed or passwd.changed or shadow.changed or group.changed or ypserver.changed or ypclient.changed or ypopt.changed
-    
-
+  notify: Restart nis
