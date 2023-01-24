@@ -22,8 +22,8 @@ check process ypbind with pidfile /var/run/ypbind.pid
       if 5 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no ypbind'"
 
 check filesystem homefs with path /home
-      start program  = "/sbin/mount /home"
-      stop program  = "/sbin/umount /home"
+      start program  = "/sbin/mount -t nfs /home"
+      stop program  = "/sbin/umount -t nfs /home"
       if 5 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'home mounted'"
 
 check host serversalafis with address {{SERVERIP}}
