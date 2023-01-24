@@ -113,8 +113,8 @@
       create: yes
       block: |
         check filesystem package_nfs with path /packages
-            start program = "/sbin/mount /packages"
-            stop program  = "/sbin/umount /packages"
+            start program = "/sbin/mount -t nfs /packages"
+            stop program  = "/sbin/umount -t nfs /packages"
     register: pkg_monit
 
   - name: Restart monit service if needed
