@@ -15,12 +15,12 @@
     - nfs
     - nis
     - crontab
+    - rootpassword
     - ../common/roles/monit
     - monit
     - x2go
     - ../common/roles/ganglia
     - ../common/roles/netdata
     - harddisk
-    - rootpassword
     - ../common/roles/motd
     - pip
