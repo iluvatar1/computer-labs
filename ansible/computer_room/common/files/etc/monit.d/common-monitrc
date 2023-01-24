@@ -5,10 +5,11 @@
 #    ALLOW admin:monitabcde54321
 
 CHECK NETWORK eth0 with INTERFACE eth0
-      start program = "/etc/rc.d/rc.inet1 eth0_restart"
+      start program = "/etc/rc.d/rc.inet1 eth0_start"
       stop program = "/etc/rc.d/rc.inet1 eth0_stop"
       if failed link then restart
-      if 5 restarts within 10 cycles then exec "/usr/bin/date >> /var/log/restart_monit.log; echo 'MONIT: restart no ip eth0' >> /var/log/restart_monit.log; /sbin/telinit 6"
+      #if 10 restarts within 10 cycles then exec "/usr/bin/date >> /var/log/restart_monit.log; echo 'MONIT: restart no ip eth0' >> /var/log/restart_monit.log; /sbin/telinit 6"
+      if 10 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No eth0 ip'"
 
 check filesystem rootfs with path /
     if space usage > 90% then alert
@@ -44,7 +45,8 @@ check system $HOST
       #if loadavg (1min) per core > 0.8 for 10 cycles then exec "/sbin/telinit 6 "
       if loadavg (5min) per core > 0.8 for 10 cycles then alert
       #if loadavg (15min) per core > 0.8 for 10 cycles then exec "/sbin/telinit 6"
-      if memory usage > 97% for 6 cycles then exec "/usr/bin/date >> /var/log/restart_monit.log; echo 'MONIT: memusage high ' >> /var/log/restart_monit.log; /sbin/telinit 6"
+      #if memory usage > 97% for 6 cycles then exec "/usr/bin/date >> /var/log/restart_monit.log; echo 'MONIT: memusage high ' >> /var/log/restart_monit.log; /sbin/telinit 6"
+      if memory usage > 97% for 6 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No memusage high'"
 
 CHECK process netdata matching netdata
       #with pidfile /opt/netdata/var/run/netdata/netdata.pid
