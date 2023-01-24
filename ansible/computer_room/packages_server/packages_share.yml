@@ -2,6 +2,7 @@
 # Check real monitoring if nfs file: http://swick.2flub.org/Monitoring_stale_NFS_and_CIFS_shares_with_monit.html
 - name: Configuring package server (exports spack packages and other stuff)
   hosts: "{{ variable_host | default('package_server') }}"
+  tags: package_server
   gather_facts: false
   vars_files:
     - vars/main.yml
@@ -76,8 +77,9 @@
 
 - name: Mounting /packages on all nodes and setting up spack source
   # Check if better done with autofs: https://www.linuxtechi.com/automount-nfs-share-in-linux-using-autofs/, https://www.redhat.com/sysadmin/mount-nfs-filesystems-autofs
-  hosts: "{{ variable_host | default('package_clients') }}"
+  hosts: "{{ variable_host_client | default('package_clients') }}"
   gather_facts: false
+  tags: package_clients
   vars_files:
     - vars/main.yml
   tasks:
