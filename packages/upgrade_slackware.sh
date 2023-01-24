@@ -1,5 +1,5 @@
 #!/bin/bash
-source /root/.bashrc
+#source /root/.bashrc
 echo YES | slackpkg -batch=on -default_answer=y update gpg
 slackpkg  -batch=on -default_answer=y update
 slackpkg  -batch=on -default_answer=y install-new
