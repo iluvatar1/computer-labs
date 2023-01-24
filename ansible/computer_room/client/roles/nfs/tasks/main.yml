@@ -16,3 +16,12 @@
     regexp:  ' /sbin/mount -a -t nfs          # This may be our /usr runtime!'
     replace: ' /sbin/mount -a -t nfs &         # This may be our /usr runtime!'
   notify: Restart nfs
+
+- name: Adding timeout to nfs umount when restarting to avoid hanging after a stalled nfs server
+  tags: client,nfs
+  replace:
+    path: /etc/rc.d/rc.6
+    backup: yes
+    regexp:  '/bin/umount -v -a -l -f -r -t nfs,nfs4,smbfs,cifs '
+    replace: '/usr/bin/timeout 10s /bin/umount -v -a -l -f -r -t nfs,nfs4,smbfs,cifs '
+  notify: Restart nfs
