@@ -1,46 +1,48 @@
 ---
+## Maybe remove installation to the package management?
 - name: Checking existence of installation directory
   tags: server,client,netdata
   stat:
     path: /opt/netdata/
   register: netdatadir
-  failed_when: not netdatadir.stat.isdir
+  #failed_when: not netdatadir.stat.isdir
 
 - name: Checking if netdata binary is installed in /opt
   tags: server,client,netdata
   stat:
     path: /opt/netdata/bin/netdata
   register: netdata
-  failed_when: not netdata.stat.exists
+  #failed_when: not netdata.stat.exists
 
-## Removed installation to the package management
-# - name: Downloading netdata if not installed
-#   shell:
-#     cmd: "source $HOME/.bashrc; wget -c https://github.com/netdata/netdata/releases/download/v1.33.1/netdata-x86_64-latest.gz.run -O /tmp/netdatainstall.sh"
-#     creates: /tmp/netdatainstall.sh
-#   register: netdatafile
-#   when:
-#     netdata.stat.exists == false
-#   environment:
-#     https_proxy: http:{{PROXY}}
+- name: Downloading netdata if not installed
+  tags: netdata, client, server
+  shell:
+    cmd: "source $HOME/.bashrc; wget -c https://github.com/netdata/netdata/releases/download/v1.33.1/netdata-x86_64-latest.gz.run -O /tmp/netdatainstall.sh"
+    creates: /tmp/netdatainstall.sh
+  register: netdatafile
+  when:
+    netdata.stat.exists == false
+  #environment:
+  #  https_proxy: http:{{PROXY}}
 
-# - name: Installing netdata if not installed but downloaded
-#   shell:
-#     cmd: 'echo y | bash /tmp/netdatainstall.sh'
-#   when:
-#     netdata.stat.exists == false
-#   register: install
+- name: Installing netdata if not installed but downloaded
+  tags: netdata, client, server
+  shell:
+    cmd: 'echo y | bash /tmp/netdatainstall.sh'
+  when:
+    netdata.stat.exists == false
+  register: install
 
-## Removed proxy, not needed since late 2022
-# - name: Add proxy to netdata configuration
-#   lineinfile:
-#     dest: /opt/netdata/etc/netdata/netdata.conf
-#     regexp: '.*proxy = http://{{PROXY}}'
-#     line: '        proxy = http://{{PROXY}}'
-#     insertafter: '\[cloud\]'
-#   when:
-#     netdatadir.stat.exists and netdatadir.stat.isdir
-#   register: proxy
+# ## Removed proxy, not needed since late 2022
+# # - name: Add proxy to netdata configuration
+# #   lineinfile:
+# #     dest: /opt/netdata/etc/netdata/netdata.conf
+# #     regexp: '.*proxy = http://{{PROXY}}'
+# #     line: '        proxy = http://{{PROXY}}'
+# #     insertafter: '\[cloud\]'
+# #   when:
+# #     netdatadir.stat.exists and netdatadir.stat.isdir
+# #   register: proxy
 
 - name: Link netdata service to correct place
   tags: server,client,netdata
@@ -53,6 +55,7 @@
 - name: Claim node
   tags: server,client,netdata
   shell:
-    cmd: '/opt/netdata/bin/netdata-claim.sh -token={{NETDATA_TOKEN}} -rooms={{NETDATA_ROOM}} -url=https://app.netdata.cloud -proxy={{PROXY}}'
+    #cmd: '/opt/netdata/bin/netdata-claim.sh -token={{NETDATA_TOKEN}} -rooms={{NETDATA_ROOM}} -url=https://app.netdata.cloud -proxy={{PROXY}}'
+    cmd: '/opt/netdata/bin/netdata-claim.sh -token={{NETDATA_TOKEN}} -rooms={{NETDATA_ROOM}} -url=https://app.netdata.cloud'
     creates: /opt/netdata/var/lib/netdata/cloud.d/claimed_id
   notify: Restart netdata
