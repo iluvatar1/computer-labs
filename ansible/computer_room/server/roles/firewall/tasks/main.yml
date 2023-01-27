@@ -21,6 +21,17 @@
   loop:
     - etc/arno-iptables-firewall/firewall.conf
 
+- name: Copying firewall plugins config
+  tags: server,arno,firewall
+  template:
+    src: '{{item}}'
+    dest: '/{{item}}'
+    #chmod: o-rwx
+  loop:
+    - etc/arno-iptables-firewall/plugins/ssh-brute-force-protection.conf
+    - etc/arno-iptables-firewall/plugins/adaptive-ban.conf
+  register: plugins
+
 - name: Copying blocked hosts file
   tags: server,arno,firewall
   template:
@@ -52,47 +63,7 @@
     mode: +x
   register: arnoexec
 
-- name: Activating ssh brute force protection
-  tags: server,arno,firewall
-  replace:
-    path: /etc/arno-iptables-firewall/plugins/ssh-brute-force-protection.conf
-    regexp: "^ENABLED=0"
-    replace: "ENABLED=1"
-  register: sshenabled
-
-- name: Adding ports for ssh protection
-  tags: server,arno,firewall
-  replace:
-    path: /etc/arno-iptables-firewall/plugins/ssh-brute-force-protection.conf
-    regexp: '^SSH_BFP_PORTS=.*'
-    replace: 'SSH_BFP_PORTS="22 443 2222"'
-  register: sshenabledports
-
-- name: Setting up rate1 in ssh protection
-  tags: server,arno,firewall
-  replace:
-    path: /etc/arno-iptables-firewall/plugins/ssh-brute-force-protection.conf
-    regexp: '^SSH_BFP_MAX_RATE1=.*'
-    replace: 'SSH_BFP_MAX_RATE1="5"'
-  register: sshenabledrate1
-
-- name: Setting up rate2 in ssh protection
-  tags: server,arno,firewall
-  replace:
-    path: /etc/arno-iptables-firewall/plugins/ssh-brute-force-protection.conf
-    regexp: '^SSH_BFP_MAX_RATE2=.*'
-    replace: 'SSH_BFP_MAX_RATE2="10"'
-  register: sshenabledrate2
-
-- name: Activating adaptative ban
-  tags: server,arno,firewall
-  replace:
-    path: /etc/arno-iptables-firewall/plugins/adaptive-ban.conf
-    regexp: "^ENABLED=0"
-    replace: "ENABLED=1"
-  register: adaptiveban
-
 - name: Starting firewall if just made executable or added some config
   tags: server,arno,firewall
   shell: /etc/rc.d/rc.firewall restart
-  when: arnoexec.changed == True or adaptiveban.changed or sshenabled.changed or sshenabledports.changed or sshenabledrate1.changed or sshenabledrate2.changed or blocked_hosts.changed or conntrack.changed
+  when: arnoexec.changed == True or plugins.changed or blocked_hosts.changed or conntrack.changed
