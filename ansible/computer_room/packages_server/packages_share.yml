@@ -89,6 +89,7 @@
       path: /packages
     register: packages
     timeout: 5
+
   - name: Creating packages subdir if needed
     file:
       path: /packages
@@ -101,6 +102,7 @@
       path: /packages
       src: "{{ groups.package_server | first }}:/packages"
       fstype: nfs
+      opts: rw,soft
       state: "{{item}}"
     loop:
       - present
