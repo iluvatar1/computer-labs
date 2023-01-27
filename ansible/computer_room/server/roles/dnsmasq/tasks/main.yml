@@ -1,11 +1,11 @@
 ---
-- name: Decrypt hosts file
-  tags: dnsmasq,server
-  shell:
-    cmd: 'cd {{playbook_dir}}/files/etc; echo {{DNSMASQHOSTPASSWORD}} | openssl enc -d -aes-256-cbc -iter 10 -salt -in {{ item }}.enc -out {{ item }} -pass stdin'
-    creates: "files/etc/{{ item }}"
-  loop:
-    - dnsmasq-hosts.conf
+#- name: Decrypt hosts file
+#  tags: dnsmasq,server
+#  shell:
+#    cmd: 'cd {{playbook_dir}}/files/etc; echo {{DNSMASQHOSTPASSWORD}} | openssl enc -d -aes-256-cbc -iter 10 -salt -in {{ item }}.enc -out {#{ item }} -pass stdin'
+#    creates: "files/etc/{{ item }}"
+#  loop:
+#    - dnsmasq-hosts.conf
 
 - name: Copy dnsmasq config files
   tags: dnsmasq,server
