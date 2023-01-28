@@ -30,3 +30,4 @@
     - tailscale
     - ../common/roles/motd
     - sshguard
+    - virtualbox
