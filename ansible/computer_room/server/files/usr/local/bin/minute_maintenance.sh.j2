@@ -32,16 +32,7 @@
 # fi
 
 # wake on lan
-echo "Wakeonlan"
-if [ -f /root/MACS ] ; then
-    #wol -i {{BASE_SERVERIP}}.255 -f /root/MACS
-    #wol -f /root/MACS
-    for a in $(cat /root/MACS); do
-        wol -i {{BASE_SERVERIP}}.255  -p 9 -v $a;
-    done
-else
-    echo "File does not exists: /root/MACS"
-fi
+bash /usr/local/bin/wol.sh
 
 echo "rebuild nis database"
 make -C /var/yp

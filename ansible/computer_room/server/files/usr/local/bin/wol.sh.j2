@@ -1,0 +1,22 @@
+#!/bin/bash
+
+echo "Wake on lan to awake internal clients: "
+
+FNAME=/root/MACS
+
+echo "Extracting macs from dnsmasq-host to ${FNAME} ..."
+grep -v "#" /etc/dnsmasq-hosts.conf | awk -F, '{print $1}' > ${FNAME}
+
+# wake on lan                                                                                                                                         
+echo "Running Wakeonlan ..."
+if [ -f ${FNAME} ] ; then
+    #wol -i {{BASE_SERVERIP}}.255 -f ${FNAME}                                                                                                       
+    #wol -f ${FNAME}                                                                                                           
+    for a in $(cat ${FNAME}); do
+        wol -i {{BASE_SERVERIP}}.255  -p 9 -v $a;
+    done
+else
+    echo "File does not exists: ${FNAME}"
+fi
+
+echo "Done."

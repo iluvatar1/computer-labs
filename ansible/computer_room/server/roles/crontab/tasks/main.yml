@@ -1,5 +1,5 @@
 ---
-- name: Copying minute maintenance script
+- name: Copying minute maintenance and wol scripts (templates)
   tags: crontab,server
   template:
     src: "{{item}}.j2"
@@ -7,6 +7,7 @@
     mode: 0755
   loop:
     - usr/local/bin/minute_maintenance.sh
+    - usr/local/bin/wol.sh
   register: minutescript
 
 - name: Adding minute_maintenance job

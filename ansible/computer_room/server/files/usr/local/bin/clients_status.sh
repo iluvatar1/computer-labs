@@ -12,7 +12,7 @@
 
 # EOF
 
-clush -P -b  -w @roles:nodes 'nproc' 2> /dev/null > /home/clients_status.txt
+clush -P -b  -w @roles:nodes 'echo "nproc=$(nproc)"' 2> /dev/null > /home/clients_status.txt
 
 # cat <<EOF >> $FNAME
 # [1;0m
