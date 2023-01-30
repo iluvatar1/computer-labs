@@ -30,7 +30,7 @@
         "<wait>gdisk /dev/sda<enter><wait>",
         "n<enter>1<enter><enter>+512M<enter>EF00<enter><wait2s>",
         "n<enter>2<enter><enter>+40G<enter>8300<enter><wait2s>",
-        "n<enter>3<enter><enter>+1G<enter>8200<enter><wait2s>",
+        "n<enter>3<enter><enter>+8G<enter>8200<enter><wait2s>",
         "n<enter>4<enter><enter>+15G<enter>8300<enter><wait2s>",
         "n<enter>5<enter><enter>+30G<enter>8300<enter><wait2s>",
         "n<enter>6<enter><enter><enter>8300<enter><wait>",
