@@ -12,12 +12,12 @@
   when:
     arno.stat.exists == False
 
-- name: Copying firewall config
+- name: Copying firewall config template
   tags: server,arno,firewall
   template:
     src: '{{item}}.j2'
     dest: '/{{item}}'
-    chmod: o-rwx
+    mode: o-rwx
   loop:
     - etc/arno-iptables-firewall/firewall.conf
 
