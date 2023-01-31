@@ -57,6 +57,12 @@
       register: service
       when: rcx2goserver.stat.exists
 
+- name: Creating directory to put config to remove compositing
+  tags: server,x2go
+  ansible.builtin.file:
+    path: /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/
+    state: directory
+    recurse: yes
 
 - name: Remove compositing in xfce4 (problems with x2go)
   tags: server, x2go
