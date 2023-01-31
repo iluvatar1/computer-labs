@@ -4,12 +4,38 @@
 #    ALLOW 127.0.0.1
 #    ALLOW admin:monitabcde54321
 
+# Check network interfaces
+# CHECK NETWORK eth0 with INTERFACE eth0
+#       start program = "/etc/rc.d/rc.inet1 eth0_start"
+#       stop program = "/etc/rc.d/rc.inet1 eth0_stop"
+#       if failed link then restart
+#       #if 10 restarts within 10 cycles then exec "/usr/bin/date >> /var/log/restart_monit.log; echo 'MONIT: restart no ip eth0' >> /var/log/restart_monit.log; /sbin/telinit 6"
+#       if 10 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No eth0 ip'"
 CHECK NETWORK eth0 with INTERFACE eth0
       start program = "/etc/rc.d/rc.inet1 eth0_start"
       stop program = "/etc/rc.d/rc.inet1 eth0_stop"
       if failed link then restart
-      #if 10 restarts within 10 cycles then exec "/usr/bin/date >> /var/log/restart_monit.log; echo 'MONIT: restart no ip eth0' >> /var/log/restart_monit.log; /sbin/telinit 6"
-      if 10 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No eth0 ip'"
+      #if 10 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No eth0 ip'"
+CHECK NETWORK eth1 with INTERFACE eth1
+      start program = "/etc/rc.d/rc.inet1 eth1_start"
+      stop program = "/etc/rc.d/rc.inet1 eth1_stop"
+      if failed link then restart
+      #if 10 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No eth0 ip'"
+CHECK NETWORK eth2 with INTERFACE eth2
+      start program = "/etc/rc.d/rc.inet1 eth2_start"
+      stop program = "/etc/rc.d/rc.inet1 eth2_stop"
+      if failed link then restart
+      #if 10 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No eth0 ip'"
+CHECK host mmonit.com with address mmonit.com
+      start program = "/etc/rc.d/rc.inet1 start"
+      stop program = "/etc/rc.d/rc.inet1 stop"
+      if failed ping then restart
+CHECK host server with address 192.168.10.1
+      start program = "/etc/rc.d/rc.inet1 start"
+      stop program = "/etc/rc.d/rc.inet1 stop"
+      if failed ping then restart
+      if 10 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No ping to server'"
+
 
 check filesystem rootfs with path /
     if space usage > 90% then alert
