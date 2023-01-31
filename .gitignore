@@ -17,3 +17,4 @@ secrets.yml
 client_secrets.yml
 */config/cfg-D-build_pkgs.json*
 */config/cfg-D-build_pkgs.json-DROPLET
+*.vaultpass
