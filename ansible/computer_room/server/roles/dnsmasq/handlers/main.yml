@@ -1,0 +1,5 @@
+---
+- name: Restart dnsmasq
+  tags: dnsmasq,server
+  command:
+    /etc/rc.d/rc.dnsmasq restart

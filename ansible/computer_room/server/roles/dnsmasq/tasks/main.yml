@@ -1,5 +1,5 @@
 ---
-#- name: Decrypt hosts file
+#- name: Decrypt hosts file (NOT NEDEED, NOW USING ansible-vault)
 #  tags: dnsmasq,server
 #  shell:
 #    cmd: 'cd {{playbook_dir}}/files/etc; echo {{DNSMASQHOSTPASSWORD}} | openssl enc -d -aes-256-cbc -iter 10 -salt -in {{ item }}.enc -out {#{ item }} -pass stdin'
@@ -7,7 +7,7 @@
 #  loop:
 #    - dnsmasq-hosts.conf
 
-- name: Copy dnsmasq config files
+- name: Decrypt and copy dnsmasq-host config files
   tags: dnsmasq,server
   copy:
     src: etc/{{ item }}
@@ -17,6 +17,7 @@
     backup: yes 
   loop:
     - dnsmasq-hosts.conf
+  notify: Restart dnsmasq
 
 - name: Copy hosts and config file 
   tags: dnsmasq,server
@@ -29,6 +30,7 @@
   loop:
     - etc/hosts
     - etc/dnsmasq.conf
+  notify: Restart dnsmasq
 
 - name: Copy dnsmasq startup rc file with exec mode
   tags: dnsmasq,server
@@ -41,11 +43,5 @@
     backup: yes 
   loop:
     - rc.d/rc.dnsmasq
-  register: dnsmasq
+  notify: Restart dnsmasq
 
-- name: Start dnsmasq if the rc file has been copied
-  tags: dnsmasq,server
-  command:
-    /etc/rc.d/rc.dnsmasq restart
-  when:
-    dnsmasq.changed == True
