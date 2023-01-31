@@ -17,8 +17,7 @@
     - nis
     - crontab
     - ../common/roles/monit
-    - monit
-    - cntlm
+#    - cntlm
     - clustershell
     - x2go
     - etcskel
@@ -31,3 +30,4 @@
     - ../common/roles/motd
     - sshguard
     - virtualbox
+    - monit
