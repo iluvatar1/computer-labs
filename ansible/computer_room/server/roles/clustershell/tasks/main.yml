@@ -31,3 +31,14 @@
     - etc/clustershell/clush.conf
     - etc/clustershell/groups.d/salafis.yaml
 
+- name: Copying config and password files (password file encrypted with vault)
+  tags: clustershell, server
+  copy:
+    src: '{{item}}'
+    dest: '/{{item}}'
+    backup: yes
+  loop:
+    - etc/clustershell/clush.conf
+    - etc/clustershell/groups.d/salafis.yaml
+    - root/.clushclientpassword
+
