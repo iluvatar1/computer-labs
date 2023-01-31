@@ -23,6 +23,15 @@
   loop:
     - etc/rc.d/rc.inet1.conf
 
+- name: Copy hostname template
+  tags: server,network
+  template:
+    src: '{{item}}.j2'
+    dest: '/{{item}}'
+    backup: yes 
+  loop:
+    - etc/HOSTNAME
+
 - name: Adding executable status for network manager (TODO-> Is this really needed?)
   tags: server,network
   file:
