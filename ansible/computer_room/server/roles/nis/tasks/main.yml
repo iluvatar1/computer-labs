@@ -1,21 +1,5 @@
 ---
-- name: Copying hosts.allow
-  tags: server,nis
-  template:
-    src: etc/hosts.allow.j2
-    dest: /etc/hosts.allow
-    backup: yes
-  register: hosts
-
-- name: Setting defaultdomain file
-  tags: server,nis
-  lineinfile:
-    path: /etc/defaultdomain
-    regexp: '^{{NISDOMAIN}}'
-    line: '{{NISDOMAIN}}'
-  register: defaultdomain
-
-- name: Copying yp.conf config
+- name: Copying templated config files
   tags: server,nis
   template:
     src: "{{item}}.j2"
@@ -23,7 +7,9 @@
     backup: yes
   loop:
     - etc/yp.conf
-  register: ypconf
+    - etc/hosts.allow
+    - etc/defaultdomain
+  notify: Restart nis
 
 - name: Copying Makefile config
   tags: server,nis
@@ -33,30 +19,27 @@
     backup: yes
   loop:
     - var/yp/Makefile 
-  register: make
+  notify: Restart nis
 
 - name: Enabling yp server
   tags: server,nis
   replace:
     dest: /etc/rc.d/rc.yp
     regexp: '^YP_SERVER_ENABLE=0'
-    replace: '^YP_SERVER_ENABLE=1'
-  register: ypserver
+    replace: 'YP_SERVER_ENABLE=1'
+  notify: Restart nis
 
 - name: Disabling yp client
   tags: server,nis
   replace:
     dest: /etc/rc.d/rc.yp
     regexp: '^YP_CLIENT_ENABLE=1'
-    replace: '^YP_CLIENT_ENABLE=0'
-  register: ypclient
+    replace: 'YP_CLIENT_ENABLE=0'
+  notify: Restart nis
 
-- name: Starting yp services if config changed
-  tags: server,nis
-  command:
-    cmd: "{{item}}"
-  loop:
-    - 'make -BC /var/yp'
-    - '/etc/rc.d/rc.yp restart' 
-  when:
-    hosts.changed or defaultdomain.changed or ypconf.changed or make.changed or ypserver.changed or ypclient.changed
+- name: Make sure rc.yp is executable
+  tags: server, nis
+  ansible.builtin.file:
+    path: /etc/rc.d/rc.yp
+    mode: +x
+  notify: Restart nis
