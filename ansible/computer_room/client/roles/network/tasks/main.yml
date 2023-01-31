@@ -8,6 +8,15 @@
     - etc/NetworkManager/dispatcher.d/90networkmanagerhook.sh
   notify: Restart networkmanager
 
+- name: Copying rc.inet1.conf with dhcp from eth0 to eth2
+  tags: client,network
+  copy:
+    src: '{{item}}'
+    dest: '/{{item}}'
+  loop:
+    - etc/rc.d/rc.inet1.conf
+  notify: Restart inet1
+
 - name: Activating network manager service
   tags: client,network
   file:

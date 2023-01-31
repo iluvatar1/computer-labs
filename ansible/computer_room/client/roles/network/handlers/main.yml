@@ -2,3 +2,8 @@
   tags: client,network
   shell:
     cmd: /etc/rc.d/rc.networkmanager restart
+
+- name: Restart inet1
+  tags: client,network
+  shell:
+    cmd: /etc/rc.d/rc.inet1 restart
