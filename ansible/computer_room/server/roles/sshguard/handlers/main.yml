@@ -1,0 +1,6 @@
+- name: Restart sshguard
+  tags: server,sshguard
+  command:
+    cmd: /etc/rc.d/rc.sshguard restart
+  register: sshguardrestart
+  failed_when: "sshguardrestart.rc not in [0, 255]"

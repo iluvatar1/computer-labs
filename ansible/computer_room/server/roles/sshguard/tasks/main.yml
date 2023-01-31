@@ -1,17 +1,20 @@
 ---
+- name: Check if sshguard is installed
+  stat:
+    path: /usr/sbin/sshguard
+  register: sshguard
+
+- name: Installing sshguard if not installed
+  shell:
+    cmd: sbopkg -B -k -i sshguard
+  when:
+    sshguard.stat.exists == False
+
 - name: Copying sshguard config
   tags: server,sshguard
   ansible.builtin.copy:
     src: etc/sshguard.conf
     dest: /etc/sshguard.conf
     backup: yes
-  register: sshguardconfig
+  notify: Restart sshguard
 
-- name: Restart sshguard service in case any config was done
-  tags: server,sshguard
-  command:
-    cmd: /etc/rc.d/rc.sshguard restart
-  when:
-    sshguardconfig.changed == True
-  register: sshguardrestart
-  failed_when: "sshguardrestart.rc not in [0, 255]"

@@ -1,0 +1,5 @@
+---
+- name: Restart monit
+  tags: server,monit
+  command:
+    cmd: /etc/rc.d/rc.monit restart

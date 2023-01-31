@@ -1,0 +1,8 @@
+---
+- name: Restart nis
+  tags: server,nis
+  command:
+    cmd: "{{item}}"
+  loop:
+    - 'make -BC /var/yp'
+    - '/etc/rc.d/rc.yp restart'
