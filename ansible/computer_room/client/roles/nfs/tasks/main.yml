@@ -1,11 +1,24 @@
 ---
-- name: Adding nfs home mount
+- name: Commenting local home mounting
   tags: client,nfs
-  lineinfile:
-    dest: /etc/fstab
-    regexp: '^{{SERVERIP}}:/home'
-    line: '{{SERVERIP}}:/home  /home  nfs  rw,hard,intr,usrquota  0  0'
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    regexp: '(^/dev/sd.*/home.*ext4.*)' # uses a group
+    line: '# \1' # uses the group capture
     backup: yes
+    backrefs: yes
+
+- name: Adding mount of nfs /home (from server) 
+  tags: client,nfs
+  ansible.posix.mount:
+    path: "{{item.path}}"
+    src: "{{SERVERIP}}:/home"
+    fstype: nfs
+    opts: rw,hard,intr,usrquota
+    state: "{{item.action}}"
+  loop:
+    - { path: /home, action: present } # adds to fstab
+    - { path: /home, action: mounted }
   notify: Restart nfs
 
 - name: Puting initial nfs mounting into background since it corresponds to non-essential fs
