@@ -56,8 +56,11 @@
         "<wait2s><enter>",
         "<wait2s><enter>",
         "<wait2s>e<wait1s><enter><wait2s><enter>",
-        "<wait2s>R<enter><wait10s>",
-
+        "<wait2s>S<enter><wait2s>",
+	"cp -a /boot/efi/EFI/{Slackware,boot}<enter><wait1s>",
+	"mv /boot/efi/EFI/boot/{elilo,bootx64}.efi<enter><wait1s>",
+	"reboot<enter>",
+	  
         "<enter><wait10s><enter><wait60s>",
         "root<enter><wait4s>",
         "<wait>vagrant<enter><wait4s>",
