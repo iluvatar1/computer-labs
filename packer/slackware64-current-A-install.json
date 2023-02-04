@@ -21,7 +21,7 @@
       "boot_keygroup_interval": "1s",
       "headless": "{{user `HEADLESS`}}",
       "boot_command": [
-        "<wait><enter><wait15s>",
+        "<wait><enter><wait20s>",
         "<wait>1<enter>",
         "<wait><enter>",
         "<wait>1<enter>",
