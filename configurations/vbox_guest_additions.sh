@@ -7,7 +7,7 @@ install_virtualbox_guest_additions () {
 	#make prepare
         TMPDIR=$(mktemp -d)
         mount -o loop ~/VBoxGuestAdditions.iso ${TMPDIR}
-        yes yes | /usr/bin/timeout 60s ${TMPDIR}/VBoxLinuxAdditions.run --nox11 --nochown
+        #yes yes | /usr/bin/timeout 60s ${TMPDIR}/VBoxLinuxAdditions.run --nox11 --nochown
         umount ${TMPDIR}
         ls
 
