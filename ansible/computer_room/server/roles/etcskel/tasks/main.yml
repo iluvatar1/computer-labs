@@ -4,7 +4,7 @@
   file:
     path: /etc/skel/.Xauthority
 
-- name: Copying .bashrc with proxy, starship setup
+- name: Copying .bashrc with proxy, NO starship setup
   tags: server,etcskel
   template:
     src: 'etc/skel/bashrc.j2'
