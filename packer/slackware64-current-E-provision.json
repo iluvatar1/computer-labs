@@ -52,11 +52,11 @@
     {
       "type": "file",
       "source": "main.yml",
-      "destination": "~/repos/computer-labs/ansible/computer_room/{{ user `TYPE` }}/vars/"
+      "destination": "~/repos/computer-labs/ansible/{{ user `TYPE` }}/vars/"
     },
     {
       "type": "shell",
-      "inline": ["cd ~/repos/computer-labs/ansible/computer_room/{{ user `TYPE` }}; ansible-playbook --connection=local -e variable_host=localhost {{ user `TYPE` }}.yml"],
+	"inline": ["cd ~/repos/computer-labs/ansible/{{ user `TYPE` }}; ansible-playbook --connection=local -e variable_host=localhost {{ user `TYPE` }}.yml"],
       "valid_exit_codes":[0,2],
       "environment_vars":["https_proxy={{user `PROXY` }}", "http_proxy={{ user `PROXY` }}"]
     },
@@ -66,7 +66,7 @@
     },
     {
       "type": "shell",
-      "inline": ["rm -f /etc/ssh/ssh_host_*"]
+      "inline": ["rm -f /etc/ssh/ssh_host_* ~/repos/computer-labs/ansible/{{ user `TYPE` }}/vars/main.yml"]
     }
   ]
 }
