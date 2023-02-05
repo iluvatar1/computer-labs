@@ -44,6 +44,7 @@ install_binary_packages () {
         for a in *.${ext}; do
 	    echo "Processing: $a"
             upgradepkg --install-new $a  | tee -a $LOG_FILE
+	    rm -f "${a}"
         done
     done
 }
