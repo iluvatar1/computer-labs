@@ -28,10 +28,11 @@ check process sshd with pidfile /var/run/sshd.pid
       if 5 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no sshd'"
 
 check process sshd-connect with pidfile /var/run/sshd.pid
-      every 8 cycles
+      #every 8 cycles
       start program "/etc/rc.d/rc.sshd start"
       stop program "/etc/rc.d/rc.sshd stop"
       if failed port 443 protocol ssh then restart
+      if 8 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no sshd connection port 443'"
 
 #check filesystem optfs with path /opt
 #    if space usage > 90% then alert
