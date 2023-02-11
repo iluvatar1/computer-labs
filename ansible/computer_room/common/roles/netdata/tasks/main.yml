@@ -21,7 +21,7 @@
   ansible.builtin.shell:
     cmd: |
       mv /usr/sbin/adduser{,-old};
-      wget -O /tmp/netdata-kickstart.sh https://my-netdata.io/kickstart.sh && sh /tmp/netdata-kickstart.sh --non-interactive --auto-update ;
+      wget -O /tmp/netdata-kickstart.sh https://my-netdata.io/kickstart.sh && sh /tmp/netdata-kickstart.sh --non-interactive  ;
       mv /usr/sbin/adduser{-old,}
   when:
     netdatadir.stat.exists == false or netdata.stat.exists == false
