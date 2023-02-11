@@ -2,5 +2,3 @@
   tags: server,client,netdata
   shell:
     cmd: /etc/init.d/netdata-init-d restart
-  when:
-    install.changed or netdatadir.changed or service.changed or claim.changed

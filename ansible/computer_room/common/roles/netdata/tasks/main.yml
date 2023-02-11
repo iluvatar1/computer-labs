@@ -1,9 +1,8 @@
 ---
-## Maybe remove installation to the package management?
 - name: Checking existence of installation directory
   tags: server,client,netdata
   stat:
-    path: /opt/netdata/
+    path: /opt/netdata
   register: netdatadir
   #failed_when: not netdatadir.stat.isdir
 
@@ -14,24 +13,20 @@
   register: netdata
   #failed_when: not netdata.stat.exists
 
-- name: Downloading netdata if not installed
+# wget -c https://github.com/netdata/netdata/releases/download/v1.38.0/netdata-x86_64-latest.gz.run -O /tmp/netdatainstall.sh
+# echo y | bash /tmp/netdatainstall.sh'
+
+- name: Downloading and installing netdata if not installed
   tags: netdata, client, server
-  shell:
-    cmd: "source $HOME/.bashrc; wget -c https://github.com/netdata/netdata/releases/download/v1.33.1/netdata-x86_64-latest.gz.run -O /tmp/netdatainstall.sh"
-    creates: /tmp/netdatainstall.sh
-  register: netdatafile
+  ansible.builtin.shell:
+    cmd: |
+      mv /usr/sbin/adduser{,-old};
+      wget -O /tmp/netdata-kickstart.sh https://my-netdata.io/kickstart.sh && sh /tmp/netdata-kickstart.sh --non-interactive --auto-update ;
+      mv /usr/sbin/adduser{-old,}
   when:
-    netdata.stat.exists == false
+    netdatadir.stat.exists == false or netdata.stat.exists == false
   #environment:
   #  https_proxy: http:{{PROXY}}
-
-- name: Installing netdata if not installed but downloaded
-  tags: netdata, client, server
-  shell:
-    cmd: 'echo y | bash /tmp/netdatainstall.sh'
-  when:
-    netdata.stat.exists == false
-  register: install
 
 # ## Removed proxy, not needed since late 2022
 # # - name: Add proxy to netdata configuration
@@ -55,7 +50,7 @@
 - name: Claim node
   tags: server,client,netdata
   shell:
-    #cmd: '/opt/netdata/bin/netdata-claim.sh -token={{NETDATA_TOKEN}} -rooms={{NETDATA_ROOM}} -url=https://app.netdata.cloud -proxy={{PROXY}}'
+    # cmd: '/opt/netdata/bin/netdata-claim.sh -token={{NETDATA_TOKEN}} -rooms={{NETDATA_ROOM}} -url=https://app.netdata.cloud -proxy={{PROXY}}'
     cmd: '/opt/netdata/bin/netdata-claim.sh -token={{NETDATA_TOKEN}} -rooms={{NETDATA_ROOM}} -url=https://app.netdata.cloud'
     creates: /opt/netdata/var/lib/netdata/cloud.d/claimed_id
   notify: Restart netdata
