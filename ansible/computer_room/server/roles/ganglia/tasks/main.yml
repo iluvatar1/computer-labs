@@ -4,7 +4,7 @@
   stat:
     path: /usr/sbin/gmond
   register: gmond
-  failed_when: not gmond.stat.exists
+  #failed_when: not gmond.stat.exists
 
 # - name: Verify bind option is UNCOMMENTED in gmond for receiving traffice (must be commented on client)
 #   lineinfile:
@@ -28,7 +28,7 @@
     backup: yes
   loop:
     - 'Include /etc/httpd/extra/ganglia.conf'
-  register: httpd
+  notify: Restart ganglia
 
 - name: Activate mod_conf in httpd
   tags: server, ganglia
@@ -39,7 +39,7 @@
     backup: yes 
   loop:
     - 'Include /etc/httpd/mod_php.conf'
-  register: httpd2
+  notify: Restart ganglia
 
 - name: Copying http ganglia config
   tags: server, ganglia
@@ -48,7 +48,7 @@
     dest: '/{{item}}'
   loop:
     - etc/httpd/extra/ganglia.conf
-  register: httpd3
+  notify: Restart ganglia
 
 - name: Copying gmetad ganglia config
   tags: server, ganglia
@@ -57,7 +57,23 @@
     dest: '/{{item}}'
   loop:
     - etc/ganglia/gmetad.conf
-  register: gmetadconf
+  notify: Restart ganglia
+
+- name: Linking gmetad ganglia config
+  tags: server, ganglia
+  ansible.builtin.file:
+    src: /etc/ganglia/gmetad.conf
+    dest: /etc/gmetad.conf
+    state: link
+  notify: Restart ganglia
+
+- name: Creating needed directory 
+  tags: server, ganglia
+  ansible.builtin.file:
+    path: /var/lib/ganglia/rrds
+    owner: nobody
+    state: directory
+  notify: Restart ganglia
 
 - name : Activating services
   tags: server, ganglia
@@ -67,14 +83,5 @@
   loop:
     - httpd
     - gmetad
-  register: services
+  notify: Restart ganglia
 
-- name: Restarting services if needed
-  tags: server, ganglia
-  shell:
-    cmd: '/etc/rc.d/rc.{{item}} restart'
-  loop:
-    - 'httpd'
-    - 'gmetad'
-  when:
-    httpd.changed or httpd2.changed or httpd3.changed  or services.changed or gmetadconf.changed

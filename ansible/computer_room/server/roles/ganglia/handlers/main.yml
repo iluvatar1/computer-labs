@@ -1,0 +1,7 @@
+- name: Restart ganglia
+  tags: server, ganglia
+  shell:
+    cmd: '/etc/rc.d/rc.{{item}} restart'
+  loop:
+    - 'httpd'
+    - 'gmetad'

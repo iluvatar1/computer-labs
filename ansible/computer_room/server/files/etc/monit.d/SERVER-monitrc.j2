@@ -53,4 +53,5 @@ check process NFS with pidfile /var/run/rpc.statd.pid
 CHECK process gmetad matching gmetad
       #with pidfile /var/run/gmond.pid
       start program = "/etc/rc.d/rc.gmetad start"
-      stop program = "/etc/rc.d/rc.gmetad
+      stop program = "/etc/rc.d/rc.gmetad stop"
+      
