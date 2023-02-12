@@ -1,0 +1,32 @@
+---
+- name: check for localtunnel command
+  tags: localtunnel,server
+  stat:
+    path: /usr/bin/lt
+  register: ltcommand
+
+- name: Installing localtunnel if not installed
+  tags: localtunnel,server
+  ansible.builtin.shell:
+    cmd: |
+      npm install -g localtunnel
+  when:
+    ltcommand.stat.exists == false
+
+- name: Create script to run the localtunnel command
+  tags: localtunnel,server
+  ansible.builtin.template:
+    src: "{{item}}.j2"
+    dest: "/{{item}}"
+  loop:
+    - usr/local/bin/localtunnel.sh
+  notify: Restart monit
+
+- name: Copy the monit file to monitor the service
+  tags: localtunnel,server
+  ansible.builtin.copy:
+    src: "{{item}}"
+    dest: "/{{item}}"
+  loop:
+    - etc/monit.d/localtunnel
+  notify: Restart monit

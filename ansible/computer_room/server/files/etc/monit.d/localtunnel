@@ -1,0 +1,5 @@
+CHECK process localtunnel matching /usr/bin/lt
+      start program = "/bin/bash /usr/local/bin/localtunnel.sh"
+      #stop program = "/usr/bin/pkill -f /usr/bin/lt"
+      if does not exist then restart
+      

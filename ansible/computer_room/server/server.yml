@@ -31,3 +31,4 @@
     - sshguard
     - virtualbox
     - monit
+    - localtunnel
