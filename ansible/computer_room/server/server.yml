@@ -32,3 +32,4 @@
     - virtualbox
     - monit
     - localtunnel
+    - ../common/roles/virtualbox

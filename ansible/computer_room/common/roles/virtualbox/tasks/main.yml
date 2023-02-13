@@ -1,9 +1,10 @@
 ---
 - name: Copying fixvirtualbox gui file
-  tags: server,virtualbox
+  tags: server,client,virtualbox
   copy:
     src: '{{ item }}'
     dest: '/{{ item }}'
     mode: +x
   loop:
     - usr/local/bin/fixvirtualboxgui.sh
+
