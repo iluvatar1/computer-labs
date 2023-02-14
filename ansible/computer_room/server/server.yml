@@ -29,7 +29,6 @@
     - tailscale
     - ../common/roles/motd
     - sshguard
-    - virtualbox
     - monit
     - localtunnel
     - ../common/roles/virtualbox
