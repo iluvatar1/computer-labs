@@ -75,6 +75,7 @@ build_packages_sbo () {
     modules
     wol
     kitty
+    lnav
     bat
     ripgrep
     dust
