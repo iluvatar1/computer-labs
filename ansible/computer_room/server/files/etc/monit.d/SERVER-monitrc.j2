@@ -5,8 +5,8 @@ CHECK NETWORK eth1intif with INTERFACE eth1
       if link down then restart
 
 CHECK NETWORK extif with ADDRESS {{SERVERIP_EXT}}
-      start program = "/etc/rc.d/rc.inet1 eth0_restart"
-      stop program = "/etc/rc.d/rc.inet1 eth0_stop"
+      start program = "/etc/rc.d/rc.inet1 eth0_restart; echo 'eth0 start SERVER' >> /var/log/test"
+      stop program = "/etc/rc.d/rc.inet1 eth0_stop; echo 'eth0 stop SERVER' >> /var/log/test"
       if failed link then restart
       if 5 restarts within 5 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no ext ip'"
 
@@ -28,11 +28,10 @@ check process sshd with pidfile /var/run/sshd.pid
       if 5 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no sshd'"
 
 check process sshd-connect with pidfile /var/run/sshd.pid
-      #every 8 cycles
+      every 4 cycles
       start program "/etc/rc.d/rc.sshd start"
       stop program "/etc/rc.d/rc.sshd stop"
       if failed port 443 protocol ssh then restart
-      if 8 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no sshd connection port 443'"
 
 #check filesystem optfs with path /opt
 #    if space usage > 90% then alert
