@@ -6,14 +6,14 @@
     dest: /etc/hosts.allow
     backup: yes
   register: hosts
-  
+
 - name: Copying exports
   tags: server, nfs
   template:
     src: etc/exports.j2
     dest: /etc/exports
   register: exports
-  
+
 - name: Reduce rpcbind logging noise
   tags: server, nfs
   replace:
@@ -37,5 +37,6 @@
   command:
     /etc/rc.d/rc.nfsd restart
   when:
-    service.changed or hosts.changed or exports.changed  
+    service.changed or hosts.changed or exports.changed
+
 

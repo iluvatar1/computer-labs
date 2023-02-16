@@ -32,16 +32,16 @@
   loop:
     - etc/HOSTNAME
 
-- name: Adding executable status for network manager (TODO-> Is this really needed?)
-  tags: server,network
-  file:
-    dest: /etc/rc.d/rc.networkmanager
-    mode: a+x
-  register: netmanager
+#- name: Adding executable status for network manager (TODO-> Is this really needed?)
+#  tags: server,network
+#  file:
+#    dest: /etc/rc.d/rc.networkmanager
+#    mode: a+x
+#  register: netmanager
 
-- name: Start network manager if it has been just made executable
-  tags: server,network
-  command:
-    /etc/rc.d/rc.networkmanager restart
-  when:
-    netmanager.changed == True
+#- name: Start network manager if it has been just made executable
+#  tags: server,network
+#  command:
+#    /etc/rc.d/rc.networkmanager restart
+#  when:
+#    netmanager.changed == True
