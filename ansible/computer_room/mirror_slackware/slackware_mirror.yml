@@ -1,0 +1,18 @@
+---
+- name: Configuring mirror for slackware
+  hosts: "{{ variable_host | default('slackware_mirror') }}"
+  tags: slackware_mirror
+  gather_facts: false
+  vars_files:
+    - vars/main.yml
+  tasks:
+
+  - name: Copy the slackware_mirror sccript and config
+    ansible.builtin.copy:
+      src: "{{ item.path }}"
+      dest: "/{{ item.path }}"
+      mode: "{{ item.mode }}"
+    loop:
+      - { path: usr/local/bin/mirror-slackware-current.sh, mode: +x }
+      - { path: usr/local/bin/mirror-slackware-current.conf, mode: +r}
+      - { path: etc/cron.daily/mirror-slackware-job.sh, mode: +x}
