@@ -28,9 +28,10 @@ check process ypbind with pidfile /var/run/ypbind.pid
 check filesystem homefs with path /home
       start program  = "/sbin/mount -t nfs /home"
       stop program  = "/sbin/umount -t nfs /home"
-      if 5 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'home mounted'"
+      if 5 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no home mounted'"
 
 check host {{SERVER_NAME}} with address {{SERVERIP}}
       start program = "/etc/rc.d/rc.inet1 start"
       stop program = "/etc/rc.d/rc.inet1 stop"
       if failed ping then restart
+      if 8 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No ping to server'"
