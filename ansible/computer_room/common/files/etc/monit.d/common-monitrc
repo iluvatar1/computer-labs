@@ -62,17 +62,13 @@ CHECK process gmond matching gmond
 #      stop  program = "/etc/rc.d/rc.netdata stop"
 
 check system $HOST
-      if loadavg (1min) > 4 then alert
-      if loadavg (5min) > 2 then alert
+      if loadavg (1min) per core  > 2.0 for 15 cycles then alert
+      if loadavg (5min) per core  > 1.5 for 10 cycles then alert
+      if loadavg (15min) per core > 1.1 for 8 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'loadavg too high'"
       if cpu usage > 95% for 10 cycles then alert
       if memory usage > 75% then alert
       if swap usage > 25% then alert
-      if loadavg (5min) per core > 0.8 for 5 cycles then alert
-      #if loadavg (1min) per core > 0.8 for 10 cycles then exec "/sbin/telinit 6 "
-      if loadavg (5min) per core > 0.8 for 10 cycles then alert
-      #if loadavg (15min) per core > 0.8 for 10 cycles then exec "/sbin/telinit 6"
-      #if memory usage > 97% for 6 cycles then exec "/usr/bin/date >> /var/log/restart_monit.log; echo 'MONIT: memusage high ' >> /var/log/restart_monit.log; /sbin/telinit 6"
-      if memory usage > 97% for 6 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No memusage high'"
+      if memory usage > 97% for 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'memusage high'"
 
 CHECK process netdata matching netdata
       #with pidfile /opt/netdata/var/run/netdata/netdata.pid
