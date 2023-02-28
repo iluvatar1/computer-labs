@@ -30,7 +30,7 @@ check process ypbind with pidfile /var/run/ypbind.pid
 #      stop program  = "/sbin/umount -t nfs /home"
 #      if 5 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no home mounted'"
 
-check program homefs with path "/bin/bash -c 'touch /home/.mount_test'"
+check program homefs with path "/bin/bash -c '/usr/bin/timout 10s /usr/bin/touch /home/.mount_test'"
       start program = "/usr/bin/timeout 10s /sbin/mount  -t nfs /home"
       stop program  = "/usr/bin/timeout 10s /sbin/umount -t nfs /home"
       if status != 0 then restart
