@@ -3,6 +3,10 @@
 #    source /packages/spack/share/spack/setup-env.sh
 #fi
 
+if [[ "root" == "$(whoami)" ]]; then
+    return
+fi
+
 RED='\033[0;31m'
 YELLOW='\033[0;33m'
 GREEN='\033[0;32m'
