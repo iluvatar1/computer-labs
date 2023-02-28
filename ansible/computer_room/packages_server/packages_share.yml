@@ -74,6 +74,38 @@
     when:
       monitfile.changed
 
+  - name: Check if elilo.conf exists on boot
+    tags: lilo, client
+    ansible.builtin.stat:
+      path: "/boot/efi/EFI/boot/elilo.conf"
+    register: eliloboot
+
+  - name: Setting elilo delay to 5 seconds
+    tags: lilo, client
+    replace:
+      dest: "/boot/efi/EFI/boot/elilo.conf"
+      regexp: '^delay.*'
+      replace: 'delay=50'
+      # backup: yes
+    when:
+      eliloboot.stat.exists
+
+  - name: Check if elilo.conf exists on Slackware
+    tags: lilo, client
+    ansible.builtin.stat:
+      path: "/boot/efi/EFI/Slackware/elilo.conf"
+    register: eliloslack
+
+  - name: Setting elilo delay to 5 seconds
+    tags: lilo, client
+    replace:
+      dest: "/boot/efi/EFI/Slackware/elilo.conf"
+      regexp: '^delay.*'
+      replace: 'delay=50'
+      # backup: yes
+    when:
+      eliloslack.stat.exists
+
 
 - name: Mounting /packages on all nodes and setting up spack source
   # Check if better done with autofs: https://www.linuxtechi.com/automount-nfs-share-in-linux-using-autofs/, https://www.redhat.com/sysadmin/mount-nfs-filesystems-autofs
