@@ -146,9 +146,10 @@
       path: /etc/monit.d/package_client
       create: yes
       block: |
-        check filesystem package_nfs with path /packages
-            start program = "/sbin/mount -t nfs /packages"
-            stop program  = "/sbin/umount -t nfs /packages"
+        check program packages with path "/bin/bash -c 'touch /packages/.mount_test'"
+          start program = "/usr/bin/timeout 10s /sbin/mount  -t nfs /packages"
+          stop program  = "/usr/bin/timeout 10s /sbin/umount -t nfs /packages"
+          if status != 0 then restart
     register: pkg_monit
 
   - name: Restart monit service if needed
