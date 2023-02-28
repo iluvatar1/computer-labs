@@ -25,4 +25,5 @@
     - ../common/roles/motd
     - pip
     - ../common/roles/virtualbox
+    - lilo
     

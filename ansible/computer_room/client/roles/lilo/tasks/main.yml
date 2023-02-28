@@ -1,0 +1,58 @@
+---
+- name: Check if lilo.conf exists
+  tags: lilo, client
+  ansible.builtin.stat:
+    path: /etc/lilo.conf
+  register: lilo
+
+- name: Setting lilo time to 20 seconds
+  tags: lilo, client
+  replace:
+    dest: /etc/lilo.conf
+    regexp: '^timeout.*'
+    replace: 'timeout = 200'
+    backup: yes
+  when:
+    lilo.stat.exists
+  register: lilofile
+
+- name: Running lilo if updated
+  tags: lilo, client
+  shell:
+    cmd: '/sbin/lilo &>/dev/null'
+  when:
+    lilofile.changed
+
+- name: Check if elilo.conf exists on boot
+  tags: lilo, client
+  ansible.builtin.stat:
+    path: "/boot/efi/EFI/boot/elilo.conf"
+  register: eliloboot
+
+- name: Setting elilo delay to 20 seconds
+  tags: lilo, client
+  replace:
+    dest: "/boot/efi/EFI/boot/elilo.conf"
+    regexp: '^delay.*'
+    replace: 'delay=200'
+    # backup: yes
+  when:
+    eliloboot.stat.exists
+
+- name: Check if elilo.conf exists on Slackware
+  tags: lilo, client
+  ansible.builtin.stat:
+    path: "/boot/efi/EFI/Slackware/elilo.conf"
+  register: eliloslack
+
+- name: Setting elilo delay to 20 seconds
+  tags: lilo, client
+  replace:
+    dest: "/boot/efi/EFI/Slackware/elilo.conf"
+    regexp: '^delay.*'
+    replace: 'delay=200'
+    # backup: yes
+  when:
+    eliloslack.stat.exists
+
+
