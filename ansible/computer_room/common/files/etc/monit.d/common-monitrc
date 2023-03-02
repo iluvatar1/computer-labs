@@ -27,15 +27,9 @@ CHECK NETWORK eth2 with INTERFACE eth2
       if failed link then restart
       #if 10 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No eth0 ip'"
 CHECK host mmonit.com with address mmonit.com
-      start program = "/etc/rc.d/rc.inet1 start"
-      stop program = "/etc/rc.d/rc.inet1 stop"
-      if failed ping then restart
-CHECK host server with address 192.168.10.1
-      start program = "/etc/rc.d/rc.inet1 start"
-      stop program = "/etc/rc.d/rc.inet1 stop"
-      if failed ping then restart
-      if 10 restarts within 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No ping to server'"
-
+      #start program = "/etc/rc.d/rc.inet1 start" # do not restart constantly the eth devices, this drops connections
+      #stop program = "/etc/rc.d/rc.inet1 stop"
+      if failed ping with timeout 10 seconds then alert
 
 check filesystem rootfs with path /
     if space usage > 90% then alert
@@ -64,7 +58,7 @@ CHECK process gmond matching gmond
 check system $HOST
       if loadavg (1min) per core  > 2.0 for 15 cycles then alert
       if loadavg (5min) per core  > 1.5 for 10 cycles then alert
-      if loadavg (15min) per core > 1.1 for 8 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'loadavg too high'"
+      if loadavg (15min) per core > 1.2 for 8 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'loadavg too high'"
       if cpu usage > 95% for 10 cycles then alert
       if memory usage > 75% then alert
       if swap usage > 25% then alert
