@@ -26,4 +26,5 @@
     - pip
     - ../common/roles/virtualbox
     - lilo
-    
+    - swap
+

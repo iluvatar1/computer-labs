@@ -1,0 +1,49 @@
+---
+# REF1: https://linuxize.com/post/create-a-linux-swap-file/
+# REF2: https://gist.github.com/devster31/74e48cc1c8e73c637bc7
+
+- name: Set swap_file variable
+  tags: swap, client
+  ansible.builtin.set_fact:
+    swap_file: "{{ SWAP_PATH }}.swap"
+
+- name: Check if swap file exists
+  tags: swap, client
+  ansible.builtin.stat:
+    path: "{{ swap_file }}"
+  register: swap_file_check
+
+- name: Create swap file
+  tags: swap, client
+  ansible.builtin.command: fallocate -l {{ SWAP_SPACE }} {{ swap_file }}
+  when: not swap_file_check.stat.exists
+  notify: Mount all swap
+
+- name: Check -again- if swap file exists
+  tags: swap, client
+  ansible.builtin.stat:
+    path: "{{ swap_file }}"
+  register: swap_file_check2
+
+- name: Set permissions on swap file
+  tags: swap, client
+  ansible.builtin.file:
+    path: "{{ swap_file }}"
+    mode: 0600
+  when: swap_file_check2.stat.exists and not swap_file_check.stat.exists
+  notify: Mount all swap
+
+- name: Format swap file
+  tags: swap, client
+  ansible.builtin.command: mkswap {{ swap_file }}
+  when: swap_file_check2.stat.exists and not swap_file_check.stat.exists
+  notify: Mount all swap
+
+- name: Add to fstab
+  tags: swap, client
+  ansible.builtin.lineinfile:
+    dest: /etc/fstab
+    regexp: "{{ swap_file }}"
+    line: "{{ swap_file }} swap swap defaults 0 0"
+  notify: Mount all swap
+

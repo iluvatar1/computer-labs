@@ -1,0 +1,4 @@
+- name: Mount all swap
+  tags: client,swap
+  shell:
+    cmd: 'swapon -a'
