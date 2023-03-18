@@ -1,3 +1,13 @@
+* Spack
+  To add CPATH and LIBRARY_PATH automatically, system wide, just run
+  the following commands
+  #+BEGIN_SRC sh
+    spack config --scope defaults add modules:prefix_inspections:lib64:[LIBRARY_PATH]
+    spack config --scope defaults add modules:prefix_inspections:lib:[LIBRARY_PATH]
+    spack config --scope defaults add modules:prefix_inspections:include:[CPATH]    
+  #+END_SRC
+  Check the changes on =/packages/spack/etc/spack/defaults/modules.yaml=
+  
 * Use of ponce slackbuilds to get updated versions for current through sbopkg
 - https://github.com/Ponce/slackbuilds/wiki/configuring-the-current-repository-with-sbopkg
 - Download : https://github.com/sbopkg/sbopkg/releases/download/0.38.2/sbopkg-0.38.2-noarch-1_wsr.tgz
