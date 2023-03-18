@@ -126,7 +126,7 @@ main() {
 	#install_latest_firefox
 	#install_perf
 	echo "install some big packages already compiled by alien: libreoffice inkscape vlc popplerc-compat"
-	slpkg -s alien libreoffice inkscape vlc poppler-compat boost-compat
+	slpkg -s alien libreoffice inkscape vlc poppler-compat boost-compat qtcreator
     fi
 
     if [ "NO" = "$COMPILE" ]; then
