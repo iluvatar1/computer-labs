@@ -70,13 +70,16 @@ class Qat(QMakePackage):
     #    qmake()
 
     def build(self, spec, prefix):
-        make(parallel=False)
+        make(parallel=True) # HERE, FALSE
 
-    def install(self, spec, prefix):
-        make("install", parallel=False)
+    #def install(self, spec, prefix):
+    #    make("install INSTALL_ROOT=$INSTALL_ROOT", parallel=False)
 
     def setup_build_environment(self, env):
         env.set("INSTALL_ROOT", self.prefix)
+        #print(self.prefix)
+        #input("Press enter...")
+        #env.set("INSTALL_ROOT", "/tmp/QAT2")
 
     ## Fix install prefix
     #@run_after("qmake")
@@ -86,6 +89,9 @@ class Qat(QMakePackage):
 
     def qmake_args(self):
         # FIXME: If not needed delete this function
-        args = [r"PREFIX = $(INSTALL_ROOT)"]
+        #args = [r"PREFIX = $(INSTALL_ROOT)"]
+        #print(args)
+        #input("Press enter...")
+        args = [r"PREFIX = /"]
         return args
 
