@@ -7,6 +7,21 @@
     spack config --scope defaults add modules:prefix_inspections:include:[CPATH]    
   #+END_SRC
   Check the changes on =/packages/spack/etc/spack/defaults/modules.yaml=
+
+  Configure, as external package (=nano /packages/spack/etc/spack/packages.yaml=)
+  - qt and qtcreator
+  #+BEGIN_SRC conf
+      qt:
+	externals:
+	- spec: qt@5.15.18
+	  prefix: /usr/lib64/qt5/
+
+      qt-creator:
+	externals:
+	- spec: qt-creator@5
+	  prefix: /usr/
+  #+END_SRC
+
   
 * Use of ponce slackbuilds to get updated versions for current through sbopkg
 - https://github.com/Ponce/slackbuilds/wiki/configuring-the-current-repository-with-sbopkg
