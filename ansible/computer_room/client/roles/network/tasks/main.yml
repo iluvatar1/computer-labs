@@ -17,9 +17,16 @@
     - etc/rc.d/rc.inet1.conf
   notify: Restart inet1
 
-- name: Activating network manager service
+#- name: Activating network manager service
+#  tags: client,network
+#  file:
+#    path: /etc/rc.d/rc.networkmanager
+#    mode: +x
+#  notify: Restart networkmanager
+
+- name: De-activating network manager service
   tags: client,network
   file:
     path: /etc/rc.d/rc.networkmanager
-    mode: +x
-  notify: Restart networkmanager
+    mode: -x
+  notify: Stop networkmanager

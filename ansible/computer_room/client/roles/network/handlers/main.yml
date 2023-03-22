@@ -7,3 +7,9 @@
   tags: client,network
   shell:
     cmd: /etc/rc.d/rc.inet1 restart
+
+- name: Stop networkmanager
+  tags: client,network
+  shell:
+    cmd: /bin/bash /etc/rc.d/rc.networkmanager stop
+
