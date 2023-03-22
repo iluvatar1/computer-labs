@@ -11,6 +11,7 @@
   tags: swap, client
   ansible.builtin.stat:
     path: "{{ swap_file }}"
+    get_checksum: no
   register: swap_file_check
 
 - name: Create swap file
@@ -23,6 +24,7 @@
   tags: swap, client
   ansible.builtin.stat:
     path: "{{ swap_file }}"
+    get_checksum: no
   register: swap_file_check2
 
 - name: Set permissions on swap file
