@@ -68,3 +68,10 @@ CHECK process netdata matching netdata
       #with pidfile /opt/netdata/var/run/netdata/netdata.pid
       start program = "/etc/init.d/netdata-init-d start"
       stop program = "/etc/init.d/netdata-init-d stop"
+
+check program netdatastatus with path "/usr/local/bin/netdatastatus.sh"
+	start program = "/etc/init.d/netdata-init-d start"
+	stop program = "/etc/init.d/netdata-init-d stop"
+	if status != 0 then restart
+
+

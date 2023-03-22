@@ -49,3 +49,8 @@ check program ypcat with path "/bin/bash -c '/usr/bin/ypcat passwd &>/dev/null'"
       stop program = "/etc/rc.d/rc.yp stop"
       if status != 0 then restart
       if 15 restarts within 20 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no ypcat working'"
+check program dns_check with path "/usr/local/bin/check_dns.sh"
+	start program = "/etc/rc.d/rc.inet1 start"
+	stop program = "/etc/rc.d/rc.inet1 stop"
+	if status != 0 then restart
+

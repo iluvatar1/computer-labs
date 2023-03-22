@@ -36,7 +36,7 @@
     path: /etc/monit.d
     state: directory
 
-- name: Copying auxiliary restart script
+- name: Copying auxiliary scripts
   tags: server,client,monit, common
   copy:
     src: "{{item}}"
@@ -44,7 +44,8 @@
     mode: 0755
   loop:
     - usr/local/bin/monit_restart.sh
-  
+    - usr/local/bin/netdatastatus.sh
+
 - name: Adding monit to inittab to make it run always
   tags: server,client,monit, common
   lineinfile:
@@ -54,7 +55,7 @@
   loop:
     - 'mo:2345:respawn:/usr/bin/monit -Ic /etc/monitrc'
   notify: Restart monit
-  
+
 - name: Copy config files
   tags: server,client,monit, common
   copy:

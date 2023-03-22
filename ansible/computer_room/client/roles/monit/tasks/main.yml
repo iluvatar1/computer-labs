@@ -16,3 +16,12 @@
     mode: +x
   notify:
     - Restart monit
+
+- name: Copying auxiliary scripts
+  tags: client,monit
+  copy:
+    src: "{{item}}"
+    dest: "/{{item}}"
+    mode: 0755
+  loop:
+    - usr/local/bin/check_dns.sh
