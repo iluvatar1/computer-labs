@@ -26,3 +26,10 @@
 * Use of ponce slackbuilds to get updated versions for current through sbopkg
 - https://github.com/Ponce/slackbuilds/wiki/configuring-the-current-repository-with-sbopkg
 - Download : https://github.com/sbopkg/sbopkg/releases/download/0.38.2/sbopkg-0.38.2-noarch-1_wsr.tgz
+* More
+  - Install docker:
+    sqg -p docker-cli
+    MAKEFLAGS=-j$(nproc) sbopkg -i docker-clie
+  - Install docker and docker compose from alien with slpkg. Check
+    https://alien.slackbook.org/blog/my-docker-packages-for-slackware-current/
+    . Also edit /etc/default/scratch and add DOCKER_OPTS="-g /mnt/scratch/docker"

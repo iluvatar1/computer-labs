@@ -116,6 +116,8 @@ structure and usage.
   - https://github.com/bifferos/explodeinstaller
   - https://github.com/akosiaris/packer-slackware/blob/master/slackware64-14.2.json
   - https://github.com/Cyclenerd/postinstall/blob/master/postinstall.sh
+  - https://meshcentral.com/info/
+  - https://lnav.org/
 * FIXES
 ** tab not working on remote x2go connection with xfce4
 This happens in the console and is due to a changing window shortcut that msut
