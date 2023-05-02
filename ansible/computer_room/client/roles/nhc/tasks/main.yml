@@ -24,13 +24,15 @@
   args:
     creates: /etc/nhc/nhc.conf.auto
     
-- name: Adding config to renice processes taking too much cpu or mem
+- name: Adding config to renice processes taking too much cpu or mem, and performing all checks (not fail at first one)
   tags: client, nhc
-  ansible.builtin.lineinfile:
+  ansible.builtin.blockinfile:
     path: /etc/nhc/nhc.conf.auto
     state: present
-    line: "* || renice -n 20 $(ps aux | awk '$3 > 90 || $4 > 90 {print $2}') 2> /dev/null || true"
-    #regexp: '.*renice -n 20.*'
+    block: |
+      * || export NHC_CHECK_ALL=1
+      * || renice -n 20 $(ps aux | awk '$3 > 90 || $4 > 90 {print $2}') 2> /dev/null || true
+    insertafter: "### NHC Configuration Variables"
 
 - name: Copying auto config as config
   tags: client, nhc
