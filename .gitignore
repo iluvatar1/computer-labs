@@ -18,3 +18,6 @@ client_secrets.yml
 */config/cfg-D-build_pkgs.json*
 */config/cfg-D-build_pkgs.json-DROPLET
 *.vaultpass
+packer/main.yml
+ansible/computer_room/CONFIG/vars/main.yml
+ansible/computer_room_new/

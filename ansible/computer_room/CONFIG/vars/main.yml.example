@@ -5,7 +5,7 @@
 BASE_SERVERIP: '192.168.10'
 SERVERIP: '{{BASE_SERVERIP}}.1'
 SERVERIP_EXT: 'EXTERNALIP'
-SERVER_DOMAINNAME: 'salafis'
+SERVER_DOMAINNAME: 'DOMAINNAME' # host.DOMAINNAME.net or similar
 SERVER_NAME: 'server{{SERVER_DOMAINNAME}}'
 
 # Local proxy
@@ -24,8 +24,11 @@ NETDATA_TOKEN: 'TOKEN'
 NETDATA_ROOM: 'ROOMID'
 
 # gluster
-GLUSTER_BRICK_DIR: /mnt/tmp/brick                                                                                                                                                                                                                                                         
-GLUSTER_VOLUME_NAME: gfsdist                                                                                                                                                                                                                                                              
-#GLUSTER_REPLICAS: 2 # Produces errores
+GLUSTER_BRICK_DIR: /mnt/tmp/brick
+GLUSTER_VOLUME_NAME: gfsdist
+#GLUSTER_REPLICAS: 2 # Produces errors, needs checking
 GLUSTER_MOUNT_DIR: /scratch
 
+# Extra swap space
+SWAP_SPACE: 16G
+SWAP_PATH: /mnt/scratch/{{SWAP_SPACE}}
