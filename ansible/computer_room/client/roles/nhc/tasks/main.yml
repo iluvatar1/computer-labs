@@ -29,7 +29,7 @@
   ansible.builtin.lineinfile:
     path: /etc/nhc/nhc.conf.auto
     state: present
-    line: "* || renice -n 20 $(ps aux | awk '$3 > 90 || $4 > 90 {print $2}')"
+    line: "* || renice -n 20 $(ps aux | awk '$3 > 90 || $4 > 90 {print $2}') 2> /dev/null || true"
     #regexp: '.*renice -n 20.*'
 
 - name: Copying auto config as config
@@ -46,7 +46,7 @@
   ansible.builtin.lineinfile:
     path: /etc/rc.d/rc.local
     state: present
-    line: "/usr/sbin/nhc-wrapper -L 15s &>/dev/null"
+    line: "/usr/sbin/nhc-wrapper -L 30s -X 24h &>/dev/null"
 
 - name: Copying monit service
   tags: client, nhc
@@ -61,38 +61,3 @@
     - Restart monit nhc
 
 
-# - name: Checking and registering if nhc config exist
-#   tags: client, nhc
-#   ansible.builtin.stat:
-#     path: /usr/sbin/nhc
-#   register: nhc_installed
-
-
-
-# - name: Copy config files
-#   tags: client,monit
-#   template:
-#     src: "{{item}}.j2"
-#     dest: "/{{item}}"
-#     backup: yes
-#   loop:
-#     - etc/monit.d/CLIENT-monitrc
-#   notify:
-#     - Restart monit
-
-# - name: Activate monit service
-#   tags: client,monit
-#   file:
-#     path: /etc/rc.d/rc.monit
-#     mode: +x
-#   notify:
-#     - Restart monit
-
-# - name: Copying auxiliary scripts
-#   tags: client,monit
-#   copy:
-#     src: "{{item}}"
-#     dest: "/{{item}}"
-#     mode: 0755
-#   loop:
-#     - usr/local/bin/check_dns.sh
