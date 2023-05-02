@@ -27,4 +27,5 @@
     - ../common/roles/virtualbox
     - lilo
     - swap
+    - nhc
 

@@ -1,0 +1,4 @@
+- name: Restart monit nhc
+  tags: client,nhc
+  command:
+    cmd: /etc/rc.d/rc.monit restart nhc

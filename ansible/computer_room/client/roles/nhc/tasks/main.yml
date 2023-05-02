@@ -1,0 +1,98 @@
+- name: Installing if /usr/sbin/nhc command does not exists
+  tags: client, nhc
+  ansible.builtin.shell: |
+    wget -c https://github.com/mej/nhc/releases/download/1.4.3/lbnl-nhc-1.4.3.tar.xz
+    tar xf lbnl-nhc-1.4.3.tar.xz
+    cd lbnl-nhc-1.4.3
+    ./configure --prefix=/usr
+    make install
+  args:
+    chdir: /tmp
+    creates: /usr/sbin/nhc
+
+- name: Creating link for config directory
+  tags: client, nhc
+  ansible.builtin.file:
+    src: /usr/etc/nhc
+    dest: /etc/nhc
+    state: link
+
+- name: Auto configuring in case auto configuration does not exists
+  tags: client, nhc
+  ansible.builtin.shell: |
+    /usr/sbin/nhc-genconf -v  
+  args:
+    creates: /etc/nhc/nhc.conf.auto
+    
+- name: Adding config to renice processes taking too much cpu or mem
+  tags: client, nhc
+  ansible.builtin.lineinfile:
+    path: /etc/nhc/nhc.conf.auto
+    state: present
+    line: "* || renice -n 20 $(ps aux | awk '$3 > 90 || $4 > 90 {print $2}')"
+    #regexp: '.*renice -n 20.*'
+
+- name: Copying auto config as config
+  tags: client, nhc
+  ansible.builtin.copy:
+    src: /etc/nhc/nhc.conf.auto
+    dest: /etc/nhc/nhc.conf
+    backup: yes
+    follow: yes
+    remote_src: true
+
+- name: Adding nhc-wrapper to rc.local 
+  tags: client, nhc
+  ansible.builtin.lineinfile:
+    path: /etc/rc.d/rc.local
+    state: present
+    line: "/usr/sbin/nhc-wrapper -L 15s &>/dev/null"
+
+- name: Copying monit service
+  tags: client, nhc
+  ansible.builtin.copy:
+    src: "{{item}}"
+    dest: "/{{item}}"
+    backup: no
+    follow: yes
+  loop:
+    - etc/monit.d/nhc
+  notify:
+    - Restart monit nhc
+
+
+# - name: Checking and registering if nhc config exist
+#   tags: client, nhc
+#   ansible.builtin.stat:
+#     path: /usr/sbin/nhc
+#   register: nhc_installed
+
+
+
+# - name: Copy config files
+#   tags: client,monit
+#   template:
+#     src: "{{item}}.j2"
+#     dest: "/{{item}}"
+#     backup: yes
+#   loop:
+#     - etc/monit.d/CLIENT-monitrc
+#   notify:
+#     - Restart monit
+
+# - name: Activate monit service
+#   tags: client,monit
+#   file:
+#     path: /etc/rc.d/rc.monit
+#     mode: +x
+#   notify:
+#     - Restart monit
+
+# - name: Copying auxiliary scripts
+#   tags: client,monit
+#   copy:
+#     src: "{{item}}"
+#     dest: "/{{item}}"
+#     mode: 0755
+#   loop:
+#     - usr/local/bin/check_dns.sh

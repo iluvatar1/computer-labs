@@ -1,0 +1,3 @@
+CHECK process nhc-wrapper matching nhc-wrapper
+      start program = "/usr/sbin/nhc-wrapper -L 15s"
+      
