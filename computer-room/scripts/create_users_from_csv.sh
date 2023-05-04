@@ -19,10 +19,6 @@ fi
 create_accounts () {
     fname="$1"
     expire_date="${2:-}"
-    echo "Creating accounts from file: $FNAME"
-    echo "Format should be: username,password,fullname"
-    echo "EXPIRE_DATE=${expire_date}"
-    sleep 3
     GROUPS="audio,cdrom,floppy,plugdev,video,netdev,lp,scanner,sshgroup"
     while IFS=',' read -r username password fullname
     do
