@@ -31,7 +31,7 @@
     state: present
     block: |
       * || export NHC_CHECK_ALL=1
-      * || renice -n 20 $(ps aux | awk '$3 > 90 || $4 > 90 {print $2}') 2> /dev/null || true
+      * || renice -n 20 $(ps aux | awk '$3 > 80 || $4 > 80 {print $2}') 2> /dev/null || true
     insertafter: "### NHC Configuration Variables"
 
 - name: Copying auto config as config

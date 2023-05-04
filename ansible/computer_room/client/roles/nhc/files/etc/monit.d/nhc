@@ -1,3 +1,4 @@
 CHECK process nhc-wrapper matching nhc-wrapper
-      start program = "/usr/sbin/nhc-wrapper -L 30s -X 24h"
+      start program = "/bin/bash -c '/usr/sbin/nhc-wrapper -L 30s -X 24h'"
+      
       
