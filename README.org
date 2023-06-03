@@ -118,6 +118,10 @@ structure and usage.
   - https://github.com/Cyclenerd/postinstall/blob/master/postinstall.sh
   - https://meshcentral.com/info/
   - https://lnav.org/
+  - Containers:
+    + https://github.com/andy5995/docker-slackware-build-essential
+    + https://github.com/aclemons/slackware-dockerfiles/blob/master/scripts/build_base_image.sh
+    + https://hub.docker.com/r/vbatts/slackware/tags
 * FIXES
 ** tab not working on remote x2go connection with xfce4
 This happens in the console and is due to a changing window shortcut that msut
