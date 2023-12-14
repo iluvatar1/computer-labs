@@ -11,6 +11,18 @@
   loop:
     - etc/resolv.conf.head
 
+- name: Copy rc.inet1 script with request option
+  tags: server,network
+  copy:
+    src: '{{item}}'
+    dest: '/{{item}}'
+    owner: root
+    group: root
+    mode: '0644'
+    backup: yes 
+  loop:
+    - etc/rc.d/rc.inet1
+
 - name: Copy network interfaces config files
   tags: server,network
   template:
