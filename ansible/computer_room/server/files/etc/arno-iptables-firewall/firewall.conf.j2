@@ -336,7 +336,7 @@ COMPILED_IN_KERNEL_MESSAGES=1
 # (diskless client systems) probably want to disable this option to fix
 # "NFS server not responding" etc. errors on their clients.
 # -----------------------------------------------------------------------------
-DEFAULT_POLICY_DROP=1
+DEFAULT_POLICY_DROP=0
 
 # (EXPERT SETTING!) (Other) trusted network interfaces for which ALL IP
 # traffic should be ACCEPTED. (multiple(!) interfaces should be space
@@ -1161,8 +1161,8 @@ OPEN_ICMPV6=1
 # Put in the following variables which ports or IP protocols you want to leave
 # open to the whole world.
 # -----------------------------------------------------------------------------
-OPEN_TCP="443,20022,49000,8649,5201,8888,10000,3128,3218,2812,41641"
-OPEN_UDP="443,20022,49000,8649,5201,8888,10000,3128,3218,2812,41641"
+OPEN_TCP="443,20022,49000,8649,8080,8443,5201,8888,10000,3128,3218,2812,41641"
+OPEN_UDP="443,20022,49000,8649,8080,8443,5201,8888,10000,3128,3218,2812,41641"
 OPEN_IP=""
 
 # Put in the following variables the TCP/UDP ports you want to DENY(DROP) for
