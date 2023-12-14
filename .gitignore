@@ -21,3 +21,4 @@ client_secrets.yml
 packer/main.yml
 ansible/computer_room/CONFIG/vars/main.yml
 ansible/computer_room_new/
+*__pycache__*
