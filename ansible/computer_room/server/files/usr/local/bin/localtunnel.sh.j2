@@ -1,3 +1,5 @@
 #!/bin/bash
-/usr/bin/lt --subdomain {{SERVER_DOMAINNAME}} --port 80 &>/var/log/lt.run &
+LOGFILE=/var/log/lt.log
+date >> $LOGFILE
+/usr/bin/lt --subdomain {{SERVER_DOMAINNAME}} --port 80 &> $LOGFILE &
 

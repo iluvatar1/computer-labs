@@ -8,7 +8,7 @@ CHECK NETWORK extif with ADDRESS {{SERVERIP_EXT}}
       start program = "/etc/rc.d/rc.inet1 eth0_restart; echo 'eth0 start SERVER' >> /var/log/test"
       stop program = "/etc/rc.d/rc.inet1 eth0_stop; echo 'eth0 stop SERVER' >> /var/log/test"
       if failed link then restart
-      if 5 restarts within 5 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no ext ip'"
+      if 25 restarts within 40 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no ext ip'"
 
 #CHECK process cntlm with pidfile /var/run/cntlm.pid
 #      #matching "cntlm"
