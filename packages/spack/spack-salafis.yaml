@@ -21,12 +21,28 @@ spack:
         prefix: /usr/
   modules:
     prefix_inspections:
-      lib: [LIBRARY_PATH]
+      ./bin:
+      - PATH
+      ./man:
+      - MANPATH
+      ./share/man:
+      - MANPATH
+      ./share/aclocal:
+      - ACLOCAL_PATH
+      ./lib/pkgconfig:
+      - PKG_CONFIG_PATH
+      ./lib64/pkgconfig:
+      - PKG_CONFIG_PATH
+      ./share/pkgconfig:
+      - PKG_CONFIG_PATH
+      ./:
+      - CMAKE_PREFIX_PATH
+      lib:
+      - LIBRARY_PATH
       lib64:
-      - LD_LIBRARY_PATH
+      - LIBRARY_PATH
       include:
       - CPATH
-
   repos:
   - $spack/var/spack/repos/builtin
   - /packages/local-spack-repo/
