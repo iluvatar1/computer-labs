@@ -1,11 +1,14 @@
 spack:
   config:
-    tempdir: /mnt/scratch/tmp
-    temp_dir: /mnt/scratch/tmp
+    tempdir:
+      - /packages/tmp
+    temp_dir:
+      - /packages/tmp
     build_stage:
-      - /mnt/scratch/spack-stage
+      - /packages/spack-stage
     install_tree:
-      root: /packages/spack/spack/opt/spack
+      #root: /packages/spack/spack/opt/spack
+      root: /packages/spack-packages
     locks: false  
   packages:
     all:
@@ -43,9 +46,9 @@ spack:
       - LIBRARY_PATH
       include:
       - CPATH
-  repos:
-  - $spack/var/spack/repos/builtin
+  repos: # first check my own
   - /packages/local-spack-repo/
+  - $spack/var/spack/repos/builtin
 
   compilers:  
   # - compiler:
@@ -80,25 +83,27 @@ spack:
       
   concretizer:
     #reuse: dependencies # true # true if use as many already installed binaries as possible
+    #reuse: false
     #targets:
     #  granularity: generic
     unify: when_possible
     
   specs:
+  - pigz@2.8
   - zlib
-#  - matplotplusplus
+  - matplotplusplus
 #  - qat
   - armadillo
-#   - benchmark  
-#   - boost +python +mpi
-#   - cdo +curl
-#   - dlib
-#   - eigen
-#   - evtgen
-#   - ffmpeg
-#   - fftw
-#   - geant4 +qt +x11 +opengl +python # +vtk +motif
-#   - geant4-data
+  - benchmark  
+  - boost +python +mpi
+  - cdo +curl
+  - dlib
+  - eigen
+  - evtgen
+  - ffmpeg
+  - fftw
+  - geant4 +qt +x11 +opengl +python # +vtk +motif
+  - geant4-data
 #   - glew
 #   - gnuplot
 #   - googletest
