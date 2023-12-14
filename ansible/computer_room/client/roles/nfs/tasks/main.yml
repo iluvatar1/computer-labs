@@ -14,7 +14,7 @@
     path: "{{item.path}}"
     src: "{{SERVERIP}}:/home"
     fstype: nfs
-    opts: rw,hard,intr,usrquota
+    opts: rw,soft,intr,usrquota
     state: "{{item.action}}"
   loop:
     - { path: /home, action: present } # adds to fstab
