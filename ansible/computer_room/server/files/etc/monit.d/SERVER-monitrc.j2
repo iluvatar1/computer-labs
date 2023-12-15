@@ -54,4 +54,12 @@ CHECK process gmetad matching gmetad
       #with pidfile /var/run/gmond.pid
       start program = "/etc/rc.d/rc.gmetad start"
       stop program = "/etc/rc.d/rc.gmetad stop"
-      
+
+# exportfs command
+check program exportfs with path "/usr/sbin/exportfs -s"
+   with timeout 10 seconds
+   start program = "/bin/bash -c '/usr/bin/timeout 10s /usr/sbin/exportfs -r && echo Exportfs started at $(date)' >> /var/log/monit_exportfs.log"
+   stop program = "/bin/bash -c '/usr/bin/timeout 10s /usr/sbin/exportfs -au && echo Exportfs stopped at $(date)' >> /var/log/monit_exportfs.log"
+   stop program = "/usr/bin/timeout 10s /usr/sbin/exportfs -au"
+   if status != 0 then restart
+   if 10 restarts within 15 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no exportfs'"
