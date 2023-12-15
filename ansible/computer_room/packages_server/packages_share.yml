@@ -10,7 +10,7 @@
   
   - name: Creating local link for package dir
     file:
-      src: /mnt/scratch
+      src: /mnt/scratch/packages
       dest: /packages
       state: link
 

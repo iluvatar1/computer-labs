@@ -9,7 +9,8 @@ spack:
     install_tree:
       #root: /packages/spack/spack/opt/spack
       root: /packages/spack-packages
-    locks: false  
+    locks: false
+  view: /packages/spack-view
   packages:
     all:
       target: [x86_64]
