@@ -146,12 +146,12 @@ spack:
   - py-pip
   - py-pybind11
   - r
-  - rstudio +notebook
+  - rstudio@2023.09.1 +notebook ^soci@4.0.3 # too many errors , better install from system 
   - shapelib
-  - singularity@3.8.7
+  # - singularity@3.8.7 # cannot find safe version...
   - spacetime
   - turbovnc
-  - vmd
+  # - vmd # needs extra download
   - voropp
   - vtk
   - xtensor

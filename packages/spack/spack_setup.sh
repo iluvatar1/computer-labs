@@ -19,6 +19,12 @@ echo "Checking out latest and setting up env"
 #git checkout v0.21.0
 source $BDIR/spack/share/spack/setup-env.sh # setup Spack
 
+echo "Adding new versions (check if needed)"
+echo "pigz 2.8 (fixes the wrong libz version detection)"
+spack checksum -a pigz 2.8
+echo "Soci 4.0.3 (fixes errors altstackmem integral constant)"
+spack checksum -a soci 4.0.3
+
 echo "Do not forget to copy the local repo with your own packages, before creating the environment"
 
 echo "Done"

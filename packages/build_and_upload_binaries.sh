@@ -112,6 +112,7 @@ build_packages_sbo () {
     hwloc
     numactl
     rrdtool
+    rstudio-desktop | MAKEFLAGS="-j$(nproc)"
 EOF
     #####################################
     # Download and fix particular versions
