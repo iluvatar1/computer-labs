@@ -25,6 +25,22 @@
   notify:
     - Restart x2goserver
 
+- name: Copying script to clean sessions
+  tags: client,x2go
+  copy:
+    src: usr/local/bin/clean_x2go_oldsessions.sh
+    dest: /usr/local/bin/clean_x2go_oldsessions.sh
+    mode: '0755'
+
+- name: Add cron job to run the cleaning session script every hour
+  tags: client,x2go
+  cron:
+    name: "Run script every hour to clean x2gosessions"
+    minute: "0"
+    hour: "*"
+    job: "/usr/local/bin/clean_x2go_oldsessions.sh"
+
+
 - name: Fixing x2go compositing by removing it from xfce with x2go
   tags: client,x2go
   block:
