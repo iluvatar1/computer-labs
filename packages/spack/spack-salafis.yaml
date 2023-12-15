@@ -10,7 +10,8 @@ spack:
       #root: /packages/spack/spack/opt/spack
       root: /packages/spack-packages
     locks: false
-  view: /packages/spack-view
+  view: false
+  #view: /packages/spack-view
   packages:
     all:
       target: [x86_64]
@@ -93,7 +94,7 @@ spack:
   - pigz@2.8
   - zlib
   - matplotplusplus
-#  - qat
+  - qat
   - armadillo
   - benchmark  
   - boost +python +mpi
@@ -105,48 +106,56 @@ spack:
   - fftw
   - geant4 +qt +x11 +opengl +python # +vtk +motif
   - geant4-data
-#   - glew
-#   - gnuplot
-#   - googletest
-#   - gperf
-#   - grace
-#   - grads
-#   - gsl
-#   - hdf5
-#   - hepmc
-#   - hepmc3
-#   - imgui
-#   - intel-tbb
-#   - json-c
-#   - jsoncpp
-#   - lammps #+h5md  +vtk ^hdf5+hl+mpi #+vtk ^hdf5+cxx+fortran+hl
-#   - libtirpc
-#   - mesa
-#   - mesa-glu
-#   - mfem +examples +miniapps +lapack +petsc +slepc +sundials +superlu-dist +openmp
-#   - netcdf-c
-#   - netcdf-cxx
-#   - openblas threads=openmp -shared
-#   - opencv
-#   - openjdk
-#   - openjpeg
-#   - openmpi
-#   - openssh
-#   - parallel-netcdf
-#   - py-mpi4py
-#   # - py-numpy
-#   # - py-pip
-#   # - py-pybind11
-#   - r
-#   - rstudio +notebook
-#   - shapelib
-#   #- singularity@3.8.7
-#   - spacetime
-#   - turbovnc
-#   - vmd
-#   - voropp
-#   - vtk
-#   - xtensor
+  - clapack
+  - lapackpp
+  - stress
+  - hyperfine
+  - navi
+  - iperf3
+  - valgrind
+  - cppcheck
+  - glew
+  - gnuplot
+  - googletest
+  - gperf
+  - grace
+  - grads
+  - gsl
+  - hdf5
+  - hepmc
+  - hepmc3
+  - imgui
+  - intel-tbb
+  - json-c
+  - jsoncpp
+  - lammps #+h5md  +vtk ^hdf5+hl+mpi #+vtk ^hdf5+cxx+fortran+hl
+  - libtirpc
+  - mesa
+  - mesa-glu
+  - mfem +examples +miniapps +lapack +petsc +slepc +sundials +superlu-dist +openmp
+  - netcdf-c
+  - netcdf-cxx
+  - opencv
+  - openjdk
+  - openjpeg
+  - openmpi
+  - openssh
+  - parallel-netcdf
+  - py-mpi4py
+  - py-numpy
+  - py-pip
+  - py-pybind11
+  - r
+  - rstudio +notebook
+  - shapelib
+  - singularity@3.8.7
+  - spacetime
+  - turbovnc
+  - vmd
+  - voropp
+  - vtk
+  - xtensor
+
 # # environments:
 # #   dev:
 # #     specs:

@@ -48,8 +48,6 @@ pm () {
 build_packages_sbo () {
     # create queue
     cat <<EOF > /var/lib/sbopkg/queues/custom.sqf
-    blas
-    lapack
     monit | VERSION=5.32.0
     autossh
     slim
@@ -62,7 +60,6 @@ build_packages_sbo () {
     xfce4-xkb-plugin
     xfce4-cpugraph-plugin
     xfce4-netload-plugin
-    stress
     uuid
     mongo-c-driver
     arno-iptables-firewall
@@ -70,7 +67,6 @@ build_packages_sbo () {
     rrdtool
     udpcast
     vscodium
-    rstudio-desktop
     lmod
     modules
     wol
@@ -86,15 +82,12 @@ build_packages_sbo () {
     ncdu
     fd
     tldr
-    hyperfine
     tig
     tmate
-    navi
     httpie
     keepassxc
     bonnie++
     iperf3
-    valgrind
     fira-fonts
     fira-code-fonts
     perl-Switch
@@ -119,7 +112,6 @@ build_packages_sbo () {
     hwloc
     numactl
     rrdtool
-    munge
 EOF
     #####################################
     # Download and fix particular versions

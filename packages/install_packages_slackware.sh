@@ -11,7 +11,7 @@ BASEURL="$PKGSERVER/PACKAGES/slackware64-current/"
 LOG_FILE=${LOG_FILE:-/tmp/log-packages.txt}
 
 PKG="keepassx sshfs-fuse autossh xfce4-xkb-plugin flashplayer-plugin slim monit \
-    fail2ban corkscrew pip parallel wol valgrind openmpi modules cppcheck iotop gperftools \
+    fail2ban corkscrew pip parallel wol openmpi modules iotop gperftools \
     xdm-slackware-theme glm"
 
 pm () {
