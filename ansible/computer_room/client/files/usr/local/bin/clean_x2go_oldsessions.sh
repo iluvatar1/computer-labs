@@ -1,5 +1,5 @@
 #!/bin/bash
-LIMIT_DAYS=3
+LIMIT_DAYS=${1:-5}
 # Get the date of last use of the session
 for ll in `x2golistsessions_root`; do 
   lastd=`echo $ll | awk -F \| '{print $11}' | awk -F T '{print $1}';`
