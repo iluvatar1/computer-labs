@@ -1,0 +1,95 @@
+{
+  "variables":
+  {
+    "run_command": "PACKER_LOG=1 packer build -var FIRMWARE=efi|bios -var-file config/cfg-A-install.json slackware64-current-A-install.json"
+  },
+  "builders": [
+    {
+      "type": "virtualbox-vm",
+      "disable_shutdown": false,
+      "shutdown_command": "",
+      "shutdown_timeout": "5s",
+      "vm_name": "{{user `MACHINENAME`}}",
+      "keep_registered": true,
+      "skip_export": true,
+      "guest_additions_mode": "disable",
+      "virtualbox_version_file": "",
+      "force_delete_snapshot": true,
+      "communicator": "none",
+      "ssh_username": "root",
+      "boot_wait": "10s",
+      "boot_keygroup_interval": "1s",
+      "headless": "{{user `HEADLESS`}}",
+      "boot_command": [
+        "<wait><enter><wait20s>",
+        "<wait>1<enter>",
+        "<wait><enter>",
+        "<wait>1<enter>",
+        "<wait>root<enter>",
+
+        "<wait>gdisk /dev/nvme0n1<enter><wait>",
+        "n<enter>1<enter><enter>+512M<enter>EF00<enter><wait2s>",
+        "n<enter>2<enter><enter>+40G<enter>8300<enter><wait2s>",
+        "n<enter>3<enter><enter>+8G<enter>8200<enter><wait2s>",
+        "n<enter>4<enter><enter>+15G<enter>8300<enter><wait2s>",
+        "n<enter>5<enter><enter>+30G<enter>8300<enter><wait2s>",
+        "n<enter>6<enter><enter><enter>8300<enter><wait>",
+        "w<enter>Y<enter><wait4s>",
+        "mkfs.vfat /dev/nvme0n1p1<enter><wait3s>",
+
+        "<wait>setup<enter><wait2s>",
+        "a<enter><wait><enter><wait><enter><wait4s><enter><wait2s>",
+        "<enter><wait><enter><wait><enter><wait4s>",
+        "<down><wait><enter><wait><enter><wait><enter><wait3s>/tmp<wait><enter><wait1s>",
+        "<down><down><wait><enter><wait><enter><wait><enter><wait3s>/home<wait><enter><wait1s>",
+        "<down><down><down><wait><enter><wait><enter><wait><enter><wait3s>/opt<wait><enter><wait><enter><wait>",
+        "<wait><enter>",
+
+        "<wait>1<enter>a<enter><wait5>",
+        "<wait>f<spacebar>kk<enter>",
+        "<wait>f<enter>",
+
+        "<wait35m>",
+
+        "<wait>"
+      ],
+      "vboxmanage": [
+          [ "modifyvm", "{{.Name}}", "--firmware", "{{user `FIRMWARE`}}"],
+        [ "modifyvm", "{{.Name}}", "--memory", 2000],
+        [ "modifyvm", "{{.Name}}", "--cpus",  "{{user `CPUS`}}"],
+        [ "modifyvm", "{{.Name}}", "--vram", 128 ],
+        [ "storageattach", "{{.Name}}", "--storagectl", "IDE Controller", "--port", "0",
+          "--device", "1", "--type", "dvddrive", "--medium", "{{user `ISO_URL`}}" ],
+        [ "modifyvm", "{{.Name}}", "--cpuhotplug", "off"],
+        [ "modifyvm", "{{.Name}}", "--hwvirtex", "on"],
+        [ "modifyvm", "{{.Name}}", "--accelerate3d", "on"],
+        [ "modifyvm", "{{.Name}}", "--rtcuseutc", "on"],
+        [ "modifyvm", "{{.Name}}", "--graphicscontroller", "vmsvga"],
+        [ "modifyvm", "{{.Name}}", "--nic1", "nat"],
+        [ "modifyvm", "{{.Name}}", "--clipboard-mode", "bidirectional"],
+        [ "modifyvm", "{{.Name}}", "--draganddrop", "bidirectional"],
+        [ "modifyvm", "{{.Name}}", "--audiocontroller", "ac97"],
+        [ "modifyvm", "{{.Name}}", "--audioout", "on"],
+        [ "modifyvm", "{{.Name}}", "--usbohci", "on"],
+        [ "modifyvm", "{{.Name}}", "--usbehci", "off"],
+        [ "modifyvm", "{{.Name}}", "--usbxhci", "off"]
+      ],
+      "vboxmanage_post":
+      [
+        [
+          "storageattach", "{{.Name}}", "--storagectl", "IDE Controller",
+          "--port", "0", "--device", "1", "--type", "dvddrive",
+          "--medium", "emptydrive"
+        ]
+      ]
+    }
+  ],
+  "provisioners":
+  [
+    {
+      "type": "shell-local",
+      "environment_vars": ["VMNAME={{.Name}}"],
+      "inline": ["/usr/local/bin/VBoxManage snapshot {{user `MACHINENAME`}} take 'After slackware package install'"]
+    }
+  ]
+}
