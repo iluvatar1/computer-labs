@@ -16,16 +16,16 @@
     - nis
     - crontab
     - rootpassword
-    - ../common/roles/monit
-    - monit
-    - x2go
-    - ../common/roles/ganglia
-    - ../common/roles/netdata
     - harddisk
     - ../common/roles/motd
-    - pip
     - ../common/roles/virtualbox
     - lilo
     - swap
+    - ../common/roles/monit
+    - monit
+    - ../common/roles/netdata
     - nhc
+    - x2go
+    - ../common/roles/ganglia
+    - pip
 

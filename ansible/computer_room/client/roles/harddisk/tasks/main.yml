@@ -4,36 +4,41 @@
     path: /mnt/scratch
     state: directory
 
+- name: Check if /dev/sda exists
+  tags: client,harddisk
+  stat:
+    path: /dev/sda
+  register: sda_device
+  changed_when: False
+
 - name: "Reading device information: /dev/sda"
   tags: client,harddisk
-  parted:
+  community.general.parted:
     device: "/dev/sda"
     unit: MiB
   register: device_info
-
-# # - name: "Print info2"
-# #   debug:
-# #     msg: "{{ item.num }}"
-# #   loop: "{{ device_info.partitions }}"
+  when: sda_device.stat.exists
 
 - name: "Adding new partition /dev/sda7"
   tags: client,harddisk
-  parted:
+  community.general.parted:
     device: "/dev/sda"
     number: "7"
     part_type: primary
     state: present
     part_end: "100%"
-    part_start: "{{ device_info.partitions[5].end + 0}}MiB"
+    part_start: "{{ device_info.partitions[5].end }}MiB"
     align: undefined
     fs_type: ext4
     label: gpt
+  when: sda_device.stat.exists
 
 - name: "Format /dev/sda7 with ext4"
   tags: client,harddisk
   filesystem:
     dev: "/dev/sda7"
     fstype: ext4
+  when: sda_device.stat.exists
 
 - name: Mounting /dev/sda7 onto /mnt/scratch
   tags: client,harddisk
@@ -46,3 +51,55 @@
     - { path: /mnt/scratch, action: present } # adds to fstab
     - { path: /mnt/scratch, action: mounted }
   register: mount
+  when: sda_device.stat.exists
+
+
+- name: Check if /dev/nvme0n1 exists
+  tags: client,harddisk
+  stat:
+    path: /dev/nvme0n1
+  register: nvme0n1_device
+  changed_when: False
+
+- name: "Reading device information: /dev/nvme0n1"
+  tags: client,harddisk
+  community.general.parted:
+    device: "/dev/nvme0n1"
+    unit: MiB
+  register: device_info
+  when: nvme0n1_device.stat.exists
+
+- name: "Adding new partition /dev/nvme0n1p7"
+  tags: client,harddisk
+  community.general.parted:
+    device: "/dev/nvme0n1"
+    number: "7"
+    part_type: primary
+    state: present
+    part_end: "100%"
+    part_start: "{{ device_info.partitions[5].end }}MiB"
+    align: undefined
+    fs_type: ext4
+    label: gpt
+  when: nvme0n1_device.stat.exists
+
+- name: "Format /dev/nvme0n1p7 with ext4"
+  tags: client,harddisk
+  filesystem:
+    dev: "/dev/nvme0n1p7"
+    fstype: ext4
+  when: nvme0n1_device.stat.exists
+
+
+- name: Mounting /dev/nvme0n1p7 onto /mnt/scratch
+  tags: client,harddisk
+  ansible.posix.mount:
+    path: "{{item.path}}"
+    src: /dev/nvme0n1p7
+    fstype: ext4
+    state: "{{item.action}}"
+  loop:
+    - { path: /mnt/scratch, action: present } # adds to fstab
+    - { path: /mnt/scratch, action: mounted }
+  register: mount
+  when: nvme0n1_device.stat.exists
