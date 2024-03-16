@@ -7,13 +7,13 @@ check process sshd matching /usr/sbin/sshd
       start program "/etc/rc.d/rc.sshd start"
       stop program "/etc/rc.d/rc.sshd stop"
       restart program "/etc/rc.d/rc.sshd restart"
-      if 10 restarts within 15 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No sshd process'"
+      if 15 restarts within 15 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No sshd process'"
 
 check process sshd-connection matching /usr/sbin/sshd
       start program "/etc/rc.d/rc.sshd start"
       stop program "/etc/rc.d/rc.sshd stop"
       if failed port 22 protocol ssh then restart
-      if 10 restarts within 15 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No sshd connection'"
+      if 15 restarts within 15 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No sshd connection'"
       
 check file sshd-pid with path /var/run/sshd.pid
       start program "/etc/rc.d/rc.sshd start"
@@ -23,32 +23,32 @@ check file sshd-pid with path /var/run/sshd.pid
 check process ypbind with pidfile /var/run/ypbind.pid
       start program = "/etc/rc.d/rc.yp start"
       stop program = "/etc/rc.d/rc.yp stop"
-      if 10 restarts within 15 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no ypbind'"
+      if 15 restarts within 15 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no ypbind'"
 
 check filesystem homefs with path /home
       start program  = "/sbin/mount -t nfs /home"
       stop program  = "/sbin/umount -t nfs /home"
-      if 10 restarts within 15 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no home mounted'"
+      if 15 restarts within 15 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no home mounted'"
 # 2023-12-13: This one commented since it was triggering uneeded restarts
 #check program homefs with path "/bin/bash -c '/usr/bin/timeout 10s /usr/bin/touch /home/.mount_test'"
 #      start program = "/usr/bin/timeout 10s /sbin/mount  -t nfs /home"
 #      stop program  = "/usr/bin/timeout 10s /sbin/umount -t nfs /home"
 #      if status != 0 then restart
-#      if 10 restarts within 15 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no home mounted'"
+#      if 15 restarts within 15 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no home mounted'"
 
 
 check host {{SERVER_NAME}} with address {{SERVERIP}}
       start program = "/etc/rc.d/rc.inet1 start"
       stop program = "/etc/rc.d/rc.inet1 stop"
       if failed ping then restart
-      if 10 restarts within 15 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No ping to server'"
+      if 15 restarts within 15 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No ping to server'"
 
 #check program ypcat with path "/bin/bash /usr/local/bin/ypcat_test.sh"
 check program ypcat with path "/bin/bash -c '/usr/bin/ypcat passwd &>/dev/null'"
       start program = "/etc/rc.d/rc.yp start"
       stop program = "/etc/rc.d/rc.yp stop"
       if status != 0 then restart
-      if 15 restarts within 20 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no ypcat working'"
+      if 20 restarts within 20 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no ypcat working'"
 check program dns_check with path "/usr/local/bin/check_dns.sh"
 	start program = "/etc/rc.d/rc.inet1 start"
 	stop program = "/etc/rc.d/rc.inet1 stop"

@@ -48,7 +48,7 @@
   ansible.builtin.lineinfile:
     path: /etc/rc.d/rc.local
     state: present
-    line: "/usr/sbin/nhc-wrapper -L 30s -X 24h &>/dev/null"
+    line: "/usr/sbin/nhc-wrapper -L 30s -X 24h &>/dev/null &"
 
 - name: Copying monit service
   tags: client, nhc
