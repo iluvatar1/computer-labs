@@ -23,9 +23,10 @@
     - swap
     - ../common/roles/monit
     - monit
-    - ../common/roles/netdata
     - nhc
+    - pip
+    - ../common/roles/cpu_control
+    - ../common/roles/netdata
     - x2go
     - ../common/roles/ganglia
-    - pip
 

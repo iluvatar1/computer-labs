@@ -1,0 +1,22 @@
+- name: Copy script to /usr/local/bin
+  tags: common, cpu_control
+  ansible.builtin.copy:
+    src: usr/local/bin/cpu_hog_renice.sh
+    dest: /usr/local/bin/cpu_hog_renice.sh
+    mode: '0755'
+
+- name: Add cron job to run script every minute
+  tags: common, cpu_control
+  ansible.builtin.cron:
+    name: "Run cpu control every minute"
+    minute: "*"
+    job: "/usr/local/bin/cpu_hog_renice.sh &>> /tmp/cpu_control.log"
+
+- name: Add cron job to run script every minute + 30 seconds
+  tags: common, cpu_control
+  ansible.builtin.cron:
+    name: "Run script every minute + 30 seconds"
+    minute: "*"
+    job: "sleep 30 && /usr/local/bin/cpu_hog_renice.sh &>> /tmp/cpu_control.log"
+
+
