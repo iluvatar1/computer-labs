@@ -18,7 +18,7 @@
     dest: '/{{item}}'
     owner: root
     group: root
-    mode: '0644'
+    mode: '0755'
     backup: yes 
   loop:
     - etc/rc.d/rc.inet1
