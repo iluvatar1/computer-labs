@@ -1,0 +1,9 @@
+- Run the playbook in dry mode (remove the --check to actually aplly it):
+  #+begin_src bash
+    ansible-playbook -i inventory server.yml --vault-password-file .vaultpass --check
+  #+end_src 
+
+- Encrypt a file for the vault
+  #+begin_src bash
+    ansible-vault encrypt --vault-password-file .vaultpass /etc/dnsmasq-hosts.conf --output files/etc/dnsmasq-hosts.conf
+  #+end_src
