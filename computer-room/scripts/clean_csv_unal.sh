@@ -29,6 +29,7 @@ sed -i 's/,//' "$TMPFNAME"
 
 while IFS=',' read -r fullname password plan observation email
 do
+    #echo "$fullname, $password,$plan,$observation,$email"
     if [[ -z "$email" ]]; then continue; fi
     username=${email%@*}
     comment="$fullname"

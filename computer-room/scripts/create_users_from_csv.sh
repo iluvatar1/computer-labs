@@ -40,8 +40,8 @@ create_accounts () {
 	echo "Changing password to ${password}"
 	#echo ${username}:${password} | chpasswd
 	usermod --password $(echo ${password} | openssl passwd -1 -stdin) ${username}
-	echo "make the password expire to force changing it on first login"
-	chage -d0 ${username}
+	#echo "make the password expire to force changing it on first login"
+	#chage -d0 ${username}
 	##echo "Recursive chown ... &"
 	##chown -R $username.$username /home/$username &
 	#read
