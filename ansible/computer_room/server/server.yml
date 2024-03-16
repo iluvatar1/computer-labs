@@ -32,3 +32,4 @@
     - monit
     - localtunnel
     - ../common/roles/virtualbox
+    - ../common/roles/cpu_control
