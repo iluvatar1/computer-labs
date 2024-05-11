@@ -1,0 +1,621 @@
+#!/bin/sh
+#
+# mksb - make slack-desc, doinst.sh, .info and SlackBuild template scripts
+#
+# usage: See usage method, below.
+#
+# Release 1: initial release
+# Release 2: export CFLAGS, fix strip functionality
+# Release 3: slackbuilds.org compliance
+# Release 3.1: clean up code
+# Release 3.2: put a copy of the SlackBuild in doc, chmod 755 SlackBuild
+# Release 4: sh port, config file
+#
+# Copyright (c) 2009 Brian "Beej Jorgensen" Hall <beej@beej.us>
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+SCRIPTNAME=$(basename $0)
+
+# Add any of these lines to your ~/.mksbrc and they'll be overridden:
+
+defaultUserName="Example Name" # creator id information
+defaultUserEmail="name@example.com"
+defaultPrefix="/usr"           # prefix for the install
+defaultBuild="1"               # build number for the package
+defaultArch="i486"             # architecture to use
+defaultTag="SBo"               # tag to go after the defaultBuild
+defaultBuildDir="/tmp/SBo"     # tmp build area
+defaultPackageDest="/tmp"      # where final package should be
+
+configFile=${HOME}/.${SCRIPTNAME}rc
+
+if [ -f ${configFile} ]; then
+	if ! . ${configFile}; then
+		printf "%s: error reading %s\n" "${SCRIPTNAME}" "${configFile}" 1>&2
+		exit 1
+	fi
+fi
+
+# command line options
+config_tarball=''
+config_writeSlackDesc=1
+config_writeREADME=1
+config_writeInfo=1
+config_writeDoInst=0
+config_writeDoInstConfig=0
+config_doInstComment=''
+
+# info about source tarball
+tarball_name=''
+tarball_version=''
+tarball_untarcomp='z'  # tar option z=gz, j=bz2
+tarball_extension=''
+
+# info about destination package
+package_name=''
+package_version=''
+package_arch=''
+package_build=''
+package_tag=''
+package_arch=''
+package_prefix=''
+package_author=''
+package_author_email=''
+package_builddir=''
+package_packagedest=''
+package_url=''
+package_tarballurl=''
+package_tarballmd5=''
+
+#--------------------------------------------------------------------
+# print usage and exit
+usage() {
+	printf "usage %s: [options] tarball\n" "$SCRIPTNAME"
+	printf "  -n   Don't prompt for or write a slack-desc file\n"
+	printf "  -r   Don't prompt for or write a README file\n"
+	printf "  -i   Don't prompt for or write an info file\n"
+	printf "  -d   Generate a doinst.sh file\n"
+	printf "  -c   Add the \"config\" bash function to doinst.sh\n"
+
+	exit 1
+}
+
+#--------------------------------------------------------------------
+# make sure we have all the needed utils installed
+checkPrereqs() {
+	for name in $*; do
+		if ! command -v $name > /dev/null; then
+			printf "%s: fatal: can't find the \"%s\" utility\n" "$SCRIPTNAME" "$name" 1>&2
+			exit 1
+		fi
+	done
+}
+
+#--------------------------------------------------------------------
+# parse the command line options
+parseCommandLine() {
+	while getopts nridc name; do
+		case $name in
+			n) config_writeSlackDesc=0;;
+			r) config_writeREADME=0;;
+			i) config_writeInfo=0;;
+			d) config_writeDoInst=1;;
+			c) config_writeDoInst=1
+			   config_writeDoInstConfig=1;;
+			*) usage;;
+		esac
+	done
+
+	shift $(($OPTIND - 1))
+	if [ $# -ne 1 ]; then
+		usage
+	fi
+
+	if [ $config_writeDoInst -eq 0 ]; then
+		config_doInstComment='#'  # character to write
+	fi
+
+	config_tarball=`basename "$1"`
+}
+
+#--------------------------------------------------------------------
+# get info about the tarball from the name
+getTarballInfo() {
+	tb="$1"
+
+	valid_extensions=".tgz .tar.gz .tar.bz2"
+
+	tarball_extension=''
+	for e in $valid_extensions; do
+		if [ "x$tb" != "x${tb%${e}}" ]; then
+			tarball_extension=$e
+			break
+		fi
+	done
+
+	if [ "x$tarball_extension" = 'x' ]; then
+		printf "%s: tarball extension must be one of: %s\n" \
+			"$SCRIPTNAME" "$valid_extensions" 1>&2
+		exit 1
+	fi
+
+	# check for bzip2'd tarball
+	if [ "x$tarball_extension" = "x.tar.bz2" ]; then
+		config_untarcomp='j'
+	fi
+
+	filename=${tb%${tarball_extension}}
+
+	tmp=$filename
+	tarball_version=${tmp##*-}; tmp=${tmp%-*}
+	tarball_name=$tmp
+}
+
+#--------------------------------------------------------------------
+# get a value
+promptFor() {
+	varname="$1"
+	promptstr="$2"
+	default="$3"
+
+	if [ "x$default" != "x" ]; then
+		printf "%s [%s]: " "$promptstr" "$default"
+	else
+		printf "%s: " "$promptstr"
+	fi
+	read val
+
+	val=$(echo $val)  # collapse spaces
+	if [ "x$val" = "x" ]; then
+		val=$default
+	fi
+
+	eval "$varname=\"$val\""
+}
+
+#--------------------------------------------------------------------
+# get a multiline value
+promptForMultiline() {
+	varname="$1"
+	promptstr="$2"
+
+	printf "%s:\n(^D on a blank line to terminate)\n" "$promptstr"
+	val=$(cat)
+
+	eval "$varname=\"$val\""
+}
+
+#--------------------------------------------------------------------
+# get md5sum for a file
+readMD5() {
+	filename="$1"
+	if ! md5=$(md5sum $filename); then
+		printf "%s: warning: %s: error computing MD5\n" "$SCRIPTNAME" "$filename" 1>&2
+		return 1
+	fi
+
+	printf "${md5%% *}"  # strip all after the space, just leave MD5
+}
+
+#--------------------------------------------------------------------
+# gather information about the destination package
+getPackageInfo() {
+	promptFor "package_name" "Package Name" "${tarball_name}"
+	promptFor "package_version" "Version" "${tarball_version}"
+	promptFor "package_arch" "Architecture" "${defaultArch}"
+	promptFor "package_build" "Build Number" "${defaultBuild}"
+	promptFor "package_tag" "Tag" "${defaultTag}"
+	promptFor "package_prefix" "Prefix" "${defaultPrefix}"
+	promptFor "package_author" "Packager Name" "${defaultUserName}"
+	promptFor "package_author_email" "Packager Email" "${defaultUserEmail}"
+	promptFor "package_builddir" "Temp Build Dir" "${defaultBuildDir}"
+	promptFor "package_packagedest" "Package Destination Dir" "${defaultPackageDest}"
+
+	if [ $config_writeSlackDesc -ne 0 -o $config_writeREADME -ne 0 ]; then
+		promptFor "package_shortDesc" "Short description" ""
+		promptForMultiline "package_longDesc" "Long description"
+	fi
+
+	if [ $config_writeInfo -ne 0 ]; then
+		promptFor "package_tarballurl" "Source tarball URL" ""
+		package_tarballmd5=$(readMD5 "${config_tarball}")
+	fi
+
+	if [ $config_writeSlackDesc -ne 0 -o $config_writeREADME -ne 0 -o \
+		$config_writeInfo -ne 0 ]; then
+
+		promptFor "package_url" "Project Homepage URL" ""
+	fi
+}
+
+#--------------------------------------------------------------------
+# write out the main slackbuild file
+writeSlackBuild() {
+	filename=${package_name}.SlackBuild
+	cat <<__EOF__ > $filename
+###########################################################################
+## REMOVE THIS ENTIRE BLOCK OF TEXT (AFTER READING IT!)
+##
+## This template is not meant to be a "cut and paste" script to enable
+## any random user to make a working package.  While we're certainly not
+## discouraging use of this template, if you haven't manually gone
+## through each step of the process without the build script (typically
+## as a normal user, as this will reveal problems that you won't see as
+## root), then there's a good chance that something important is missing
+## from your submission.
+##
+## When using this template script, please remove as many of these
+## unnecessary comments as possible.  Commented code is a good thing, but
+## if it's obvious, there's no need to comment it.
+## 
+## AGAIN, REMOVE THE COMMENTS IF THEY ARE NOT NEEDED--DON'T JUST DELETE
+## THIS BLOCK OF TEXT WITHOUT BOTHERING TO READ WHAT'S IN IT.
+###########################################################################
+
+#!/bin/sh
+#
+# Slackware build script for ${package_name}
+#
+# Written by ${package_author} <${package_author_email}>
+
+# Add license information here if you desire; otherwise, delete this
+# comment block to grant this script to the public domain, which is
+# the preferred thing to do.
+#
+# Some licenses may incorporate the "Written by" information above, and if
+# so, that line can be omitted.
+#
+# We strongly suggest *not* using GPL for scripts, as it requires a copy
+# of the GPL to be distributed with it.  Since the GPL itself is longer
+# than any build script will be, this just doesn't make good sense...
+
+# (This script based on Slackbuild.org's template.SlackBuild 1.4.  You
+# should delete this entire comment, and the following two lines of code.)
+echo 'You need to fully edit this script before you run it!'
+exit 1
+
+PRGNAM=${package_name}
+VERSION=\${VERSION:-${package_version}}
+ARCH=\${ARCH:-${package_arch}}		# this should not change
+BUILD=\${BUILD:-${package_build}}
+TAG=\${TAG:-_${package_tag}}		# use "_SBo" for slackbuilds.org
+
+CWD=\$(pwd)
+TMP=\${TMP:-${package_builddir}}	# use "/tmp/SBo" for slackbuilds.org
+PKG=\$TMP/package-\$PRGNAM
+OUTPUT=\${OUTPUT:-${package_packagedest}}	# Drop the package in ${package_packagedest}
+
+if [ "\$ARCH" = "i386" ]; then
+  SLKCFLAGS="-O2 -march=i386 -mtune=i686"
+elif [ "\$ARCH" = "i486" ]; then
+  SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+elif [ "\$ARCH" = "i586" ]; then
+  SLKCFLAGS="-O2 -march=i586 -mtune=i686"
+elif [ "\$ARCH" = "i686" ]; then
+  SLKCFLAGS="-O2 -march=i686 -mtune=i686"
+elif [ "\$ARCH" = "x86_64" ]; then
+  SLKCFLAGS="-O2 -fPIC"
+fi
+
+set -e # Exit on most errors
+# If you prefer to do selective error checking with 
+#   command || exit 1
+# then that's also acceptable.
+
+rm -rf \$PKG
+mkdir -p \$TMP \$PKG \$OUTPUT
+cd \$TMP
+rm -rf \$PRGNAM-\$VERSION
+tar x${tarball_untarcomp}vf \$CWD/\$PRGNAM-\$VERSION${tarball_extension}
+#tar x${tarball_untarcomp}vf \$CWD/${config_tarball}
+cd \$PRGNAM-\$VERSION
+chown -R root:root .
+find . \\
+ \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \\
+ -exec chmod 755 {} \; -o \\
+ \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \\
+ -exec chmod 644 {} \;
+
+# Your application will probably need different configure flags; these
+# are provided as an example only.  Be sure to build only shared
+# libraries unless there's some need for static.
+CFLAGS="\$SLKCFLAGS" \\
+CXXFLAGS="\$SLKCFLAGS" \\
+./configure \\
+  --prefix=${package_prefix} \\
+  --sysconfdir=/etc \\
+  --localstatedir=/var \\
+  --mandir=${package_prefix}/man \\
+  --docdir=${package_prefix}/doc/\$PRGNAM-\$VERSION \\
+  --build=\$ARCH-slackware-linux
+
+# Compile the application and install it into the \$PKG directory
+make
+make install DESTDIR=\$PKG
+
+# Strip binaries and libraries--this can be done with "make install-strip"
+# in many source trees, and that's usually acceptable if so, but if not,
+# use this:
+( cd \$PKG
+  find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | \\
+    xargs strip --strip-unneeded 2> /dev/null || true
+  find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | \\
+    xargs strip --strip-unneeded 2> /dev/null || true
+)
+
+# Compress man pages.  If the man pages are installed to /usr/share/man
+# instead, you'll need to either add the --mandir=/usr/man flag to
+# configure or move them manually after the make install process is run.
+( cd \$PKG${package_prefix}/man
+  find . -type f -exec gzip -9 {} \;
+  for i in \$( find . -type l ) ; do ln -s \$( readlink \$i ).gz \$i.gz ; rm \$i ; done
+)
+
+# Compress info pages and remove the package's dir file.  If no info
+# pages are installed by the software, don't leave this in the script.
+rm -f \$PKG${package_prefix}/info/dir
+gzip -9 \$PKG${package_prefix}/info/*.info*
+
+# Remove perllocal.pod and other special files that don't need to be
+# installed, as they will overwrite what's already on the system.  If
+# this is not needed, remove it from the script.
+( cd \$PKG
+  # Remove "special" files
+  find . -name perllocal.pod \\
+    -o -name ".packlist" \\
+    -o -name "*.bs" \\
+    | xargs rm -f
+)
+
+# Copy program documentation into the package.  The included
+# documentation varies from one application to another, so be sure to
+# adjust your script as needed.  Also, include the SlackBuild script in
+# the documentation directory.
+mkdir -p \$PKG${package_prefix}/doc/\$PRGNAM-\$VERSION
+cp -a \\
+  #### DOCUMENTATION FILES GO HERE #### \\
+  \$PKG${package_prefix}/doc/\$PRGNAM-\$VERSION
+cat \$CWD/\$PRGNAM.SlackBuild > \$PKG${package_prefix}/doc/\$PRGNAM-\$VERSION/\$PRGNAM.SlackBuild
+
+# Copy the slack-desc (and a custom doinst.sh if necessary) into ./install
+mkdir -p \$PKG/install
+cat \$CWD/slack-desc > \$PKG/install/slack-desc
+${config_doInstComment}cat \$CWD/doinst.sh > \$PKG/install/doinst.sh
+
+# Make the package; be sure to leave it in \$OUTPUT.  If package symlinks
+# need to be created during install *before* your custom contents of
+# doinst.sh runs, then add the -p switch to the makepkg command below--
+# see makepkg(8) for details.
+cd \$PKG
+/sbin/makepkg -l y -c n \$OUTPUT/\$PRGNAM-\$VERSION-\$ARCH-\$BUILD\$TAG.tgz
+__EOF__
+
+	chmod 755 $filename
+}
+
+#--------------------------------------------------------------------
+# wrap some text
+printWrap() {
+	text="$1"
+	prefix="$2"
+	margin="$3"
+
+	fmtmargin=$((${margin}-${#prefix}))
+
+	if ! ( printf "%s" "$text" | fmt -${fmtmargin} | sed "s/^/${prefix}/" ); then
+		printf "%s: fatal: error formatting text\n" "$SCRIPTNAME" 1>&2
+		exit 1
+	fi
+}
+
+#--------------------------------------------------------------------
+# write out the slack-desc file
+writeSlackDesc() {
+	outfilename='slack-desc'
+	margin=78
+	prefix="${package_name}: "
+
+	ruler=$(printf "%${#package_name}s|-----handy-ruler" "")
+
+	mm1=$(($margin - 1))
+	while [ ${#ruler} -lt ${mm1} ]; do
+		ruler="$ruler-"
+	done
+
+	ruler="${ruler}|"
+
+	cat <<__EOF__ > $outfilename
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also customary
+# to leave one space after the ':'.
+
+$ruler
+__EOF__
+
+	if [ "x$package_shortDesc" != "x" ]; then
+		printf "%s%s (%s)\n" "$prefix" "$package_name" "$package_shortDesc" >> $outfilename
+	else
+		printf "%s%s\n" "$prefix" "$package_name" >> $outfilename
+	fi
+	lineCount=1
+
+	printf "%s\n" "$prefix" >> $outfilename
+	lineCount=$((${lineCount} + 1))
+
+	wrappedLong=$(printWrap "$package_longDesc" "$prefix" "$margin")
+	printf "%s\n" "$wrappedLong" >> $outfilename
+
+	lineCount=$(( ${lineCount} + $(printf "%s\n" "${wrappedLong}" | wc -l) ))
+
+	if [ "x${package_url}" != "x" ]; then
+		printf "%s\n%s%s\n" "$prefix" "$prefix" "$package_url" >> $outfilename
+		lineCount=$((${lineCount} + 2))
+	fi
+
+	if [ $lineCount -gt 11 ]; then
+		printf "%s: warning: slack-desc is more than 11 lines\n" "$SCRIPTNAME" 1>&2
+	else
+		while [ $lineCount -lt 11 ]; do
+			printf "%s\n" "$prefix" >> $outfilename
+			lineCount=$((${lineCount} + 1))
+		done
+	fi
+}
+
+#--------------------------------------------------------------------
+writeREADME() {
+	outfilename="README"
+
+	if [ "x$package_shortDesc" != "x" ]; then
+		printf "%s (%s)\n\n" "$package_name" "$package_shortDesc" > $outfilename
+	else
+		printf "%s\n\n" "$package_name" > $outfilename
+	fi
+
+	printWrap "${package_longDesc}" "" 72 >> $outfilename
+
+	if [ "x$package_url" != "x" ]; then
+		printf "\n%s\n\n" "$package_url" >> $outfilename
+	fi
+
+	cat <<__EOF__ >> $outfilename
+Slackbuild script written by ${package_author} <${package_author_email}>
+
+
+Dependencies:
+
+package1    http://www.example.com/package1
+package2    http://www.example.com/package2
+
+
+Special instructions:
+
+__EOF__
+}
+
+
+#--------------------------------------------------------------------
+# write out the doinst.sh file
+writeDoInst() {
+	outfilename="doinst.sh"
+
+	cat <<__EOF__ > $outfilename
+#===============================================================================
+# doinst.sh stuff--use/adapt as needed and delete what you don't need
+#===============================================================================
+printf "!!! doinst.sh needs to be hand-edited before using !!!\n" 1>&2
+exit 1  # remove before flight
+
+__EOF__
+
+	if [ $config_writeDoInstConfig -ne 0 ]; then
+		cat <<__EOF__ >> $outfilename
+config() {
+NEW="\$1"
+  OLD="\$(dirname \$NEW)/\$(basename \$NEW .new)"
+  # If there's no config file by that name, mv it over:
+  if [ ! -r \$OLD ]; then
+    mv \$NEW \$OLD
+  elif [ "\$(cat \$OLD | md5sum)" = "\$(cat \$NEW | md5sum)" ]; then
+    # toss the redundant copy
+    rm \$NEW
+  fi
+  # Otherwise, we leave the .new copy for the admin to consider...
+}
+
+# Keep same perms on rc.INIT.new:
+if [ -e etc/rc.d/rc.INIT ]; then
+  cp -a etc/rc.d/rc.INIT etc/rc.d/rc.INIT.new.incoming
+  cat etc/rc.d/rc.INIT.new > etc/rc.d/rc.INIT.new.incoming
+  mv etc/rc.d/rc.INIT.new.incoming etc/rc.d/rc.INIT.new
+fi
+
+config etc/rc.d/rc.INIT.new
+config etc/configfile.new
+
+__EOF__
+	fi
+
+	cat <<__EOF__ >> $outfilename
+if [ -x /usr/bin/update-desktop-database ]; then
+  /usr/bin/update-desktop-database -q usr/share/applications >/dev/null 2>&1
+fi
+
+if [ -x /usr/bin/update-mime-database ]; then
+  /usr/bin/update-mime-database usr/share/mime >/dev/null 2>&1
+fi
+
+if [ -e usr/share/icons/hicolor/icon-theme.cache ]; then
+  if [ -x /usr/bin/gtk-update-icon-cache ]; then
+    /usr/bin/gtk-update-icon-cache usr/share/icons/hicolor >/dev/null 2>&1
+  fi
+fi
+__EOF__
+}
+
+#--------------------------------------------------------------------
+# write out the .info file for slackbuilds.org
+writeInfo() {
+	outfilename="${package_name}.info"
+
+	cat <<__EOF__ > $outfilename
+PRGNAM="$package_name"
+VERSION="$package_version"
+HOMEPAGE="$package_url"
+DOWNLOAD="$package_tarballurl"
+MD5SUM="$package_tarballmd5"
+MAINTAINER="$package_author"
+EMAIL="$package_author_email"
+__EOF__
+}
+
+#====================================================================
+# MAIN
+#====================================================================
+
+checkPrereqs sed fmt md5sum
+
+parseCommandLine $*
+getTarballInfo $config_tarball
+getPackageInfo
+
+# all data gethered successfully, so write some files
+if [ $config_writeSlackDesc -ne 0 ]; then
+	writeSlackDesc
+fi
+
+if [ $config_writeREADME -ne 0 ]; then
+	writeREADME
+fi
+
+if [ $config_writeDoInst -ne 0 ]; then
+	writeDoInst
+fi
+
+if [ $config_writeInfo -ne 0 ]; then
+	writeInfo
+fi
+
+writeSlackBuild
+

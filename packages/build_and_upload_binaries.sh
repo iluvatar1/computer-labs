@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 #set -euo pipefail
 
+# 2024-05-09 NOTE NOTE NOTE NOTE: Remove the packages already in the hpc script
+
+
 ##
 # Color  Variables
 ##
@@ -67,8 +70,6 @@ build_packages_sbo () {
     rrdtool
     udpcast
     vscodium
-    lmod
-    modules
     wol
     kitty
     lnav
@@ -105,12 +106,8 @@ build_packages_sbo () {
     nx-libs | MAKEFLAGS="-j 1"
     x2goserver
     zulu-openjdk8
-    munge 
-    confuse
     ganglia | OPT=gmetad MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc
     ganglia-web | OPT=gmetad MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc   
-    hwloc
-    numactl
     rrdtool
     rstudio-desktop | MAKEFLAGS="-j$(nproc)"
 EOF
@@ -138,13 +135,6 @@ EOF
 	$WGET https://mmonit.com/monit/dist/$FNAME -O $TDIR/system/monit/$FNAME
     fi
     #####################################
-    pm "-> hwloc (removing opencl) ..."
-    if [[ ! -f $TDIR/system/hwloc/$FNAME ]] ; then 
-	sed -i.bck 's/--disable-debug /--disable-debug --disable-opencl /' $TDIR/system/hwloc/hwloc.SlackBuild
-	FNAME=hwloc-2.7.0.tar.gz
-	$WGET https://download.open-mpi.org/release/hwloc/v2.7/$FNAME -O $TDIR/system/hwloc/$FNAME
-    fi
-    #####################################
     pm "-> netdata"
     groupadd -g 338 netdata 2>/dev/null
     useradd -u 338 -g 338 -c "netdata user" -s /bin/bash netdata 2>/dev/null
@@ -159,7 +149,7 @@ EOF
         echo 'export MAKEOPTS="-j$(nproc)"' >> /etc/sbopkg/sbopkg.conf
         echo 'export MAKEFLAGS="-j$(nproc)"' >> /etc/sbopkg/sbopkg.conf
     fi
-    printf "Q\nQ\nQ\nQ\n" | MAKEFLAGS="-j$(nproc)" sbopkg -e continue -B -k -i custom # WARNING: Add Q\n for each package with options
+    printf "Q\nQ\nQ\nQ\nQ\n" | MAKEFLAGS="-j$(nproc)" sbopkg -e continue -B -k -i custom # WARNING: Add Q\n for each package with options
     # ganglia: fixes old rpc with new libtirpc
     #printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -k -i ganglia:OPT=gmetad
     #printf "C\nP\n" | MAKEFLAGS="-j$(nproc)" CPPFLAGS=-I/usr/include/tirpc/ LDFLAGS=-ltirpc sbopkg -k -i ganglia-web:OPT=gmetad
@@ -167,38 +157,6 @@ EOF
     #####################################
     #####################################
     pm "Post-queue installs and configurations ..."
-    #####################################
-    # pmix prereq for slurm
-    pm "-> openmpix (version 3.2.3, larger versions are not supported by slurm as of 2022-02-08)"
-    if ! hash pmix_info 2>/dev/null; then
-	cd ~/Downloads
-	source ~/.bashrc
-	$WGET http://157.245.132.188/PACKAGES/openpmix.SlackBuild
-	bash openpmix.SlackBuild
-	upgradepkg --install-new --reinstall /tmp/*pmix*tgz
-    fi    
-    #####################################
-    # slurm
-    pm "-> Fix slurm since version option is not read ( pmix support detected automatically) ..."
-    if ! hash slurmd 2>/dev/null; then
-	export SLURMUSER=992
-	groupadd -g $SLURMUSER slurm
-	useradd  -m -c "SLURM workload manager" -d /var/lib/slurm -u $SLURMUSER -g slurm  -s /bin/bash slurm
-	FNAME=slurm-20.11.8.tar.bz2
-	$WGET https://download.schedmd.com/slurm/$FNAME -O $TDIR/network/slurm/$FNAME
-    	cd $TDIR/network/slurm
-      	MAKEFLAGS="-j$(nproc)" VERSION=20.11.8 HWLOC=yes RRDTOOL=yes bash slurm.SlackBuild
-	upgradepkg --install-new --reinstall /tmp/slurm*.tgz
-    fi
-    #####################################
-    # openmpi
-    if ! hash mpirun 2>/dev/null; then
-	FNAME=openmpi-4.1.2.tar.bz2
-	$WGET https://download.open-mpi.org/release/open-mpi/v4.1/$FNAME -O $TDIR/system/openmpi/$FNAME
-	cd $TDIR/system/openmpi
-      	MAKEFLAGS="-j$(nproc)" VERSION=4.1.2 PMI=yes bash openmpi.SlackBuild
-	upgradepkg --install-new --reinstall /tmp/openmpi*tgz	
-    fi
     #####################################
     # pm "-> netdata"
     # if ! hash netdata 2>/dev/null; then

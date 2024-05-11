@@ -27,6 +27,7 @@ EOF
 #cat $BNAME
 #exit
 bash $BNAME
+clush -u 600 -P -b -w @roles:nodes -c "sbopkg -r" 2>/dev/null
 clush -P -b -w @roles:nodes -c $BNAME 2>/dev/null
 clush -P -b -w @roles:nodes "bash $BNAME" 2>/dev/null
 
@@ -136,6 +137,11 @@ remunge # for performance check
 	    echo "-> -------------- DONE"
     #+end_src
 
+In case some nodes are down, try
+#+begin_src bash
+for ii in {2..29}; do scontrol update nodename=sala$ii state=idle; done
+#+end_src
+    
 * Spack / modules
   spack install intel-tbb target=x86_64
   https://github.com/TACC/Lmod
