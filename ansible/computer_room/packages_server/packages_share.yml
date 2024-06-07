@@ -1,4 +1,5 @@
 ---
+# ansible-playbook -i inventory packages_share.yml  --ask-pass --tags package_clients
 # Check real monitoring if nfs file: http://swick.2flub.org/Monitoring_stale_NFS_and_CIFS_shares_with_monit.html
 - name: Configuring package server (exports spack packages and other stuff)
   hosts: "{{ variable_host | default('package_server') }}"
