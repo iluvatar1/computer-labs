@@ -1,3 +1,33 @@
+- name: Check root partition
+  tags: client,harddisk
+  block:
+    - name: Get root partition
+      command: findmnt -no SOURCE /
+      register: root_partition
+      changed_when: false
+
+    - name: Set root device fact
+      set_fact:
+        root_device: >-
+          {% if root_partition.stdout.startswith('/dev/sda') %}
+          sda
+          {% elif root_partition.stdout.startswith('/dev/nvme0n1') %}
+          nvme0n1
+          {% else %}
+          unknown
+          {% endif %}
+
+  always:
+    - name: Display root device
+      debug:
+        msg: "Root (/) is on /dev/{{ root_device }}"
+
+    - name: Set boolean facts for root device
+      set_fact:
+        root_on_sda: "{{ root_device == 'sda' }}"
+        root_on_nvme: "{{ root_device == 'nvme0n1' }}"
+
+
 - name: Creating local scratch dir
   tags: client,harddisk
   file:
@@ -17,7 +47,7 @@
     device: "/dev/sda"
     unit: MiB
   register: device_info
-  when: sda_device.stat.exists
+  when: sda_device.stat.exists and root_on_sda
 
 - name: "Adding new partition /dev/sda7"
   tags: client,harddisk
@@ -31,14 +61,14 @@
     align: undefined
     fs_type: ext4
     label: gpt
-  when: sda_device.stat.exists
+  when: sda_device.stat.exists and root_on_sda
 
 - name: "Format /dev/sda7 with ext4"
   tags: client,harddisk
   filesystem:
     dev: "/dev/sda7"
     fstype: ext4
-  when: sda_device.stat.exists
+  when: sda_device.stat.exists and root_on_sda
 
 - name: Mounting /dev/sda7 onto /mnt/scratch
   tags: client,harddisk
@@ -51,7 +81,7 @@
     - { path: /mnt/scratch, action: present } # adds to fstab
     - { path: /mnt/scratch, action: mounted }
   register: mount
-  when: sda_device.stat.exists
+  when: sda_device.stat.exists and root_on_sda
 
 
 - name: Check if /dev/nvme0n1 exists
@@ -67,7 +97,7 @@
     device: "/dev/nvme0n1"
     unit: MiB
   register: device_info
-  when: nvme0n1_device.stat.exists
+  when: nvme0n1_device.stat.exists and root_on_nvme
 
 - name: "Adding new partition /dev/nvme0n1p7"
   tags: client,harddisk
@@ -81,14 +111,14 @@
     align: undefined
     fs_type: ext4
     label: gpt
-  when: nvme0n1_device.stat.exists
+  when: nvme0n1_device.stat.exists and root_on_nvme
 
 - name: "Format /dev/nvme0n1p7 with ext4"
   tags: client,harddisk
   filesystem:
     dev: "/dev/nvme0n1p7"
     fstype: ext4
-  when: nvme0n1_device.stat.exists
+  when: nvme0n1_device.stat.exists and root_on_nvme
 
 
 - name: Mounting /dev/nvme0n1p7 onto /mnt/scratch
@@ -102,4 +132,6 @@
     - { path: /mnt/scratch, action: present } # adds to fstab
     - { path: /mnt/scratch, action: mounted }
   register: mount
-  when: nvme0n1_device.stat.exists
+  when: nvme0n1_device.stat.exists and root_on_nvme
+
+
