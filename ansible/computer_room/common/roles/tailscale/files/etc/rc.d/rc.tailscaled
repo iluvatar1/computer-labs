@@ -1,0 +1,63 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          tailscaled
+# Required-Start:    $local_fs $network $syslog
+# Required-Stop:     $local_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: tailscaled daemon
+# Description:       tailscaled daemon
+### END INIT INFO
+
+DAEMON=/usr/local/bin/tailscaled
+PIDFILE=/var/run/tailscaled.pid
+#OPTS="-statedir /var/lib/tailscale"
+#USER=tailscale
+#GROUP=tailscale
+
+# rc.tailscaled - Startup script for tailscaled daemon
+
+# Path to the tailscaled binary
+DAEMON="/usr/local/bin/tailscaled"
+# Path to the tailscale binary (for status checks)
+TAILSCALE="/usr/local/bin/tailscale"
+# Name to use for the daemon
+NAME="tailscaled"
+# Additional options for tailscaled
+DAEMON_OPTS="-statedir /var/lib/tailscale"
+
+# Check if the daemon binary exists
+[ -x "$DAEMON" ] || exit 0
+
+case "$1" in
+  start)
+    echo "Starting $NAME..."
+    $DAEMON $DAEMON_OPTS &>>/var/log/$NAME.log &
+    ;;
+  stop)
+    echo "Stopping $NAME..."
+    pkill -f $DAEMON
+    ;;
+  restart)
+    echo "Restarting $NAME..."
+    pkill -f $DAEMON
+    sleep 2
+    $DAEMON $DAEMON_OPTS &
+    ;;
+  status)
+    if pgrep -f $DAEMON >/dev/null; then
+      echo "$NAME is running"
+      $TAILSCALE status
+    else
+      echo "$NAME is not running"
+      exit 1
+    fi
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 1
+    ;;
+esac
+
+exit 0
+

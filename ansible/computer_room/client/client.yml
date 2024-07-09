@@ -30,4 +30,4 @@
     - ../common/roles/netdata
     - x2go
     - ../common/roles/ganglia
-
+    - ../common/roles/tailscale

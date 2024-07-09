@@ -1,0 +1,3 @@
+CHECK process tailscaled matching tailscaled  
+      start program = "/etc/rc.d/rc.tailscaled start"
+      stop program = "/etc/rc.d/rc.tailscaled stop"

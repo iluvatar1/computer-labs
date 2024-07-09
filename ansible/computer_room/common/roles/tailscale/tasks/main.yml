@@ -1,0 +1,88 @@
+---
+- name: Check if tailscale is already installed
+  tags: client,tailscale,server,common
+  ansible.builtin.stat:
+    path: /usr/local/bin/tailscale
+  register: tailscale_binary
+
+- name: Install Tailscale if not present
+  tags: client,tailscale,server,common
+  ansible.builtin.shell: |
+    AUXDIR=$(mktemp -d)
+    cd $AUXDIR
+    wget -c https://pkgs.tailscale.com/stable/tailscale_1.68.1_amd64.tgz
+    tar xvf tailscale*tgz
+    cp tailscale*/tailscale /usr/local/bin/
+    cp tailscale*/tailscaled /usr/local/bin/
+    rm -rf $AUXDIR
+  args:
+    executable: /bin/bash
+  when: not tailscale_binary.stat.exists
+  become: yes  # This ensures the task runs with sudo privileges
+
+
+- name: Copy rc.tailscaled file
+  tags: client,tailscale,server,common
+  ansible.builtin.copy:
+    src: etc/rc.d/rc.tailscaled
+    dest: /etc/rc.d/rc.tailscaled
+    mode: '0755'
+  become: yes
+
+
+- name: Check if tailscaled is running
+  tags: client,tailscale,server,common
+  ansible.builtin.command: pgrep -x tailscaled
+  register: tailscaled_running
+  changed_when: tailscaled_running.rc != 0
+  failed_when: false
+  become: yes  
+
+- name: Run tailscaled if not running
+  tags: client,tailscale,server,common
+  ansible.builtin.shell: |
+      nohup /etc/rc.d/rc.tailscaled start &
+  when: not tailscaled_running.rc == 0
+  become: yes  
+
+
+- name: Check Tailscale status
+  tags: client,tailscale,server,common
+  ansible.builtin.command: tailscale status
+  register: tailscale_status
+  changed_when: false
+  failed_when: false
+  become: yes
+
+- name: Set up Tailscale with auth key from environment variable
+  tags: client,tailscale,server,common
+  ansible.builtin.command:
+    cmd: tailscale up --authkey {{ lookup('env', 'TAILSCALE_KEY') }}
+  become: yes
+  when: 
+    - lookup('env', 'TAILSCALE_KEY') | length > 0
+    - tailscale_status.rc != 0 or 'Tailscale is stopped' in tailscale_status.stdout
+
+
+
+#- name: Set up Tailscale with auth key from environment variable
+#  tags: client,tailscale,server,common
+#  ansible.builtin.command:
+#    cmd: tailscale up --authkey {{ lookup('env', 'TAILSCALE_KEY') }}
+#  become: yes
+#  when: lookup('env', 'TAILSCALE_KEY') | length > 0
+
+
+
+# - name: Install and configure Tailscale
+#   tags: client,tailscale,server,common
+#   ansible.builtin.include_role:
+#     name: artis3n.tailscale
+#   vars:
+#     tailscale_authkey: "{{ lookup('env', 'TAILSCALE_KEY') }}"
+#     verbose: true
+
+# - name: Debug
+#   tags: client,tailscale,server,common
+#   ansible.builtin.debug:
+#     msg: "Tailscale authkey: {{ tailscale_authkey }}"

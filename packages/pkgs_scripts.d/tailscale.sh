@@ -1,5 +1,5 @@
 AUXDIR=$(mktemp -d)
-cd $AUXPDIR
+cd $AUXDIR
 wget -c https://pkgs.tailscale.com/stable/tailscale_1.68.1_amd64.tgz
 tar xvf tailscale*tgz
 cp tailscale*/tailscale /usr/local/bin/
