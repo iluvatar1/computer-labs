@@ -151,6 +151,9 @@
           start program = "/usr/bin/timeout 10s /sbin/mount  -t nfs /packages"
           stop program  = "/usr/bin/timeout 10s /sbin/umount -t nfs /packages"
           if status != 0 then restart
+        check filesystem packagefs with path /packages
+          start program  = "/sbin/mount -t nfs /packages"
+          stop program  = "/sbin/umount -t nfs /packages"
     register: pkg_monit
 
   - name: Restart monit service if needed
@@ -158,6 +161,7 @@
       cmd: '/etc/rc.d/rc.monit restart'
     when:
       pkg_monit.changed
+
 
   - name: Copying script to load spack everytime
     ansible.builtin.copy:
