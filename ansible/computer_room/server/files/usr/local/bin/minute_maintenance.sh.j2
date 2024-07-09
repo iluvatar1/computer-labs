@@ -39,3 +39,6 @@ make -C /var/yp
 
 #echo "Advertising correct speed for eth1"
 #ethtool -s eth1 advertise 0x010
+
+# Try to make idle the down clients
+for ii in {2..29}; do scontrol update nodename=sala${ii} state=idle; done
