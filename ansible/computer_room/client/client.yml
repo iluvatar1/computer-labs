@@ -1,3 +1,4 @@
+# ansible-playbook -i inventory client.yml  --tags client --connection-password-file .client_password.txt
 ---
 - hosts: "{{ variable_host | default('clients') }}"
   vars:

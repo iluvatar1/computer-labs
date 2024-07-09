@@ -45,6 +45,8 @@
   loop:
     - usr/local/bin/monit_restart.sh
     - usr/local/bin/netdatastatus.sh
+    - usr/local/bin/start_earlyoom.sh
+    - usr/local/bin/stop_earlyoom.sh
 
 - name: Adding monit to inittab to make it run always
   tags: server,client,monit, common

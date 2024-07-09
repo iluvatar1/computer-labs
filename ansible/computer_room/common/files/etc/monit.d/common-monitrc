@@ -75,3 +75,7 @@ check program netdatastatus with path "/usr/local/bin/netdatastatus.sh"
 	if status != 0 then restart
 
 
+CHECK PROCESS earlyoom matching earlyoom
+    START PROGRAM = "/bin/bash -c '/usr/local/bin/start_earlyoom.sh >> /var/log/earlyoom_monit.log 2>&1'"
+    STOP PROGRAM = "/usr/local/bin/stop_earlyoom.sh"
+    #IF 5 RESTARTS WITHIN 5 CYCLES THEN TIMEOUT
