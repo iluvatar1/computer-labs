@@ -31,4 +31,5 @@ GLUSTER_MOUNT_DIR: /scratch
 
 # Extra swap space
 SWAP_SPACE: 16G
-SWAP_PATH: /mnt/scratch/{{SWAP_SPACE}}
+SWAP_DIR: /mnt/scratch/
+SWAP_PATH: "{{SWAP_DIR}}/{{SWAP_SPACE}}"

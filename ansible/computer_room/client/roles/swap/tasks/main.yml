@@ -2,6 +2,35 @@
 # REF1: https://linuxize.com/post/create-a-linux-swap-file/
 # REF2: https://gist.github.com/devster31/74e48cc1c8e73c637bc7
 
+# NOTE: Check first that the SWAP_DIR is munted on a different partition than root (/)
+# To avoid filling the / partition
+
+- name: Get mount information for directory
+  tags: swap,client
+  ansible.builtin.shell: df -P "{{ SWAP_DIR }}" | tail -n 1
+  register: mount_swap_dir_info
+  changed_when: false
+
+- name: Check if mounted from root
+  tags: swap, client
+  set_fact:
+    mounted_swap_dir_from_root: "{{ mount_swap_dir_info.stdout.split()[0] == '/' }}"
+
+
+- name: Display result and fail if mounted from root
+  tags: swap,client
+  ansible.builtin.fail:
+    msg: "Error: Directory {{ SWAP_DIR }} is mounted from root. Playbook execution stopped. You must first run the harddisk role"
+  when: mounted_swap_dir_from_root | bool
+
+
+- name: Display success message
+  tags: swap,client
+  ansible.builtin.debug:
+    msg: "Directory {{ SWAP_DIR }} is not mounted from root. Continuing execution."
+  when: not mounted_swap_dir_from_root | bool
+
+
 - name: Set swap_file variable
   tags: swap, client
   ansible.builtin.set_fact:
