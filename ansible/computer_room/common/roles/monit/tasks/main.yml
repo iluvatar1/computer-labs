@@ -44,7 +44,6 @@
     mode: 0755
   loop:
     - usr/local/bin/monit_restart.sh
-    - usr/local/bin/netdatastatus.sh
     - usr/local/bin/start_earlyoom.sh
     - usr/local/bin/stop_earlyoom.sh
 

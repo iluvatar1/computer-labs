@@ -51,9 +51,6 @@ CHECK process gmond matching gmond
       start program = "/etc/rc.d/rc.gmond start"
       stop program = "/etc/rc.d/rc.gmond stop"
 
-#check process netdata with pidfile /var/run/netdata.pid
-#      start program = "/etc/rc.d/rc.netdata start"
-#      stop  program = "/etc/rc.d/rc.netdata stop"
 
 check system $HOST
       if loadavg (1min) per core  > 2.0 for 15 cycles then alert
@@ -64,15 +61,10 @@ check system $HOST
       if swap usage > 25% then alert
       if memory usage > 97% for 10 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'memusage high'"
 
-CHECK process netdata matching netdata
+CHECK process netdata matching '/opt/netdata/bin/srv/netdata -P'
       #with pidfile /opt/netdata/var/run/netdata/netdata.pid
-      start program = "/etc/init.d/netdata-init-d start"
-      stop program = "/etc/init.d/netdata-init-d stop"
-
-check program netdatastatus with path "/usr/local/bin/netdatastatus.sh"
-	start program = "/etc/init.d/netdata-init-d start"
-	stop program = "/etc/init.d/netdata-init-d stop"
-	if status != 0 then restart
+      start program = "/etc/rc.d/rc.netdata start"
+      stop program = "/etc/rc.d/rc.netdata stop"
 
 
 CHECK PROCESS earlyoom matching earlyoom

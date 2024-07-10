@@ -39,15 +39,22 @@
 # #     netdatadir.stat.exists and netdatadir.stat.isdir
 # #   register: proxy
 
-- name: Link netdata service to correct place
-  tags: server,client,netdata
-  file:
-    src: /opt/netdata/system/netdata-init-d
-    dest:  /etc/init.d/netdata-init-d
-    state: link
-  notify: Restart netdata
+# - name: Link netdata service to correct place
+#   tags: server,client,netdata
+#   file:
+#     src: /opt/netdata/system/netdata-init-d
+#     dest:  /etc/init.d/netdata-init-d
+#     state: link
+#   notify: Restart netdata
 
-- name: Claim node
+- name: Copy rc.netdata from slackbuilds
+  tags: server,client,netdata
+  ansible.builtin.copy:
+    src: etc/rc.d/rc.netdata
+    dest: /etc/rc.d/rc.netdata
+    mode: '0755'
+
+- name: Claim node if not already claimed
   tags: server,client,netdata
   shell:
     # cmd: '/opt/netdata/bin/netdata-claim.sh -token={{NETDATA_TOKEN}} -rooms={{NETDATA_ROOM}} -url=https://app.netdata.cloud -proxy={{PROXY}}'
