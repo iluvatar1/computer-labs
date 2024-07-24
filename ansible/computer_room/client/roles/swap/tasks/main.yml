@@ -12,7 +12,7 @@
   changed_when: false
 
 - name: Check if mounted from root
-  tags: swap, client
+  tags: swap,client
   set_fact:
     mounted_swap_dir_from_root: "{{ mount_swap_dir_info.stdout.split()[0] == '/' }}"
 
