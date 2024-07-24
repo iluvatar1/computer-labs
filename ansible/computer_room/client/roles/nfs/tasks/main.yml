@@ -14,7 +14,8 @@
     path: "{{item.path}}"
     src: "{{SERVERIP}}:/home"
     fstype: nfs
-    opts: rw,soft,intr,usrquota
+    #opts: rw,soft,intr,usrquota
+    opts: defaults,rw,soft,rsize=1048576,wsize=1048576,vers=3,nointr,timeo=10,actimeo=60,nolock,tcp
     state: "{{item.action}}"
   loop:
     - { path: /home, action: present } # adds to fstab

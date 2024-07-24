@@ -2,8 +2,9 @@
 # This file contains a list of all directories exported to other computers.
 # It is used by rpc.nfsd and rpc.mountd.
 
+/home {{BASE_SERVERIP}}.0/24(fsid=0,rw,async,no_root_squash,no_subtree_check)
 #/home {{BASE_SERVERIP}}.0/24(rw,sync,no_root_squash,no_subtree_check) 
-/home {{BASE_SERVERIP}}.0/24(rw,async,no_root_squash,no_subtree_check) 
+#/home {{BASE_SERVERIP}}.0/24(rw,async,no_root_squash,no_subtree_check) 
 #/home {{BASE_SERVERIP}}.0/24(fsid=0,rw,sync,no_root_squash,no_subtree_check) 
 #/home 10.88.55.0/24(fsid=0,rw,sync,no_root_squash,no_subtree_check)
 

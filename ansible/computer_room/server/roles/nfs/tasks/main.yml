@@ -40,3 +40,7 @@
     service.changed or hosts.changed or exports.changed
 
 
+- name: Add monitoring nfs to logs
+  ansible.builtin.lineinfile:
+    path: /etc/rc.d/rc.local
+    line: "echo 1 > /proc/sys/sunrpc/nfs_debug"
