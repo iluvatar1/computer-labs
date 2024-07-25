@@ -8,15 +8,31 @@
 - name: Add cron job to run script every minute
   tags: common,mem_cpu_control
   ansible.builtin.cron:
-    name: "Run cpu and memory control every minute"
+    name: "Run cpu and memory control every minute with python script"
     minute: "*"
     job: "/usr/local/bin/check_mem_cpu.py &>> /tmp/mem_cpu_control.log"
 
 - name: Add cron job to run script every minute + 30 seconds
   tags: common,mem_cpu_control
   ansible.builtin.cron:
-    name: "Run script every minute + 30 seconds"
+    name: "Run cpu and memory control script every minute + 30 seconds with python script"
     minute: "*"
     job: "sleep 30 && /usr/local/bin/check_mem_cpu.py &>> /tmp/mem_cpu_control.log"
 
+
+# - name: Add cron job to run script every minute
+#   tags: common,mem_cpu_control
+#   ansible.builtin.cron:
+#     name: "Run cpu and memory control every minute"
+#     minute: "*"
+#     job: "/usr/local/bin/check_mem_cpu.py &>> /tmp/mem_cpu_control.log"
+#     state: absent
+
+# - name: Add cron job to run script every minute + 30 seconds
+#   tags: common,mem_cpu_control
+#   ansible.builtin.cron:
+#     name: "Run script every minute + 30 seconds"
+#     minute: "*"
+#     job: "sleep 30 && /usr/local/bin/check_mem_cpu.py &>> /tmp/mem_cpu_control.log"
+#     state: absent
 
