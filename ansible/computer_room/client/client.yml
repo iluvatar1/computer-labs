@@ -27,6 +27,7 @@
     - nhc
     - pip
     - ../common/roles/cpu_control
+    - ../common/roles/mem_cpu_control
     - ../common/roles/netdata
     - x2go
     - ../common/roles/ganglia

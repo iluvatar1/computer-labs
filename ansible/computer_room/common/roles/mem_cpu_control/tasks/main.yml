@@ -1,0 +1,22 @@
+- name: Copy script to /usr/local/bin
+  tags: common,mem_cpu_control
+  ansible.builtin.copy:
+    src: usr/local/bin/check_mem_cpu.py
+    dest: /usr/local/bin/check_mem_cpu.py
+    mode: '0755'
+
+- name: Add cron job to run script every minute
+  tags: common,mem_cpu_control
+  ansible.builtin.cron:
+    name: "Run cpu and memory control every minute"
+    minute: "*"
+    job: "/usr/local/bin/check_mem_cpu.py &>> /tmp/mem_cpu_control.log"
+
+- name: Add cron job to run script every minute + 30 seconds
+  tags: common,mem_cpu_control
+  ansible.builtin.cron:
+    name: "Run script every minute + 30 seconds"
+    minute: "*"
+    job: "sleep 30 && /usr/local/bin/check_mem_cpu.py &>> /tmp/mem_cpu_control.log"
+
+

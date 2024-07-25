@@ -28,7 +28,8 @@ check process ypbind with pidfile /var/run/ypbind.pid
 check filesystem homefs with path /home
       start program  = "/sbin/mount -t nfs /home"
       stop program  = "/sbin/umount -t nfs /home"
-      if 15 restarts within 15 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no home mounted'"
+      #if 15 restarts within 15 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'no home mounted'"
+
 # 2023-12-13: This one commented since it was triggering uneeded restarts
 #check program homefs with path "/bin/bash -c '/usr/bin/timeout 10s /usr/bin/touch /home/.mount_test'"
 #      start program = "/usr/bin/timeout 10s /sbin/mount  -t nfs /home"
