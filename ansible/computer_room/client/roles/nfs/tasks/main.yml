@@ -1,5 +1,5 @@
 ---
-- name: Commenting local home mounting
+- name: Commenting local home mounting (maybe check for nvme also)
   tags: client,nfs
   ansible.builtin.lineinfile:
     path: /etc/fstab
@@ -15,7 +15,9 @@
     src: "{{SERVERIP}}:/home"
     fstype: nfs
     #opts: rw,soft,intr,usrquota
-    opts: defaults,rw,soft,rsize=1048576,wsize=1048576,vers=3,nointr,timeo=10,actimeo=60,nolock,tcp
+    #opts: defaults,rw,soft,rsize=1048576,wsize=1048576,vers=3,nointr,timeo=10,actimeo=60,nolock,tcp
+    #opts: defaults,rw,soft,nolock
+    opts: nfsvers=4.2,rw,soft,nolock
     state: "{{item.action}}"
   loop:
     - { path: /home, action: present } # adds to fstab
