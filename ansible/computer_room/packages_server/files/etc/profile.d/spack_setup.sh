@@ -13,7 +13,7 @@ GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
 echo -e "${YELLOW}Sourcing spack ... (trying for 5 seconds) ${NC}"
-timeout 5s stat /packages/spack/share/spack/setup-env.sh &>/dev/null
+/usr/bin/timeout -k 7s 5s stat /packages/spack/share/spack/setup-env.sh &>/dev/null
 if [[ "$?" == "0" ]]; then
     source /packages/spack/share/spack/setup-env.sh
     spack env activate salafis
