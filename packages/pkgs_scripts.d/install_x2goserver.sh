@@ -17,7 +17,7 @@ removepkg /var/log/packages/x2goserver-*
 sbopkg -r
 
 # create queue
-sqg -p xegoserver
+sqg -p x2goserver
 
 # build and install package
 printf "Q\nP\n" | MAKEFLAGS=-j$(nproc) sbopkg -i x2goserver
