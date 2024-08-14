@@ -69,7 +69,7 @@ def main(threshold_percent):
 
     total_memory = psutil.virtual_memory().total / (1024 * 1024)  # Total memory in MB
     threshold_mb = total_memory * (threshold_percent / 100)
-    target_free_memory = total_memory * 0.05  # 5% of total memory
+    target_free_memory = total_memory * 0.10  # 10% of total memory
     
     print(f"Total system memory: {total_memory:.2f} MB")
     print(f"Threshold set to {threshold_percent}% of total memory: {threshold_mb:.2f} MB")
@@ -91,8 +91,8 @@ def main(threshold_percent):
                     print(f"  PID: {proc['pid']}, Name: {proc['name']}, Memory: {proc['memory_mb']:.2f} MB")
                 
                 print("\nTerminating the top 3 processes consuming the most memory for this user:")
-                #killed_memory = kill_top_processes(data['processes'])
-                #print(f"Freed approximately {killed_memory:.2f} MB of memory")
+                killed_memory = kill_top_processes(data['processes'])
+                print(f"Freed approximately {killed_memory:.2f} MB of memory")
 
         time.sleep(5)  # Wait for 5 seconds before checking memory again
 
