@@ -19,7 +19,7 @@ fi
 create_accounts () {
     fname="$1"
     expire_date="${2:-}"
-    GROUPS="audio,cdrom,floppy,plugdev,video,netdev,lp,scanner,sshgroup"
+    groups='audio,cdrom,floppy,plugdev,video,netdev,lp,scanner,sshgroup'
     while IFS=',' read -r username password fullname
     do
 	echo "#############"
@@ -36,10 +36,10 @@ create_accounts () {
 	# echo "Deleting account $username"
 	# userdel $username
 	echo "Creating account->${username}"
-	useradd -d /home/${username} -G "$GROUPS" -m -s /bin/bash ${username} -c "${comment}" -e "$expire_date" || exit 1
+	useradd -d /home/${username} -G "$groups" -m -s /bin/bash ${username} -c "${comment}" -e "$expire_date" || exit 1
 	echo "Changing password to ${password}"
 	#echo ${username}:${password} | chpasswd
-	usermod --password $(echo ${password} | openssl passwd -1 -stdin) ${username}
+ 	usermod --password $(echo ${password} | openssl passwd -1 -stdin) ${username}
 	#echo "make the password expire to force changing it on first login"
 	#chage -d0 ${username}
 	##echo "Recursive chown ... &"
