@@ -10,12 +10,19 @@
   ansible.builtin.shell: df -P "{{ SWAP_DIR }}" | tail -n 1
   register: mount_swap_dir_info
   changed_when: false
+  check_mode: false
 
 - name: Check if mounted from root
   tags: swap,client
   set_fact:
     mounted_swap_dir_from_root: "{{ mount_swap_dir_info.stdout.split()[0] == '/' }}"
+  when: not ansible_check_mode
 
+- name: Set default value for mounted_swap_dir_from_root in check mode
+  tags: swap,client
+  set_fact:
+    mounted_swap_dir_from_root: false
+  when: ansible_check_mode
 
 - name: Display result and fail if mounted from root
   tags: swap,client
