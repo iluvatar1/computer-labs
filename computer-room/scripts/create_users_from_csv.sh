@@ -9,7 +9,8 @@ echo "EXPIRE_DATE=${EXPIRE_DATE}"
 sleep 3
 
 FNAME="${1}"
-EXPIRE_DATE="${EXPIRE_DATE:-}"
+EXPIRATION_DATE="${EXPIRATION_DATE:-}"
+INACTIVE_DAYS="${INACTIVE_DAYS:-90}"
 
 if [ ! -f "$FNAME" ]; then
     echo "Error: filename $FNAME does not exists"
@@ -31,6 +32,10 @@ create_accounts () {
 	if [[ -d /home/$username ]]; then
             echo "Account already exists. Skipping creation."
 	    echo
+	    if [[ ! -z "$EXPIRE_DATE" ]] ; then
+		echo "Changing the expire date ..."
+		chage -E $EXPIRE_DATE -I $INACTIVE_DAYS $username
+	    fi
             continue
 	fi
 	# echo "Deleting account $username"
