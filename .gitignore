@@ -25,3 +25,8 @@ ansible/computer_room_new/
 *.tar.bz2
 *.tgz
 *.log
+*.env*
+*.iso
+*.run
+*.bck
+*extpack
