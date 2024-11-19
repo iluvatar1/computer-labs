@@ -200,7 +200,7 @@
           - SLACK_PATCHES
           - ALIEN
         register: slpkgrepos
-	
+        
 
       - name: Deactivate SBO
         replace:
@@ -217,14 +217,14 @@
           path: /etc/slpkg/repositories.toml
           regexp: '^REPOSITORY = .*'
           replace: 'REPOSITORY = alien'
-	  
+          
 
       - name: Replace all -15.0 with -current
         ansible.builtin.replace:
           path: /etc/slpkg/repositories.toml
           regexp: '-15\.0'
           replace: '-current'
-	  
+          
 
       - name: Configuring slpkg blacklist
         replace:
