@@ -222,7 +222,7 @@
         shell:
           cmd: 'source $HOME/.bashrc; slpkg update'
         when :
-          slpkginstalled.changed or slpkgopts.changed or slpkgrepos.changed or slpkgblacklist.changed or urllib3.changed
+          slpkgrepos.changed or slpkgblacklist.changed 
 
 
   - name: Configuring sbopkg
