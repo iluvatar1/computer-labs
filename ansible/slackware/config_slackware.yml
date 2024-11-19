@@ -201,6 +201,13 @@
           - ALIEN
         register: slpkgrepos
 
+
+      - name: Replace all -15.0 with -current
+	ansible.builtin.replace:
+	  path: /etc/slpkg/repositories.toml
+	  regexp: '-15\.0'
+	  replace: '-current'
+
       - name: Configuring slpkg blacklist
         replace:
           path: /etc/slpkg/blacklist.toml
