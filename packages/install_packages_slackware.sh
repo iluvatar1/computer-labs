@@ -10,7 +10,9 @@ PKGSERVER=${PKGSERVER:-192.168.10.1}
 BASEURL="$PKGSERVER/PACKAGES/slackware64-current/"
 LOG_FILE=${LOG_FILE:-/tmp/log-packages.txt}
 
-PKG="keepassx autossh xfce4-xkb-plugin slim monit \
+# install keepassxc with slpkg
+
+PKG="autossh xfce4-xkb-plugin slim monit \
     fail2ban corkscrew wol modules lmod iotop  \
     xdm-slackware-theme glm"
 
@@ -65,7 +67,7 @@ install_with_sbo_compile () {
     for pkg in "${PKG[*]}"; do
 	pm "Installing (with sbopkg): $pkg"
         sqg -p $pkg
-	printf "Q\nP\n" | MAKEFLAGS=-j$(nproc) sbopkg -i $pkg &>> /var/log/sbopkg.log
+	printf "P\n" | MAKEFLAGS=-j$(nproc) sbopkg -i $pkg &>> /var/log/sbopkg.log
     done
 }
 
