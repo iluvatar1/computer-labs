@@ -192,9 +192,9 @@
         lineinfile:
           path: /etc/slpkg/repositories.toml
           backup: yes
-	  block: |
-	    [{{ item }}]
-	    ENABLE = false
+          block: |
+            [{{ item }}]
+            ENABLE = false
           replace: |
             [{{ item }}]
             ENABLE = true
