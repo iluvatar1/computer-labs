@@ -216,7 +216,7 @@
         ansible.builtin.replace:
           path: /etc/slpkg/repositories.toml
           regexp: '^REPOSITORY = .*'
-          replace: 'REPOSITORY = alien'
+          replace: 'REPOSITORY = slack'
           
 
       - name: Replace all -15.0 with -current
