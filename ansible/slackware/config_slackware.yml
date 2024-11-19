@@ -189,15 +189,15 @@
       #   register: slpkgopts
 
       - name: Configuring slpkg repos
-	lineinfile:
-	  path: /etc/slpkg/repositories.toml
-	  regexp: '^(ENABLE = )false$'
-	  line: 'ENABLE = true'
-	  backrefs: yes
-	  backup: yes
-	  search_string: |
-	    [{{item}}]
-	    ENABLE = false
+        lineinfile:
+          path: /etc/slpkg/repositories.toml
+          regexp: '^(ENABLE = )false$'
+          line: 'ENABLE = true'
+          backrefs: yes
+          backup: yes
+          search_string: |
+            [{{item}}]
+            ENABLE = false
         loop:
           - SLACK
           - SLACK_EXTRA
