@@ -160,20 +160,20 @@
           path: /usr/bin/slpkg
         register: slpkg
 
-      - name: Installing urllib3 (if used for slpkg, it does not create /etc/ files)
-        pip:
-          name: '{{ item }}'
-          executable: pip3
-        loop:
-          - urllib3
-        register: slpkginstalled
+      # - name: Installing urllib3 (if used for slpkg, it does not create /etc/ files)
+      #   pip:
+      #     name: '{{ item }}'
+      #     executable: pip3
+      #   loop:
+      #     - urllib3
+      #   register: slpkginstalled
 
-      - name: Installing slpkg if needed
-        shell:
-          cmd: 'source /root/.bashrc; cd /tmp; wget https://gitlab.com/dslackw/slpkg/-/archive/3.9.3/slpkg-3.9.3.tar.gz; tar xf slpkg-3.9.3.tar.gz; cd slpkg-3.9.3; ./install.sh; '
-        when:
-          slpkg.stat.exists == False
-        register: slpkginstalled
+      # - name: Installing slpkg if needed
+      #   shell:
+      #     cmd: 'source /root/.bashrc; cd /tmp; wget https://gitlab.com/dslackw/slpkg/-/archive/3.9.3/slpkg-3.9.3.tar.gz; tar xf slpkg-3.9.3.tar.gz; cd slpkg-3.9.3; ./install.sh; '
+      #   when:
+      #     slpkg.stat.exists == False
+      #   register: slpkginstalled
 
       - name: Configuring slpkg options
         replace:
@@ -217,14 +217,14 @@
           - kernel-source
         register: slpkgblacklist
 
-      - name: Copy patched file_size using urllib3
-        copy:
-          src: '{{item}}'
-          dest: '/{{item}}'
-          backup: yes
-        loop:
-          - 'usr/lib64/python3.9/site-packages/slpkg/file_size.py'
-        register: urllib3
+      # - name: Copy patched file_size using urllib3
+      #   copy:
+      #     src: '{{item}}'
+      #     dest: '/{{item}}'
+      #     backup: yes
+      #   loop:
+      #     - 'usr/lib64/python3.9/site-packages/slpkg/file_size.py'
+      #   register: urllib3
 
       - name: Updating slpkg if needed
         shell:
@@ -368,12 +368,12 @@
       content: | 
         localhost
 
-  - name: making xdm first option in rc.4 
-    copy:
-      dest: /etc/rc.d/rc.4.local
-      content: | 
-        if [ -x /usr/bin/xdm ]; then exec /usr/bin/xdm -nodaemon; elif [ -x /usr/X11R6/bin/xdm ]; then exec /usr/X11R6/bin/xdm -nodaemon; fi
-      mode: +x
+  # - name: making xdm first option in rc.4 
+  #   copy:
+  #     dest: /etc/rc.d/rc.4.local
+  #     content: | 
+  #       if [ -x /usr/bin/xdm ]; then exec /usr/bin/xdm -nodaemon; elif [ -x /usr/X11R6/bin/xdm ]; then exec /usr/X11R6/bin/xdm -nodaemon; fi
+  #     mode: +x
 
   - name: Checking if system has efi boot files
     stat:
