@@ -4,14 +4,14 @@
 export PATH=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:/usr/games:/usr/lib64/kde4/libexec:/usr/lib64/qt/bin:/usr/share/texmf/bin
 \
 ################################################################################
-COMPILE=${COMPILE:-NO}
+COMPILE=${COMPILE:-YES}
 MIRROR_ONLY=${MIRROR_ONLY:-NO}
 PKGSERVER=${PKGSERVER:-192.168.10.1}
 BASEURL="$PKGSERVER/PACKAGES/slackware64-current/"
 LOG_FILE=${LOG_FILE:-/tmp/log-packages.txt}
 
-PKG="keepassx sshfs-fuse autossh xfce4-xkb-plugin flashplayer-plugin slim monit \
-    fail2ban corkscrew pip parallel wol openmpi modules iotop gperftools \
+PKG="keepassx autossh xfce4-xkb-plugin slim monit \
+    fail2ban corkscrew wol modules lmod iotop  \
     xdm-slackware-theme glm"
 
 pm () {
@@ -55,6 +55,17 @@ install_with_slpkg_compile () {
     for pkg in "${PKG[*]}"; do
 	    pm "Installing (with slpkg): $pkg"
 	    slpkg -s sbo "$pkg" --rebuild >> /var/log/slpkg.log
+    done
+}
+
+
+install_with_sbo_compile () {
+    echo "Updating sbo ..."
+    sbopkg -r
+    for pkg in "${PKG[*]}"; do
+	pm "Installing (with sbopkg): $pkg"
+        sqg -p $pkg
+	printf "Q\nP\n" | MAKEFLAGS=-j$(nproc) sbopkg -i $pkg &>> /var/log/sbopkg.log
     done
 }
 
@@ -132,7 +143,8 @@ main() {
     if [ "NO" = "$COMPILE" ]; then
 	install_binary_packages
     else
-	install_with_slpkg_compile
+	#install_with_slpkg_compile
+	install_with_sbo_compile
     fi
 
     echo "Configure x2go to avoid using compositing with xfce4"
