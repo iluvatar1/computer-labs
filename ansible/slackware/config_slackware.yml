@@ -189,15 +189,11 @@
       #   register: slpkgopts
 
       - name: Configuring slpkg repos
-        lineinfile:
+        replace:
           path: /etc/slpkg/repositories.toml
           backup: yes
-          block: |
-            [{{ item }}]
-            ENABLE = false
-          replace: |
-            [{{ item }}]
-            ENABLE = true
+          regexp: '(\[{{ item }}\]\nENABLE =) false'
+          replace: '\1 true'
         loop:
           - SLACK
           - SLACK_EXTRA
