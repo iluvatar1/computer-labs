@@ -200,13 +200,31 @@
           - SLACK_PATCHES
           - ALIEN
         register: slpkgrepos
+	
 
+      - name: Deactivate SBO
+        replace:
+          path: /etc/slpkg/repositories.toml
+          backup: yes
+          regexp: '(\[{{ item }}\]\nENABLE =) true'
+          replace: '\1 false'
+        loop:
+          - SBO
+
+
+      - name: Make slack the default repo
+        ansible.builtin.replace:
+          path: /etc/slpkg/repositories.toml
+          regexp: '^REPOSITORY = .*'
+          replace: 'REPOSITORY = alien'
+	  
 
       - name: Replace all -15.0 with -current
         ansible.builtin.replace:
           path: /etc/slpkg/repositories.toml
           regexp: '-15\.0'
           replace: '-current'
+	  
 
       - name: Configuring slpkg blacklist
         replace:
