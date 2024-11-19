@@ -203,9 +203,10 @@
 
       - name: Configuring slpkg blacklist
         replace:
-          dest: /etc/slpkg/blacklist.toml
+          path: /etc/slpkg/blacklist.toml
           regexp: '^PACKAGES.*'
-          line: 'PACKAGES = ["kernel-*"]'
+          replace: 'PACKAGES = ["kernel-*"]'
+	  backup: yes
         register: slpkgblacklist
 
       # - name: Copy patched file_size using urllib3
