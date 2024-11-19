@@ -24,3 +24,4 @@ ansible/computer_room_new/
 *__pycache__*
 *.tar.bz2
 *.tgz
+*.log

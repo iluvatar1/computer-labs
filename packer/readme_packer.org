@@ -2,7 +2,7 @@
 #+TITLE: Readme Packer
 
 * Instructions
-1. Create a basic virtual machine with a virtual disc of 79Gb. Setup a iso
+1. Create a basic virtual machine with a virtual disc of 200Gb. Setup a iso
    device with the slackware install iso. This will be easily done with the
    following command:
    #+begin_src shell

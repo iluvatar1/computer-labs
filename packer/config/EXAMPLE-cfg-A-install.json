@@ -1,6 +1,8 @@
 {
-    "ISO_URL" : "{{env `HOME`}}/Downloads/iso/slackware64-current-install-dvd.iso",
+    "ISO_URL" : "/opt/slackware64-current-install-dvd.iso",
     "MACHINENAME" : "base_slack_machine_{{user `FIRMWARE`}}",
     "CPUS" : "2",
-    "HEADLESS" : "false"
+    "HEADLESS" : "false",
+    "HARDDISK" : "sda",
+    "HARDDISKP1" : "sda1"
 }

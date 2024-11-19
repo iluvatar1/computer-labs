@@ -5,22 +5,25 @@
   },
   "builders": [
     {
-      "type": "virtualbox-vm",
-      "shutdown_command": "shutdown -h now",
-      "ssh_password": "vagrant",
-      "ssh_pty": true,
-      "ssh_username": "root",
-      "vm_name": "{{user `MACHINENAME`}}",
-      "attach_snapshot": "After slackware package install",
-      "target_snapshot": "After finished install",
-      "keep_registered": "true",
-      "skip_export": "true",
-      "format": "ovf",
-      "boot_wait": "10s",
-      "force_delete_snapshot": true,
-      "boot_keygroup_interval": "250ms",
-      "headless": false,
-      "boot_command":
+	"type": "virtualbox-vm",
+	"attach_snapshot": "After slackware package install",
+	"target_snapshot": "After finished install",
+	"shutdown_command": "shutdown -h now",
+	"vm_name": "{{user `MACHINENAME`}}",
+	"keep_registered": true,
+	"skip_export": true,
+	"guest_additions_mode": "disable",
+	"virtualbox_version_file": "",
+	"force_delete_snapshot": true,
+	"communicator": "none",
+	"ssh_username": "root",
+	"ssh_password": "vagrant",
+	"ssh_pty": true,
+	"format": "ovf",
+	"boot_wait": "10s",
+	"boot_keygroup_interval": "250ms",
+	"headless": false,
+	"boot_command":
       [
         "<wait>s<enter>",
         "<wait><enter>",
@@ -39,9 +42,9 @@
         "<wait><enter>",
         "<wait><enter>",
 
-        "<wait><pageDown><pageDown><up><spacebar>",
-        "<wait><down><spacebar><down><down><down><down><down><spacebar>",
-        "<wait><enter>",
+        "<wait><pageDown><pageDown><down><spacebar>",
+        "<down><spacebar><down><down><down><down><down><spacebar>",
+        "<wait5s><enter>",
 
         "<wait><enter>",
 
@@ -61,12 +64,12 @@
 	"mv /boot/efi/EFI/boot/{elilo,bootx64}.efi<enter><wait1s>",
 	"reboot<enter>",
 	  
-        "<enter><wait10s><enter><wait60s>",
+        "<enter><wait10s><enter><wait45s>",
         "root<enter><wait4s>",
         "<wait>vagrant<enter><wait4s>",
         "echo PermitRootLogin yes >> /etc/ssh/sshd_config<enter>",
         "/etc/rc.d/rc.sshd restart<enter>",
-	"shutdown -h -t 0 now"  
+	"shutdown -h -t 0 now<enter>"  
       ],
       "vboxmanage_post":
       [

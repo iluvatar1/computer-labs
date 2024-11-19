@@ -14,7 +14,7 @@
       "ssh_username": "root",
       "vm_name": "{{user `MACHINENAME`}}",
       "output_directory": "{{user `output_dir`}}",
-      "attach_snapshot": "After extra packages",
+	"attach_snapshot": "{{user `attach_snapshot`}}",
       "target_snapshot": "{{user `snapshot_name`}}",
       "keep_registered": "true",
       "skip_export": "{{user `SKIP_EXPORT`}}",
@@ -34,7 +34,7 @@
       ],
       "boot_command":
       [
-        "<enter><wait90s>"
+        "<enter><wait45s>"
       ],
       "vboxmanage_post": [
         ["modifyvm", "{{.Name}}", "--firmware", "{{user `FIRMWARE`}}"]
@@ -50,23 +50,12 @@
       "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]
     },
     {
-      "type": "file",
-      "source": "main.yml",
-      "destination": "~/repos/computer-labs/ansible/{{ user `TYPE` }}/vars/"
-    },
-    {
-      "type": "shell",
-	"inline": ["cd ~/repos/computer-labs/ansible/{{ user `TYPE` }}; ansible-playbook --connection=local -e variable_host=localhost {{ user `TYPE` }}.yml"],
-      "valid_exit_codes":[0,2],
-      "environment_vars":["https_proxy={{user `PROXY` }}", "http_proxy={{ user `PROXY` }}"]
-    },
-    {
       "type": "shell",
       "inline": ["echo root:{{ user `ROOT_PASSWORD` }} | chpasswd"]
     },
     {
       "type": "shell",
-      "inline": ["rm -f /etc/ssh/ssh_host_* ~/repos/computer-labs/ansible/{{ user `TYPE` }}/vars/main.yml"]
+      "inline": ["rm -f /etc/ssh/ssh_host_*"]
     }
   ]
 }

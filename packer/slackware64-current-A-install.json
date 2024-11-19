@@ -27,29 +27,32 @@
         "<wait>1<enter>",
         "<wait>root<enter>",
 
-        "<wait>gdisk /dev/sda<enter><wait>",
+        "<wait>gdisk /dev/{{user `HARDDISK`}}<enter><wait>",
         "n<enter>1<enter><enter>+512M<enter>EF00<enter><wait2s>",
-        "n<enter>2<enter><enter>+40G<enter>8300<enter><wait2s>",
+        "n<enter>2<enter><enter>+80G<enter>8300<enter><wait2s>",
         "n<enter>3<enter><enter>+8G<enter>8200<enter><wait2s>",
-        "n<enter>4<enter><enter>+15G<enter>8300<enter><wait2s>",
-        "n<enter>5<enter><enter>+30G<enter>8300<enter><wait2s>",
+        "n<enter>4<enter><enter>+30G<enter>8300<enter><wait2s>",
+        "n<enter>5<enter><enter>+32G<enter>8300<enter><wait2s>",
         "n<enter>6<enter><enter><enter>8300<enter><wait>",
-        "w<enter>Y<enter><wait4s>",
-        "mkfs.vfat /dev/sda1<enter><wait3s>",
+        "w<enter>Y<enter><wait12s>",
+        "mkfs.vfat /dev/{{user `HARDDISKP1`}}<enter><wait3s>",
 
-        "<wait>setup<enter><wait2s>",
+        "<wait>setup<enter><wait15s>",
         "a<enter><wait><enter><wait><enter><wait4s><enter><wait2s>",
         "<enter><wait><enter><wait><enter><wait4s>",
         "<down><wait><enter><wait><enter><wait><enter><wait3s>/tmp<wait><enter><wait1s>",
         "<down><down><wait><enter><wait><enter><wait><enter><wait3s>/home<wait><enter><wait1s>",
         "<down><down><down><wait><enter><wait><enter><wait><enter><wait3s>/opt<wait><enter><wait><enter><wait>",
-        "<wait><enter>",
 
+
+	  "{{user `EXTRA_STEP`}}",
+	  
+	  
         "<wait>1<enter>a<enter><wait5>",
         "<wait>f<spacebar>kk<enter>",
         "<wait>f<enter>",
 
-        "<wait35m>",
+        "<wait30m>",
 
         "<wait>"
       ],
@@ -62,9 +65,8 @@
           "--device", "1", "--type", "dvddrive", "--medium", "{{user `ISO_URL`}}" ],
         [ "modifyvm", "{{.Name}}", "--cpuhotplug", "off"],
         [ "modifyvm", "{{.Name}}", "--hwvirtex", "on"],
-        [ "modifyvm", "{{.Name}}", "--accelerate3d", "on"],
+        [ "modifyvm", "{{.Name}}", "--accelerate3d", "off"],
         [ "modifyvm", "{{.Name}}", "--rtcuseutc", "on"],
-        [ "modifyvm", "{{.Name}}", "--graphicscontroller", "vmsvga"],
         [ "modifyvm", "{{.Name}}", "--nic1", "nat"],
         [ "modifyvm", "{{.Name}}", "--clipboard-mode", "bidirectional"],
         [ "modifyvm", "{{.Name}}", "--draganddrop", "bidirectional"],

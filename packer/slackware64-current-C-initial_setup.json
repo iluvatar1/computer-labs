@@ -19,7 +19,8 @@
       "skip_export": "true",
       "boot_wait": "10s",
       "force_delete_snapshot": true,
-	"headless": "{{user `HEADLESS`}}",
+      "guest_additions_mode": "disable",
+      "headless": "{{user `HEADLESS`}}",
       "export_opts":
       [
         "--manifest",
@@ -40,7 +41,7 @@
   [
     {
       "type": "shell",
-      "inline": ["pip3 install ansible"],
+      "inline": ["pip3 install ansible clustershell"],
       "valid_exit_codes":[0,2],
       "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]
     },
@@ -52,15 +53,20 @@
     },
     {
       "type": "shell",
-
+	"inline": ["cd /tmp; pip3 install tomlkit pythondialog; wget https://downloads.sourceforge.net/project/slpkg/binary/slpkg-5.1.5-x86_64-1_dsw.txz; upgradepkg --install-new slpkg-5.1.5-x86_64-1_dsw.txz"],
+      "valid_exit_codes":[0,2],
+      "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]
+    },
+    {
+      "type": "shell",
       "inline": ["cd ~/repos/computer-labs/ansible/slackware; ansible-playbook -e 'all=localhost' config_slackware.yml"],
       "valid_exit_codes":[0,2],
       "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]
     },
     {
-      "script": "{{user `home`}}/repos/computer-labs/configurations/vbox_guest_additions.sh",
       "type": "shell",
-      "valid_exit_codes":[0,2,124],
+      "inline": ["printf 'Y\nYES\n' | slackpkg update gpg; slackpkg update"],
+      "valid_exit_codes":[0,2],
       "environment_vars":["https_proxy={{user `PROXY`}}", "http_proxy={{user `PROXY`}}"]
     }
   ]

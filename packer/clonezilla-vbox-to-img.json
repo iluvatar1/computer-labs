@@ -17,7 +17,7 @@
       "virtualbox_version_file": "",
       "communicator": "none",
       "ssh_username": "root",
-      "attach_snapshot": "CLIENT configured",
+	"attach_snapshot": "{{user `ATTACH_SNAPSHOT`}}",
       "boot_wait": "15s",
       "headless" : "{{user `HEADLESS`}}",
       "vboxmanage": [
@@ -26,10 +26,10 @@
         ],
         [
           "storageattach", "{{.Name}}", "--storagectl", "IDE Controller", "--port", "0", "--device", "1",
-          "--type", "dvddrive", "--medium", "{{user `clonezilla_iso`}}"
+          "--type", "dvddrive", "--medium", "{{user `CLONEZILLA_ISO`}}"
         ],
         [
-          "modifyvm", "{{.Name}}", "--nic1", "bridged", "--bridgeadapter1", "{{user `bridge_interface`}}"
+          "modifyvm", "{{.Name}}", "--nic1", "bridged", "--bridgeadapter1", "{{user `BRIDGE_INTERFACE`}}"
         ],
         [
           "modifyvm", "{{.Name}}", "--nic2", "none"
@@ -39,8 +39,14 @@
           "--boot3", "none", "--boot4", "none"
         ],
           [
-              "modifyvm", "{{.Name}}", "--macaddress1", "080027D4CA14"
-          ]
+              "modifyvm", "{{.Name}}", "--macaddress1", "{{user `MACADDRESS`}}"
+          ],
+	   [
+          "modifyvm", "{{.Name}}", "--recording", "on"
+        ],
+        [
+          "modifyvm", "{{.Name}}", "--recordingfile", "/opt/clonezillaservervideo"
+        ]
       ],
       "vboxmanage_post": [
         [
@@ -60,7 +66,7 @@
 
       "boot_command":
       [
-        "<enter><wait60s>",
+        "<enter><wait45s>",
         "<enter><wait2s>",
         "<enter><wait10s>",
         "<enter><wait3s>",
@@ -77,14 +83,15 @@
         "<enter><wait25s>",
         "<enter><wait2s>",
         "<enter><wait5s>",
-	  "-{{ user `FIRMWARE` }}<wait>",  
+	  "-{{ user `FIRMWARE` }}-{{ user `HARDDISK_NAME` }}-{{ user `TYPE`}}<wait>",  
         "<enter><wait25s>",
         "<enter><wait4s>",
         "<enter><wait>",
         "<enter><wait>",
-	"<enter><wait5s>",
+	  "<enter><wait5s>",
+	  "<enter><wait>",
         "<down><down><down><enter><wait>",
-        "<enter><wait25s>",
+        "<enter><wait15s>",
         "y<enter>",
 	"<wait19m>",
 	"<enter><wait>",
