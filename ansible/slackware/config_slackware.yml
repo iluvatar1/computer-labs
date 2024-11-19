@@ -175,46 +175,37 @@
       #     slpkg.stat.exists == False
       #   register: slpkginstalled
 
-      - name: Configuring slpkg options
-        replace:
-          dest: /etc/slpkg/slpkg.conf
-          regexp: '^{{item.key}}'
-          replace: '{{item.value}}'
-          backup: yes
-        loop:
-          - { key: "RELEASE=stable", value: "RELEASE=current" }
-          - { key: "DEFAULT_ANSWER=n", value: "DEFAULT_ANSWER=y" }
-          - { key: "DOWNDER_OPTIONS=.*", value: "DOWNDER_OPTIONS=-N --no-check-certificate" }
-          - { key: "NOT_DOWNGRADE=off", value: "NOT_DOWNGRADE=on" }
-        register: slpkgopts
+      # - name: Configuring slpkg options
+      #   replace:
+      #     dest: /etc/slpkg/slpkg.toml
+      #     regexp: '^{{item.key}}'
+      #     replace: '{{item.value}}'
+      #     backup: yes
+      #   loop:
+      #     #- { key: "RELEASE=stable", value: "RELEASE=current" }
+      #     #- { key: "DEFAULT_ANSWER=n", value: "DEFAULT_ANSWER=y" }
+      #     #- { key: "DOWNDER_OPTIONS=.*", value: "DOWNDER_OPTIONS=-N --no-check-certificate" }
+      #     #- { key: "NOT_DOWNGRADE=off", value: "NOT_DOWNGRADE=on" }
+      #   register: slpkgopts
 
       - name: Configuring slpkg repos
         replace:
-          dest: /etc/slpkg/repositories.conf
-          regexp: '^# {{item}}$'
-          replace: '{{item}}'
+          dest: /etc/slpkg/repositories.toml
+          regexp: '(?<=^\[{{item}}\].*)\nENABLE = false'
+          replace: 'ENABLE = true'
           backup: yes
         loop:
-          - slack
-          - sbo
-          - alien
+          - SLACK
+          - SLACK_EXTRA
+	  - SLACK_PATCHES
+          - ALIEN
         register: slpkgrepos
 
       - name: Configuring slpkg blacklist
-        lineinfile:
-          path: /etc/slpkg/blacklist
-          regexp: '^{{item}}$'
-          line: '{{item}}'
-        loop: 
-          - 'kernel-firmware'
-          - 'kernel-generic'
-          - 'kernel-generic-smp'
-          - 'kernel-headers'
-          - 'kernel-huge'
-          - 'kernel-huge-smp'
-          - 'kernel-modules'
-          - 'kernel-modules-smp'
-          - kernel-source
+        replace:
+          dest: /etc/slpkg/blacklist.toml
+          regexp: '^PACKAGES.*'
+          line: 'PACKAGES = ["kernel-*"]'
         register: slpkgblacklist
 
       # - name: Copy patched file_size using urllib3
