@@ -197,7 +197,7 @@
         loop:
           - SLACK
           - SLACK_EXTRA
-	  - SLACK_PATCHES
+          - SLACK_PATCHES
           - ALIEN
         register: slpkgrepos
 
