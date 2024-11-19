@@ -5,7 +5,7 @@ export PATH=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:/usr/ga
 \
 ################################################################################
 COMPILE=${COMPILE:-YES}
-MIRROR_ONLY=${MIRROR_ONLY:-NO}
+MIRROR_ONLY=${MIRROR_ONLY:-YES}
 PKGSERVER=${PKGSERVER:-192.168.10.1}
 BASEURL="$PKGSERVER/PACKAGES/slackware64-current/"
 LOG_FILE=${LOG_FILE:-/tmp/log-packages.txt}
