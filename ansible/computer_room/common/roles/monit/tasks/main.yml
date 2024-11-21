@@ -1,18 +1,26 @@
 ---
 - name: Check if monit is installed
   tags: server,client,monit, common
-  stat:
+  ansible.builtin.stat:
     path: /usr/bin/monit
-  register: monit
-  failed_when: not monit.stat.exists
+  register: monit_stat
+  #failed_when: not monit.stat.exists
+
+- name: Status of monit installation
+  tags: server,client,monit, common
+  ansible.builtin.debug:
+    msg: "Monit installed: {{ monit_stat }}"
+  #when: monit_stat.stat.exists == false
+
 
 # Commented out since installation is better done under the packages script
-# - name: Installing monit if not installed
-#   shell:
-#     cmd: source /root/.bashrc; sbopkg -B -k -i monit
-#   when:
-#     monit.stat.exists == False
-#   notify: Restart monit
+- name: Installing monit if not installed
+  tags: server,client,monit, common
+  shell:
+    cmd: source /root/.bashrc; sbopkg -B -k -i monit
+  when:
+    monit_stat.stat.exists == false
+  notify: Restart monit
 
 - name: Adding option to read files in monit.d
   tags: server,client,monit, common

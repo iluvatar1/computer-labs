@@ -4,7 +4,7 @@
   stat:
     path: /usr/sbin/gmond
   register: gmond
-  failed_when: not gmond.stat.exists
+  #failed_when: not gmond.stat.exists
 
 - name: Copying config files
   tags: server,client,ganglia
@@ -16,12 +16,14 @@
     - etc/ganglia/gmond.conf
   notify:
     - Restart gmond
+  when: gmond.stat.exists
 
 - name: Linking gmond conf
   tags: server,client,ganglia
   shell:
     cmd: ln -s /etc/ganglia/gmond.conf /etc/
     creates: /etc/gmond.conf
+  when: gmond.stat.exists
 
 - name : Activating services
   tags: server,client,ganglia
@@ -32,3 +34,4 @@
     - gmond
   notify:
     - Restart gmond
+  when: gmond.stat.exists
