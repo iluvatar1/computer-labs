@@ -6,26 +6,40 @@
       register: root_partition
       changed_when: false
 
-    - name: Set root device fact
-      set_fact:
-        root_device: >-
-          {% if root_partition.stdout.startswith('/dev/sda') %}
-          sda
-          {% elif root_partition.stdout.startswith('/dev/nvme0n1') %}
-          nvme0n1
-          {% else %}
-          unknown
-          {% endif %}
 
-  always:
+    - name: Set all root device facts
+      set_fact:
+        root_device: "{{ 'sda' if '/dev/sda' in root_partition.stdout 
+                         else 'nvme0n1' if '/dev/nvme0n1' in root_partition.stdout 
+                         else 'unknown' }}"
+        root_on_sda: "{{ '/dev/sda' in root_partition.stdout }}"
+        root_on_nvme: "{{ '/dev/nvme0n1' in root_partition.stdout }}"
+
     - name: Display root device
       debug:
         msg: "Root (/) is on /dev/{{ root_device }}"
 
-    - name: Set boolean facts for root device
-      set_fact:
-        root_on_sda: "{{ root_device == 'sda' }}"
-        root_on_nvme: "{{ root_device == 'nvme0n1' }}"
+
+  #   - name: Set root device fact
+  #     set_fact:
+  #       root_device: >-
+  #         {% if root_partition.stdout.startswith('/dev/sda') %}
+  #         sda
+  #         {% elif root_partition.stdout.startswith('/dev/nvme0n1') %}
+  #         nvme0n1
+  #         {% else %}
+  #         unknown
+  #         {% endif %}
+
+  # always:
+  #   - name: Display root device
+  #     debug:
+  #       msg: "Root (/) is on /dev/{{ root_device }}"
+
+  #   - name: Set boolean facts for root device
+  #     set_fact:
+  #       root_on_sda: "{{ root_device == 'sda' }}"
+  #       root_on_nvme: "{{ root_device == 'nvme0n1' }}"
 
 
 - name: Creating local scratch dir
@@ -34,104 +48,108 @@
     path: /mnt/scratch
     state: directory
 
-- name: Check if /dev/sda exists
+- name: Processing sda
   tags: client,harddisk
-  stat:
-    path: /dev/sda
-  register: sda_device
-  changed_when: False
+  block:
+  - name: Check if /dev/sda exists
+    tags: client,harddisk
+    stat:
+      path: /dev/sda
+    register: sda_device
+    changed_when: False
 
-- name: "Reading device information: /dev/sda"
+  - name: "Reading device information: /dev/sda"
+    tags: client,harddisk
+    community.general.parted:
+      device: "/dev/sda"
+      unit: MiB
+    register: device_info
+    when: sda_device.stat.exists and root_on_sda
+
+  - name: "Adding new partition /dev/sda7"
+    tags: client,harddisk
+    community.general.parted:
+      device: "/dev/sda"
+      number: "7"
+      part_type: primary
+      state: present
+      part_end: "100%"
+      part_start: "{{ device_info.partitions[5].end }}MiB"
+      align: undefined
+      fs_type: ext4
+      label: gpt
+    when: sda_device.stat.exists and root_on_sda
+
+  - name: "Format /dev/sda7 with ext4"
+    tags: client,harddisk
+    filesystem:
+      dev: "/dev/sda7"
+      fstype: ext4
+    when: sda_device.stat.exists and root_on_sda
+
+  - name: Mounting /dev/sda7 onto /mnt/scratch
+    tags: client,harddisk
+    ansible.posix.mount:
+      path: "{{item.path}}"
+      src: /dev/sda7
+      fstype: ext4
+      state: "{{item.action}}"
+    loop:
+      - { path: /mnt/scratch, action: present } # adds to fstab
+      - { path: /mnt/scratch, action: mounted }
+    register: mount
+    when: sda_device.stat.exists and root_on_sda
+
+
+- name: Processing nvme
   tags: client,harddisk
-  community.general.parted:
-    device: "/dev/sda"
-    unit: MiB
-  register: device_info
-  when: sda_device.stat.exists and root_on_sda
+  block:
+  - name: Check if /dev/nvme0n1 exists
+    tags: client,harddisk
+    stat:
+      path: /dev/nvme0n1
+    register: nvme0n1_device
+    changed_when: False
 
-- name: "Adding new partition /dev/sda7"
-  tags: client,harddisk
-  community.general.parted:
-    device: "/dev/sda"
-    number: "7"
-    part_type: primary
-    state: present
-    part_end: "100%"
-    part_start: "{{ device_info.partitions[5].end }}MiB"
-    align: undefined
-    fs_type: ext4
-    label: gpt
-  when: sda_device.stat.exists and root_on_sda
+  - name: "Reading device information: /dev/nvme0n1"
+    tags: client,harddisk
+    community.general.parted:
+      device: "/dev/nvme0n1"
+      unit: MiB
+    register: device_info
+    when: nvme0n1_device.stat.exists and root_on_nvme
 
-- name: "Format /dev/sda7 with ext4"
-  tags: client,harddisk
-  filesystem:
-    dev: "/dev/sda7"
-    fstype: ext4
-  when: sda_device.stat.exists and root_on_sda
+  - name: "Adding new partition /dev/nvme0n1p7"
+    tags: client,harddisk
+    community.general.parted:
+      device: "/dev/nvme0n1"
+      number: "7"
+      part_type: primary
+      state: present
+      part_end: "100%"
+      part_start: "{{ device_info.partitions[5].end }}MiB"
+      align: undefined
+      fs_type: ext4
+      label: gpt
+    when: nvme0n1_device.stat.exists and root_on_nvme
 
-- name: Mounting /dev/sda7 onto /mnt/scratch
-  tags: client,harddisk
-  ansible.posix.mount:
-    path: "{{item.path}}"
-    src: /dev/sda7
-    fstype: ext4
-    state: "{{item.action}}"
-  loop:
-    - { path: /mnt/scratch, action: present } # adds to fstab
-    - { path: /mnt/scratch, action: mounted }
-  register: mount
-  when: sda_device.stat.exists and root_on_sda
+  - name: "Format /dev/nvme0n1p7 with ext4"
+    tags: client,harddisk
+    filesystem:
+      dev: "/dev/nvme0n1p7"
+      fstype: ext4
+    when: nvme0n1_device.stat.exists and root_on_nvme
 
 
-- name: Check if /dev/nvme0n1 exists
-  tags: client,harddisk
-  stat:
-    path: /dev/nvme0n1
-  register: nvme0n1_device
-  changed_when: False
-
-- name: "Reading device information: /dev/nvme0n1"
-  tags: client,harddisk
-  community.general.parted:
-    device: "/dev/nvme0n1"
-    unit: MiB
-  register: device_info
-  when: nvme0n1_device.stat.exists and root_on_nvme
-
-- name: "Adding new partition /dev/nvme0n1p7"
-  tags: client,harddisk
-  community.general.parted:
-    device: "/dev/nvme0n1"
-    number: "7"
-    part_type: primary
-    state: present
-    part_end: "100%"
-    part_start: "{{ device_info.partitions[5].end }}MiB"
-    align: undefined
-    fs_type: ext4
-    label: gpt
-  when: nvme0n1_device.stat.exists and root_on_nvme
-
-- name: "Format /dev/nvme0n1p7 with ext4"
-  tags: client,harddisk
-  filesystem:
-    dev: "/dev/nvme0n1p7"
-    fstype: ext4
-  when: nvme0n1_device.stat.exists and root_on_nvme
-
-
-- name: Mounting /dev/nvme0n1p7 onto /mnt/scratch
-  tags: client,harddisk
-  ansible.posix.mount:
-    path: "{{item.path}}"
-    src: /dev/nvme0n1p7
-    fstype: ext4
-    state: "{{item.action}}"
-  loop:
-    - { path: /mnt/scratch, action: present } # adds to fstab
-    - { path: /mnt/scratch, action: mounted }
-  register: mount
-  when: nvme0n1_device.stat.exists and root_on_nvme
-
-
+  - name: Mounting /dev/nvme0n1p7 onto /mnt/scratch
+    tags: client,harddisk
+    ansible.posix.mount:
+      path: "{{item.path}}"
+      src: /dev/nvme0n1p7
+      fstype: ext4
+      state: "{{item.action}}"
+    loop:
+      - { path: /mnt/scratch, action: present } # adds to fstab
+      - { path: /mnt/scratch, action: mounted }
+    register: mount
+    when: nvme0n1_device.stat.exists and root_on_nvme
