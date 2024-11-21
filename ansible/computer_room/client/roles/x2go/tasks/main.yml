@@ -4,9 +4,19 @@
   stat:
     path: /usr/sbin/x2godbadmin
   register: x2godbadmin
-  failed_when: not x2godbadmin.stat.exists
+  #failed_when: not x2godbadmin.stat.exists
 
-- name: Activating server on client
+# Commented out since installation is better done under the packages script
+- name: Installing x2go if not installed
+  tags: client,x2go
+  shell:
+    cmd: source /root/.bashrc; sqg -p x2goserver; MAKEFLAGS=-j$(nproc)  printf "Q\n" | sbopkg -B -k -i x2goserver
+  when:
+    x2godbadmin.stat.exists == false
+  notify: Restart x2goserver
+
+
+- name: Activating x2goserver on client
   tags: client,x2go
   file:
     path: /etc/rc.d/rc.x2goserver
