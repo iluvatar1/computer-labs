@@ -31,7 +31,7 @@
 
       - name: Installing alien-repo packages
         shell:
-          cmd: 'source $HOME/.bashrc; slpkg install -o alien --yes {{ item.item }} | tee /tmp/log_alien'
+          cmd: 'source $HOME/.bashrc; slpkg install -o alien --yes {{ item.item }} | tee /tmp/alien.log'
         loop: "{{ package_logs_alien.results }}"
         loop_control:
           label: "{{ item.item }}"
@@ -51,15 +51,9 @@
         changed_when: false
         register: package_logs_slack
 
-      - name: update slackpkg database (only packages registered in /var/log/packages)
-        shell:
-          cmd: 'source $HOME/.bashrc; slackpkg update'
-          when: package_logs_slack.results | length > 0
-        register: slackpkg_update
-
       - name: Installing slackpkg-repo packages
         shell:
-          cmd: 'source $HOME/.bashrc; slackpkg install {{ item.item }}'
+          cmd: 'source $HOME/.bashrc; slackpkg install {{ item.item }} | tee /tmp/slackpkg.log'
         loop: "{{ package_logs_slack.results }}"
         loop_control:
           label: "{{ item.item }}"
@@ -75,14 +69,14 @@
           patterns: "{{ item }}*"
           file_type: file
         loop:
-          - rstudio-desktop queue
-          - octave queue
-          - barrier queue
+          - rstudio-desktop
+          - octave
+          - barrier
         register: package_logs
 
       - name: Installing basic packages, with queues
         shell:
-          cmd: 'source $HOME/.bashrc; sqg -p {{ item.item }}; printf "Q\nP\n" | MAKEFLAGS=-j$(nproc) sbopkg -B -k -i {{ item.item }}'
+          cmd: 'source $HOME/.bashrc; sqg -p {{ item.item }}; printf "Q\nP\n" | MAKEFLAGS=-j$(nproc) sbopkg -B -k -i {{ item.item }} | tee /tmp/sbopkg.log'
         loop: "{{ package_logs.results }}"
         loop_control:
           label: "{{ item.item }}"
