@@ -101,6 +101,14 @@
           replace: 'DIALOG = false'
         register: slpkgdialog
 
+      - name: Configuring slpkg to delete sources, this helps wth retry downloading corrupt files 
+        replace:
+          path: /etc/slpkg/slpkg.toml
+          backup: yes
+          regexp: 'DELETE_SOURCES = false'
+          replace: 'DELETE_SOURCES = true'
+        register: slpkgdeletesources
+
       - name: Configuring slpkg repos
         replace:
           path: /etc/slpkg/repositories.toml
