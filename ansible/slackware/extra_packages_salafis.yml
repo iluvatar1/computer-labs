@@ -1,0 +1,82 @@
+# ansible-playbook -e 'all=localhost' ansible/slackware/extra_packages.yml 
+---
+- name: BasiExtra programs that are not going to be installed with spack. Tools like slpkg and sbopkg are ssumed to be installed.
+  hosts: "{{ all | default('clients') }}"
+  gather_facts: false
+  vars:
+    network_available: true
+  tasks:
+  - name: Installing packages with slpkg
+    block:
+      - name: Check if package log exists per package at /var/log/packages/
+        find:
+          paths: /var/log/packages
+          patterns: "{{ item }}*"
+          file_type: file
+        loop:
+          - libreoffice
+          - keepassxc
+          - unrar
+          - wakeonlan
+          - poppler
+          - boost-compat
+          - inkscape
+          - vlc
+          - qtcreator
+          - docker
+          - docker-compose
+        register: package_logs_alien
+
+      - name: Installing alien-repo packages
+        shell:
+          cmd: 'source $HOME/.bashrc; slpkg install -o alien --yes {{ item.item }}'
+        loop: "{{ package_logs_alien.results }}"
+        loop_control:
+          label: "{{ item.item }}"
+        when: item.matched == 0
+        register: alien_packages
+
+  - name: Installing packages with slackpkg
+    block:
+      - name: Check if package log exists per package at /var/log/packages/
+        find:
+          paths: /var/log/packages
+          patterns: "{{ item }}*"
+          file_type: file
+        loop:
+          - bash-completion
+          - tigervnc
+        register: package_logs_slack
+
+      - name: Installing slackpkg-repo packages
+        shell:
+          cmd: 'source $HOME/.bashrc; slackpkg install {{ item.item }}'
+        loop: "{{ package_logs_slack.results }}"
+        loop_control:
+          label: "{{ item.item }}"
+        when: item.matched == 0
+        register: slack_packages
+
+
+  - name: Installing packages with sbopkg
+    block:
+      - name: sbopkg+queues -> Check if package log exists per package at /var/log/packages/
+        find:
+          paths: /var/log/packages
+          patterns: "{{ item }}*"
+          file_type: file
+        loop:
+          - rstudio-desktop queue
+          - octave queue
+          - barrier queue
+        register: package_logs
+
+      - name: Installing basic packages, with queues
+        shell:
+          cmd: 'source $HOME/.bashrc; sqg -p {{ item.item }}; printf "Q\nP\n" | MAKEFLAGS=-j$(nproc) sbopkg -B -k -i {{ item.item }}'
+        loop: "{{ package_logs.results }}"
+        loop_control:
+          label: "{{ item.item }}"
+        when: item.matched == 0
+        register: sbo_packages_queues
+
