@@ -93,6 +93,14 @@
           slpkg.stat.exists == False 
         register: slpkginstalled
 
+      - name: Configuring slpkg to avoid dialog 
+        replace:
+          path: /etc/slpkg/slpkg.toml
+          backup: yes
+          regexp: 'dialog = true'
+          replace: 'dialog = false'
+        register: slpkgdialog
+
       - name: Configuring slpkg repos
         replace:
           path: /etc/slpkg/repositories.toml
