@@ -224,9 +224,9 @@
           - vscode-bin
           - google-chrome-the-latest
           - rclone
-	  - sshpass
-	  - sshguard
-	  - tmate
+          - sshpass
+          - sshguard
+          - tmate
         register: package_logs
 
       - name: Install basic packages, directly (no queues)
