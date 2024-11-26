@@ -43,7 +43,7 @@ if {$force_conservative} {
 
 
 set timeout -1
-spawn /packages/SLACKWARE/Tracker-6.0.10-linux-64bit-installer.run --tracker-home /opt/tracker --experiments-home /opt/tracker-experiments
+spawn /tmp/tracker/Tracker-6.2.0-linux-x64-installer.run --tracker-home /opt/tracker --experiments-home /opt/tracker-experiments
 match_max 100000
 expect -exact "----------------------------------------------------------------------------\r\r
 Welcome to the Tracker Setup Wizard.\r\r
