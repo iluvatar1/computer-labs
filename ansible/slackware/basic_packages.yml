@@ -97,8 +97,8 @@
         replace:
           path: /etc/slpkg/slpkg.toml
           backup: yes
-          regexp: 'dialog = true'
-          replace: 'dialog = false'
+          regexp: 'DIALOG = true'
+          replace: 'DIALOG = false'
         register: slpkgdialog
 
       - name: Configuring slpkg repos
