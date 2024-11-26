@@ -16,6 +16,7 @@
         loop:
           - libreoffice
           - keepassxc
+          - botan
           - unrar
           - wakeonlan
           - poppler
@@ -25,6 +26,7 @@
           - qtcreator
           - docker
           - docker-compose
+        changed_when: false
         register: package_logs_alien
 
       - name: Installing alien-repo packages
@@ -46,7 +48,14 @@
         loop:
           - bash-completion
           - tigervnc
+        changed_when: false
         register: package_logs_slack
+
+      - name: update slackpkg database (only packages registered in /var/log/packages)
+        shell:
+          cmd: 'source $HOME/.bashrc; slackpkg update'
+          when: package_logs_slack.results | length > 0
+        register: slackpkg_update
 
       - name: Installing slackpkg-repo packages
         shell:
