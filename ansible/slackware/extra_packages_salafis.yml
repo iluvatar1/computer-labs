@@ -74,9 +74,15 @@
           - barrier
         register: package_logs
 
+      - name: make sure the postgres group 209 exists
+        group:
+          name: postgres
+          gid: 209
+          state: present
+
       - name: Installing basic packages, with queues
         shell:
-          cmd: 'source $HOME/.bashrc; sqg -p {{ item.item }}; printf "Q\nP\n" | MAKEFLAGS=-j$(nproc) sbopkg -B -k -i {{ item.item }} | tee /tmp/sbopkg.log'
+          cmd: 'source $HOME/.bashrc; sqg -p {{ item.item }}; printf "Q\nY\nP\n" | MAKEFLAGS=-j$(nproc) sbopkg -B -k -i {{ item.item }} | tee /tmp/sbopkg.log'
         loop: "{{ package_logs.results }}"
         loop_control:
           label: "{{ item.item }}"
