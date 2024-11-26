@@ -1,3 +1,4 @@
+# ansible-playbook -e 'all=localhost' ansible/slackware/basic_packages.yml 
 ---
 - name: Basic system packages tools for slackware
   hosts: "{{ all | default('clients') }}"
