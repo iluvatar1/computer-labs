@@ -29,7 +29,7 @@
 
       - name: Installing alien-repo packages
         shell:
-          cmd: 'source $HOME/.bashrc; slpkg install -o alien --yes {{ item.item }}'
+          cmd: 'source $HOME/.bashrc; slpkg install -o alien --yes {{ item.item }} | tee /tmp/log_alien'
         loop: "{{ package_logs_alien.results }}"
         loop_control:
           label: "{{ item.item }}"
