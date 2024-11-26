@@ -231,7 +231,7 @@
 
       - name: Install basic packages, directly (no queues)
         shell:
-          cmd: 'source $HOME/.bashrc; MAKEFLAGS=-j$(nproc) sbopkg -B -k -i {{ item.item }}'
+          cmd: 'source $HOME/.bashrc; MAKEFLAGS=-j$(nproc) sbopkg -B -k -i {{ item.item }} | tee /tmp/sbo_basic.log'
         loop: "{{ package_logs.results }}"
         loop_control:
           label: "{{ item.item }}"
