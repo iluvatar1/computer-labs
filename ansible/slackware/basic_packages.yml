@@ -207,7 +207,7 @@
           - iotop
           - vscode-bin
           - google-chrome-the-latest
-	  - rclone
+          - rclone
         register: package_logs
 
       - name: Install basic packages, directly (no queues)
