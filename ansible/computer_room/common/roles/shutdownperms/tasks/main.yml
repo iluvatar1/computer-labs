@@ -17,3 +17,20 @@
   loop:
     - etc/polkit-1/rules.d/disallow-power-options.rules
     - etc/acpi/acpi_handler.sh
+    - etc/acpi/events/powerbutton
+
+# NOTE: This might not work and editing /etc/sddm.conf might be needed
+- name: Creating file in /etc/sddm.conf.d to disable shutdown and poweroff
+  tags: server,client,shutdownperms
+  copy:
+    src: etc/sddm.conf.d/00-disable-shutdown-poweroff.conf
+    dest: /etc/sddm.conf.d/00-disable-shutdown-poweroff.conf
+    backup: no
+  register: sddm_conf
+
+- name: restartinf sddm if needed
+  tags: server,client,shutdownperms
+  service:
+    name: sddm
+    state: restarted
+  when: sddm_conf.changed
