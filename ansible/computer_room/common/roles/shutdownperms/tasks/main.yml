@@ -1,25 +1,60 @@
 ---
-- name: Removing permissions to shudown or halt system
+- name: Check if /sbin/halt exists
+  tags: server,client,shutdownperms
+  stat:
+    path: /sbin/halt
+  register: halt_stat
+
+- name: Removing permissions to halt system
   tags: server,client,shutdownperms
   file:
-    dest: "{{item}}"
+    dest: /sbin/halt
     mode: o-x
-  loop:
-    - /sbin/shutdown
-    - /sbin/halt
+  when: halt_stat.stat.exists
+
+# NOT A GOOD IDEA: damages reboot
+# - name: Move /sbin/halt to /sbin/halt.old
+#   tags: server,client,shutdownperms
+#   shell: mv /sbin/halt /sbin/halt.old
+#   when: halt_stat.stat.exists
+
+- name: Check if /sbin/shutdown exists
+  tags: server,client,shutdownperms
+  stat:
+    path: /sbin/shutdown
+  register: shutdown_stat
+
+- name: Removing permissions to shutdown
+  tags: server,client,shutdownperms
+  file:
+    dest: /sbin/shutdown
+    mode: o-x
+  when: shutdown_stat.stat.exists
+
+# NOT A GOOD IDEA: damages reboot
+# - name: Move /sbin/shutdown to /sbin/shutdown.old
+#   tags: server,client,shutdownperms
+#   shell: mv /sbin/shutdown /sbin/shutdown.old
+#   when: shutdown_stat.stat.exists
 
 - name: Copying polkit rules and acpi handler
   tags: server,client,shutdownperms
   copy: 
     src: "{{item}}"
     dest: "/{{item}}"
-    backup: yes
+    backup: no
   loop:
     - etc/polkit-1/rules.d/disallow-power-options.rules
     - etc/acpi/acpi_handler.sh
     - etc/acpi/events/powerbutton
 
 # NOTE: This might not work and editing /etc/sddm.conf might be needed
+- name: Make sure directory /etc/sddm.conf.d exists
+  tags: server,client,shutdownperms
+  file: 
+    path: /etc/sddm.conf.d
+    state: directory
+
 - name: Creating file in /etc/sddm.conf.d to disable shutdown and poweroff
   tags: server,client,shutdownperms
   copy:
@@ -28,9 +63,78 @@
     backup: no
   register: sddm_conf
 
-- name: restartinf sddm if needed
+- name: restarting sddm if needed
   tags: server,client,shutdownperms
-  service:
-    name: sddm
-    state: restarted
+  command: pkill -HUP sddm
   when: sddm_conf.changed
+  failed_when: false
+
+
+- name: Create a sudoers file for halt and shutdown
+  tags: server,client,shutdownperms
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/wheel_halt_shutdown
+    content: |
+      # Allow only the wheel group and root to use halt and shutdown
+      %wheel ALL=(ALL) NOPASSWD: /sbin/halt, /sbin/shutdown
+      root ALL=(ALL) NOPASSWD: /sbin/halt, /sbin/shutdown
+
+      # Prevent all other users from using these commands
+      ALL ALL=NOPASSWD: !/sbin/halt, !/sbin/shutdown
+    owner: root
+    group: root
+    mode: '0440'
+
+- name: Remove shutdown/reboot options from XFCE desktop menu (the only workin as of 2024-12-04)
+  tags: server,client,shutdownperms
+  block:
+    - name: Ensure kiosk directory exists
+      ansible.builtin.file:
+        path: /etc/xdg/xfce4/kiosk
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
+
+    - name: Disable shutdown/reboot options
+      ansible.builtin.blockinfile:
+        path: /etc/xdg/xfce4/kiosk/kioskrc
+        marker: '# {mark} ANSIBLE MANAGED BLOCK '
+        block: |
+          [xfce4-session]
+          Shutdown=
+          Reboot=
+        create: yes
+        state: present
+        backup: no
+
+- name: Remove shutdown/reboot options from KDE Plasma desktop menu
+  tags: server,client,shutdownperms
+  block:
+    - name: Ensure polkit rules directory exists
+      ansible.builtin.file:
+        path: /etc/polkit-1/rules.d
+        state: directory
+        mode: '0755'
+
+    - name: Remove permissions to perform shutdown/reboot actions
+      ansible.builtin.blockinfile:
+        path: /etc/polkit-1/rules.d/49-kde-power.rules
+        marker: '# {mark} ANSIBLE MANAGED BLOCK '
+        block: |
+          polkit.addRule(function(action, subject) {
+            if (action.id == "org.freedesktop.login1.halt" ||
+                action.id == "org.freedesktop.login1.halt-multiple-sessions" ||
+                action.id == "org.freedesktop.login1.power-off" ||
+                action.id == "org.freedesktop.login1.power-off-multiple-sessions" ||
+                action.id == "org.freedesktop.login1.reboot" ||
+                action.id == "org.freedesktop.login1.reboot-multiple-sessions") {
+              return polkit.Result.NO;
+            }
+          });
+        state: present
+        create: yes
+        backup: no
+
+
+

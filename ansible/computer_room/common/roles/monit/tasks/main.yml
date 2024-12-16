@@ -73,7 +73,6 @@
     follow: yes
   loop:
     - etc/monit.d/common-monitrc
-    - etc/monit.d/HPC-monitrc
   notify: Restart monit
 
 - name: Activate monit service

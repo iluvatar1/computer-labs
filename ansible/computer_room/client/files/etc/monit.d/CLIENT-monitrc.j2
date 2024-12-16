@@ -43,7 +43,7 @@ check host {{SERVER_NAME}} with address {{SERVERIP}}
       start program = "/etc/rc.d/rc.inet1 start"
       stop program = "/etc/rc.d/rc.inet1 stop"
       if failed ping then restart
-      if 15 restarts within 15 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No ping to server'"
+      if 30 restarts within 30 cycles then exec "/bin/bash /usr/local/bin/monit_restart.sh 'No ping to server'"
 
 #check program ypcat with path "/bin/bash /usr/local/bin/ypcat_test.sh"
 check program ypcat with path "/bin/bash -c '/usr/bin/ypcat passwd &>/dev/null'"

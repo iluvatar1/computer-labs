@@ -1,0 +1,58 @@
+- name: Add xdm launch to /etc/rc.d/rc.4.local
+  tags: client,loginmanager
+  blockinfile:
+    path: /etc/rc.d/rc.4.local
+    append_newline: true
+    prepend_newline: true
+    create: yes
+    block: |  
+      # Let's use xdm, much easier to configure
+      if [ -x /usr/bin/xdm ]; then
+        exec /usr/bin/xdm -nodaemon
+      elif [ -x /usr/X11R6/bin/xdm ]; then
+        exec /usr/X11R6/bin/xdm -nodaemon
+      fi
+
+- name: Make /etc/rc.d/rc.4.local executable
+  tags: client,loginmanager
+  file:
+    path: /etc/rc.d/rc.4.local
+    mode: '0755'
+
+- name: Link default wallpaper to Mars-Olympus-Mons
+  tags: client,loginmanager
+  file:
+    src: /etc/X11/xdm/slackware/pixmaps/Mars-Olympus-Mons.jpg
+    dest: /etc/X11/xdm/slackware/pixmaps/default-wallpaper.pixmap
+    state: link
+
+- name: Edit /etc/X11/xdm/slackware/Xbuttons_bar.conf to change SYSMENU_BUTTONS_ORDER
+  tags: client,loginmanager
+  replace:
+    path: /etc/X11/xdm/slackware/Xbuttons_bar.conf
+    regexp: 'SYSMENU_BUTTONS_ORDER=.*$'
+    replace: 'SYSMENU_BUTTONS_ORDER=""'
+    backup: yes
+
+- name: Comment out button labels in /etc/X11/xdm/slackware/Xbuttons_bar.conf
+  tags: client,loginmanager
+  lineinfile:
+    path: /etc/X11/xdm/slackware/Xbuttons_bar.conf
+    regexp: "{{ item }}=\".*\"$"
+    line: "# {{ item }}=\"\""
+    #backrefs: yes
+    backup: yes
+  loop:
+    - SUSPEND_BTLABEL
+    - HIBERNATE_BTLABEL
+    - REBOOT_BTLABEL
+    - HALT_BTLABEL
+
+- name: Edit ImageMagick policy to allow read access to /etc, where the pixmaps are
+  tags: client,loginmanager
+  replace:
+    path: /etc/ImageMagick-7/policy.xml
+    regexp: '<policy domain="path" rights="none" pattern="/etc/\*"/>'
+    replace: '<policy domain="path" rights="read" pattern="/etc/*"/>'
+    backup: yes
+

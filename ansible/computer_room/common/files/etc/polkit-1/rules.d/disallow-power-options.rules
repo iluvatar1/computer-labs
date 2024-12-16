@@ -1,51 +1,19 @@
 polkit.addRule(function(action, subject) {
+    // Allow "wheel" group members to power off, restart, suspend, or hibernate
+    if (action.id == "org.freedesktop.consolekit.system.stop" ||
+        action.id == "org.freedesktop.consolekit.system.restart" ||
+        action.id == "org.freedesktop.login1.power-off" ||
+        action.id == "org.freedesktop.login1.reboot" ||
+        action.id == "org.freedesktop.upower.suspend" ||
+        action.id == "org.freedesktop.upower.hibernate") {
+        return subject.isInGroup("wheel") ? polkit.Result.YES : polkit.Result.NO;
+    }
+
+    // Block halt, reboot, and power-off actions for non-local users
     if (action.id == "org.freedesktop.login1.halt" ||
         action.id == "org.freedesktop.login1.halt-multiple-sessions" ||
-        action.id == "org.freedesktop.login1.power-off" ||
         action.id == "org.freedesktop.login1.power-off-multiple-sessions" ||
-        action.id == "org.freedesktop.login1.reboot" ||
-        action.id == "org.freedesktop.login1.reboot-multiple-sessions")
-    {
-        if (!subject.local) {
-                return polkit.Result.NO;
-        }
+        action.id == "org.freedesktop.login1.reboot-multiple-sessions") {
+        return subject.local ? null : polkit.Result.NO;
     }
 });
-
-polkit.addRule(function(action, subject) {
-  if (action.id == "org.freedesktop.upower.suspend" &&
-      subject.isInGroup("wheel")) {
-    return polkit.Result.YES;
-    } else {
-      return polkit.Result.NO;
-  }
-});
-
-polkit.addRule(function(action, subject) {
-  if (action.id == "org.freedesktop.upower.hibernate" &&
-      subject.isInGroup("wheel")) {
-    return polkit.Result.YES;
-    } else {
-      return polkit.Result.NO;
-  }
-});
-
-
-polkit.addRule(function(action, subject) {
-  if (action.id.indexOf("org.freedesktop.consolekit.system.stop") == 0 &&
-      subject.isInGroup("wheel")) {
-      return polkit.Result.YES;
-    } else {
-      return polkit.Result.NO;
-  }
-});
-
-polkit.addRule(function(action, subject) {
-  if (action.id.indexOf("org.freedesktop.consolekit.system.reboot") == 0 &&
-      subject.isInGroup("wheel")) {
-      return polkit.Result.YES;
-    } else {
-      return polkit.Result.NO;
-  }
-});
-
