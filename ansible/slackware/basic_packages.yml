@@ -138,11 +138,11 @@
           replace: 'REPOSITORY = "slack"'
           backup: yes
 
-      - name: Replace all -15.0 with -current
+      - name: Replace all 15.0 with current
         ansible.builtin.replace:
           path: /etc/slpkg/repositories.toml
-          regexp: '-15\.0'
-          replace: '-current'
+          regexp: '15\.0'
+          replace: 'current'
           backup: yes
         register: slpkgrepos
 
@@ -227,6 +227,9 @@
           - sshpass
           - sshguard
           - tmate
+          - etckeeper
+          - nnn
+          - xdm-slackware-theme
         register: package_logs
 
       - name: Install basic packages, directly (no queues)
