@@ -1,0 +1,156 @@
+---
+# Pre-config for install 
+- name: Pre-configuring slurm on the server
+  tags: slurm,hpc_server
+  block:
+    - name: Creating slurm user (propagated by nis)
+      group:
+        name: slurm
+        gid: 992
+        state: present
+    - name: Creating slurm user group (propagated by nis)
+      user:
+        name: slurm
+        comment: "SLURM workload manager"
+        home: /var/lib/slurm
+        uid: 992
+        group: slurm
+        shell: /sbin/bash
+        state: present
+  when: inventory_hostname in groups['hpc_server']
+
+# Installing slurm
+- name: Installing slurm
+  tags: slurm,hpc_client,hpc_server
+  block:
+    - name: Check if slurm is installed by checking the binary /usr/sbin/slurmctld
+      stat:
+        path: /usr/sbin/slurmctld
+      register: slurm_installed
+      changed_when: false
+      failed_when: false
+    - name: Installing slurm package using sbo
+      block:
+        - name: Copy the patch script
+          copy:
+            src: pkgs/slurm_pmix.patch
+            dest: /tmp/slurm_pmix.patch
+        - name: Copyt the install script to /tmp
+          copy:
+            src: pkgs/slurm.sh
+            dest: /tmp/slurm.sh
+        - name: Istalling slurm package using script /tmp/slurm.sh
+          shell:
+            cmd: 'bash /tmp/slurm.sh | tee /tmp/slurm.log'
+      when: slurm_installed.stat.exists == false
+    - name: Making executable slurm init script
+      file:
+        path: /etc/rc.d/rc.slurm
+        mode: 0755
+      #notify: Restart slurm # Cannot do it because slurm.conf does not exist yet
+    - name: Fixing directory permissions for slurm
+      file:
+        path: "{{ item }}"
+        owner: slurm
+        group: slurm
+        state: directory
+      loop:
+      - /var/spool/slurmd
+      - /var/spool/slurm
+      #notify: Restart slurm # Cannot do it because slurm.conf does not exist yet
+    - name: Making executable /var/spool/slurmd
+      file:
+        path: /var/spool/slurmd
+        mode: 0755
+      #notify: Restart slurm # Cannot do it because slurm.conf does not exist yet
+    - name: Checking if log file exists
+      stat:
+        path: /var/log/slurm.log
+      register: slurm_log
+      changed_when: false
+      failed_when: false
+    - name: Creating log file for slurm if it does not exist
+      file:
+        path: /var/log/slurm.log
+        owner: slurm
+        group: slurm
+        state: touch
+        mode: 0644
+      when: slurm_log.stat.exists == false
+      #notify: Restart slurm # Cannot do it because slurm.conf does not exist yet
+
+# Post-installation stuff
+- name: Post-install config munge on the server
+  tags: slurm,hpc_server
+  block:
+    # - name: Debug host information
+    #   debug:
+    #     msg: 
+    #       - "Inventory Hostname: {{ inventory_hostname }}"
+    #       - "Group Names: {{ group_names }}"    
+    - name: Create slurm server config by appending partitions
+      assemble:
+        src: "etc/slurm/"
+        dest: /etc/slurm.conf
+        remote_src: no
+        delimiter: ''
+        regexp: '^(slurm.conf|slurm_partitions)$'
+      notify: 
+        - Restart munge
+        - Restart slurm
+    - name: Create slurm accounting files, /var/log/slurm_jobcomp.log, /var/log/slurm_jobacct.log
+      file:
+        path: "{{ item }}"
+        state: file
+        owner: slurm
+        group: slurm
+        mode: 0644
+      loop:
+        - /var/log/slurm_jobcomp.log
+        - /var/log/slurm_jobacct.log
+      notify: 
+        - Restart munge
+        - Restart slurm
+    - name: Create idle clients script
+      copy:
+        dest: /usr/local/bin/make_clients_idle.sh
+        content: |
+          #!/bin/bash
+          for ii in {2..29}; do
+            scontrol update nodename=sala${ii} state=idle
+          done
+        mode: 0755
+        owner: root
+        group: root
+    - name: Create cron job to make idle clients
+      cron:
+        name: "Make all down clients idle"
+        minute: "*"
+        job: "/usr/local/bin/make_clients_idle.sh"
+        user: root
+        state: present
+  when: inventory_hostname in groups['hpc_server']
+
+- name: Post-install config munge on the clients
+  tags: slurm,hpc_client
+  block:
+    - name: Copying etc/slurm.conf (no partitions) file to client
+      copy:
+        src: etc/slurm/slurm.conf
+        dest: /etc/slurm.conf
+        owner: root
+        group: root
+        mode: 0644
+      notify: 
+        - Restart munge
+        - Restart slurm
+  when: inventory_hostname in groups['hpc_client']
+
+- name: Copying monit slurm file
+  copy:
+    src: etc/monit.d/slurm-monitrc
+    dest: /etc/monit.d/slurm-monitrc
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart monit

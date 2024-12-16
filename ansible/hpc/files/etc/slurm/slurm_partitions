@@ -1,0 +1,16 @@
+#PARTITIONS 2024-05-10
+PartitionName=4threads			Nodes=sala[16-20]		Default=NO      MaxTime=INFINITE        State=UP
+PartitionName=6threads  		Nodes=sala[13-15]       	Default=NO      MaxTime=INFINITE        State=UP
+PartitionName=8threads  		Nodes=sala[11]    		Default=NO      MaxTime=INFINITE        State=UP
+PartitionName=12threads 		Nodes=sala[7-10,26-29]  	Default=NO     	MaxTime=INFINITE        State=UP
+PartitionName=16threads 		Nodes=sala[2-6,12,21-25]        Default=YES     MaxTime=INFINITE        State=UP
+PartitionName=GPU       		Nodes=sala[2]           	Default=NO      MaxTime=INFINITE        State=UP
+PartitionName=Inteli56400        	Nodes=sala[16-20]             	Default=NO      MaxTime=INFINITE        State=UP
+PartitionName=AMDRyzen7PRO5750G   	Nodes=sala[22-25]             	Default=NO      MaxTime=INFINITE        State=UP
+PartitionName=Inteli512400        	Nodes=sala[26-29]             	Default=NO      MaxTime=INFINITE        State=UP
+PartitionName=AMDRyzen7PRO4750G   	Nodes=sala[3-6]               	Default=NO      MaxTime=INFINITE        State=UP
+PartitionName=Inteli510500        	Nodes=sala[7-10]              	Default=NO      MaxTime=INFINITE        State=UP
+PartitionName=Inteli58500        	Nodes=sala[13-15]              	Default=NO      MaxTime=INFINITE        State=UP
+PartitionName=AMDRyzen7PRO5750GE   	Nodes=sala[12-21]             	Default=NO      MaxTime=INFINITE        State=UP
+PartitionName=IntelXeonW3550        	Nodes=sala[11]              	Default=NO      MaxTime=INFINITE        State=UP
+PartitionName=Inteli711700        	Nodes=sala[2]              	Default=NO      MaxTime=INFINITE        State=UP

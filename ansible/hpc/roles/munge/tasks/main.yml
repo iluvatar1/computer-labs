@@ -1,0 +1,90 @@
+---
+# Pre-config for install 
+- name: Pre-configuring munge on the server
+  tags: munge,hpc_server
+  block:
+    - name: Creating munge user (propagated by nis)
+      group:
+        name: munge
+        gid: 991
+        state: present
+    - name: Creating munge user group (propagated by nis)
+      user:
+        name: munge
+        comment: "MUNGE Uid 'N' Gid Emporium"
+        home: /var/lib/munge
+        uid: 991
+        group: munge
+        shell: /sbin/nologin
+        state: present
+  when: inventory_hostname in groups['hpc_server']
+
+# Installation of munge
+- name: Installing munge package using sbo
+  tags: munge,hpc_server,hpc_client
+  block:
+    - name: Installing munge package using sbo
+      shell:
+        cmd: 'source $HOME/.bashrc; sqg -p munge; printf "Q\nY\nP\n" | MAKEFLAGS=-j$(nproc) sbopkg -B -k -i munge | tee -a /tmp/sbopkg.log'
+        creates: /usr/sbin/mungekey
+        executable: /bin/bash
+    - name: Fixing directory permissions (chown munge /var/log/munge /var/run/munge /etc)
+      file: 
+        path: "{{ item }}/munge"
+        owner: munge
+        group: munge
+        state: directory
+      loop:
+        - /var/log/
+        - /var/run/
+        - /etc/
+    - name: Making executable munge init script
+      file:
+        path: /etc/rc.d/rc.munge
+        mode: 0755
+      notify: restart munge
+    - name: Fix munge script
+      lineinfile:
+        path: /etc/rc.d/rc.munge
+        search_string: 'ERRMSG=`su "$USER" -c "$nice \"$DAEMON_EXEC\" $DAEMON_ARGS" 2>&1`'
+        line: '          ERRMSG=$(sudo -u "$USER" $DAEMON_EXEC $DAEMON_ARGS 2>&1)'
+        #backrefs: yes
+    - name: Commands to test munge
+      debug:
+        msg: |
+          Test with the following commands: 
+          munge -n
+          munge -n | unmunge
+          #munge -n | ssh sala43 unmunge
+          remunge # for performance check
+    - name: Copying monit munge file
+      copy:
+        src: etc/monit.d/munge-monitrc
+        dest: /etc/monit.d/munge-monitrc
+        owner: root
+        group: root
+        mode: 0644
+      notify: Restart monit
+
+
+# Post-config after install
+- name: Creating munge key on server
+  tags: munge,hpc_server
+  shell:
+    cmd: 'if [ ! -f /etc/munge/munge.key ]; then sudo -u munge /usr/sbin/mungekey --verbose; fi'
+    creates: /etc/munge/munge.key
+    executable: /bin/bash
+  when: inventory_hostname in groups['hpc_server']
+
+- name: Copy munge key to clients
+  tags: munge, hpc_client
+  copy:
+    src: /etc/munge/munge.key
+    dest: /etc/munge/munge.key
+    owner: munge
+    group: munge
+    mode: 0400
+    remote_src: false # look for it in the localhost controller
+  when: inventory_hostname in groups['hpc_client']
+  notify: Restart munge
+

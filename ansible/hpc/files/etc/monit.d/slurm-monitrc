@@ -1,0 +1,4 @@
+CHECK process slurm matching slurmd
+     #with pidfile /var/run/slurmd.pid
+     start program = "/etc/rc.d/rc.slurm start"
+     stop program = "/etc/rc.d/rc.slurm stop"

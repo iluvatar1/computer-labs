@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also customary
+# to leave one space after the ':'.
+
+    |-----handy-ruler--------------------------------------------------------|
+pmix: pmix (library to support application interactions with Resource Managers)
+pmix: 
+pmix: PMIx is designed to be particularly easy for resource managers
+pmix: to adopt, thus facilitating a rapid uptake into that community
+pmix: for application portability. Both client and server libraries
+pmix: are included, along with reference examples of client usage and
+pmix: server-side integration.
+pmix: 
+pmix: https://docs.openpmix.org/en/latest/
+pmix: 
+pmix: 

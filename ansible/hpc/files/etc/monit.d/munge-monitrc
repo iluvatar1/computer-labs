@@ -1,0 +1,4 @@
+CHECK process munge matching munged
+     #with pidfile /var/run/munge/munged.pid
+     start program = "/etc/rc.d/rc.munge start"
+     stop program = "/etc/rc.d/rc.munge stop"

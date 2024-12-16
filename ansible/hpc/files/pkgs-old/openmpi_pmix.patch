@@ -1,0 +1,11 @@
+--- openmpi.SlackBuild	2024-06-07 11:37:21.573882397 -0500
++++ openmpi.SlackBuild.new	2024-06-07 11:37:00.505914841 -0500
+@@ -71,7 +71,7 @@
+ 
+ set -eu
+ 
+-pmi="" ; [ "${PMI:-no}" != "no" ]  && pmi="--with-slurm --with-pmix"
++pmi="" ; [ "${PMI:-no}" != "no" ]  && pmi="--with-slurm --with-pmix=/usr/local --with-pmix-libdir=/usr/local --with-pmi=/usr/local --with-pmi-libdir=/usr/local"
+ 
+ rm -rf $PKG
+ mkdir -p $TMP $PKG $OUTPUT

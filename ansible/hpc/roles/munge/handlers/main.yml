@@ -1,0 +1,7 @@
+- name: Restart monit
+  command:
+    cmd: /etc/rc.d/rc.monit restart
+
+- name: Restart munge
+  command:
+    cmd: /etc/rc.d/rc.munge restart

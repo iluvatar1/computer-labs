@@ -1,0 +1,55 @@
+---
+- name: Packages installations as prerequisite , like modules, confuse, ganglia, ...
+  tags: pkgs,hpc_server,hpc_client
+  block:
+    # Check packages and if one is not installed, run the script
+    # Check for: modules, confuse, ganglia, ganglia-web, numactl, rrdtool, hwloc, openmpi
+    # To check, a file of the form *NAME* should be present at /var/log/packages
+    - name: Check if packages are installed
+      # shell:
+      #   cmd: 'for ii in modules confuse ganglia ganglia-web numactl rrdtool hwloc openmpix; do if [ ! -f /var/log/packages/$ii-\* ]; then echo $ii; fi; done'
+      # Removed ganglia ganglia-web , ganglia does not compile
+      shell: |
+        missing_packages=()
+        for package in modules confuse numactl rrdtool hwloc pmix; do
+          if [ -z "$(ls /var/log/packages/$package-[0-9]* 2>/dev/null)" ]; then
+            missing_packages+=("$package")
+          fi
+        done
+        echo "${missing_packages[@]}"
+      register: missing_packages
+      changed_when: false
+    - name: copy the script to install packages to /root/
+      copy:
+        src: pkgs/hpc_pkgs.sh
+        dest: /root/hpc_pkgs.sh
+        mode: 0755
+      when: missing_packages.stdout_lines | length > 0
+    - name: Copy the pmix directory to /tmp
+      copy:
+        src: pkgs/pmix
+        dest: /tmp/
+        mode: 0755
+      when: missing_packages.stdout_lines | length > 0
+    - name: Install packages, running the script at root/hpc_pkgs.sh
+      shell:
+        cmd: '/root/hpc_pkgs.sh | tee -a /tmp/hpc_pkgs.log'
+      when: missing_packages.stdout_lines | length > 0
+    
+    - name: Check if apptainer binary exists
+      stat:
+        path: /usr/local/bin/apptainer
+      register: apptainer_installed
+      changed_when: false
+      failed_when: false
+    - name: Installing apptainer
+      block:
+        - name: Copy the apptainer script
+          copy:
+            src: pkgs/install_apptainer.sh
+            dest: /tmp/install_apptainer.sh
+            mode: 0755
+        - name: Installing apptainer
+          shell:
+            cmd: 'bash /tmp/install_apptainer.sh | tee /tmp/apptainer.log'
+      when: apptainer_installed.stat.exists == false

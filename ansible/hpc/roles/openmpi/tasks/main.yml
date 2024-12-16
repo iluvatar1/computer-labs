@@ -1,0 +1,26 @@
+---
+- name: Checking if openmpi is installed
+  tags: openmpi,hpc_server,hpc_client
+  stat:
+    path: /usr/bin/mpirun
+  changed_when: false
+  failed_when: false
+  register: openmpi_installed
+
+- name: Installing openmpi if not installed
+  tags: openmpi,hpc_server,hpc_client
+  block:
+    - name: Copying openmpi script
+      copy:
+        src: pkgs/openmpi.sh
+        dest: /tmp/openmpi.sh
+        mode: 0755
+    # - name: Copy patch to /tmp
+    #   copy:
+    #     src: pkgs/openmpi_pmix.patch
+    #     dest: /tmp/openmpi_pmix.patch
+    - name: Installing openmpi
+      shell:
+        cmd: 'bash /tmp/openmpi.sh | tee /tmp/openmpi.log'
+  when: openmpi_installed.stat.exists == false
+ 
