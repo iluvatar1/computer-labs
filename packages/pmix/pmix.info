@@ -1,7 +1,0 @@
-PRGNAM="pmix"
-VERSION="3.2.3"
-HOMEPAGE="https://docs.openpmix.org/en/latest/"
-DOWNLOAD="https://github.com/openpmix/openpmix/releases/download/v3.2.3/pmix-3.2.3.tar.bz2"
-MD5SUM="965843c3886ace94717b49ec697624dc"
-MAINTAINER="William oquendo"
-EMAIL="woquendo@gmail.com"
